@@ -52,6 +52,12 @@ export class BattleScene extends Phaser.Scene {
         this.allUnitsData = data.allUnits;
     }
 
+    preload() {
+        // 城スプライトをロード
+        this.load.image('castle_ally', '/assets/sprites/castle_ally.png');
+        this.load.image('castle_enemy', '/assets/sprites/castle_enemy.png');
+    }
+
     create() {
         const { width, height } = this.scale;
         this.groundY = height - 80;
