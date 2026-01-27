@@ -1,0 +1,15 @@
+{
+    "ownedUnits": [
+        "cat_warrior",
+        "cat_tank",
+        "cat_archer",
+        "cat_mage",
+        "cat_ninja"
+    ],
+    "selectedTeam": [
+        "cat_warrior",
+        "cat_tank",
+        "cat_archer"
+    ],
+    "coins": 500
+}

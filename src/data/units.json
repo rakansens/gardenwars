@@ -1,0 +1,154 @@
+[
+  {
+    "id": "cat_warrior",
+    "name": "ネコ戦士",
+    "cost": 50,
+    "maxHp": 200,
+    "speed": 80,
+    "attackDamage": 30,
+    "attackRange": 40,
+    "attackCooldownMs": 1200,
+    "attackWindupMs": 400,
+    "knockback": 20,
+    "atlasKey": "cat_warrior",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "cat_tank",
+    "name": "タンクネコ",
+    "cost": 100,
+    "maxHp": 600,
+    "speed": 40,
+    "attackDamage": 50,
+    "attackRange": 35,
+    "attackCooldownMs": 2000,
+    "attackWindupMs": 600,
+    "knockback": 40,
+    "atlasKey": "cat_tank",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "cat_archer",
+    "name": "弓ネコ",
+    "cost": 80,
+    "maxHp": 120,
+    "speed": 60,
+    "attackDamage": 45,
+    "attackRange": 200,
+    "attackCooldownMs": 1500,
+    "attackWindupMs": 300,
+    "knockback": 10,
+    "atlasKey": "cat_archer",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "cat_mage",
+    "name": "魔法ネコ",
+    "cost": 150,
+    "maxHp": 100,
+    "speed": 50,
+    "attackDamage": 80,
+    "attackRange": 250,
+    "attackCooldownMs": 2500,
+    "attackWindupMs": 800,
+    "knockback": 30,
+    "atlasKey": "cat_mage",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "cat_ninja",
+    "name": "忍者ネコ",
+    "cost": 120,
+    "maxHp": 150,
+    "speed": 150,
+    "attackDamage": 60,
+    "attackRange": 45,
+    "attackCooldownMs": 800,
+    "attackWindupMs": 200,
+    "knockback": 15,
+    "atlasKey": "cat_ninja",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "enemy_dog",
+    "name": "敵イヌ",
+    "cost": 0,
+    "maxHp": 150,
+    "speed": 70,
+    "attackDamage": 25,
+    "attackRange": 35,
+    "attackCooldownMs": 1000,
+    "attackWindupMs": 350,
+    "knockback": 15,
+    "atlasKey": "enemy_dog",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "enemy_wolf",
+    "name": "敵オオカミ",
+    "cost": 0,
+    "maxHp": 400,
+    "speed": 50,
+    "attackDamage": 60,
+    "attackRange": 40,
+    "attackCooldownMs": 1800,
+    "attackWindupMs": 500,
+    "knockback": 35,
+    "atlasKey": "enemy_wolf",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "enemy_crow",
+    "name": "敵カラス",
+    "cost": 0,
+    "maxHp": 80,
+    "speed": 100,
+    "attackDamage": 20,
+    "attackRange": 150,
+    "attackCooldownMs": 1200,
+    "attackWindupMs": 250,
+    "knockback": 5,
+    "atlasKey": "enemy_crow",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  }
+]

@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "next": "16.1.5",
+    "phaser": "^3.90.0",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "zustand": "^5.0.10"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

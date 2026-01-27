@@ -1,0 +1,131 @@
+[
+    {
+        "id": "stage_1",
+        "name": "草原の戦い",
+        "description": "はじめての戦場。敵の攻撃を退けよう！",
+        "length": 1200,
+        "baseCastleHp": 1000,
+        "enemyCastleHp": 800,
+        "enemyWaves": [
+            {
+                "timeMs": 2000,
+                "unitId": "enemy_dog",
+                "count": 2,
+                "intervalMs": 1500
+            },
+            {
+                "timeMs": 8000,
+                "unitId": "enemy_dog",
+                "count": 3,
+                "intervalMs": 1200
+            },
+            {
+                "timeMs": 15000,
+                "unitId": "enemy_crow",
+                "count": 2,
+                "intervalMs": 2000
+            },
+            {
+                "timeMs": 20000,
+                "unitId": "enemy_dog",
+                "count": 4,
+                "intervalMs": 1000
+            }
+        ],
+        "reward": {
+            "coins": 100
+        }
+    },
+    {
+        "id": "stage_2",
+        "name": "森の遭遇戦",
+        "description": "オオカミが現れた！強敵に注意！",
+        "length": 1400,
+        "baseCastleHp": 1200,
+        "enemyCastleHp": 1000,
+        "enemyWaves": [
+            {
+                "timeMs": 2000,
+                "unitId": "enemy_dog",
+                "count": 3,
+                "intervalMs": 1200
+            },
+            {
+                "timeMs": 8000,
+                "unitId": "enemy_wolf",
+                "count": 1,
+                "intervalMs": 0
+            },
+            {
+                "timeMs": 12000,
+                "unitId": "enemy_crow",
+                "count": 3,
+                "intervalMs": 1500
+            },
+            {
+                "timeMs": 18000,
+                "unitId": "enemy_dog",
+                "count": 4,
+                "intervalMs": 800
+            },
+            {
+                "timeMs": 25000,
+                "unitId": "enemy_wolf",
+                "count": 2,
+                "intervalMs": 3000
+            }
+        ],
+        "reward": {
+            "coins": 200
+        }
+    },
+    {
+        "id": "stage_3",
+        "name": "荒野の決戦",
+        "description": "大群が押し寄せる！持ちこたえろ！",
+        "length": 1600,
+        "baseCastleHp": 1500,
+        "enemyCastleHp": 1500,
+        "enemyWaves": [
+            {
+                "timeMs": 1000,
+                "unitId": "enemy_dog",
+                "count": 5,
+                "intervalMs": 800
+            },
+            {
+                "timeMs": 6000,
+                "unitId": "enemy_crow",
+                "count": 4,
+                "intervalMs": 1000
+            },
+            {
+                "timeMs": 12000,
+                "unitId": "enemy_wolf",
+                "count": 2,
+                "intervalMs": 2000
+            },
+            {
+                "timeMs": 18000,
+                "unitId": "enemy_dog",
+                "count": 6,
+                "intervalMs": 600
+            },
+            {
+                "timeMs": 25000,
+                "unitId": "enemy_wolf",
+                "count": 3,
+                "intervalMs": 2500
+            },
+            {
+                "timeMs": 32000,
+                "unitId": "enemy_crow",
+                "count": 5,
+                "intervalMs": 800
+            }
+        ],
+        "reward": {
+            "coins": 350
+        }
+    }
+]
