@@ -56,6 +56,16 @@ export class BattleScene extends Phaser.Scene {
         // 城スプライトをロード
         this.load.image('castle_ally', '/assets/sprites/castle_ally.png');
         this.load.image('castle_enemy', '/assets/sprites/castle_enemy.png');
+
+        // ユニットスプライトをロード
+        this.load.image('cat_warrior', '/assets/sprites/cat_warrior.png');
+        this.load.image('cat_tank', '/assets/sprites/cat_tank.png');
+        this.load.image('cat_archer', '/assets/sprites/cat_archer.png');
+        this.load.image('cat_mage', '/assets/sprites/cat_mage.png');
+        this.load.image('cat_ninja', '/assets/sprites/cat_ninja.png');
+        this.load.image('enemy_dog', '/assets/sprites/enemy_dog.png');
+        this.load.image('enemy_wolf', '/assets/sprites/enemy_wolf.png');
+        this.load.image('enemy_crow', '/assets/sprites/enemy_crow.png');
     }
 
     create() {
@@ -167,11 +177,11 @@ export class BattleScene extends Phaser.Scene {
 
     private createSummonButtons() {
         const { height } = this.scale;
-        const buttonY = height - 140;
+        const buttonY = height - 40; // 画面下端に配置
         const buttonWidth = 100;
-        const buttonHeight = 60;
+        const buttonHeight = 50;
         const startX = 120;
-        const gap = 20;
+        const gap = 15;
 
         this.teamData.forEach((unit, index) => {
             const x = startX + index * (buttonWidth + gap);

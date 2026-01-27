@@ -23,7 +23,7 @@ export class Unit extends Phaser.GameObjects.Container {
     public target: Unit | null = null;
 
     // ビジュアル
-    private sprite: Phaser.GameObjects.Rectangle;
+    private sprite: Phaser.GameObjects.Image;
     private hpBar: Phaser.GameObjects.Rectangle;
     private hpBarBg: Phaser.GameObjects.Rectangle;
 
@@ -32,6 +32,9 @@ export class Unit extends Phaser.GameObjects.Container {
 
     // シーンのステージ長（敵城位置）
     private stageLength: number;
+
+    // スプライトのベーススケール
+    private baseScale: number = 1;
 
     constructor(
         scene: Phaser.Scene,
@@ -51,26 +54,40 @@ export class Unit extends Phaser.GameObjects.Container {
         this.direction = side === 'ally' ? 1 : -1;
         this.stageLength = stageLength;
 
-        // ダミースプライト（矩形）
-        const color = side === 'ally' ? 0x4488ff : 0xff4444;
-        const width = 40;
-        const height = 60;
+        // スプライト画像を使用
+        const textureKey = definition.id;
+        this.sprite = scene.add.image(0, 0, textureKey);
 
-        this.sprite = scene.add.rectangle(0, -height / 2, width, height, color);
+        // スケール調整（キャラを大きめに）
+        const targetHeight = 120;
+        this.baseScale = targetHeight / this.sprite.height;
+        this.sprite.setScale(this.baseScale);
+
+        // 原点を下中央に設定
+        this.sprite.setOrigin(0.5, 1);
+
+        // 敵画像は右向きなので、左（味方城方向）に向かせるために反転
+        if (side === 'enemy') {
+            this.sprite.setFlipX(true);
+        }
+
         this.add(this.sprite);
 
         // HPバー背景
-        this.hpBarBg = scene.add.rectangle(0, -height - 10, 50, 6, 0x333333);
+        const barY = -this.sprite.displayHeight - 10;
+        this.hpBarBg = scene.add.rectangle(0, barY, 50, 6, 0x333333);
         this.add(this.hpBarBg);
 
         // HPバー
-        this.hpBar = scene.add.rectangle(0, -height - 10, 50, 6, 0x00ff00);
+        this.hpBar = scene.add.rectangle(0, barY, 50, 6, 0x00ff00);
         this.add(this.hpBar);
 
         // ユニット名表示
-        const nameText = scene.add.text(0, -height - 25, definition.name.slice(0, 4), {
+        const nameText = scene.add.text(0, barY - 15, definition.name.slice(0, 4), {
             fontSize: '10px',
             color: '#ffffff',
+            stroke: '#000000',
+            strokeThickness: 2,
         });
         nameText.setOrigin(0.5, 0.5);
         this.add(nameText);
@@ -78,7 +95,7 @@ export class Unit extends Phaser.GameObjects.Container {
         scene.add.existing(this);
 
         // スポーン状態から開始
-        this.setState('SPAWN');
+        this.setUnitState('SPAWN');
     }
 
     update(delta: number): void {
@@ -107,23 +124,46 @@ export class Unit extends Phaser.GameObjects.Container {
         this.updateHpBar();
     }
 
-    private setState(newState: UnitState): void {
+    private setUnitState(newState: UnitState): void {
         this.state = newState;
         this.stateTimer = 0;
 
-        // ビジュアル更新
+        // ビジュアル更新（反転はsetFlipXで制御するのでスケールは常に正）
         switch (newState) {
+            case 'SPAWN':
+                // スポーン時のスケールアニメーション
+                this.sprite.setScale(0);
+                this.scene.tweens.add({
+                    targets: this.sprite,
+                    scaleX: this.baseScale,
+                    scaleY: this.baseScale,
+                    duration: 200,
+                    ease: 'Back.easeOut',
+                });
+                break;
             case 'WALK':
                 this.sprite.setAlpha(1);
+                this.sprite.setScale(this.baseScale);
                 break;
             case 'ATTACK_WINDUP':
-                this.sprite.setScale(1.1, 1.1);
+                // 攻撃時に少し大きく
+                this.scene.tweens.add({
+                    targets: this.sprite,
+                    scaleX: this.baseScale * 1.2,
+                    scaleY: this.baseScale * 1.2,
+                    duration: 100,
+                });
                 break;
             case 'ATTACK_COOLDOWN':
-                this.sprite.setScale(1, 1);
+                this.sprite.setScale(this.baseScale);
                 break;
             case 'HITSTUN':
                 this.sprite.setAlpha(0.7);
+                // 赤フラッシュ
+                this.sprite.setTint(0xff0000);
+                this.scene.time.delayedCall(100, () => {
+                    this.sprite.clearTint();
+                });
                 break;
             case 'DIE':
                 this.sprite.setAlpha(0.3);
@@ -134,14 +174,14 @@ export class Unit extends Phaser.GameObjects.Container {
     private handleSpawn(): void {
         // スポーン演出（300ms）
         if (this.stateTimer >= 300) {
-            this.setState('WALK');
+            this.setUnitState('WALK');
         }
     }
 
     private handleWalk(delta: number): void {
         // ターゲットがいて射程内なら攻撃開始
         if (this.target && this.isInRange(this.target)) {
-            this.setState('ATTACK_WINDUP');
+            this.setUnitState('ATTACK_WINDUP');
             return;
         }
 
@@ -162,7 +202,7 @@ export class Unit extends Phaser.GameObjects.Container {
         // Windup完了でダメージを与える
         if (this.stateTimer >= this.definition.attackWindupMs) {
             this.dealDamage();
-            this.setState('ATTACK_COOLDOWN');
+            this.setUnitState('ATTACK_COOLDOWN');
         }
     }
 
@@ -171,10 +211,10 @@ export class Unit extends Phaser.GameObjects.Container {
         if (this.stateTimer >= this.definition.attackCooldownMs) {
             // ターゲットがまだ射程内なら再度攻撃
             if (this.target && !this.target.isDead() && this.isInRange(this.target)) {
-                this.setState('ATTACK_WINDUP');
+                this.setUnitState('ATTACK_WINDUP');
             } else {
                 this.target = null;
-                this.setState('WALK');
+                this.setUnitState('WALK');
             }
         }
     }
@@ -182,7 +222,7 @@ export class Unit extends Phaser.GameObjects.Container {
     private handleHitstun(): void {
         // ヒットストップ（200ms）
         if (this.stateTimer >= 200) {
-            this.setState('WALK');
+            this.setUnitState('WALK');
         }
     }
 
@@ -217,15 +257,17 @@ export class Unit extends Phaser.GameObjects.Container {
 
         // ヒットストップ
         if (this.state !== 'DIE') {
-            this.setState('HITSTUN');
+            this.setUnitState('HITSTUN');
         }
     }
 
     private showDamageNumber(damage: number): void {
-        const text = this.scene.add.text(this.x, this.y - 80, `-${damage}`, {
+        const text = this.scene.add.text(this.x, this.y - this.sprite.displayHeight - 20, `-${damage}`, {
             fontSize: '16px',
             color: '#ff0000',
             fontStyle: 'bold',
+            stroke: '#000000',
+            strokeThickness: 2,
         });
         text.setOrigin(0.5, 0.5);
 
@@ -239,7 +281,7 @@ export class Unit extends Phaser.GameObjects.Container {
     }
 
     private die(): void {
-        this.setState('DIE');
+        this.setUnitState('DIE');
 
         // 死亡アニメーション
         this.scene.tweens.add({

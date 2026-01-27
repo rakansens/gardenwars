@@ -32,8 +32,8 @@ export class Castle extends Phaser.GameObjects.Container {
         const textureKey = side === 'ally' ? 'castle_ally' : 'castle_enemy';
         this.sprite = scene.add.image(0, 0, textureKey);
 
-        // スケール調整（元画像が大きい場合）
-        const targetHeight = 150;
+        // スケール調整（城を大きく表示）
+        const targetHeight = 250;
         const scale = targetHeight / this.sprite.height;
         this.sprite.setScale(scale);
 
