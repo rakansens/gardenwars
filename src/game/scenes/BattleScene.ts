@@ -161,9 +161,11 @@ export class BattleScene extends Phaser.Scene {
         // 背景
         this.createBackground();
 
-        // 地面（床を大きく）
+        // 地面（床を大きく）- ステージ設定から色を取得
         const worldWidth = this.stageData.length + 100;
-        this.add.rectangle(worldWidth / 2, height - 65, worldWidth, 130, 0x3d2817);
+        const groundColorStr = this.stageData.background?.groundColor || '0x3d2817';
+        const groundColor = parseInt(groundColorStr.replace('0x', ''), 16);
+        this.add.rectangle(worldWidth / 2, height - 65, worldWidth, 130, groundColor);
 
         // 城を配置
         this.allyCastle = new Castle(this, 50, this.groundY, 'ally', this.stageData.baseCastleHp);
@@ -322,8 +324,19 @@ export class BattleScene extends Phaser.Scene {
     private createBackground() {
         const { width, height } = this.scale;
 
+        // ステージの背景設定を取得（デフォルト値も設定）
+        const bg = this.stageData.background || {
+            skyColor: '0x87ceeb',
+            groundColor: '0x3d2817',
+            cloudColor: '0xffffff'
+        };
+
+        // 色文字列を数値に変換
+        const skyColor = parseInt(bg.skyColor.replace('0x', ''), 16);
+        const cloudColor = parseInt((bg.cloudColor || '0xffffff').replace('0x', ''), 16);
+
         // 空のグラデーション
-        const sky = this.add.rectangle(width / 2, height / 2, width * 2, height, 0x87ceeb);
+        const sky = this.add.rectangle(width / 2, height / 2, width * 2, height, skyColor);
         sky.setScrollFactor(0);
 
         // 雲（装飾）
@@ -333,7 +346,7 @@ export class BattleScene extends Phaser.Scene {
                 50 + Math.random() * 100,
                 80 + Math.random() * 60,
                 40 + Math.random() * 20,
-                0xffffff,
+                cloudColor,
                 0.8
             );
             cloud.setScrollFactor(0.1);
@@ -455,16 +468,33 @@ export class BattleScene extends Phaser.Scene {
         helpText.setScrollFactor(0);
         helpText.setDepth(100);
 
-        // カメラドラッグ
+        // カメラドラッグ（モバイル/タッチ対応）
+        let lastPointerX = 0;
+        let isDragging = false;
+
+        this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+            // UIボタン上でなければドラッグ開始
+            if (pointer.y < this.scale.height - 120) {
+                isDragging = true;
+                lastPointerX = pointer.x;
+            }
+        });
+
         this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
-            if (pointer.isDown) {
-                this.cameras.main.scrollX -= pointer.velocity.x * 0.5;
+            if (isDragging && pointer.isDown) {
+                const deltaX = lastPointerX - pointer.x;
+                this.cameras.main.scrollX += deltaX;
                 this.cameras.main.scrollX = Phaser.Math.Clamp(
                     this.cameras.main.scrollX,
                     0,
                     this.stageData.length - this.scale.width + 100
                 );
+                lastPointerX = pointer.x;
             }
+        });
+
+        this.input.on('pointerup', () => {
+            isDragging = false;
         });
     }
 

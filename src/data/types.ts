@@ -57,6 +57,11 @@ export interface StageDefinition {
   enemyCastleHp: number;      // 敵城HP
   enemyWaves: WaveConfig[];
   reward: { coins: number };
+  background?: {
+    skyColor: string;         // 空の色（16進数）
+    groundColor: string;      // 地面の色（16進数）
+    cloudColor?: string;      // 雲の色（オプション）
+  };
 }
 
 /**

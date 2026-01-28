@@ -34,6 +34,11 @@
         ],
         "reward": {
             "coins": 100
+        },
+        "background": {
+            "skyColor": "0x87ceeb",
+            "groundColor": "0x4a7c23",
+            "cloudColor": "0xffffff"
         }
     },
     {
@@ -77,6 +82,11 @@
         ],
         "reward": {
             "coins": 200
+        },
+        "background": {
+            "skyColor": "0x6eb56e",
+            "groundColor": "0x2d5016",
+            "cloudColor": "0xd4e8d4"
         }
     },
     {
@@ -126,6 +136,11 @@
         ],
         "reward": {
             "coins": 350
+        },
+        "background": {
+            "skyColor": "0xf5d6a0",
+            "groundColor": "0xc4a35a",
+            "cloudColor": "0xffeebb"
         }
     },
     {
@@ -169,6 +184,11 @@
         ],
         "reward": {
             "coins": 450
+        },
+        "background": {
+            "skyColor": "0xff7e47",
+            "groundColor": "0x8b6914",
+            "cloudColor": "0xffb347"
         }
     },
     {
@@ -218,6 +238,11 @@
         ],
         "reward": {
             "coins": 550
+        },
+        "background": {
+            "skyColor": "0x2a2a3a",
+            "groundColor": "0x1a1a2a",
+            "cloudColor": "0x404050"
         }
     },
     {
@@ -267,6 +292,11 @@
         ],
         "reward": {
             "coins": 700
+        },
+        "background": {
+            "skyColor": "0xc8e6ff",
+            "groundColor": "0xf0f8ff",
+            "cloudColor": "0xffffff"
         }
     },
     {
@@ -322,6 +352,11 @@
         ],
         "reward": {
             "coins": 1000
+        },
+        "background": {
+            "skyColor": "0x4a1010",
+            "groundColor": "0x2a0808",
+            "cloudColor": "0x6a3030"
         }
     },
     {
@@ -383,6 +418,11 @@
         ],
         "reward": {
             "coins": 1500
+        },
+        "background": {
+            "skyColor": "0x1a0a2e",
+            "groundColor": "0x0a0515",
+            "cloudColor": "0x3a1a4e"
         }
     }
 ]
