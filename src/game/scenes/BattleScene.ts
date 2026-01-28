@@ -60,6 +60,8 @@ export class BattleScene extends Phaser.Scene {
     private cannonBarFill!: Phaser.GameObjects.Rectangle;
 
     // 掛け算クイズ
+    private mathModeEnabled: boolean = false;  // 算数モード（デフォルトOFF）
+    private mathModeBtn!: Phaser.GameObjects.Container;
     private quizActive: boolean = false;
     private quizContainer!: Phaser.GameObjects.Container;
     private quizQuestion!: Phaser.GameObjects.Text;
@@ -365,6 +367,9 @@ export class BattleScene extends Phaser.Scene {
         this.stateText.setScrollFactor(0);
         this.stateText.setDepth(100);
 
+        // 算数モードトグルボタン（右上）
+        this.createMathModeToggle();
+
         // 召喚ボタン（チーム分）
         this.createSummonButtons();
 
@@ -389,6 +394,45 @@ export class BattleScene extends Phaser.Scene {
                     this.stageData.length - this.scale.width + 100
                 );
             }
+        });
+    }
+
+    private createMathModeToggle() {
+        const { width } = this.scale;
+
+        // トグルボタンコンテナ
+        this.mathModeBtn = this.add.container(width - 100, 70);
+        this.mathModeBtn.setScrollFactor(0);
+        this.mathModeBtn.setDepth(100);
+
+        // 背景
+        const bg = this.add.rectangle(0, 0, 160, 36, this.mathModeEnabled ? 0x4ade80 : 0x6b7280);
+        bg.setStrokeStyle(3, 0x3b2a1a);
+        bg.setInteractive({ useHandCursor: true });
+
+        // テキスト
+        const text = this.add.text(0, 0, this.mathModeEnabled ? '🧮 Math: ON' : '🧮 Math: OFF', {
+            fontSize: '14px',
+            color: '#ffffff',
+            fontStyle: 'bold',
+        });
+        text.setOrigin(0.5, 0.5);
+
+        this.mathModeBtn.add([bg, text]);
+
+        // クリックでトグル
+        bg.on('pointerdown', () => {
+            this.mathModeEnabled = !this.mathModeEnabled;
+            bg.setFillStyle(this.mathModeEnabled ? 0x4ade80 : 0x6b7280);
+            text.setText(this.mathModeEnabled ? '🧮 Math: ON' : '🧮 Math: OFF');
+        });
+
+        // ホバーエフェクト
+        bg.on('pointerover', () => {
+            bg.setAlpha(0.8);
+        });
+        bg.on('pointerout', () => {
+            bg.setAlpha(1);
         });
     }
 
@@ -755,8 +799,8 @@ export class BattleScene extends Phaser.Scene {
             return;
         }
 
-        // コスト100以下: クイズなし、即座に召喚
-        if (cost <= 100) {
+        // 算数モードがOFFの場合、またはコスト100以下: クイズなし、即座に召喚
+        if (!this.mathModeEnabled || cost <= 100) {
             this.summonAllyUnit(unitId);
             return;
         }

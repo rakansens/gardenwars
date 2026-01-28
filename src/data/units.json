@@ -232,6 +232,7 @@
     "attackCooldownMs": 1800,
     "attackWindupMs": 550,
     "knockback": 50,
+    "scale": 1.3,
     "atlasKey": "ribbon_girl",
     "animKeys": {
       "idle": "idle",
@@ -252,6 +253,7 @@
     "attackCooldownMs": 2000,
     "attackWindupMs": 600,
     "knockback": 45,
+    "scale": 1.3,
     "atlasKey": "penguin_boy",
     "animKeys": {
       "idle": "idle",
@@ -272,6 +274,7 @@
     "attackCooldownMs": 2000,
     "attackWindupMs": 650,
     "knockback": 45,
+    "scale": 1.3,
     "atlasKey": "cinnamon_girl",
     "animKeys": {
       "idle": "idle",
