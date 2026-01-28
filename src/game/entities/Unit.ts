@@ -7,7 +7,7 @@ import type { Castle } from './Castle';
 // ============================================
 
 // アニメーション対応ユニットIDのリスト
-const ANIMATED_UNITS = ['cat_warrior', 'corn_fighter', 'penguin_boy'];
+const ANIMATED_UNITS = ['cat_warrior', 'corn_fighter', 'penguin_boy', 'cinnamon_girl', 'nika', 'lennon'];
 
 export class Unit extends Phaser.GameObjects.Container {
     // 基本データ

@@ -6,9 +6,9 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import stagesData from "@/data/stages.json";
 import unitsData from "@/data/units.json";
-import playerData from "@/data/player.json";
 import type { StageDefinition, UnitDefinition } from "@/data/types";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { usePlayerData } from "@/hooks/usePlayerData";
 
 // Phaserコンポーネントを動的インポート（SSR無効）
 const PhaserGame = dynamic(
@@ -24,6 +24,7 @@ export default function BattlePage() {
     const params = useParams();
     const stageId = params.stageId as string;
     const { t } = useLanguage();
+    const { selectedTeam, isLoaded } = usePlayerData();
 
     const [stage, setStage] = useState<StageDefinition | null>(null);
     const [team, setTeam] = useState<UnitDefinition[]>([]);
@@ -31,6 +32,9 @@ export default function BattlePage() {
     const [result, setResult] = useState<{ win: boolean; coins: number } | null>(null);
 
     useEffect(() => {
+        // プレイヤーデータがロードされるまで待つ
+        if (!isLoaded) return;
+
         // ステージデータ取得
         const stageData = allStages.find((s) => s.id === stageId);
         if (!stageData) {
@@ -40,11 +44,11 @@ export default function BattlePage() {
         setStage(stageData);
 
         // 編成データ取得（チームのユニット定義）
-        const teamDefs = playerData.selectedTeam
+        const teamDefs = selectedTeam
             .map((id) => allUnits.find((u) => u.id === id))
             .filter((u): u is UnitDefinition => u !== undefined);
         setTeam(teamDefs);
-    }, [stageId, router]);
+    }, [stageId, router, selectedTeam, isLoaded]);
 
     const handleBattleEnd = (win: boolean, coinsGained: number) => {
         setBattleEnded(true);
