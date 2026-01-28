@@ -68,26 +68,34 @@ export class CombatSystem {
      * 最も近い敵を探す
      */
     private findTarget(attacker: Unit, enemies: Unit[]): Unit | null {
-        let closest: Unit | null = null;
-        let minDistance = Infinity;
+        let closestInFront: Unit | null = null;
+        let minDistanceFront = Infinity;
+        let closestAny: Unit | null = null;
+        let minDistanceAny = Infinity;
 
         for (const enemy of enemies) {
             if (enemy.isDead()) continue;
 
             const distance = Math.abs(attacker.getX() - enemy.getX());
+            if (distance > attacker.definition.attackRange) continue;
 
             // 攻撃者の前方にいる敵のみ
             const isInFront = attacker.side === 'ally'
                 ? enemy.getX() > attacker.getX()
                 : enemy.getX() < attacker.getX();
 
-            if (isInFront && distance < minDistance && distance <= attacker.definition.attackRange) {
-                minDistance = distance;
-                closest = enemy;
+            if (isInFront && distance < minDistanceFront) {
+                minDistanceFront = distance;
+                closestInFront = enemy;
+            }
+            if (distance < minDistanceAny) {
+                minDistanceAny = distance;
+                closestAny = enemy;
             }
         }
 
-        return closest;
+        // 前方に敵がいれば優先、いなければ背後も含めて最も近い敵
+        return closestInFront ?? closestAny;
     }
 
     /**

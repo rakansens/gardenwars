@@ -22,6 +22,7 @@ export default function PhaserGame({
     const gameRef = useRef<HTMLDivElement>(null);
     const [isLoading, setIsLoading] = useState(true);
     const battleEndedRef = useRef(false);
+    const initSeqRef = useRef(0);
 
     const handleBattleEnd = useCallback((win: boolean, coinsGained: number) => {
         // 重複呼び出し防止
@@ -32,6 +33,8 @@ export default function PhaserGame({
 
     useEffect(() => {
         if (!gameRef.current) return;
+        const initSeq = ++initSeqRef.current;
+        let cancelled = false;
 
         // 既存のゲームインスタンスを破棄
         if (globalPhaserGame) {
@@ -48,6 +51,10 @@ export default function PhaserGame({
             const Phaser = (await import("phaser")).default;
             const { BattleScene } = await import("@/game/scenes/BattleScene");
             const { eventBus, GameEvents } = await import("@/game/utils/EventBus");
+
+            if (cancelled || initSeq !== initSeqRef.current) {
+                return () => {};
+            }
 
             // 既存のリスナーをクリア
             eventBus.removeAllListeners(GameEvents.BATTLE_WIN);
@@ -90,7 +97,9 @@ export default function PhaserGame({
                 allUnits,
             });
 
-            setIsLoading(false);
+            if (!cancelled && initSeq === initSeqRef.current) {
+                setIsLoading(false);
+            }
 
             // クリーンアップ関数を返す
             return () => {
@@ -106,6 +115,7 @@ export default function PhaserGame({
 
         return () => {
             console.log('[PhaserGame] Cleanup');
+            cancelled = true;
             cleanup?.();
             if (globalPhaserGame) {
                 globalPhaserGame.destroy(true);
