@@ -791,5 +791,236 @@
       "attack": "attack",
       "die": "die"
     }
+  },
+  {
+    "id": "ur_knight",
+    "name": "Celestial Knight",
+    "rarity": "UR",
+    "cost": 380,
+    "maxHp": 750,
+    "speed": 65,
+    "attackDamage": 380,
+    "attackRange": 110,
+    "attackCooldownMs": 2000,
+    "attackWindupMs": 600,
+    "knockback": 75,
+    "scale": 1.5,
+    "atlasKey": "ur_knight",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "ur_mage",
+    "name": "Arcane Sorcerer",
+    "rarity": "UR",
+    "cost": 350,
+    "maxHp": 480,
+    "speed": 55,
+    "attackDamage": 420,
+    "attackRange": 320,
+    "attackCooldownMs": 2200,
+    "attackWindupMs": 700,
+    "knockback": 60,
+    "scale": 1.4,
+    "atlasKey": "ur_mage",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "ur_archer",
+    "name": "Divine Archer",
+    "rarity": "UR",
+    "cost": 340,
+    "maxHp": 520,
+    "speed": 70,
+    "attackDamage": 350,
+    "attackRange": 350,
+    "attackCooldownMs": 1800,
+    "attackWindupMs": 500,
+    "knockback": 55,
+    "scale": 1.4,
+    "atlasKey": "ur_archer",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "ur_tank",
+    "name": "Immortal Guardian",
+    "rarity": "UR",
+    "cost": 450,
+    "maxHp": 1200,
+    "speed": 35,
+    "attackDamage": 280,
+    "attackRange": 80,
+    "attackCooldownMs": 2500,
+    "attackWindupMs": 800,
+    "knockback": 100,
+    "scale": 1.8,
+    "atlasKey": "ur_tank",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "ur_ninja",
+    "name": "Shadow Assassin",
+    "rarity": "UR",
+    "cost": 320,
+    "maxHp": 400,
+    "speed": 95,
+    "attackDamage": 450,
+    "attackRange": 90,
+    "attackCooldownMs": 1400,
+    "attackWindupMs": 300,
+    "knockback": 40,
+    "scale": 1.3,
+    "atlasKey": "ur_ninja",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "ur_healer",
+    "name": "Holy Saint",
+    "rarity": "UR",
+    "cost": 300,
+    "maxHp": 550,
+    "speed": 50,
+    "attackDamage": 180,
+    "attackRange": 280,
+    "attackCooldownMs": 2000,
+    "attackWindupMs": 600,
+    "knockback": 30,
+    "scale": 1.4,
+    "atlasKey": "ur_healer",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "ur_dragon",
+    "name": "Dragon Lord",
+    "rarity": "UR",
+    "cost": 500,
+    "maxHp": 900,
+    "speed": 60,
+    "attackDamage": 500,
+    "attackRange": 200,
+    "attackCooldownMs": 2800,
+    "attackWindupMs": 900,
+    "knockback": 90,
+    "scale": 2.0,
+    "atlasKey": "ur_dragon",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "ur_spirit",
+    "name": "Ethereal Spirit",
+    "rarity": "UR",
+    "cost": 280,
+    "maxHp": 380,
+    "speed": 80,
+    "attackDamage": 280,
+    "attackRange": 260,
+    "attackCooldownMs": 1600,
+    "attackWindupMs": 450,
+    "knockback": 45,
+    "scale": 1.3,
+    "atlasKey": "ur_spirit",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "ur_phoenix",
+    "name": "Phoenix Blaze",
+    "rarity": "UR",
+    "cost": 420,
+    "maxHp": 650,
+    "speed": 75,
+    "attackDamage": 400,
+    "attackRange": 180,
+    "attackCooldownMs": 2000,
+    "attackWindupMs": 600,
+    "knockback": 70,
+    "scale": 1.6,
+    "atlasKey": "ur_phoenix",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "ur_golem",
+    "name": "Ancient Golem",
+    "rarity": "UR",
+    "cost": 480,
+    "maxHp": 1500,
+    "speed": 25,
+    "attackDamage": 350,
+    "attackRange": 70,
+    "attackCooldownMs": 3000,
+    "attackWindupMs": 1000,
+    "knockback": 120,
+    "scale": 2.2,
+    "atlasKey": "ur_golem",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "ur_angel",
+    "name": "Archangel",
+    "rarity": "UR",
+    "cost": 400,
+    "maxHp": 700,
+    "speed": 70,
+    "attackDamage": 380,
+    "attackRange": 250,
+    "attackCooldownMs": 1900,
+    "attackWindupMs": 550,
+    "knockback": 65,
+    "scale": 1.7,
+    "atlasKey": "ur_angel",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
   }
 ]

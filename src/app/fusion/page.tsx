@@ -19,6 +19,7 @@ const rarityWeights: Record<Rarity, number> = {
     R: 2,
     SR: 4,
     SSR: 8,
+    UR: 16,
 };
 
 // レアリティカラー
@@ -27,6 +28,7 @@ const rarityColors: Record<Rarity, string> = {
     R: "border-blue-400 bg-blue-100",
     SR: "border-purple-400 bg-purple-100",
     SSR: "border-amber-400 bg-gradient-to-b from-amber-100 to-orange-100",
+    UR: "border-pink-400 bg-gradient-to-br from-pink-100 via-purple-100 to-cyan-100",
 };
 
 export default function FusionPage() {

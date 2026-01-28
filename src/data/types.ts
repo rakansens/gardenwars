@@ -5,7 +5,7 @@
 /**
  * レアリティ
  */
-export type Rarity = 'N' | 'R' | 'SR' | 'SSR';
+export type Rarity = 'N' | 'R' | 'SR' | 'SSR' | 'UR';
 
 /**
  * ユニット定義（マスターデータ）

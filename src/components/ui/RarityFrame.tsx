@@ -54,6 +54,14 @@ const rarityStyles: Record<Rarity, {
         labelBg: "bg-gradient-to-r from-amber-500 to-orange-500",
         stars: "🌟🌟🌟",
     },
+    UR: {
+        border: "border-pink-400",
+        bg: "bg-gradient-to-br from-pink-200 via-purple-200 to-cyan-200",
+        glow: "shadow-xl shadow-pink-500/80 animate-pulse ring-2 ring-pink-300",
+        label: "UR",
+        labelBg: "bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500",
+        stars: "💎💎💎💎",
+    },
 };
 
 const sizeClasses = {

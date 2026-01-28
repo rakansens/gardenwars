@@ -16,6 +16,7 @@ const rarityBackColors: Record<Rarity, string> = {
     R: "from-blue-500 to-blue-700 border-blue-400",
     SR: "from-purple-500 to-purple-700 border-purple-400",
     SSR: "from-amber-400 to-orange-600 border-yellow-300",
+    UR: "from-pink-400 via-purple-500 to-cyan-400 border-pink-300",
 };
 
 // レアリティごとの演出設定
@@ -51,6 +52,13 @@ const rarityEffects: Record<Rarity, {
         glowColor: "shadow-2xl shadow-yellow-400",
         bgEffect: "bg-gradient-to-b from-amber-900/90 via-orange-900/90 to-black/90",
         flipDuration: 0.8,
+        particles: "particles-rainbow",
+        sound: "legendary"
+    },
+    UR: {
+        glowColor: "shadow-2xl shadow-pink-400 ring-4 ring-pink-300/50",
+        bgEffect: "bg-gradient-to-b from-pink-900/90 via-purple-900/90 to-black/90",
+        flipDuration: 1.0,
         particles: "particles-rainbow",
         sound: "legendary"
     },

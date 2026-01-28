@@ -50,7 +50,7 @@ export default function GachaPage() {
 
     // レアリティで重み付けしてランダム選択
     const pickRandomUnit = (): UnitDefinition => {
-        const weights = { N: 50, R: 30, SR: 15, SSR: 5 };
+        const weights = { N: 50, R: 30, SR: 15, SSR: 3, UR: 2 };
         const totalWeight = gachaPool.reduce((sum, u) => sum + weights[u.rarity], 0);
         let random = Math.random() * totalWeight;
 
@@ -103,11 +103,12 @@ export default function GachaPage() {
                     </p>
 
                     {/* 排出率 */}
-                    <div className="flex justify-center gap-2 mb-6 text-xs">
+                    <div className="flex justify-center gap-2 mb-6 text-xs flex-wrap">
                         <span className="px-2 py-1 rounded bg-gray-200 text-gray-700">N: 50%</span>
                         <span className="px-2 py-1 rounded bg-blue-200 text-blue-700">R: 30%</span>
                         <span className="px-2 py-1 rounded bg-purple-200 text-purple-700">SR: 15%</span>
-                        <span className="px-2 py-1 rounded bg-amber-200 text-amber-700">SSR: 5%</span>
+                        <span className="px-2 py-1 rounded bg-amber-200 text-amber-700">SSR: 3%</span>
+                        <span className="px-2 py-1 rounded bg-gradient-to-r from-pink-200 to-cyan-200 text-purple-700 font-bold">UR: 2%</span>
                     </div>
 
                     {/* ガチャボタン */}
