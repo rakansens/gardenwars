@@ -243,7 +243,7 @@
   },
   {
     "id": "penguin_boy",
-    "name": "Penguin",
+    "name": "Juno",
     "rarity": "SSR",
     "cost": 180,
     "maxHp": 600,
@@ -264,7 +264,7 @@
   },
   {
     "id": "cinnamon_girl",
-    "name": "Yumemi",
+    "name": "Mona",
     "rarity": "SSR",
     "cost": 200,
     "maxHp": 380,
@@ -276,6 +276,48 @@
     "knockback": 45,
     "scale": 1.3,
     "atlasKey": "cinnamon_girl",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "nika",
+    "name": "Nika",
+    "rarity": "SSR",
+    "cost": 190,
+    "maxHp": 500,
+    "speed": 75,
+    "attackDamage": 120,
+    "attackRange": 200,
+    "attackCooldownMs": 1600,
+    "attackWindupMs": 500,
+    "knockback": 50,
+    "scale": 1.3,
+    "atlasKey": "nika",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "lennon",
+    "name": "Lennon",
+    "rarity": "SSR",
+    "cost": 210,
+    "maxHp": 420,
+    "speed": 80,
+    "attackDamage": 160,
+    "attackRange": 220,
+    "attackCooldownMs": 1800,
+    "attackWindupMs": 550,
+    "knockback": 55,
+    "scale": 1.3,
+    "atlasKey": "lennon",
     "animKeys": {
       "idle": "idle",
       "walk": "walk",

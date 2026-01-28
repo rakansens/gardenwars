@@ -132,6 +132,23 @@ export class BattleScene extends Phaser.Scene {
             '/assets/sprites/penguin_boy_sheet.png',
             '/assets/sprites/penguin_boy_sheet.json'
         );
+        this.load.atlas(
+            'cinnamon_girl_atlas',
+            '/assets/sprites/cinnamon_girl_sheet.png',
+            '/assets/sprites/cinnamon_girl_sheet.json'
+        );
+        this.load.image('nika', '/assets/sprites/nika.png');
+        this.load.atlas(
+            'nika_atlas',
+            '/assets/sprites/nika_sheet.png',
+            '/assets/sprites/nika_sheet.json'
+        );
+        this.load.image('lennon', '/assets/sprites/lennon.png');
+        this.load.atlas(
+            'lennon_atlas',
+            '/assets/sprites/lennon_sheet.png',
+            '/assets/sprites/lennon_sheet.json'
+        );
     }
 
     create() {
@@ -242,6 +259,60 @@ export class BattleScene extends Phaser.Scene {
                 { key: 'penguin_boy_atlas', frame: 'penguin_boy_attack_1.png' },
                 { key: 'penguin_boy_atlas', frame: 'penguin_boy_attack_2.png' },
                 { key: 'penguin_boy_atlas', frame: 'penguin_boy_attack_3.png' },
+            ],
+            frameRate: 8,
+            repeat: 0,
+        });
+
+        // Yume (cinnamon_girl) animations
+        this.anims.create({
+            key: 'cinnamon_girl_idle',
+            frames: [{ key: 'cinnamon_girl_atlas', frame: 'cinnamon_girl_idle.png' }],
+            frameRate: 1,
+            repeat: -1,
+        });
+
+        this.anims.create({
+            key: 'cinnamon_girl_attack',
+            frames: [
+                { key: 'cinnamon_girl_atlas', frame: 'cinnamon_girl_attack_1.png' },
+                { key: 'cinnamon_girl_atlas', frame: 'cinnamon_girl_attack_2.png' },
+            ],
+            frameRate: 8,
+            repeat: 0,
+        });
+
+        // Nika animations
+        this.anims.create({
+            key: 'nika_idle',
+            frames: [{ key: 'nika_atlas', frame: 'nika_idle.png' }],
+            frameRate: 1,
+            repeat: -1,
+        });
+
+        this.anims.create({
+            key: 'nika_attack',
+            frames: [
+                { key: 'nika_atlas', frame: 'nika_attack_1.png' },
+                { key: 'nika_atlas', frame: 'nika_attack_2.png' },
+            ],
+            frameRate: 8,
+            repeat: 0,
+        });
+
+        // Lennon animations
+        this.anims.create({
+            key: 'lennon_idle',
+            frames: [{ key: 'lennon_atlas', frame: 'lennon_idle.png' }],
+            frameRate: 1,
+            repeat: -1,
+        });
+
+        this.anims.create({
+            key: 'lennon_attack',
+            frames: [
+                { key: 'lennon_atlas', frame: 'lennon_attack_1.png' },
+                { key: 'lennon_atlas', frame: 'lennon_attack_2.png' },
             ],
             frameRate: 8,
             repeat: 0,
