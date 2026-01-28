@@ -150,8 +150,7 @@ export default function GachaPage() {
                             return (
                                 <div
                                     key={unit.id}
-                                    className={`relative p-2 rounded-lg ${count > 0 ? "" : "opacity-40"
-                                        }`}
+                                    className={`relative p-2 rounded-lg`}
                                 >
                                     <div className="flex justify-center">
                                         <RarityFrame
@@ -161,6 +160,7 @@ export default function GachaPage() {
                                             size="md"
                                             showLabel={true}
                                             count={count}
+                                            grayscale={count === 0}
                                         />
                                     </div>
                                     <div className="text-xs text-center text-amber-950 truncate mt-1">

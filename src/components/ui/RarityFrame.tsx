@@ -11,6 +11,7 @@ interface RarityFrameProps {
     showLabel?: boolean;
     count?: number;
     baseUnitId?: string; // 画像表示用のベースユニットID
+    grayscale?: boolean;
 }
 
 // レアリティごとのスタイル定義
@@ -99,6 +100,7 @@ export default function RarityFrame({
     showLabel = true,
     count,
     baseUnitId,
+    grayscale = false,
 }: RarityFrameProps) {
     const style = rarityStyles[rarity];
     const sizeClass = sizeClasses[size];
@@ -117,6 +119,7 @@ export default function RarityFrame({
                     flex items-center justify-center
                     overflow-hidden
                     relative
+                    ${grayscale ? "grayscale opacity-70" : ""}
                 `}
             >
                 {/* キャラ画像 */}

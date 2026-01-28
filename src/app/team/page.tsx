@@ -179,6 +179,7 @@ export default function TeamPage() {
                                         size="md"
                                         showLabel={true}
                                         baseUnitId={unit.baseUnitId}
+                                        grayscale={count === 0}
                                     />
 
                                     {/* ユニット名 */}
