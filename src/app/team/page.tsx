@@ -5,6 +5,7 @@ import Link from "next/link";
 import unitsData from "@/data/units.json";
 import type { UnitDefinition, Rarity } from "@/data/types";
 import RarityFrame from "@/components/ui/RarityFrame";
+import UnitDetailModal from "@/components/ui/UnitDetailModal";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
 
@@ -16,6 +17,7 @@ export default function TeamPage() {
     const { selectedTeam, unitInventory, setTeam, isLoaded } = usePlayerData();
     const { t } = useLanguage();
     const [rarityFilter, setRarityFilter] = useState<Rarity | "ALL">("ALL");
+    const [viewingUnit, setViewingUnit] = useState<UnitDefinition | null>(null);
 
     const rarityTabs: { key: Rarity | "ALL"; label: string; color: string }[] = [
         { key: "ALL", label: "ALL", color: "bg-gray-500" },
@@ -41,6 +43,10 @@ export default function TeamPage() {
                 setTeam([...selectedTeam, unitId]);
             }
         }
+    };
+
+    const handleUnitClick = (unit: UnitDefinition) => {
+        setViewingUnit(unit);
     };
 
     const getSelectedTeamDefs = () => {
@@ -93,7 +99,7 @@ export default function TeamPage() {
                                 <div
                                     key={index}
                                     className={`slot ${unit ? "filled" : ""}`}
-                                    onClick={() => unit && handleToggleUnit(unit.id)}
+                                    onClick={() => unit && handleUnitClick(unit)}
                                 >
                                     {unit ? (
                                         <div className="text-center">
@@ -158,7 +164,7 @@ export default function TeamPage() {
                                     key={unit.id}
                                     className={`unit-card cursor-pointer relative ${isSelected ? "selected" : ""
                                         }`}
-                                    onClick={() => handleToggleUnit(unit.id)}
+                                    onClick={() => handleUnitClick(unit)}
                                 >
                                     {/* 所持個数バッジ */}
                                     <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-amber-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10">
@@ -212,6 +218,17 @@ export default function TeamPage() {
                     </div>
                 </section>
             </div>
+
+            {/* 詳細モーダル */}
+            {viewingUnit && (
+                <UnitDetailModal
+                    unit={viewingUnit}
+                    isOwned={(unitInventory[viewingUnit.id] || 0) > 0}
+                    isInTeam={selectedTeam.includes(viewingUnit.id)}
+                    onClose={() => setViewingUnit(null)}
+                    onToggleTeam={() => handleToggleUnit(viewingUnit.id)}
+                />
+            )}
         </main>
     );
 }

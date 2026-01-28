@@ -76,8 +76,18 @@ export class CombatSystem {
         for (const enemy of enemies) {
             if (enemy.isDead()) continue;
 
+            // 攻撃者の幅を考慮
+            const attackerHalfWidth = (attacker.getAll('image')[0] as any)?.displayWidth / 2 || 20; // 概算
+            // ※ Unit.ts側で正確に計算しているので、ここでは簡易チェックまたはUnitのメソッドを使うべきだが
+            // Unit.tsのisInRangeを使うのが確実。しかしここではループ内で距離チェックしている。
+
+            // 簡易的に補正（Unit.tsのisInRangeと合わせる）
+            const rangeWithBody = attacker.definition.attackRange + 50; // 安全マージン含めて広めに探す
+
             const distance = Math.abs(attacker.getX() - enemy.getX());
-            if (distance > attacker.definition.attackRange) continue;
+            if (distance > rangeWithBody) continue;
+
+            // 厳密な判定はUnit.isInRangeで行われるので、ここでは候補として広めに拾う
 
             // 攻撃者の前方にいる敵のみ
             const isInFront = attacker.side === 'ally'

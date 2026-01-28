@@ -10,8 +10,8 @@ import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
 import RarityFrame from "@/components/ui/RarityFrame";
 
 const allUnits = unitsData as UnitDefinition[];
-// 味方ユニットのみ（enemy_で始まらない）
-const allyUnits = allUnits.filter(u => !u.id.startsWith("enemy_"));
+// 味方ユニットのみ（enemy_で始まらない）かつボスではない
+const allyUnits = allUnits.filter(u => !u.id.startsWith("enemy_") && !u.id.startsWith("boss_") && !u.isBoss);
 
 // レアリティの重み
 const rarityWeights: Record<Rarity, number> = {
@@ -183,7 +183,7 @@ export default function FusionPage() {
                             {unitDef ? (
                                 <>
                                     <Image
-                                        src={`/assets/sprites/${unitDef.id}.png`}
+                                        src={`/assets/sprites/${unitDef.atlasKey || unitDef.baseUnitId || unitDef.id}.png`}
                                         alt={unitDef.name}
                                         width={48}
                                         height={48}
@@ -234,7 +234,7 @@ export default function FusionPage() {
                                     }`}
                             >
                                 <Image
-                                    src={`/assets/sprites/${unit.id}.png`}
+                                    src={`/assets/sprites/${unit.atlasKey || unit.baseUnitId || unit.id}.png`}
                                     alt={unit.name}
                                     width={48}
                                     height={48}

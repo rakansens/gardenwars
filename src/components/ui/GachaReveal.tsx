@@ -215,7 +215,7 @@ export default function GachaReveal({ results, onComplete }: GachaRevealProps) {
                                         unitId={unit.id}
                                         unitName={unit.name}
                                         rarity={unit.rarity}
-                                        size="lg"
+                                        size="xl"
                                         showLabel={false}
                                     />
                                 </div>

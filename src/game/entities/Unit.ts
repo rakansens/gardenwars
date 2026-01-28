@@ -44,6 +44,9 @@ export class Unit extends Phaser.GameObjects.Container {
     // アニメーション対応フラグ
     private hasAnimation: boolean = false;
 
+    // 蓄積ダメージ（ノックバック計算用）
+    private damageAccumulated: number = 0;
+
     constructor(
         scene: Phaser.Scene,
         x: number,
@@ -305,20 +308,32 @@ export class Unit extends Phaser.GameObjects.Container {
             return;
         }
 
-        // ノックバック
-        const knockbackDir = this.side === 'ally' ? -1 : 1;
-        this.x += knockback * knockbackDir;
+        // 蓄積ダメージ加算
+        this.damageAccumulated += damage;
 
-        // 位置クランプ
-        if (this.side === 'ally') {
-            this.x = Math.max(this.x, 80);
-        } else {
-            this.x = Math.min(this.x, this.stageLength - 30);
-        }
+        // ノックバック判定
+        // ボスは無効、その他は最大HPの15%を超えたら発生 (スーパーアーマー的な挙動)
+        const kbThreshold = this.maxHp * 0.15;
 
-        // ヒットストップ
-        if (this.state !== 'DIE') {
-            this.setUnitState('HITSTUN');
+        // ボスは完全耐性、通常ユニットは閾値を超えたらノックバック
+        if (!this.definition.isBoss && this.damageAccumulated >= kbThreshold) {
+            // 蓄積リセット
+            this.damageAccumulated = 0;
+
+            const knockbackDir = this.side === 'ally' ? -1 : 1;
+            this.x += knockback * knockbackDir;
+
+            // 位置クランプ
+            if (this.side === 'ally') {
+                this.x = Math.max(this.x, 80);
+            } else {
+                this.x = Math.min(this.x, this.stageLength - 30);
+            }
+
+            // ヒットストップ
+            if (this.state !== 'DIE') {
+                this.setUnitState('HITSTUN');
+            }
         }
     }
 
@@ -372,8 +387,14 @@ export class Unit extends Phaser.GameObjects.Container {
     }
 
     public isInRange(target: Unit): boolean {
+        // 自身の幅を考慮（中心から端までの距離）
+        const myHalfWidth = (this.sprite.displayWidth || (this.sprite.width * this.baseScale)) / 2;
+        // ターゲットの幅も考慮したいが、ターゲットはUnit型で詳細不明な場合もあるため、自身の幅を主に使用
+        // 「射程」＝「自身の体表からの距離」と解釈
+
         const distance = Math.abs(this.x - target.x);
-        return distance <= this.definition.attackRange;
+        // 距離が (射程 + 自身の半径) 以内であれば攻撃可能
+        return distance <= (this.definition.attackRange + myHalfWidth);
     }
 
     public isDead(): boolean {
@@ -386,7 +407,11 @@ export class Unit extends Phaser.GameObjects.Container {
 
     private isInRangeOfCastle(): boolean {
         if (!this.castleTarget) return false;
+
+        const myHalfWidth = (this.sprite.displayWidth || (this.sprite.width * this.baseScale)) / 2;
         const distance = Math.abs(this.x - this.castleTarget.getX());
-        return distance <= this.definition.attackRange;
+
+        // 城に対しても同様に自身の半径を考慮
+        return distance <= (this.definition.attackRange + myHalfWidth);
     }
 }
