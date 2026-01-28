@@ -30,15 +30,26 @@ function ResultContent() {
     useEffect(() => {
         if (!win || processed) return;
 
-        // ステージクリア保存
+        // ステージクリア保存 & コイン加算
         try {
+            // ステージクリア保存
             const clearedStages = JSON.parse(localStorage.getItem("clearedStages") || "[]");
             if (!clearedStages.includes(stageId)) {
                 clearedStages.push(stageId);
                 localStorage.setItem("clearedStages", JSON.stringify(clearedStages));
             }
-        } catch {
-            console.error("Failed to save cleared stage");
+
+            // コイン加算
+            const savedPlayer = localStorage.getItem("gardenwars_player");
+            const player = savedPlayer ? JSON.parse(savedPlayer) : { coins: 0, ownedUnits: {} };
+
+            // 現在のコイン数に獲得分を加算
+            player.coins = (player.coins || 0) + coins;
+
+            // 保存
+            localStorage.setItem("gardenwars_player", JSON.stringify(player));
+        } catch (e) {
+            console.error("Failed to save progress", e);
         }
 
         const stage = typedStages.find(s => s.id === stageId);
