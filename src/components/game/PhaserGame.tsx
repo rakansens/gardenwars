@@ -21,8 +21,19 @@ export default function PhaserGame({
 }: PhaserGameProps) {
     const gameRef = useRef<HTMLDivElement>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isPortrait, setIsPortrait] = useState(false);
     const battleEndedRef = useRef(false);
     const initSeqRef = useRef(0);
+
+    // 画面の向きをチェック
+    useEffect(() => {
+        const checkOrientation = () => {
+            setIsPortrait(window.innerHeight > window.innerWidth);
+        };
+        checkOrientation();
+        window.addEventListener("resize", checkOrientation);
+        return () => window.removeEventListener("resize", checkOrientation);
+    }, []);
 
     const handleBattleEnd = useCallback((win: boolean, coinsGained: number) => {
         // 重複呼び出し防止
@@ -83,12 +94,9 @@ export default function PhaserGame({
                 backgroundColor: "#1a1a2e",
                 scene: [BattleScene],
                 scale: {
-                    mode: Phaser.Scale.FIT,
+                    mode: Phaser.Scale.FIT, // 親要素に合わせる
                     autoCenter: Phaser.Scale.CENTER_BOTH,
-                    min: {
-                        width: 400,
-                        height: 225,
-                    },
+                    expandParent: true, // 親要素いっぱいに広げる
                 },
                 input: {
                     activePointers: 3,
@@ -146,6 +154,20 @@ export default function PhaserGame({
                     <div className="text-center">
                         <div className="text-4xl animate-bounce mb-4">🐱</div>
                         <p className="text-white text-xl">Loading...</p>
+                    </div>
+                </div>
+            )}
+
+            {/* 縦向き時の案内（モバイルのみ） */}
+            {isPortrait && (
+                <div className="md:hidden absolute inset-0 flex items-center justify-center bg-black/90 z-50 p-6 text-center">
+                    <div>
+                        <div className="text-5xl mb-4 animate-spin-slow">📱🔄</div>
+                        <h2 className="text-white text-2xl font-bold mb-2">横向きでプレイしよう！</h2>
+                        <p className="text-gray-300">
+                            画面を横にすると、バトルシーンが<br />
+                            さらに大きく見やすくなります。
+                        </p>
                     </div>
                 </div>
             )}
