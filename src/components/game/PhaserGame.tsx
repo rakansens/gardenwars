@@ -53,7 +53,7 @@ export default function PhaserGame({
             const { eventBus, GameEvents } = await import("@/game/utils/EventBus");
 
             if (cancelled || initSeq !== initSeqRef.current) {
-                return () => {};
+                return () => { };
             }
 
             // 既存のリスナーをクリア
@@ -61,7 +61,8 @@ export default function PhaserGame({
             eventBus.removeAllListeners(GameEvents.BATTLE_LOSE);
 
             // イベントリスナー設定
-            const handleWin = (result: { coinsGained?: number }) => {
+            const handleWin = (...args: unknown[]) => {
+                const result = args[0] as { coinsGained?: number } | undefined;
                 handleBattleEnd(true, result?.coinsGained || 0);
             };
             const handleLose = () => {

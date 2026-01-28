@@ -135,17 +135,20 @@ body {
 
 /* スロット */
 .slot {
-  width: 80px;
-  height: 80px;
+  width: 100px;
+  height: 110px;
   border: 3px dashed var(--card-border);
   border-radius: 14px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   color: #6b4a2b;
   font-size: 24px;
   background: #fff5de;
   box-shadow: 0 2px 0 var(--shadow);
+  overflow: hidden;
+  padding: 4px;
 }
 
 .slot.filled {
@@ -155,8 +158,15 @@ body {
 
 /* アニメーション */
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
 }
 
 .animate-pulse {
@@ -164,8 +174,15 @@ body {
 }
 
 @keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .animate-bounce {

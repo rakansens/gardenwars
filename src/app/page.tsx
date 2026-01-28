@@ -41,6 +41,9 @@ export default function Home() {
         <Link href="/gacha" className="btn btn-primary text-center text-xl py-4">
           {t("menu_gacha")}
         </Link>
+        <Link href="/fusion" className="btn btn-secondary text-center text-xl py-4">
+          🔮 {t("fusion")}
+        </Link>
       </div>
 
       {/* コイン表示 */}

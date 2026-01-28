@@ -61,10 +61,13 @@ const translations: Record<Language, Record<string, string>> = {
 
         // Team
         "team": "Team",
-        "to_stages": "Stages →",
+        "team_title": "Team Setup",
+        "team_members": "Deployment",
+        "total_cost": "Total Cost",
+        "to_stages": "Stages",
         "pull_gacha": "🎰 Pull Gacha",
         "deployment_members": "📋 Deployment",
-        "owned_units": "🎖️ Owned Units",
+        "owned_units": "Owned Units",
         "hp": "HP",
         "attack": "ATK",
         "range": "Range",
@@ -89,6 +92,14 @@ const translations: Record<Language, Record<string, string>> = {
         "reward_coins": "Reward",
         "back_to_stages": "Back to Stages",
         "retry": "Retry",
+
+        // Fusion
+        "fusion": "Fusion",
+        "fusion_desc": "Select 3 units to fuse! Higher rarity materials give better results!",
+        "fusion_execute": "FUSE!",
+        "fusion_result": "Fusion Complete!",
+        "select_materials": "📦 Select Materials",
+        "no_units": "No units available. Get some from Gacha first!",
 
         // Unit names
         "cat_warrior": "Cat Warrior",
@@ -159,10 +170,13 @@ const translations: Record<Language, Record<string, string>> = {
 
         // Team
         "team": "編成",
-        "to_stages": "ステージへ →",
+        "team_title": "チーム編成",
+        "team_members": "出撃メンバー",
+        "total_cost": "合計コスト",
+        "to_stages": "ステージへ",
         "pull_gacha": "🎰 ガチャを引く",
         "deployment_members": "📋 出撃メンバー",
-        "owned_units": "🎖️ 所持ユニット",
+        "owned_units": "所持ユニット",
         "hp": "HP",
         "attack": "攻撃",
         "range": "射程",
@@ -187,6 +201,14 @@ const translations: Record<Language, Record<string, string>> = {
         "reward_coins": "報酬",
         "back_to_stages": "ステージへ戻る",
         "retry": "リトライ",
+
+        // Fusion
+        "fusion": "フュージョン",
+        "fusion_desc": "3体のユニットを選んで合成！レアリティが高いほど良いユニットが生まれやすい！",
+        "fusion_execute": "合成する！",
+        "fusion_result": "合成完了！",
+        "select_materials": "📦 素材を選択",
+        "no_units": "ユニットがありません。ガチャで手に入れよう！",
 
         // Unit names
         "cat_warrior": "ネコ戦士",
