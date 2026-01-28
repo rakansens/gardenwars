@@ -151,6 +151,19 @@ export class BattleScene extends Phaser.Scene {
             '/assets/sprites/lennon_sheet.png',
             '/assets/sprites/lennon_sheet.json'
         );
+
+        // UR Units
+        this.load.image('ur_knight', '/assets/sprites/ur_knight.png');
+        this.load.image('ur_mage', '/assets/sprites/ur_mage.png');
+        this.load.image('ur_archer', '/assets/sprites/ur_archer.png');
+        this.load.image('ur_tank', '/assets/sprites/ur_tank.png');
+        this.load.image('ur_ninja', '/assets/sprites/ur_ninja.png');
+        this.load.image('ur_healer', '/assets/sprites/ur_healer.png');
+        this.load.image('ur_dragon', '/assets/sprites/ur_dragon.png');
+        this.load.image('ur_spirit', '/assets/sprites/ur_spirit.png');
+        this.load.image('ur_phoenix', '/assets/sprites/ur_phoenix.png');
+        this.load.image('ur_golem', '/assets/sprites/ur_golem.png');
+        this.load.image('ur_angel', '/assets/sprites/ur_angel.png');
     }
 
     create() {
