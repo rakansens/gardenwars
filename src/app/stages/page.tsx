@@ -26,9 +26,11 @@ const stageIcons: { [key: string]: string } = {
     stage_10: "💀",
     stage_11: "🔥",
     stage_12: "☠️",
-    boss_stage_1: "👑",
-    boss_stage_2: "🍉",
+    boss_stage_1: "🧑",
+    boss_stage_2: "🎸",
     boss_stage_3: "👩",
+    boss_stage_4: "💃",
+    boss_stage_5: "🌙",
 };
 
 // 敵の総数を計算
@@ -127,22 +129,45 @@ export default function StagesPage() {
                                 <div className="mb-4">
                                     <div className="text-xs text-amber-800 mb-2">{t("encounter_units")}:</div>
                                     <div className="flex gap-2 flex-wrap">
-                                        {enemyUnits.map((unit) => (
-                                            <div
-                                                key={unit.id}
-                                                className="w-10 h-10 rounded-lg bg-red-100 border-2 border-red-300 flex items-center justify-center overflow-hidden"
-                                                title={unit.name}
-                                            >
-                                                <Image
-                                                    src={`/assets/sprites/${unit.baseUnitId || unit.id}.png`}
-                                                    alt={unit.name}
-                                                    width={32}
-                                                    height={32}
-                                                    className="object-contain"
-                                                    style={{ transform: unit.flipSprite ? "scaleX(-1)" : "none" }}
-                                                />
-                                            </div>
-                                        ))}
+                                        {enemyUnits.map((unit) => {
+                                            const isBoss = unit.isBoss;
+                                            return (
+                                                <div
+                                                    key={unit.id}
+                                                    className={`w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden ${isBoss
+                                                            ? 'bg-purple-900 border-2 border-purple-500'
+                                                            : 'bg-red-100 border-2 border-red-300'
+                                                        }`}
+                                                    title={isBoss ? "???" : unit.name}
+                                                >
+                                                    {isBoss ? (
+                                                        <div className="relative w-full h-full flex items-center justify-center">
+                                                            <Image
+                                                                src={`/assets/sprites/${unit.baseUnitId || unit.id}.png`}
+                                                                alt="???"
+                                                                width={32}
+                                                                height={32}
+                                                                className="object-contain"
+                                                                style={{
+                                                                    transform: unit.flipSprite ? "scaleX(-1)" : "none",
+                                                                    filter: "brightness(0) drop-shadow(0 0 3px #a855f7)"
+                                                                }}
+                                                            />
+                                                            <span className="absolute text-lg font-bold text-purple-300">?</span>
+                                                        </div>
+                                                    ) : (
+                                                        <Image
+                                                            src={`/assets/sprites/${unit.baseUnitId || unit.id}.png`}
+                                                            alt={unit.name}
+                                                            width={32}
+                                                            height={32}
+                                                            className="object-contain"
+                                                            style={{ transform: unit.flipSprite ? "scaleX(-1)" : "none" }}
+                                                        />
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 </div>
 

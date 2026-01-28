@@ -899,5 +899,83 @@
             "groundColor": "0x050510",
             "cloudColor": "0x1a1a3a"
         }
+    },
+    {
+        "id": "boss_stage_4",
+        "name": "boss_stage_4_name",
+        "description": "boss_stage_4_desc",
+        "length": 2300,
+        "baseCastleHp": 4500,
+        "enemyCastleHp": 1,
+        "isBossStage": true,
+        "enemyWaves": [
+            {
+                "timeMs": 3000,
+                "unitId": "boss_nika",
+                "count": 1,
+                "intervalMs": 0
+            }
+        ],
+        "reward": {
+            "coins": 12000,
+            "drops": [
+                {
+                    "unitId": "nika",
+                    "rate": 40
+                },
+                {
+                    "unitId": "cinnamon_girl",
+                    "rate": 20
+                },
+                {
+                    "unitId": "lennon",
+                    "rate": 8
+                }
+            ]
+        },
+        "background": {
+            "skyColor": "0x1a0a2a",
+            "groundColor": "0x100520",
+            "cloudColor": "0x2a1a4a"
+        }
+    },
+    {
+        "id": "boss_stage_5",
+        "name": "boss_stage_5_name",
+        "description": "boss_stage_5_desc",
+        "length": 2400,
+        "baseCastleHp": 5000,
+        "enemyCastleHp": 1,
+        "isBossStage": true,
+        "enemyWaves": [
+            {
+                "timeMs": 3000,
+                "unitId": "boss_mona",
+                "count": 1,
+                "intervalMs": 0
+            }
+        ],
+        "reward": {
+            "coins": 18000,
+            "drops": [
+                {
+                    "unitId": "cinnamon_girl",
+                    "rate": 50
+                },
+                {
+                    "unitId": "nika",
+                    "rate": 25
+                },
+                {
+                    "unitId": "lennon",
+                    "rate": 10
+                }
+            ]
+        },
+        "background": {
+            "skyColor": "0x2a0a1a",
+            "groundColor": "0x150510",
+            "cloudColor": "0x4a1a2a"
+        }
     }
 ]
