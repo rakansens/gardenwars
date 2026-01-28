@@ -671,5 +671,77 @@
       "attack": "attack",
       "die": "die"
     }
+  },
+  {
+    "id": "boss_giant_king",
+    "name": "Giant King",
+    "rarity": "SSR",
+    "cost": 0,
+    "maxHp": 8000,
+    "speed": 25,
+    "attackDamage": 300,
+    "attackRange": 80,
+    "attackCooldownMs": 2500,
+    "attackWindupMs": 800,
+    "knockback": 100,
+    "atlasKey": "cat_tank",
+    "baseUnitId": "cat_tank",
+    "flipSprite": true,
+    "scale": 3.0,
+    "isBoss": true,
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "boss_dragon",
+    "name": "Dragon Lord",
+    "rarity": "SSR",
+    "cost": 0,
+    "maxHp": 12000,
+    "speed": 20,
+    "attackDamage": 450,
+    "attackRange": 150,
+    "attackCooldownMs": 3000,
+    "attackWindupMs": 1000,
+    "knockback": 150,
+    "atlasKey": "watermelon",
+    "baseUnitId": "watermelon",
+    "flipSprite": true,
+    "scale": 4.0,
+    "isBoss": true,
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "boss_death_titan",
+    "name": "Death Titan",
+    "rarity": "SSR",
+    "cost": 0,
+    "maxHp": 20000,
+    "speed": 15,
+    "attackDamage": 800,
+    "attackRange": 120,
+    "attackCooldownMs": 4000,
+    "attackWindupMs": 1200,
+    "knockback": 200,
+    "atlasKey": "ribbon_girl",
+    "baseUnitId": "ribbon_girl",
+    "flipSprite": true,
+    "scale": 5.0,
+    "isBoss": true,
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
   }
 ]

@@ -33,6 +33,7 @@ export interface UnitDefinition {
   // 敵ユニット用：味方ユニットのスプライトを流用する場合
   baseUnitId?: string;        // ベースとなる味方ユニットID
   flipSprite?: boolean;       // スプライトを左右反転するか
+  isBoss?: boolean;           // ボスユニットか
 }
 
 /**

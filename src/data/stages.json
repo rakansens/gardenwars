@@ -670,5 +670,80 @@
             "groundColor": "0x050000",
             "cloudColor": "0x300000"
         }
+    },
+    {
+        "id": "boss_stage_1",
+        "name": "boss_stage_1_name",
+        "description": "boss_stage_1_desc",
+        "length": 2000,
+        "baseCastleHp": 3000,
+        "enemyCastleHp": 1,
+        "isBossStage": true,
+        "enemyWaves": [
+            {
+                "timeMs": 3000,
+                "unitId": "boss_giant_king",
+                "count": 1,
+                "intervalMs": 0
+            }
+        ],
+        "reward": {
+            "coins": 5000
+        },
+        "background": {
+            "skyColor": "0x2a1a1a",
+            "groundColor": "0x1a0a0a",
+            "cloudColor": "0x4a2a2a"
+        }
+    },
+    {
+        "id": "boss_stage_2",
+        "name": "boss_stage_2_name",
+        "description": "boss_stage_2_desc",
+        "length": 2200,
+        "baseCastleHp": 4000,
+        "enemyCastleHp": 1,
+        "isBossStage": true,
+        "enemyWaves": [
+            {
+                "timeMs": 3000,
+                "unitId": "boss_dragon",
+                "count": 1,
+                "intervalMs": 0
+            }
+        ],
+        "reward": {
+            "coins": 8000
+        },
+        "background": {
+            "skyColor": "0x1a2a1a",
+            "groundColor": "0x0a1a0a",
+            "cloudColor": "0x2a4a2a"
+        }
+    },
+    {
+        "id": "boss_stage_3",
+        "name": "boss_stage_3_name",
+        "description": "boss_stage_3_desc",
+        "length": 2500,
+        "baseCastleHp": 5000,
+        "enemyCastleHp": 1,
+        "isBossStage": true,
+        "enemyWaves": [
+            {
+                "timeMs": 5000,
+                "unitId": "boss_death_titan",
+                "count": 1,
+                "intervalMs": 0
+            }
+        ],
+        "reward": {
+            "coins": 15000
+        },
+        "background": {
+            "skyColor": "0x0a0a1a",
+            "groundColor": "0x050510",
+            "cloudColor": "0x1a1a3a"
+        }
     }
 ]

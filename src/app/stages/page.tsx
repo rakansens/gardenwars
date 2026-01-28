@@ -25,6 +25,9 @@ const stageIcons: { [key: string]: string } = {
     stage_10: "💀",
     stage_11: "🔥",
     stage_12: "☠️",
+    boss_stage_1: "👑",
+    boss_stage_2: "🐉",
+    boss_stage_3: "💀",
 };
 
 // 敵の総数を計算
