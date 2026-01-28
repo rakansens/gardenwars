@@ -185,6 +185,14 @@ export class BattleScene extends Phaser.Scene {
         this.load.image('r_radish', '/assets/sprites/r_radish.png');
     }
 
+    private summonUIButtons: {
+        unitId: string;
+        cost: number;
+        bg: Phaser.GameObjects.Rectangle;
+        icon: Phaser.GameObjects.Image;
+        originalColor: number;
+    }[] = [];
+
     create() {
         const { width, height } = this.scale;
         this.groundY = height - 130; // ボタン用スペースを確保
@@ -610,6 +618,15 @@ export class BattleScene extends Phaser.Scene {
             unitIcon.setScrollFactor(0);
             unitIcon.setDepth(101);
 
+            // UI管理配列に追加
+            this.summonUIButtons.push({
+                unitId: unit.id,
+                cost: unit.cost,
+                bg,
+                icon: unitIcon,
+                originalColor: 0xf8e7b6
+            });
+
             // ユニット名
             const nameText = this.add.text(x, buttonY + 16, unit.name.slice(0, 5), {
                 fontSize: '13px',
@@ -815,6 +832,22 @@ export class BattleScene extends Phaser.Scene {
         this.costBarFill.width = barWidth;
         this.costBarFill.height = this.costBarHeight;
         this.costText.setText(`${current}/${max}`);
+
+        // ユニット召喚ボタンの有効/無効状態を更新
+        this.summonUIButtons.forEach(btn => {
+            const canSummon = current >= btn.cost;
+            if (canSummon) {
+                btn.bg.setFillStyle(btn.originalColor);
+                btn.bg.setAlpha(1);
+                btn.icon.setTint(0xffffff); // 本来の色
+                btn.icon.setAlpha(1);
+            } else {
+                btn.bg.setFillStyle(0x888888); // グレーアウト
+                btn.bg.setAlpha(0.8);
+                btn.icon.setTint(0x555555); // 暗くする
+                btn.icon.setAlpha(0.7);
+            }
+        });
 
         // 城レベル計算（コスト上限に基づく）
         const newLevel = this.costSystem.getLevel();
