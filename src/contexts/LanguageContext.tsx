@@ -68,9 +68,9 @@ const translations: Record<Language, Record<string, string>> = {
         "stage_12_desc": "☠️ DEATH! 200+ enemies. Good luck.",
         "boss_stage_1_name": "👑 BOSS: Giant King",
         "boss_stage_1_desc": "🦍 MEGA BOSS! Defeat the giant!",
-        "boss_stage_2_name": "🐉 BOSS: Dragon Lord",
-        "boss_stage_2_desc": "🔥 LEGENDARY! Face the dragon!",
-        "boss_stage_3_name": "💀 BOSS: Death Titan",
+        "boss_stage_2_name": "🍉 BOSS: BIG Melon",
+        "boss_stage_2_desc": "🔥 LEGENDARY! A massive watermelon!",
+        "boss_stage_3_name": "👩 BOSS: BIGMAM",
         "boss_stage_3_desc": "☠️ ULTIMATE! The final nightmare!",
 
         // Team
@@ -191,9 +191,9 @@ const translations: Record<Language, Record<string, string>> = {
         "stage_12_desc": "☠️ 死神級！敵200体以上。健闘を祈る。",
         "boss_stage_1_name": "👑 BOSS: 巨人王",
         "boss_stage_1_desc": "🦍 超巨大ボス！巨人を倒せ！",
-        "boss_stage_2_name": "🐉 BOSS: ドラゴンロード",
-        "boss_stage_2_desc": "🔥 伝説級！龍に立ち向かえ！",
-        "boss_stage_3_name": "💀 BOSS: デスタイタン",
+        "boss_stage_2_name": "🍉 BOSS: BIGメロン",
+        "boss_stage_2_desc": "🔥 伝説級！巨大スイカを倒せ！",
+        "boss_stage_3_name": "👩 BOSS: BIGMAM",
         "boss_stage_3_desc": "☠️ 究極！最後の悪夢に挑め！",
 
         // Team

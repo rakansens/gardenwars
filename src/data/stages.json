@@ -33,7 +33,17 @@
             }
         ],
         "reward": {
-            "coins": 100
+            "coins": 100,
+            "drops": [
+                {
+                    "unitId": "cat_warrior",
+                    "rate": 30
+                },
+                {
+                    "unitId": "sunflower",
+                    "rate": 15
+                }
+            ]
         },
         "background": {
             "skyColor": "0x87ceeb",
@@ -81,7 +91,17 @@
             }
         ],
         "reward": {
-            "coins": 200
+            "coins": 200,
+            "drops": [
+                {
+                    "unitId": "cat_archer",
+                    "rate": 25
+                },
+                {
+                    "unitId": "corn_kid",
+                    "rate": 20
+                }
+            ]
         },
         "background": {
             "skyColor": "0x6eb56e",
@@ -135,7 +155,17 @@
             }
         ],
         "reward": {
-            "coins": 350
+            "coins": 350,
+            "drops": [
+                {
+                    "unitId": "cat_tank",
+                    "rate": 20
+                },
+                {
+                    "unitId": "ice_flower",
+                    "rate": 15
+                }
+            ]
         },
         "background": {
             "skyColor": "0xf5d6a0",
@@ -183,7 +213,17 @@
             }
         ],
         "reward": {
-            "coins": 450
+            "coins": 450,
+            "drops": [
+                {
+                    "unitId": "cat_ninja",
+                    "rate": 15
+                },
+                {
+                    "unitId": "corn_fighter",
+                    "rate": 20
+                }
+            ]
         },
         "background": {
             "skyColor": "0xff7e47",
@@ -237,7 +277,17 @@
             }
         ],
         "reward": {
-            "coins": 550
+            "coins": 550,
+            "drops": [
+                {
+                    "unitId": "cat_mage",
+                    "rate": 15
+                },
+                {
+                    "unitId": "block_slime",
+                    "rate": 20
+                }
+            ]
         },
         "background": {
             "skyColor": "0x2a2a3a",
@@ -291,7 +341,17 @@
             }
         ],
         "reward": {
-            "coins": 700
+            "coins": 700,
+            "drops": [
+                {
+                    "unitId": "ice_flower",
+                    "rate": 25
+                },
+                {
+                    "unitId": "watermelon",
+                    "rate": 10
+                }
+            ]
         },
         "background": {
             "skyColor": "0xc8e6ff",
@@ -351,7 +411,17 @@
             }
         ],
         "reward": {
-            "coins": 1000
+            "coins": 1000,
+            "drops": [
+                {
+                    "unitId": "watermelon",
+                    "rate": 15
+                },
+                {
+                    "unitId": "penguin_boy",
+                    "rate": 8
+                }
+            ]
         },
         "background": {
             "skyColor": "0x4a1010",
@@ -417,7 +487,17 @@
             }
         ],
         "reward": {
-            "coins": 1500
+            "coins": 1500,
+            "drops": [
+                {
+                    "unitId": "ribbon_girl",
+                    "rate": 5
+                },
+                {
+                    "unitId": "cinnamon_girl",
+                    "rate": 3
+                }
+            ]
         },
         "background": {
             "skyColor": "0x1a0a2e",
@@ -471,7 +551,17 @@
             }
         ],
         "reward": {
-            "coins": 2000
+            "coins": 2000,
+            "drops": [
+                {
+                    "unitId": "cat_tank",
+                    "rate": 30
+                },
+                {
+                    "unitId": "cat_mage",
+                    "rate": 20
+                }
+            ]
         },
         "background": {
             "skyColor": "0x2a0a0a",
@@ -531,7 +621,17 @@
             }
         ],
         "reward": {
-            "coins": 3000
+            "coins": 3000,
+            "drops": [
+                {
+                    "unitId": "ribbon_girl",
+                    "rate": 10
+                },
+                {
+                    "unitId": "cinnamon_girl",
+                    "rate": 5
+                }
+            ]
         },
         "background": {
             "skyColor": "0x0a0a2a",
@@ -591,7 +691,17 @@
             }
         ],
         "reward": {
-            "coins": 5000
+            "coins": 5000,
+            "drops": [
+                {
+                    "unitId": "cinnamon_girl",
+                    "rate": 8
+                },
+                {
+                    "unitId": "nika",
+                    "rate": 3
+                }
+            ]
         },
         "background": {
             "skyColor": "0x3a0a3a",
@@ -663,7 +773,17 @@
             }
         ],
         "reward": {
-            "coins": 10000
+            "coins": 10000,
+            "drops": [
+                {
+                    "unitId": "nika",
+                    "rate": 5
+                },
+                {
+                    "unitId": "lennon",
+                    "rate": 2
+                }
+            ]
         },
         "background": {
             "skyColor": "0x0a0000",
@@ -688,7 +808,17 @@
             }
         ],
         "reward": {
-            "coins": 5000
+            "coins": 5000,
+            "drops": [
+                {
+                    "unitId": "cat_tank",
+                    "rate": 50
+                },
+                {
+                    "unitId": "ribbon_girl",
+                    "rate": 20
+                }
+            ]
         },
         "background": {
             "skyColor": "0x2a1a1a",
@@ -713,7 +843,17 @@
             }
         ],
         "reward": {
-            "coins": 8000
+            "coins": 8000,
+            "drops": [
+                {
+                    "unitId": "ribbon_girl",
+                    "rate": 30
+                },
+                {
+                    "unitId": "cinnamon_girl",
+                    "rate": 15
+                }
+            ]
         },
         "background": {
             "skyColor": "0x1a2a1a",
@@ -738,7 +878,21 @@
             }
         ],
         "reward": {
-            "coins": 15000
+            "coins": 15000,
+            "drops": [
+                {
+                    "unitId": "cinnamon_girl",
+                    "rate": 25
+                },
+                {
+                    "unitId": "nika",
+                    "rate": 10
+                },
+                {
+                    "unitId": "lennon",
+                    "rate": 5
+                }
+            ]
         },
         "background": {
             "skyColor": "0x0a0a1a",

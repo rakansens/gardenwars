@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import stagesData from "@/data/stages.json";
 import unitsData from "@/data/units.json";
 import type { StageDefinition, UnitDefinition } from "@/data/types";
@@ -26,8 +27,8 @@ const stageIcons: { [key: string]: string } = {
     stage_11: "🔥",
     stage_12: "☠️",
     boss_stage_1: "👑",
-    boss_stage_2: "🐉",
-    boss_stage_3: "💀",
+    boss_stage_2: "🍉",
+    boss_stage_3: "👩",
 };
 
 // 敵の総数を計算
@@ -52,6 +53,16 @@ const getDifficulty = (index: number): string => {
 export default function StagesPage() {
     const router = useRouter();
     const { t } = useLanguage();
+    const [clearedStages, setClearedStages] = useState<string[]>([]);
+
+    useEffect(() => {
+        try {
+            const cleared = JSON.parse(localStorage.getItem("clearedStages") || "[]");
+            setClearedStages(cleared);
+        } catch {
+            setClearedStages([]);
+        }
+    }, []);
 
     const handleSelectStage = (stageId: string) => {
         router.push(`/battle/${stageId}`);
@@ -80,13 +91,20 @@ export default function StagesPage() {
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {stages.map((stage, index) => {
                         const enemyUnits = getUniqueEnemyUnits(stage);
-
+                        const isCleared = clearedStages.includes(stage.id);
                         return (
                             <div
                                 key={stage.id}
-                                className="stage-card"
+                                className={`stage-card relative ${isCleared ? 'ring-2 ring-green-400' : ''}`}
                                 onClick={() => handleSelectStage(stage.id)}
                             >
+                                {/* クリアバッジ */}
+                                {isCleared && (
+                                    <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg z-10">
+                                        ✓ CLEAR
+                                    </div>
+                                )}
+
                                 {/* ステージ番号とアイコン */}
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="text-sm text-amber-900/60">
@@ -157,6 +175,37 @@ export default function StagesPage() {
                                         </div>
                                     </div>
                                 </div>
+
+                                {/* ドロップユニット */}
+                                {stage.reward.drops && stage.reward.drops.length > 0 && (
+                                    <div className="mb-4">
+                                        <div className="text-xs text-green-700 mb-2">🎁 ドロップ:</div>
+                                        <div className="flex gap-2 flex-wrap">
+                                            {stage.reward.drops.map((drop) => {
+                                                const unit = allUnits.find(u => u.id === drop.unitId);
+                                                if (!unit) return null;
+                                                return (
+                                                    <div
+                                                        key={drop.unitId}
+                                                        className="flex items-center gap-1 bg-green-100 border border-green-300 rounded-lg px-2 py-1"
+                                                        title={`${unit.name} (${drop.rate}%)`}
+                                                    >
+                                                        <div className="w-6 h-6 rounded overflow-hidden flex items-center justify-center">
+                                                            <Image
+                                                                src={`/assets/sprites/${unit.id}.png`}
+                                                                alt={unit.name}
+                                                                width={20}
+                                                                height={20}
+                                                                className="object-contain"
+                                                            />
+                                                        </div>
+                                                        <span className="text-xs text-green-800 font-bold">{drop.rate}%</span>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* 難易度と報酬 */}
                                 <div className="flex justify-between items-center text-sm">

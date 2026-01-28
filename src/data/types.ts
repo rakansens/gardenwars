@@ -49,6 +49,11 @@ export interface WaveConfig {
 /**
  * ステージ定義
  */
+export interface UnitDrop {
+  unitId: string;
+  rate: number; // 0-100のドロップ率
+}
+
 export interface StageDefinition {
   id: string;
   name: string;
@@ -57,12 +62,16 @@ export interface StageDefinition {
   baseCastleHp: number;       // 味方城HP
   enemyCastleHp: number;      // 敵城HP
   enemyWaves: WaveConfig[];
-  reward: { coins: number };
+  reward: {
+    coins: number;
+    drops?: UnitDrop[];       // ユニットドロップ設定
+  };
   background?: {
     skyColor: string;         // 空の色（16進数）
     groundColor: string;      // 地面の色（16進数）
     cloudColor?: string;      // 雲の色（オプション）
   };
+  isBossStage?: boolean;      // ボスステージか
 }
 
 /**
