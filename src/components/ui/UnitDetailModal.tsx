@@ -100,6 +100,14 @@ export default function UnitDetailModal({
                             <div className="text-xs text-gray-500 mb-1">{t("range")}</div>
                             <div className="text-lg font-bold text-indigo-600">📏 {unit.attackRange}</div>
                         </div>
+                        <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                            <div className="text-xs text-gray-500 mb-1">{t("speed")}</div>
+                            <div className="text-lg font-bold text-blue-500">💨 {unit.speed}</div>
+                        </div>
+                        <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                            <div className="text-xs text-gray-500 mb-1">{t("cooldown")}</div>
+                            <div className="text-lg font-bold text-orange-500">⏱️ {(unit.attackCooldownMs / 1000).toFixed(1)}s</div>
+                        </div>
                     </div>
 
                     {/* Action Button */}

@@ -143,7 +143,7 @@
             },
             {
                 "timeMs": 25000,
-                "unitId": "enemy_cat_tank",
+                "unitId": "enemy_block",
                 "count": 2,
                 "intervalMs": 2500
             },
@@ -381,7 +381,7 @@
             },
             {
                 "timeMs": 16000,
-                "unitId": "enemy_ribbon",
+                "unitId": "enemy_penguin",
                 "count": 1,
                 "intervalMs": 0
             },
@@ -475,7 +475,7 @@
             },
             {
                 "timeMs": 48000,
-                "unitId": "enemy_ribbon",
+                "unitId": "enemy_penguin",
                 "count": 2,
                 "intervalMs": 3000
             },
@@ -597,7 +597,7 @@
             },
             {
                 "timeMs": 35000,
-                "unitId": "enemy_yumemi",
+                "unitId": "enemy_ur_knight",
                 "count": 2,
                 "intervalMs": 3000
             },
@@ -615,7 +615,7 @@
             },
             {
                 "timeMs": 75000,
-                "unitId": "enemy_ribbon",
+                "unitId": "enemy_penguin",
                 "count": 5,
                 "intervalMs": 1200
             }
@@ -661,7 +661,7 @@
             },
             {
                 "timeMs": 16000,
-                "unitId": "enemy_yumemi",
+                "unitId": "enemy_ur_mage",
                 "count": 3,
                 "intervalMs": 1500
             },
@@ -685,7 +685,7 @@
             },
             {
                 "timeMs": 60000,
-                "unitId": "enemy_yumemi",
+                "unitId": "enemy_ur_angel",
                 "count": 5,
                 "intervalMs": 1000
             }
@@ -713,12 +713,12 @@
         "id": "stage_12",
         "name": "stage_12_name",
         "description": "stage_12_desc",
-        "length": 2200,
-        "baseCastleHp": 1000,
-        "enemyCastleHp": 15000,
+        "length": 2500,
+        "baseCastleHp": 5000,
+        "enemyCastleHp": 20000,
         "enemyWaves": [
             {
-                "timeMs": 500,
+                "timeMs": 1000,
                 "unitId": "enemy_dog",
                 "count": 50,
                 "intervalMs": 100
@@ -732,44 +732,32 @@
             {
                 "timeMs": 15000,
                 "unitId": "enemy_ribbon",
-                "count": 8,
-                "intervalMs": 500
+                "count": 5,
+                "intervalMs": 1500
             },
             {
-                "timeMs": 22000,
-                "unitId": "enemy_yumemi",
-                "count": 6,
-                "intervalMs": 600
-            },
-            {
-                "timeMs": 30000,
-                "unitId": "enemy_mage",
-                "count": 15,
-                "intervalMs": 300
+                "timeMs": 25000,
+                "unitId": "enemy_ur_tank",
+                "count": 3,
+                "intervalMs": 2000
             },
             {
                 "timeMs": 40000,
                 "unitId": "enemy_wolf",
-                "count": 20,
-                "intervalMs": 200
+                "count": 30,
+                "intervalMs": 150
             },
             {
-                "timeMs": 50000,
-                "unitId": "enemy_ribbon",
-                "count": 10,
-                "intervalMs": 400
+                "timeMs": 55000,
+                "unitId": "enemy_penguin",
+                "count": 4,
+                "intervalMs": 1500
             },
             {
-                "timeMs": 60000,
-                "unitId": "enemy_yumemi",
-                "count": 10,
-                "intervalMs": 500
-            },
-            {
-                "timeMs": 72000,
-                "unitId": "enemy_cat_tank",
-                "count": 15,
-                "intervalMs": 300
+                "timeMs": 70000,
+                "unitId": "enemy_ur_dragon",
+                "count": 2,
+                "intervalMs": 5000
             }
         ],
         "reward": {
@@ -789,6 +777,174 @@
             "skyColor": "0x0a0000",
             "groundColor": "0x050000",
             "cloudColor": "0x300000"
+        }
+    },
+    {
+        "id": "stage_13",
+        "name": "stage_13_name",
+        "description": "stage_13_desc",
+        "length": 3000,
+        "baseCastleHp": 8000,
+        "enemyCastleHp": 30000,
+        "enemyWaves": [
+            {
+                "timeMs": 2000,
+                "unitId": "enemy_ninja",
+                "count": 20,
+                "intervalMs": 300
+            },
+            {
+                "timeMs": 12000,
+                "unitId": "enemy_corn",
+                "count": 10,
+                "intervalMs": 800
+            },
+            {
+                "timeMs": 25000,
+                "unitId": "enemy_mage",
+                "count": 15,
+                "intervalMs": 600
+            },
+            {
+                "timeMs": 40000,
+                "unitId": "enemy_yumemi",
+                "count": 5,
+                "intervalMs": 2000
+            },
+            {
+                "timeMs": 60000,
+                "unitId": "enemy_ur_knight",
+                "count": 4,
+                "intervalMs": 2500
+            }
+        ],
+        "reward": {
+            "coins": 12000,
+            "drops": [
+                {
+                    "unitId": "ur_ninja",
+                    "rate": 2
+                },
+                {
+                    "unitId": "ur_mage",
+                    "rate": 2
+                }
+            ]
+        },
+        "background": {
+            "skyColor": "0x200020",
+            "groundColor": "0x100010",
+            "cloudColor": "0x400040"
+        }
+    },
+    {
+        "id": "stage_14",
+        "name": "stage_14_name",
+        "description": "stage_14_desc",
+        "length": 3500,
+        "baseCastleHp": 10000,
+        "enemyCastleHp": 40000,
+        "enemyWaves": [
+            {
+                "timeMs": 2000,
+                "unitId": "enemy_crow",
+                "count": 30,
+                "intervalMs": 200
+            },
+            {
+                "timeMs": 15000,
+                "unitId": "enemy_ur_angel",
+                "count": 8,
+                "intervalMs": 2000
+            },
+            {
+                "timeMs": 35000,
+                "unitId": "enemy_ur_dragon",
+                "count": 5,
+                "intervalMs": 4000
+            },
+            {
+                "timeMs": 60000,
+                "unitId": "enemy_ribbon",
+                "count": 10,
+                "intervalMs": 1500
+            }
+        ],
+        "reward": {
+            "coins": 15000,
+            "drops": [
+                {
+                    "unitId": "ur_angel",
+                    "rate": 2
+                },
+                {
+                    "unitId": "ur_dragon",
+                    "rate": 2
+                }
+            ]
+        },
+        "background": {
+            "skyColor": "0x500000",
+            "groundColor": "0x200000",
+            "cloudColor": "0x800000"
+        }
+    },
+    {
+        "id": "stage_15",
+        "name": "stage_15_name",
+        "description": "stage_15_desc",
+        "length": 4000,
+        "baseCastleHp": 15000,
+        "enemyCastleHp": 60000,
+        "enemyWaves": [
+            {
+                "timeMs": 5000,
+                "unitId": "boss_giant_king",
+                "count": 1,
+                "intervalMs": 0
+            },
+            {
+                "timeMs": 20000,
+                "unitId": "enemy_ur_tank",
+                "count": 5,
+                "intervalMs": 3000
+            },
+            {
+                "timeMs": 40000,
+                "unitId": "boss_dragon",
+                "count": 1,
+                "intervalMs": 0
+            },
+            {
+                "timeMs": 60000,
+                "unitId": "boss_death_titan",
+                "count": 1,
+                "intervalMs": 0
+            },
+            {
+                "timeMs": 80000,
+                "unitId": "enemy_ur_mage",
+                "count": 10,
+                "intervalMs": 1000
+            }
+        ],
+        "reward": {
+            "coins": 20000,
+            "drops": [
+                {
+                    "unitId": "ur_tank",
+                    "rate": 3
+                },
+                {
+                    "unitId": "ur_knight",
+                    "rate": 3
+                }
+            ]
+        },
+        "background": {
+            "skyColor": "0x000000",
+            "groundColor": "0x1a1a1a",
+            "cloudColor": "0x333333"
         }
     },
     {

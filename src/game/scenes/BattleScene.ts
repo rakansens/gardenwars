@@ -156,6 +156,11 @@ export class BattleScene extends Phaser.Scene {
             '/assets/sprites/lennon_sheet.png',
             '/assets/sprites/lennon_sheet.json'
         );
+        this.load.atlas(
+            'n_bee_atlas',
+            '/assets/sprites/n_bee_sheet.png',
+            '/assets/sprites/n_bee_sheet.json'
+        );
 
         // UR Units
         this.load.image('ur_knight', '/assets/sprites/ur_knight.png');
@@ -228,9 +233,10 @@ export class BattleScene extends Phaser.Scene {
         this.costSystem = new CostSystem({
             current: 200,
             max: 1000,
-            regenRate: 50,
-            maxLevels: [1000, 1200, 1400, 1600, 1800],
-            upgradeCosts: [200, 400, 600, 800],
+            regenRate: 100,
+            maxLevels: [1000, 2500, 4500, 7000, 10000, 15000, 25000, 99999],
+            regenRates: [100, 150, 250, 400, 600, 900, 1500, 2500],
+            upgradeCosts: [500, 1200, 2500, 4500, 8000, 12000, 20000],
         });
 
         // UI作成
@@ -364,6 +370,37 @@ export class BattleScene extends Phaser.Scene {
                 { key: 'lennon_atlas', frame: 'lennon_attack_2.png' },
             ],
             frameRate: 8,
+            repeat: 0,
+        });
+
+        // ハチのアニメーション
+        this.anims.create({
+            key: 'n_bee_idle',
+            frames: [{ key: 'n_bee_atlas', frame: 'n_bee_idle.png' }],
+            frameRate: 4,
+            repeat: -1,
+        });
+
+        this.anims.create({
+            key: 'n_bee_walk',
+            frames: [
+                { key: 'n_bee_atlas', frame: 'n_bee_walk_1.png' },
+                { key: 'n_bee_atlas', frame: 'n_bee_walk_2.png' },
+                { key: 'n_bee_atlas', frame: 'n_bee_walk_3.png' },
+                { key: 'n_bee_atlas', frame: 'n_bee_walk_4.png' },
+            ],
+            frameRate: 12,
+            repeat: -1,
+        });
+
+        this.anims.create({
+            key: 'n_bee_attack',
+            frames: [
+                { key: 'n_bee_atlas', frame: 'n_bee_attack_1.png' },
+                { key: 'n_bee_atlas', frame: 'n_bee_attack_2.png' },
+                { key: 'n_bee_atlas', frame: 'n_bee_attack_3.png' },
+            ],
+            frameRate: 12,
             repeat: 0,
         });
     }

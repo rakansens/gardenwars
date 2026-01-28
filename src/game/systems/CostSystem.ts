@@ -8,6 +8,7 @@ import { eventBus, GameEvents } from '../utils/EventBus';
 export interface CostSystemOptions extends CostGaugeState {
     maxLevels?: number[];
     upgradeCosts?: number[];
+    regenRates?: number[];
 }
 
 export class CostSystem {
@@ -16,15 +17,18 @@ export class CostSystem {
     private regenRate: number;
     private maxLevels: number[];
     private upgradeCosts: number[];
+    private regenRates: number[];
     private level: number;
 
     constructor(initial: CostSystemOptions) {
         this.current = initial.current;
         this.max = initial.max;
-        this.regenRate = initial.regenRate;
+
         this.maxLevels = initial.maxLevels ?? [initial.max];
         this.upgradeCosts = initial.upgradeCosts ?? [];
+        this.regenRates = initial.regenRates ?? [initial.regenRate];
         this.level = Math.max(0, this.maxLevels.indexOf(this.max));
+        this.regenRate = this.regenRates[this.level] ?? initial.regenRate;
     }
 
     /**
@@ -99,6 +103,9 @@ export class CostSystem {
         this.current -= cost;
         this.level += 1;
         this.max = this.maxLevels[this.level];
+        if (this.regenRates[this.level] !== undefined) {
+            this.regenRate = this.regenRates[this.level];
+        }
         eventBus.emit(GameEvents.COST_CHANGED, this.current, this.max);
         return true;
     }

@@ -34,6 +34,7 @@ export interface UnitDefinition {
   baseUnitId?: string;        // ベースとなる味方ユニットID
   flipSprite?: boolean;       // スプライトを左右反転するか
   isBoss?: boolean;           // ボスユニットか
+  isFlying?: boolean;         // 飛行ユニットか（近接攻撃を受けにくい等の特性）
 }
 
 /**
