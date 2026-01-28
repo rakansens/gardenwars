@@ -397,12 +397,12 @@ export class BattleScene extends Phaser.Scene {
         this.costText.setScrollFactor(0);
         this.costText.setDepth(102);
 
-        // コスト上限アップボタン（丸めた形）
+        // コスト上限アップボタン（スマホ向けに大きく）
         const costUpX = panelX + 120;
-        const costUpY = panelY + 54;
-        const costUpW = 120;
-        const costUpH = 30;
-        const costUpR = 12;
+        const costUpY = panelY + 50;
+        const costUpW = 140;
+        const costUpH = 44;
+        const costUpR = 14;
 
         this.costUpBtnContainer = this.add.container(costUpX, costUpY);
         this.costUpBtnContainer.setScrollFactor(0);
@@ -412,20 +412,21 @@ export class BattleScene extends Phaser.Scene {
         this.drawRoundedButton(this.costUpBtnBg, 0, 0, costUpW, costUpH, costUpR, 0xffe066);
         this.costUpBtnContainer.add(this.costUpBtnBg);
 
-        this.costUpBtnText = this.add.text(10, 6, '上限UP', {
-            fontSize: '13px',
+        this.costUpBtnText = this.add.text(12, 10, '上限UP', {
+            fontSize: '16px',
             color: '#3b2a1a',
             fontStyle: 'bold',
         });
         this.costUpBtnContainer.add(this.costUpBtnText);
 
-        this.costUpBtnCostText = this.add.text(62, 6, '¥0', {
-            fontSize: '12px',
+        this.costUpBtnCostText = this.add.text(72, 11, '¥0', {
+            fontSize: '15px',
             color: '#3b2a1a',
+            fontStyle: 'bold',
         });
         this.costUpBtnContainer.add(this.costUpBtnCostText);
 
-        this.costUpBtnZone = this.add.zone(costUpX + costUpW / 2, costUpY + costUpH / 2, costUpW, costUpH);
+        this.costUpBtnZone = this.add.zone(costUpX + costUpW / 2, costUpY + costUpH / 2, costUpW + 10, costUpH + 10);
         this.costUpBtnZone.setScrollFactor(0);
         this.costUpBtnZone.setDepth(102);
         this.costUpBtnZone.setInteractive({ useHandCursor: true });
@@ -539,15 +540,15 @@ export class BattleScene extends Phaser.Scene {
 
     private createSummonButtons() {
         const { width, height } = this.scale;
-        const bar = this.add.rectangle(width / 2, height - 55, width, 110, 0x6b4a2b, 0.95);
+        const bar = this.add.rectangle(width / 2, height - 55, width, 115, 0x6b4a2b, 0.95);
         bar.setScrollFactor(0);
         bar.setDepth(90);
 
         const buttonY = height - 55; // 画面下端に配置
-        const buttonWidth = 80;
-        const buttonHeight = 90;
-        const startX = 60;
-        const gap = 10;
+        const buttonWidth = 90;
+        const buttonHeight = 100;
+        const startX = 65;
+        const gap = 8;
 
         this.teamData.forEach((unit, index) => {
             const x = startX + index * (buttonWidth + gap);
@@ -560,34 +561,36 @@ export class BattleScene extends Phaser.Scene {
             bg.setStrokeStyle(3, 0x3b2a1a);
 
             // ユニット画像
-            const unitIcon = this.add.image(x, buttonY - 20, unit.id);
-            const iconScale = 40 / unitIcon.height; // 40pxに収める
+            const unitIcon = this.add.image(x, buttonY - 22, unit.id);
+            const iconScale = 45 / unitIcon.height; // 45pxに収める
             unitIcon.setScale(iconScale);
             unitIcon.setScrollFactor(0);
             unitIcon.setDepth(101);
 
             // ユニット名
-            const nameText = this.add.text(x, buttonY + 15, unit.name.slice(0, 4), {
-                fontSize: '11px',
+            const nameText = this.add.text(x, buttonY + 16, unit.name.slice(0, 5), {
+                fontSize: '13px',
                 color: '#3b2a1a',
                 stroke: '#ffffff',
                 strokeThickness: 1,
+                fontStyle: 'bold',
             });
             nameText.setOrigin(0.5, 0.5);
             nameText.setScrollFactor(0);
             nameText.setDepth(101);
 
             // コスト表示
-            const costTag = this.add.rectangle(x, buttonY + 34, 46, 16, 0xffd45a);
+            const costTag = this.add.rectangle(x, buttonY + 38, 54, 20, 0xffd45a);
             costTag.setScrollFactor(0);
             costTag.setDepth(101);
             costTag.setStrokeStyle(2, 0x3b2a1a);
 
-            const costText = this.add.text(x, buttonY + 34, `¥${unit.cost}`, {
-                fontSize: '11px',
+            const costText = this.add.text(x, buttonY + 38, `¥${unit.cost}`, {
+                fontSize: '13px',
                 color: '#3b2a1a',
                 stroke: '#ffffff',
                 strokeThickness: 1,
+                fontStyle: 'bold',
             });
             costText.setOrigin(0.5, 0.5);
             costText.setScrollFactor(0);

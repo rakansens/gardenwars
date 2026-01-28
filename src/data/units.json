@@ -222,7 +222,7 @@
   },
   {
     "id": "ribbon_girl",
-    "name": "Ribbon",
+    "name": "Mama",
     "rarity": "SSR",
     "cost": 220,
     "maxHp": 450,
@@ -630,7 +630,7 @@
   },
   {
     "id": "enemy_ribbon",
-    "name": "Dark Ribbon",
+    "name": "Dark Mama",
     "rarity": "SSR",
     "cost": 0,
     "maxHp": 400,

@@ -49,30 +49,24 @@ export default function TeamPage() {
     }
 
     return (
-        <main className="min-h-screen p-8">
+        <main className="min-h-screen p-4 md:p-8">
             {/* ヘッダー */}
-            <div className="page-header mb-8">
-                <div className="flex items-center justify-between">
-                    <Link href="/" className="text-amber-700 hover:text-amber-600">
-                        {t("back_to_home")}
+            <div className="page-header mb-6">
+                <div className="flex items-center justify-between flex-wrap gap-3">
+                    <Link href="/" className="btn btn-secondary">
+                        ← {t("back_to_home")}
                     </Link>
-                    <h1 className="text-3xl font-bold">{t("team_title")}</h1>
-                    <div className="flex items-center gap-4">
+                    <h1 className="text-2xl md:text-3xl font-bold">{t("team_title")}</h1>
+                    <div className="flex items-center gap-2">
                         <LanguageSwitch />
-                        <Link href="/stages" className="text-amber-700 hover:text-amber-600">
-                            {t("to_stages")} →
+                        <Link href="/stages" className="btn btn-primary">
+                            ⚔️ {t("to_stages")}
                         </Link>
                     </div>
                 </div>
             </div>
 
             <div className="container">
-                {/* ガチャへのリンク */}
-                <div className="mb-6 text-center">
-                    <Link href="/gacha" className="btn btn-secondary">
-                        🎰 {t("menu_gacha")}
-                    </Link>
-                </div>
                 {/* 現在の編成 */}
                 <section className="mb-8">
                     <h2 className="text-xl font-bold mb-4">

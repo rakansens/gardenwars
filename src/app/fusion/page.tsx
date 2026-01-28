@@ -154,9 +154,9 @@ export default function FusionPage() {
     return (
         <main className="min-h-screen p-4">
             {/* ヘッダー */}
-            <div className="flex items-center justify-between mb-6">
-                <Link href="/" className="text-amber-700 hover:text-amber-600">
-                    {t("back_to_home")}
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+                <Link href="/" className="btn btn-secondary">
+                    ← {t("back_to_home")}
                 </Link>
                 <h1 className="text-2xl font-bold">🔮 {t("fusion")}</h1>
                 <LanguageSwitch />

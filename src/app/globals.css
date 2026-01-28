@@ -200,3 +200,94 @@ body {
 .animate-bounce {
   animation: bounce 1s infinite;
 }
+
+/* スマホ最適化 */
+@media (max-width: 768px) {
+  .btn {
+    padding: 16px 28px;
+    font-size: 18px;
+    min-height: 52px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .stage-card {
+    padding: 18px;
+  }
+
+  .page-header {
+    padding: 12px 16px;
+  }
+
+  .container {
+    padding: 0 12px;
+  }
+}
+
+/* ナビゲーションボタン（戻るボタンなど） */
+.nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 15px;
+  background: linear-gradient(180deg, #fff5de, #f8e7b6);
+  border: 2px solid var(--card-border);
+  box-shadow: 0 3px 0 var(--shadow);
+  color: #3b2a1a;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.nav-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--shadow);
+}
+
+/* アクティブ状態（タップ時） */
+.btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 var(--shadow);
+}
+
+.card-interactive:active {
+  transform: translateY(-2px);
+}
+
+.stage-card:active {
+  transform: scale(0.98);
+}
+
+/* 小さいボタン */
+.btn-sm {
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 10px;
+  min-height: 40px;
+}
+
+/* 固定フッターナビ */
+.fixed-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(180deg, #fff5de, #f8e7b6);
+  border-top: 3px solid var(--card-border);
+  padding: 12px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  z-index: 100;
+}
+
+/* ページ下部のマージン（固定ナビがある場合） */
+.has-bottom-nav {
+  padding-bottom: 100px;
+}

@@ -76,15 +76,15 @@ export default function GachaPage() {
     }
 
     return (
-        <main className="min-h-screen p-8">
+        <main className="min-h-screen p-4 md:p-8">
             {/* ヘッダー */}
-            <div className="page-header mb-8">
-                <div className="flex items-center justify-between">
-                    <Link href="/" className="text-amber-700 hover:text-amber-600">
-                        ← ホームへ
+            <div className="page-header mb-6">
+                <div className="flex items-center justify-between flex-wrap gap-3">
+                    <Link href="/" className="btn btn-secondary">
+                        ← ホーム
                     </Link>
-                    <h1 className="text-3xl font-bold">🎰 ガチャ</h1>
-                    <div className="text-amber-700 font-bold">
+                    <h1 className="text-2xl md:text-3xl font-bold">🎰 ガチャ</h1>
+                    <div className="btn btn-primary pointer-events-none">
                         💰 {coins.toLocaleString()}
                     </div>
                 </div>

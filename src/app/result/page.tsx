@@ -57,7 +57,7 @@ function ResultContent() {
             {/* ホームへ */}
             <Link
                 href="/"
-                className="mt-8 text-blue-400 hover:text-blue-300 transition-colors"
+                className="mt-8 btn btn-secondary"
             >
                 🏠 ホームへ戻る
             </Link>

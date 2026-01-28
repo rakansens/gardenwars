@@ -51,18 +51,18 @@ export default function StagesPage() {
     };
 
     return (
-        <main className="min-h-screen p-8">
+        <main className="min-h-screen p-4 md:p-8">
             {/* ヘッダー */}
-            <div className="page-header mb-8">
-                <div className="flex items-center justify-between">
-                    <Link href="/" className="text-amber-700 hover:text-amber-600">
-                        {t("back_to_home")}
+            <div className="page-header mb-6">
+                <div className="flex items-center justify-between flex-wrap gap-3">
+                    <Link href="/" className="btn btn-secondary">
+                        ← {t("back_to_home")}
                     </Link>
-                    <h1 className="text-3xl font-bold">{t("stage_select")}</h1>
-                    <div className="flex items-center gap-3">
+                    <h1 className="text-2xl md:text-3xl font-bold">{t("stage_select")}</h1>
+                    <div className="flex items-center gap-2">
                         <LanguageSwitch />
-                        <Link href="/team" className="text-amber-700 hover:text-amber-600">
-                            {t("team")} →
+                        <Link href="/team" className="btn btn-primary">
+                            🎮 {t("team")}
                         </Link>
                     </div>
                 </div>

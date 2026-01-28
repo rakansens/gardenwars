@@ -71,15 +71,13 @@ export default function BattlePage() {
     return (
         <main className="min-h-screen p-4 flex flex-col">
             {/* ヘッダー */}
-            <div className="mb-4 flex items-center justify-between">
-                <div>
-                    <Link href="/stages" className="text-amber-700 text-sm hover:text-amber-600">
-                        {t("back_to_stages")}
-                    </Link>
-                </div>
-                <h1 className="text-xl font-bold">{t(stage.name)}</h1>
-                <div className="text-sm text-amber-900/60">
-                    {t("team")}: {team.length}
+            <div className="mb-4 flex items-center justify-between gap-2">
+                <Link href="/stages" className="btn btn-secondary text-sm py-2 px-3">
+                    ← {t("back_to_stages")}
+                </Link>
+                <h1 className="text-lg md:text-xl font-bold truncate">{t(stage.name)}</h1>
+                <div className="btn btn-primary pointer-events-none text-sm py-2 px-3">
+                    🎮 {team.length}
                 </div>
             </div>
 
