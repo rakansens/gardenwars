@@ -361,14 +361,14 @@ export default function GachaReveal({ results, onComplete }: GachaRevealProps) {
 
     // カード一覧表示フェーズ
     return (
-        <div className="fixed inset-0 z-50 bg-gradient-to-b from-amber-100 to-amber-200 flex flex-col items-center justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-gradient-to-b from-amber-100 to-amber-200 flex flex-col items-center justify-center p-4 pb-32 overflow-y-auto">
             <h2 className="text-2xl font-bold text-amber-950 mb-4">
                 {allRevealed ? "🎉 ガチャ結果 🎉" : "🎁 タップしてカードを開こう！"}
             </h2>
 
             <div
-                className={`grid gap-2 mb-6 max-w-6xl ${results.length >= 100
-                    ? "grid-cols-5 md:grid-cols-10"
+                className={`grid gap-1 mb-6 max-w-full px-2 ${results.length >= 100
+                    ? "grid-cols-8 sm:grid-cols-10 md:grid-cols-12"
                     : isMulti
                         ? "grid-cols-5"
                         : "grid-cols-1"
@@ -393,34 +393,38 @@ export default function GachaReveal({ results, onComplete }: GachaRevealProps) {
                             key={index}
                             onClick={handleCardClick}
                             className={`
-                                ${isMassive ? "w-14 h-20" : "w-20 h-28"} rounded-xl
+                                ${isMassive ? "w-10 h-14 sm:w-12 sm:h-16" : "w-20 h-28"} rounded-lg
                                 transform transition-all duration-200
                                 ${isRevealed
                                     ? `bg-gradient-to-br ${getRarityGradientClass(unit.rarity)} ${effect.glowColor} border-white/50 cursor-pointer hover:scale-105`
                                     : `bg-gradient-to-br ${rarityBackColors[unit.rarity]} cursor-pointer hover:opacity-90`
                                 }
-                                border-3
+                                border-2
                                 flex flex-col items-center justify-center
-                                shadow-lg
+                                shadow-sm
                             `}
                         >
                             {isRevealed ? (
                                 <>
-                                    <RarityFrame
-                                        unitId={unit.id}
-                                        unitName={unit.name}
-                                        rarity={unit.rarity}
-                                        size="sm"
-                                        showLabel={false}
-                                    />
-                                    <div className="text-xs text-white font-bold mt-1 truncate w-full text-center px-1">
-                                        {unit.name.slice(0, 4)}
+                                    <div className={`${isMassive ? "scale-[0.65] -my-3" : "scale-100"}`}>
+                                        <RarityFrame
+                                            unitId={unit.id}
+                                            unitName={unit.name}
+                                            rarity={unit.rarity}
+                                            size="sm"
+                                            showLabel={false}
+                                        />
                                     </div>
+                                    {!isMassive && (
+                                        <div className="text-xs text-white font-bold mt-1 truncate w-full text-center px-1">
+                                            {unit.name.slice(0, 4)}
+                                        </div>
+                                    )}
                                 </>
                             ) : (
                                 <div className="text-center">
-                                    <span className="text-2xl">❓</span>
-                                    <div className="text-xs text-white/80 font-bold mt-1">{unit.rarity}</div>
+                                    <span className={`${isMassive ? "text-xl" : "text-2xl"}`}>❓</span>
+                                    {!isMassive && <div className="text-xs text-white/80 font-bold mt-1">{unit.rarity}</div>}
                                 </div>
                             )}
                         </div>

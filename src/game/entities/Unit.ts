@@ -101,18 +101,31 @@ export class Unit extends Phaser.GameObjects.Container {
 
         this.add(this.sprite);
 
-        // HPバー背景
-        const barY = -this.sprite.displayHeight - 10;
-        this.hpBarBg = scene.add.rectangle(0, barY, 50, 6, 0x333333);
-        this.add(this.hpBarBg);
+        // HPバー (ボス以外のみ表示)
+        if (!definition.isBoss) {
+            const barY = -this.sprite.displayHeight - 10;
+            this.hpBarBg = scene.add.rectangle(0, barY, 50, 6, 0x333333);
+            this.add(this.hpBarBg);
 
-        // HPバー
-        this.hpBar = scene.add.rectangle(0, barY, 50, 6, 0x00ff00);
-        this.add(this.hpBar);
+            this.hpBar = scene.add.rectangle(0, barY, 50, 6, 0x00ff00);
+            this.add(this.hpBar);
+        } else {
+            // ボス用のダミー（参照エラー回避）- またはnull許容にする
+            // ここでは非表示のオブジェクトを作成して配置（エラー回避のため）
+            this.hpBarBg = scene.add.rectangle(0, 0, 0, 0, 0x000000);
+            this.hpBarBg.setVisible(false);
+            this.hpBar = scene.add.rectangle(0, 0, 0, 0, 0x000000);
+            this.hpBar.setVisible(false);
+        }
 
-        // ユニット名表示
-        const nameText = scene.add.text(0, barY - 15, definition.name.slice(0, 4), {
-            fontSize: '10px',
+        // ユニット名表示（ボスはUIで表示するので非表示、あるいは表示？）
+        // ボスでも足元に名前あってもいいかも。一旦残すか、位置調整。
+        const baseNameY = -this.sprite.displayHeight - 15;
+        // ボスの場合は少し下げて表示（頭上に）
+        const nameY = definition.isBoss ? -this.sprite.displayHeight : baseNameY;
+
+        const nameText = scene.add.text(0, nameY, definition.name.slice(0, 8), {
+            fontSize: definition.isBoss ? '14px' : '10px',
             color: '#ffffff',
             stroke: '#000000',
             strokeThickness: 2,

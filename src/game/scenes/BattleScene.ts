@@ -61,6 +61,11 @@ export class BattleScene extends Phaser.Scene {
     private cannonBarBg!: Phaser.GameObjects.Rectangle;
     private cannonBarFill!: Phaser.GameObjects.Rectangle;
 
+    // ボスHPゲージ
+    private bossHpContainer!: Phaser.GameObjects.Container;
+    private bossHpBarFill!: Phaser.GameObjects.Rectangle;
+    private bossHpText!: Phaser.GameObjects.Text;
+
     // 掛け算クイズ
     private mathModeEnabled: boolean = false;  // 算数モード（デフォルトOFF）
     private mathModeBtn!: Phaser.GameObjects.Container;
@@ -398,9 +403,9 @@ export class BattleScene extends Phaser.Scene {
     private createUI() {
         const { width, height } = this.scale;
 
-        // コストパネル（にゃんこ風）
+        // コストパネル（にゃんこ風）- 上部セーフエリア考慮で下げる
         const panelX = 18;
-        const panelY = 14;
+        const panelY = 40; // 14 -> 40
         const panelW = 260;
         const panelH = 54;
         const panel = this.add.rectangle(panelX, panelY, panelW, panelH, 0xf8e7b6);
@@ -488,13 +493,13 @@ export class BattleScene extends Phaser.Scene {
         // ゲーム状態表示
         const statePanelW = 180;
         const statePanelH = 40;
-        const statePanel = this.add.rectangle(width - 18, 14, statePanelW, statePanelH, 0xf8e7b6);
+        const statePanel = this.add.rectangle(width - 18, 40, statePanelW, statePanelH, 0xf8e7b6);
         statePanel.setOrigin(1, 0);
         statePanel.setStrokeStyle(3, 0x3b2a1a);
         statePanel.setScrollFactor(0);
         statePanel.setDepth(100);
 
-        this.stateText = this.add.text(width - 30, 32, '', {
+        this.stateText = this.add.text(width - 30, 58, '', {
             fontSize: '16px',
             color: '#3b2a1a',
             fontStyle: 'bold',
@@ -509,8 +514,8 @@ export class BattleScene extends Phaser.Scene {
         // 召喚ボタン（チーム分）
         this.createSummonButtons();
 
-        // カメラ操作説明
-        const helpText = this.add.text(width / 2, height - 20, 'ドラッグでカメラ移動', {
+        // カメラ操作説明 (UIの上に表示)
+        const helpText = this.add.text(width / 2, height - 175, 'ドラッグでカメラ移動', {
             fontSize: '14px',
             color: '#fff2cc',
             stroke: '#3b2a1a',
@@ -591,11 +596,16 @@ export class BattleScene extends Phaser.Scene {
 
     private createSummonButtons() {
         const { width, height } = this.scale;
-        const bar = this.add.rectangle(width / 2, height - 55, width, 115, 0x6b4a2b, 0.95);
+        // iPad等の下部バーを考慮して高さを150確保、位置微調整
+        const barHeight = 150;
+        const barY = height - barHeight / 2; // 中心位置
+        // 背景バー：高さ150で画面下部をカバー
+        const bar = this.add.rectangle(width / 2, height - 75, width, 150, 0x6b4a2b, 0.95);
         bar.setScrollFactor(0);
         bar.setDepth(90);
 
-        const buttonY = height - 55; // 画面下端に配置
+        // ボタン配置Y座標: 画面下から85px (元は55px) -> 30px上に移動 (セーフエリア回避)
+        const buttonY = height - 85;
         const buttonWidth = 90;
         const buttonHeight = 100;
         const startX = 65;
@@ -698,6 +708,39 @@ export class BattleScene extends Phaser.Scene {
         this.cannonBtnBg.on('pointerdown', () => {
             this.fireCastleAttack();
         });
+
+        // ボス詳細表示（画面上部）- 80 -> 110 に下げてTop UIとの衝突回避
+        this.bossHpContainer = this.add.container(width / 2, 110);
+        this.bossHpContainer.setScrollFactor(0);
+        this.bossHpContainer.setDepth(110);
+        this.bossHpContainer.setVisible(false);
+
+        // 背景
+        const bossBarW = Math.min(width - 40, 400);
+        const bossBarH = 24;
+        const bossBg = this.add.rectangle(0, 0, bossBarW + 4, bossBarH + 4, 0x000000, 0.7);
+        bossBg.setStrokeStyle(2, 0xff0000);
+        this.bossHpContainer.add(bossBg);
+
+        const bossBarBg = this.add.rectangle(-bossBarW / 2, 0, bossBarW, bossBarH, 0x330000);
+        bossBarBg.setOrigin(0, 0.5);
+        this.bossHpContainer.add(bossBarBg);
+
+        // HPバー
+        this.bossHpBarFill = this.add.rectangle(-bossBarW / 2, 0, bossBarW, bossBarH, 0xff0000);
+        this.bossHpBarFill.setOrigin(0, 0.5);
+        this.bossHpContainer.add(this.bossHpBarFill);
+
+        // ボス名
+        this.bossHpText = this.add.text(0, -25, 'BOSS', {
+            fontSize: '18px',
+            color: '#ff0000',
+            fontStyle: 'bold',
+            stroke: '#ffffff',
+            strokeThickness: 3,
+        });
+        this.bossHpText.setOrigin(0.5, 0.5);
+        this.bossHpContainer.add(this.bossHpText);
     }
 
     private setupEventListeners() {
@@ -748,6 +791,32 @@ export class BattleScene extends Phaser.Scene {
 
         // 状態表示更新
         this.updateStateUI();
+
+        // ボスHP更新
+        this.updateBossUI();
+    }
+
+    private updateBossUI() {
+        const boss = this.enemyUnits.find(u => u.definition.isBoss && !u.isDead());
+        const { width } = this.scale;
+        const bossBarW = Math.min(width - 40, 400);
+
+        if (boss) {
+            this.bossHpContainer.setVisible(true);
+            this.bossHpText.setText(`☠️ ${boss.definition.name} ☠️`);
+
+            const hpRatio = boss.hp / boss.maxHp;
+            this.bossHpBarFill.width = bossBarW * hpRatio;
+
+            // HP色変化（ピンチで点滅など）
+            if (hpRatio < 0.3) {
+                this.bossHpBarFill.setFillStyle(this.time.now % 200 < 100 ? 0xff0000 : 0xffaaaa);
+            } else {
+                this.bossHpBarFill.setFillStyle(0xff0000);
+            }
+        } else {
+            this.bossHpContainer.setVisible(false);
+        }
     }
 
     private updateUnits(delta: number) {

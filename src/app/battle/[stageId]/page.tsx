@@ -69,20 +69,19 @@ export default function BattlePage() {
     }
 
     return (
-        <main className="min-h-screen p-4 flex flex-col">
-            {/* ヘッダー */}
-            <div className="mb-4 flex items-center justify-between gap-2">
-                <Link href="/stages" className="btn btn-secondary text-sm py-2 px-3">
+        <main className="fixed inset-0 bg-[#1a1a2e] overflow-hidden">
+            {/* ヘッダー (オーバーレイ) */}
+            <div className="absolute top-0 left-0 w-full p-4 z-20 flex items-center justify-between pointer-events-none">
+                <Link href="/stages" className="btn btn-secondary text-sm py-2 px-3 pointer-events-auto shadow-lg border-2 border-white/20">
                     ← {t("back_to_stages")}
                 </Link>
-                <h1 className="text-lg md:text-xl font-bold truncate">{t(stage.name)}</h1>
-                <div className="btn btn-primary pointer-events-none text-sm py-2 px-3">
+                <div className="btn btn-primary pointer-events-none text-sm py-2 px-3 shadow-lg border-2 border-white/20">
                     🎮 {team.length}
                 </div>
             </div>
 
-            {/* ゲーム画面 */}
-            <div className="flex-1 flex items-center justify-center">
+            {/* ゲーム画面 (フルスクリーン) */}
+            <div className="w-full h-full flex items-center justify-center">
                 <PhaserGame
                     stage={stage}
                     team={team}
@@ -91,27 +90,27 @@ export default function BattlePage() {
                 />
             </div>
 
+            {/* 操作説明 (オーバーレイ・下部) */}
+            <div className="absolute bottom-2 w-full text-center text-xs text-white/30 pointer-events-none z-10">
+                💡 {t("stage_hint")}
+            </div>
+
             {/* バトル終了オーバーレイ */}
             {battleEnded && result && (
-                <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-                    <div className="text-center">
-                        <h2 className={`text-6xl font-bold mb-4 ${result.win ? "text-amber-400" : "text-red-600"}`}>
+                <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 animate-in fade-in duration-500">
+                    <div className="text-center p-8 bg-white/10 backdrop-blur-md rounded-3xl border-4 border-white/20 shadow-2xl">
+                        <h2 className={`text-6xl font-bold mb-4 drop-shadow-lg ${result.win ? "text-amber-400" : "text-red-500"}`}>
                             {result.win ? `🎉 ${t("victory")}` : `💀 ${t("defeat")}`}
                         </h2>
                         {result.win && (
-                            <p className="text-2xl text-white">
+                            <p className="text-3xl text-white font-bold drop-shadow-md">
                                 +{result.coins} {t("coins")}!
                             </p>
                         )}
-                        <p className="mt-4 text-amber-100/70">{t("loading")}</p>
+                        <p className="mt-6 text-white/70 animate-pulse">{t("loading")}</p>
                     </div>
                 </div>
             )}
-
-            {/* 操作説明 */}
-            <div className="mt-4 text-center text-sm text-amber-900/60">
-                💡 {t("stage_hint")}
-            </div>
         </main>
     );
 }
