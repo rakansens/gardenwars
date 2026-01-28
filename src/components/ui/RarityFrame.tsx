@@ -10,6 +10,7 @@ interface RarityFrameProps {
     size?: "sm" | "md" | "lg";
     showLabel?: boolean;
     count?: number;
+    baseUnitId?: string; // 画像表示用のベースユニットID
 }
 
 // レアリティごとのスタイル定義
@@ -83,9 +84,11 @@ export default function RarityFrame({
     size = "md",
     showLabel = true,
     count,
+    baseUnitId,
 }: RarityFrameProps) {
     const style = rarityStyles[rarity];
     const sizeClass = sizeClasses[size];
+    const imageId = baseUnitId || unitId; // baseUnitIdがあればそれを使用
 
     return (
         <div className="relative">
@@ -104,7 +107,7 @@ export default function RarityFrame({
             >
                 {/* キャラ画像 */}
                 <Image
-                    src={`/assets/sprites/${unitId}.png`}
+                    src={`/assets/sprites/${imageId}.png`}
                     alt={unitName}
                     width={sizeClass.image}
                     height={sizeClass.image}

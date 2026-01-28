@@ -35,6 +35,9 @@ export default function Home() {
         <Link href="/stages" className="btn btn-primary text-center text-xl py-4">
           {t("menu_stages")}
         </Link>
+        <Link href="/worldmap" className="btn btn-primary text-center text-xl py-4 bg-gradient-to-r from-sky-400 to-green-400 border-sky-300">
+          🗺️ {t("world_map")}
+        </Link>
         <Link href="/team" className="btn btn-secondary text-center text-xl py-4">
           {t("menu_team")}
         </Link>

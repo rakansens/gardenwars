@@ -111,6 +111,14 @@ const translations: Record<Language, Record<string, string>> = {
         "back_to_stages": "Back to Stages",
         "retry": "Retry",
 
+        // World Map
+        "world_map": "World Map",
+        "list": "List",
+        "scroll_hint": "Scroll to explore",
+        "battle_start": "Battle!",
+        "close": "Close",
+        "drops": "Drop Rewards",
+
         // Fusion
         "fusion": "Fusion",
         "fusion_desc": "Select 3 units to fuse! Higher rarity materials give better results!",
@@ -238,7 +246,14 @@ const translations: Record<Language, Record<string, string>> = {
         "back_to_stages": "ステージへ戻る",
         "retry": "リトライ",
 
-        // Fusion
+        // World Map
+        "world_map": "ワールドマップ",
+        "list": "リスト",
+        "scroll_hint": "横スクロールで探索",
+        "battle_start": "出撃！",
+        "close": "閉じる",
+        "drops": "ドロップ報酬",
+
         "fusion": "フュージョン",
         "fusion_desc": "3体のユニットを選んで合成！レアリティが高いほど良いユニットが生まれやすい！",
         "fusion_execute": "合成する！",

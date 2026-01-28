@@ -89,6 +89,7 @@ export default function TeamPage() {
                                                 rarity={unit.rarity}
                                                 size="sm"
                                                 showLabel={true}
+                                                baseUnitId={unit.baseUnitId}
                                             />
                                             <div className="text-xs mt-1">{unit.name.slice(0, 4)}</div>
                                             <div className="text-xs text-amber-600 font-bold">¥{unit.cost}</div>
@@ -132,6 +133,7 @@ export default function TeamPage() {
                                         rarity={unit.rarity}
                                         size="md"
                                         showLabel={true}
+                                        baseUnitId={unit.baseUnitId}
                                     />
 
                                     {/* ユニット名 */}
