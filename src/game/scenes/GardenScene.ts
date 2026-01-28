@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GardenPet } from '../entities/GardenPet';
 import type { UnitDefinition } from '@/data/types';
+import { eventBus, GameEvents } from '../utils/EventBus';
 
 export interface GardenSceneData {
     units: UnitDefinition[];
@@ -9,6 +10,10 @@ export interface GardenSceneData {
 export class GardenScene extends Phaser.Scene {
     private units: GardenPet[] = [];
     private unitsData: UnitDefinition[] = [];
+
+    // Public for pets to access
+    public foodGroup!: Phaser.GameObjects.Group;
+    public poopGroup!: Phaser.GameObjects.Group;
 
     constructor() {
         super({ key: 'GardenScene' });
@@ -23,8 +28,7 @@ export class GardenScene extends Phaser.Scene {
         this.load.image('bg_garden', '/assets/backgrounds/stage_forest.png'); // 代用
         this.load.image('castle_ally', '/assets/sprites/castle_ally.png'); // 一応
 
-        // ユニットアセット (BattleSceneのものをコピー)
-        // 本来はAssetLoaderとして共通化すべきだが、今回はベタ書き
+        // ユニットアセット
         const assetList = [
             { key: 'cat_warrior', path: 'cat_warrior' },
             { key: 'cat_tank', path: 'cat_tank' },
@@ -84,9 +88,6 @@ export class GardenScene extends Phaser.Scene {
         const atlases = [
             'cat_warrior', 'corn_fighter', 'penguin_boy', 'cinnamon_girl',
             'nika', 'lennon'
-            // UR atlases actually don't exist yet in codebase? BattleScene only loads images for URs except maybe I missed checks.
-            // Correct. BattleScene only loads images for UR. 
-            // Wait, ur_knight etc are loaded as image in BattleScene.
         ];
 
         atlases.forEach(key => {
@@ -103,6 +104,10 @@ export class GardenScene extends Phaser.Scene {
         // 地面
         this.add.rectangle(0, height - 100, width, 200, 0x4caf50).setOrigin(0); // 緑の芝生
 
+        // Groups
+        this.foodGroup = this.add.group();
+        this.poopGroup = this.add.group();
+
         // アニメーション作成 (BattleSceneと同じロジックが必要だが簡易的に)
         this.createAnimations();
 
@@ -115,11 +120,108 @@ export class GardenScene extends Phaser.Scene {
             const pet = new GardenPet(this, x, y, def, width);
             this.units.push(pet);
         });
+
+        // Event Listeners
+        // Need to bind context since EventBus doesn't take context arg
+        this.handleFeed = this.handleFeed.bind(this);
+        this.handleClean = this.handleClean.bind(this);
+
+        eventBus.on(GameEvents.GARDEN_FEED, this.handleFeed as any);
+        eventBus.on(GameEvents.GARDEN_CLEAN, this.handleClean);
+
+        console.log('GardenScene: Listeners attached');
+
+        this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
+            console.log('GardenScene: Shutdown');
+            eventBus.off(GameEvents.GARDEN_FEED, this.handleFeed as any);
+            eventBus.off(GameEvents.GARDEN_CLEAN, this.handleClean);
+        });
+    }
+
+    private handleFeed(args: unknown) {
+        console.log('GardenScene: handleFeed received', args);
+        try {
+            if (!this.foodGroup) return;
+
+            const data = args as { type: string };
+            const { width, height } = this.scale;
+            const x = Phaser.Math.Between(50, width - 50);
+            const yStart = -50;
+            const yEnd = Phaser.Math.Between(height - 150, height - 50);
+
+            // Map food type to Emoji
+            const emojiMap: Record<string, string> = {
+                'n_apple': '🍎',
+                'n_carrot': '🥕',
+                'n_mushroom': '🍄'
+            };
+            const type = (data && data.type) ? data.type : 'n_apple';
+            // If data.type is undefined, loop above defaults to apple.
+            const emoji = emojiMap[type] || '🍎';
+
+            // Use Text instead of Image
+            const food = this.add.text(x, yStart, emoji, { fontSize: '48px' });
+            food.setOrigin(0.5);
+            this.foodGroup.add(food);
+
+            // Fall animation
+            this.tweens.add({
+                targets: food,
+                y: yEnd,
+                duration: 1000,
+                ease: 'Bounce.Out'
+            });
+        } catch (e) {
+            console.error('GardenScene: Error in handleFeed', e);
+        }
+    }
+
+    private handleClean() {
+        console.log('GardenScene: handleClean');
+        // Destroy all poop
+        const poops = this.poopGroup.getChildren();
+        if (poops.length === 0) return;
+
+        this.tweens.add({
+            targets: poops,
+            alpha: 0,
+            scale: 0,
+            duration: 500,
+            onComplete: () => {
+                this.poopGroup.clear(true, true);
+            }
+        });
+
+        // Visual feedback text
+        const text = this.add.text(this.scale.width / 2, this.scale.height / 2, "CLEAN!", {
+            fontSize: '48px',
+            color: '#ffffff',
+            stroke: '#00af00',
+            strokeThickness: 6
+        }).setOrigin(0.5);
+
+        this.tweens.add({
+            targets: text,
+            y: text.y - 100,
+            alpha: 0,
+            duration: 1000,
+            onComplete: () => text.destroy()
+        });
+    }
+
+    // Called by pets
+    public spawnPoop(x: number, y: number) {
+        // Use emoji instead of asset
+        const poop = this.add.text(x, y, '💩', { fontSize: '32px' });
+        poop.setOrigin(0.5);
+        this.poopGroup.add(poop);
     }
 
     update(time: number, delta: number) {
         this.units.forEach(unit => unit.update(delta));
     }
+
+    // ... createAnimations ...
 
     createAnimations() {
         // 主要キャラのアニメーション定義

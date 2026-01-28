@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import type { UnitDefinition } from '@/data/types';
+import { GardenScene } from '../scenes/GardenScene';
 
 export class GardenPet extends Phaser.GameObjects.Container {
     private sprite!: Phaser.GameObjects.Sprite | Phaser.GameObjects.Image;
@@ -7,12 +8,14 @@ export class GardenPet extends Phaser.GameObjects.Container {
     private baseScale: number = 1;
     private hasAnimation: boolean = false;
 
-    // AI State (Containerのstateプロパティとの衝突回避のためaiStateとする)
-    private aiState: 'IDLE' | 'WALK' = 'IDLE';
+    // AI State
+    private aiState: 'IDLE' | 'WALK' | 'WALK_TO_FOOD' = 'IDLE';
     private aiTimer: number = 0;
     private moveSpeed: number;
     private moveDirection: number = 1; // 1: Right, -1: Left
     private worldWidth: number;
+
+    private targetFood: Phaser.GameObjects.Text | null = null;
 
     constructor(
         scene: Phaser.Scene,
@@ -80,6 +83,32 @@ export class GardenPet extends Phaser.GameObjects.Container {
     }
 
     private decideNextAction() {
+        const gardenScene = this.scene as GardenScene;
+        const foods = gardenScene.foodGroup?.getChildren() as Phaser.GameObjects.Text[];
+
+        // Check for food (50% chance if food exists)
+        if (foods && foods.length > 0 && Math.random() < 0.5) {
+            // Find nearest
+            let nearest: Phaser.GameObjects.Text | null = null;
+            let minDist = 9999;
+            foods.forEach(f => {
+                if (!f.active) return;
+                const d = Phaser.Math.Distance.Between(this.x, this.y, f.x, f.y);
+                if (d < minDist) {
+                    minDist = d;
+                    nearest = f;
+                }
+            });
+
+            if (nearest && minDist < 600) { // Only if reasonably close
+                this.targetFood = nearest;
+                this.aiState = 'WALK_TO_FOOD';
+                this.aiTimer = 8000;
+                this.playAnim('walk');
+                return;
+            }
+        }
+
         if (Math.random() < 0.6) {
             this.aiState = 'IDLE';
             this.aiTimer = 1000 + Math.random() * 2000;
@@ -89,16 +118,49 @@ export class GardenPet extends Phaser.GameObjects.Container {
             this.aiTimer = 2000 + Math.random() * 3000;
             this.moveDirection = Math.random() < 0.5 ? 1 : -1;
             this.playAnim('walk');
-
-            // 向き反転
-            // Enemy用アセット(左向き)などを考慮したフリップ調整
-            // ここでは簡易的に進行方向反転のみ
-            if (this.moveDirection === -1) {
-                this.sprite.setScale(-this.baseScale, this.baseScale); // 左向き
-            } else {
-                this.sprite.setScale(this.baseScale, this.baseScale); // 右向き
-            }
+            this.updateDirectionScale();
         }
+    }
+
+    private updateDirectionScale() {
+        // Wobbling logic resets rotation, so we need to be careful.
+        // But scale handles facing direction.
+        if (this.moveDirection === -1) {
+            this.sprite.setScale(-this.baseScale, this.baseScale);
+        } else {
+            this.sprite.setScale(this.baseScale, this.baseScale);
+        }
+    }
+
+    private eatFood() {
+        if (this.targetFood && this.targetFood.active) {
+            this.targetFood.destroy();
+        }
+        this.targetFood = null;
+
+        // Emote
+        const heart = this.scene.add.text(0, -this.sprite.height * this.baseScale - 20, '❤️', { fontSize: '24px' }).setOrigin(0.5);
+        this.add(heart);
+
+        this.scene.tweens.add({
+            targets: heart,
+            y: heart.y - 30,
+            alpha: 0,
+            duration: 1500,
+            onComplete: () => heart.destroy()
+        });
+
+        // 30% chance to poop after delays
+        if (Math.random() < 0.3) {
+            this.scene.time.delayedCall(2000, () => {
+                (this.scene as GardenScene).spawnPoop(this.x, this.y);
+            });
+        }
+
+        // Return to IDLE
+        this.aiState = 'IDLE';
+        this.aiTimer = 2000;
+        this.playAnim('idle');
     }
 
     private playAnim(key: string) {
@@ -130,49 +192,72 @@ export class GardenPet extends Phaser.GameObjects.Container {
     update(delta: number) {
         this.aiTimer -= delta;
 
+        // Depth sort
+        this.setDepth(this.y);
+
+        if (this.aiState === 'WALK_TO_FOOD') {
+            if (!this.targetFood || !this.targetFood.active) {
+                // Food gone
+                this.decideNextAction();
+                return;
+            }
+
+            const dx = this.targetFood.x - this.x;
+            if (Math.abs(dx) > 10) {
+                this.moveDirection = Math.sign(dx);
+                this.x += this.moveDirection * this.moveSpeed * 1.5 * (delta / 1000); // 1.5x speed for food
+                this.updateDirectionScale();
+
+                // Anim wobble logic (reused)
+                this.applyWobble(delta);
+            } else {
+                // Reached
+                this.eatFood();
+            }
+
+            if (this.aiTimer <= 0) this.decideNextAction(); // Timeout
+            return;
+        }
+
         if (this.aiTimer <= 0) {
             this.decideNextAction();
         }
 
         if (this.aiState === 'WALK') {
             this.x += this.moveDirection * this.moveSpeed * (delta / 1000);
-
-            // Wobble for sprites without walk animation (even if they have an atlas)
-            const spriteUnitId = this.definition.baseUnitId || this.definition.id;
-            const walkAnimKey = `${spriteUnitId}_walk`;
-            const hasWalkAnim = this.hasAnimation && this.scene.anims.exists(walkAnimKey);
-
-            if (!hasWalkAnim && this.sprite) {
-                const time = this.scene.time.now;
-                // Bob up and down (jumpy walk)
-                this.sprite.y = -Math.abs(Math.sin(time * 0.008)) * 8;
-                // Slight tilting
-                this.sprite.rotation = Math.sin(time * 0.01) * 0.05;
-            }
+            this.updateDirectionScale();
+            this.applyWobble(delta);
 
             // 画面端判定
             if (this.x < 50) {
                 this.x = 50;
                 this.moveDirection = 1;
-                this.sprite.setScale(this.baseScale, this.baseScale);
+                this.updateDirectionScale();
             } else if (this.x > this.worldWidth - 50) {
                 this.x = this.worldWidth - 50;
                 this.moveDirection = -1;
-                this.sprite.setScale(-this.baseScale, this.baseScale);
+                this.updateDirectionScale();
             }
         } else if (this.aiState === 'IDLE') {
-            // Reset transforms if we were wobbling (no walk anim)
-            const spriteUnitId = this.definition.baseUnitId || this.definition.id;
-            const walkAnimKey = `${spriteUnitId}_walk`;
-            const hasWalkAnim = this.hasAnimation && this.scene.anims.exists(walkAnimKey);
-
-            if (!hasWalkAnim && this.sprite) {
+            const hasWalkAnim = this.checkWalkAnim();
+            if (!hasWalkAnim) {
                 this.sprite.y = 0;
                 this.sprite.rotation = 0;
             }
         }
+    }
 
-        // 深度ソート（手前のキャラが前に）
-        this.setDepth(this.y);
+    private checkWalkAnim(): boolean {
+        const spriteUnitId = this.definition.baseUnitId || this.definition.id;
+        const walkAnimKey = `${spriteUnitId}_walk`;
+        return this.hasAnimation && this.scene.anims.exists(walkAnimKey);
+    }
+
+    private applyWobble(delta: number) {
+        if (this.checkWalkAnim()) return;
+
+        const time = this.scene.time.now;
+        this.sprite.y = -Math.abs(Math.sin(time * 0.008)) * 8;
+        this.sprite.rotation = Math.sin(time * 0.01) * 0.05;
     }
 }

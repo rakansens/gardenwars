@@ -61,4 +61,8 @@ export const GameEvents = {
 
     // UI
     SPEED_CHANGED: 'speed:changed',
+
+    // Garden
+    GARDEN_FEED: 'garden:feed',
+    GARDEN_CLEAN: 'garden:clean',
 } as const;
