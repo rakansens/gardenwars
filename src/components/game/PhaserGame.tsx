@@ -72,8 +72,11 @@ export default function PhaserGame({
             eventBus.on(GameEvents.BATTLE_WIN, handleWin);
             eventBus.on(GameEvents.BATTLE_LOSE, handleLose);
 
+            // モバイル対応: Canvas強制でWebGL問題を回避
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
             const config: Phaser.Types.Core.GameConfig = {
-                type: Phaser.AUTO,
+                type: isMobile ? Phaser.CANVAS : Phaser.AUTO,
                 parent: gameRef.current!,
                 width: 1200,
                 height: 675,
