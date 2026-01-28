@@ -86,22 +86,24 @@ export default function FusionPage() {
         const roll = Math.random() * 100;
 
         if (avgWeight >= 6) {
-            // SSR素材が多い
-            if (roll < 30) resultRarity = "SSR";
-            else if (roll < 60) resultRarity = "SR";
-            else if (roll < 85) resultRarity = "R";
-            else resultRarity = "N";
+            // SSR素材が多い (平均6以上) -> 最低でもSR (1段階ダウンまで保証)
+            // 以前: SSR 30%, SR 30%, R 25%, N 15%
+            // 修正: SSR 60%, SR 40% (R, Nは排除)
+            if (roll < 60) resultRarity = "SSR";
+            else resultRarity = "SR";
         } else if (avgWeight >= 4) {
-            // SR素材が多い
-            if (roll < 15) resultRarity = "SSR";
-            else if (roll < 45) resultRarity = "SR";
-            else if (roll < 80) resultRarity = "R";
-            else resultRarity = "N";
+            // SR素材が多い (平均4以上) -> 最低でもR (1段階ダウンまで保証)
+            // 以前: SSR 15%, SR 30%, R 35%, N 20%
+            // 修正: SSR 20%, SR 50%, R 30% (Nは排除)
+            if (roll < 20) resultRarity = "SSR";
+            else if (roll < 70) resultRarity = "SR";
+            else resultRarity = "R";
         } else if (avgWeight >= 2) {
             // R素材が多い
+            // 修正: SSR 5%, SR 25%, R 50%, N 20% (Nの確率を低減)
             if (roll < 5) resultRarity = "SSR";
-            else if (roll < 20) resultRarity = "SR";
-            else if (roll < 60) resultRarity = "R";
+            else if (roll < 30) resultRarity = "SR";
+            else if (roll < 80) resultRarity = "R";
             else resultRarity = "N";
         } else {
             // N素材のみ
