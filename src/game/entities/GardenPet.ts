@@ -25,7 +25,7 @@ export class GardenPet extends Phaser.GameObjects.Container {
         this.scene = scene;
         this.definition = definition;
         this.worldWidth = worldWidth;
-        this.moveSpeed = (definition.speed || 50) * 0.5; // 少しゆっくり
+        this.moveSpeed = definition.speed || 50;
 
         // スプライトID決定
         const spriteUnitId = definition.baseUnitId || definition.id;
@@ -137,6 +137,19 @@ export class GardenPet extends Phaser.GameObjects.Container {
         if (this.aiState === 'WALK') {
             this.x += this.moveDirection * this.moveSpeed * (delta / 1000);
 
+            // Wobble for sprites without walk animation (even if they have an atlas)
+            const spriteUnitId = this.definition.baseUnitId || this.definition.id;
+            const walkAnimKey = `${spriteUnitId}_walk`;
+            const hasWalkAnim = this.hasAnimation && this.scene.anims.exists(walkAnimKey);
+
+            if (!hasWalkAnim && this.sprite) {
+                const time = this.scene.time.now;
+                // Bob up and down (jumpy walk)
+                this.sprite.y = -Math.abs(Math.sin(time * 0.008)) * 8;
+                // Slight tilting
+                this.sprite.rotation = Math.sin(time * 0.01) * 0.05;
+            }
+
             // 画面端判定
             if (this.x < 50) {
                 this.x = 50;
@@ -146,6 +159,16 @@ export class GardenPet extends Phaser.GameObjects.Container {
                 this.x = this.worldWidth - 50;
                 this.moveDirection = -1;
                 this.sprite.setScale(-this.baseScale, this.baseScale);
+            }
+        } else if (this.aiState === 'IDLE') {
+            // Reset transforms if we were wobbling (no walk anim)
+            const spriteUnitId = this.definition.baseUnitId || this.definition.id;
+            const walkAnimKey = `${spriteUnitId}_walk`;
+            const hasWalkAnim = this.hasAnimation && this.scene.anims.exists(walkAnimKey);
+
+            if (!hasWalkAnim && this.sprite) {
+                this.sprite.y = 0;
+                this.sprite.rotation = 0;
             }
         }
 

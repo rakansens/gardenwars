@@ -136,21 +136,20 @@ export class GardenScene extends Phaser.Scene {
                 repeat: -1
             });
             // walk
-            // フレーム名は要確認だが、だいたい ${key}_walk_1.png とか
-            // BattleSceneでは generateFrameNames を使ってるはず
-            // ここでは簡易的に idle だけでも...いや、動くなら walk が欲しい。
-            // BattleSceneの実装を真似る
-            this.anims.create({
-                key: `${key}_walk`,
-                frames: this.anims.generateFrameNames(`${key}_atlas`, {
-                    prefix: `${key}_walk_`,
-                    start: 1,
-                    end: 4, // 仮。実際はシートによる
-                    suffix: '.png'
-                }),
-                frameRate: 8,
-                repeat: -1
-            });
+            // Only create walk animation if frames exist (cat_warrior only in current set)
+            if (key === 'cat_warrior') {
+                this.anims.create({
+                    key: `${key}_walk`,
+                    frames: this.anims.generateFrameNames(`${key}_atlas`, {
+                        prefix: `${key}_walk_`,
+                        start: 1,
+                        end: 4,
+                        suffix: '.png'
+                    }),
+                    frameRate: 8,
+                    repeat: -1
+                });
+            }
 
             this.anims.create({
                 key: `${key}_attack`,

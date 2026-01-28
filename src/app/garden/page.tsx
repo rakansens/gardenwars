@@ -2,11 +2,16 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import PhaserGame from "@/components/game/PhaserGame";
+import dynamic from 'next/dynamic';
 import { usePlayerData } from "@/hooks/usePlayerData";
 import unitsData from "@/data/units.json";
 import type { UnitDefinition } from "@/data/types";
 import RarityFrame from "@/components/ui/RarityFrame";
+
+const PhaserGame = dynamic(() => import('@/components/game/PhaserGame'), {
+    ssr: false,
+    loading: () => <div className="w-full h-full bg-[#87CEEB] flex items-center justify-center text-white">Loading Game Engine...</div>
+});
 
 const allUnits = unitsData as UnitDefinition[];
 // 敵以外
@@ -76,12 +81,12 @@ export default function GardenPage() {
             <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-start z-10 pointer-events-none">
                 <div className="pointer-events-auto">
                     <Link href="/" className="btn bg-white/50 hover:bg-white/80 text-green-900 border-green-500 font-bold">
-                        ← ホーム
+                        ← Home
                     </Link>
                 </div>
                 <div className="bg-white/60 p-4 rounded-xl backdrop-blur-sm border-2 border-white/80 shadow-lg text-center">
-                    <h1 className="text-2xl font-bold text-green-800">🌱 パラダイス・ガーデン</h1>
-                    <p className="text-sm text-green-700 font-bold">{gardenUnits.length} 匹の仲間たちが遊んでいます</p>
+                    <h1 className="text-2xl font-bold text-green-800">🌱 Paradise Garden</h1>
+                    <p className="text-sm text-green-700 font-bold">{gardenUnits.length} friends playing in the garden</p>
                 </div>
                 <div className="w-20"></div>
             </div>
@@ -97,7 +102,7 @@ export default function GardenPage() {
             {/* Overlay hint */}
             <div className="absolute bottom-4 left-0 right-0 text-center pointer-events-none z-10">
                 <p className="text-white font-bold drop-shadow-md bg-black/20 inline-block px-4 py-1 rounded-full backdrop-blur-sm">
-                    タップするとアクションするよ！
+                    Tap a friend to see them hop!
                 </p>
             </div>
         </main>

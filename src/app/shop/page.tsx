@@ -32,10 +32,10 @@ export default function ShopPage() {
         const success = buyShopItem(targetIndex);
         if (success) {
             // Success Effect?
-            alert("購入しました！");
+            alert("Purchased!");
             setPurchaseModalOpen(false);
         } else {
-            alert("コインが足りません！");
+            alert("Not enough coins!");
         }
     };
 
@@ -47,9 +47,9 @@ export default function ShopPage() {
             {/* Header */}
             <div className="flex items-center justify-between mb-6 sticky top-0 bg-[#1a1a2e]/90 z-20 p-2 backdrop-blur-sm border-b border-white/10">
                 <Link href="/" className="btn btn-secondary text-sm">
-                    ← ホーム
+                    ← Home
                 </Link>
-                <h1 className="text-2xl font-bold text-amber-400">🛒 フラッシュセール</h1>
+                <h1 className="text-2xl font-bold text-amber-400">🛒 Flash Sale</h1>
                 <div className="btn btn-primary pointer-events-none">
                     💰 {coins.toLocaleString()}
                 </div>
@@ -57,8 +57,8 @@ export default function ShopPage() {
 
             {/* Hint */}
             <div className="text-center text-sm text-gray-400 mb-6">
-                ステージクリアでラインナップが更新されます！<br />
-                今だけの限定価格を見逃すな！
+                Shop lineup updates after clearing a stage!<br />
+                Don't miss these limited time prices!
             </div>
 
             {/* Grid */}
@@ -136,7 +136,7 @@ export default function ShopPage() {
                         {/* Background Glare */}
                         <div className="absolute -top-20 -left-20 w-60 h-60 bg-amber-500/20 blur-3xl rounded-full pointer-events-none"></div>
 
-                        <h2 className="text-2xl font-bold mb-4 text-white">購入確認</h2>
+                        <h2 className="text-2xl font-bold mb-4 text-white">Confirm Purchase</h2>
 
                         <div className="flex justify-center mb-6">
                             <RarityFrame
@@ -158,7 +158,7 @@ export default function ShopPage() {
                                 onClick={() => setPurchaseModalOpen(false)}
                                 className="px-6 py-3 rounded-xl bg-gray-600 font-bold hover:bg-gray-500 transition-colors"
                             >
-                                キャンセル
+                                Cancel
                             </button>
                             <button
                                 onClick={handleBuy}
@@ -170,7 +170,7 @@ export default function ShopPage() {
                                     }`
                                 }
                             >
-                                {coins < targetItem.price ? "コイン不足" : "購入する"}
+                                {coins < targetItem.price ? "Not Enough Coins" : "Buy"}
                             </button>
                         </div>
                     </div>
