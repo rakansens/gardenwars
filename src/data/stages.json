@@ -424,5 +424,251 @@
             "groundColor": "0x0a0515",
             "cloudColor": "0x3a1a4e"
         }
+    },
+    {
+        "id": "stage_9",
+        "name": "stage_9_name",
+        "description": "stage_9_desc",
+        "length": 1800,
+        "baseCastleHp": 2000,
+        "enemyCastleHp": 5000,
+        "enemyWaves": [
+            {
+                "timeMs": 1000,
+                "unitId": "enemy_dog",
+                "count": 20,
+                "intervalMs": 200
+            },
+            {
+                "timeMs": 8000,
+                "unitId": "enemy_cat_warrior",
+                "count": 15,
+                "intervalMs": 250
+            },
+            {
+                "timeMs": 15000,
+                "unitId": "enemy_crow",
+                "count": 20,
+                "intervalMs": 150
+            },
+            {
+                "timeMs": 22000,
+                "unitId": "enemy_dog",
+                "count": 30,
+                "intervalMs": 150
+            },
+            {
+                "timeMs": 32000,
+                "unitId": "enemy_sunflower",
+                "count": 25,
+                "intervalMs": 180
+            },
+            {
+                "timeMs": 42000,
+                "unitId": "enemy_corn_kid",
+                "count": 30,
+                "intervalMs": 120
+            }
+        ],
+        "reward": {
+            "coins": 2000
+        },
+        "background": {
+            "skyColor": "0x2a0a0a",
+            "groundColor": "0x1a0505",
+            "cloudColor": "0x4a1010"
+        }
+    },
+    {
+        "id": "stage_10",
+        "name": "stage_10_name",
+        "description": "stage_10_desc",
+        "length": 2500,
+        "baseCastleHp": 2500,
+        "enemyCastleHp": 8000,
+        "enemyWaves": [
+            {
+                "timeMs": 1000,
+                "unitId": "enemy_wolf",
+                "count": 5,
+                "intervalMs": 800
+            },
+            {
+                "timeMs": 10000,
+                "unitId": "enemy_cat_tank",
+                "count": 5,
+                "intervalMs": 1000
+            },
+            {
+                "timeMs": 20000,
+                "unitId": "enemy_ribbon",
+                "count": 3,
+                "intervalMs": 1500
+            },
+            {
+                "timeMs": 35000,
+                "unitId": "enemy_yumemi",
+                "count": 2,
+                "intervalMs": 3000
+            },
+            {
+                "timeMs": 50000,
+                "unitId": "enemy_block",
+                "count": 10,
+                "intervalMs": 500
+            },
+            {
+                "timeMs": 60000,
+                "unitId": "enemy_mage",
+                "count": 8,
+                "intervalMs": 600
+            },
+            {
+                "timeMs": 75000,
+                "unitId": "enemy_ribbon",
+                "count": 5,
+                "intervalMs": 1200
+            }
+        ],
+        "reward": {
+            "coins": 3000
+        },
+        "background": {
+            "skyColor": "0x0a0a2a",
+            "groundColor": "0x050515",
+            "cloudColor": "0x1a1a4a"
+        }
+    },
+    {
+        "id": "stage_11",
+        "name": "stage_11_name",
+        "description": "stage_11_desc",
+        "length": 2000,
+        "baseCastleHp": 1500,
+        "enemyCastleHp": 10000,
+        "enemyWaves": [
+            {
+                "timeMs": 1000,
+                "unitId": "enemy_cat_tank",
+                "count": 8,
+                "intervalMs": 600
+            },
+            {
+                "timeMs": 8000,
+                "unitId": "enemy_ribbon",
+                "count": 4,
+                "intervalMs": 1000
+            },
+            {
+                "timeMs": 16000,
+                "unitId": "enemy_yumemi",
+                "count": 3,
+                "intervalMs": 1500
+            },
+            {
+                "timeMs": 28000,
+                "unitId": "enemy_watermelon",
+                "count": 10,
+                "intervalMs": 500
+            },
+            {
+                "timeMs": 38000,
+                "unitId": "enemy_mage",
+                "count": 8,
+                "intervalMs": 600
+            },
+            {
+                "timeMs": 50000,
+                "unitId": "enemy_ribbon",
+                "count": 6,
+                "intervalMs": 800
+            },
+            {
+                "timeMs": 60000,
+                "unitId": "enemy_yumemi",
+                "count": 5,
+                "intervalMs": 1000
+            }
+        ],
+        "reward": {
+            "coins": 5000
+        },
+        "background": {
+            "skyColor": "0x3a0a3a",
+            "groundColor": "0x1a051a",
+            "cloudColor": "0x5a1a5a"
+        }
+    },
+    {
+        "id": "stage_12",
+        "name": "stage_12_name",
+        "description": "stage_12_desc",
+        "length": 2200,
+        "baseCastleHp": 1000,
+        "enemyCastleHp": 15000,
+        "enemyWaves": [
+            {
+                "timeMs": 500,
+                "unitId": "enemy_dog",
+                "count": 50,
+                "intervalMs": 100
+            },
+            {
+                "timeMs": 8000,
+                "unitId": "enemy_cat_tank",
+                "count": 10,
+                "intervalMs": 400
+            },
+            {
+                "timeMs": 15000,
+                "unitId": "enemy_ribbon",
+                "count": 8,
+                "intervalMs": 500
+            },
+            {
+                "timeMs": 22000,
+                "unitId": "enemy_yumemi",
+                "count": 6,
+                "intervalMs": 600
+            },
+            {
+                "timeMs": 30000,
+                "unitId": "enemy_mage",
+                "count": 15,
+                "intervalMs": 300
+            },
+            {
+                "timeMs": 40000,
+                "unitId": "enemy_wolf",
+                "count": 20,
+                "intervalMs": 200
+            },
+            {
+                "timeMs": 50000,
+                "unitId": "enemy_ribbon",
+                "count": 10,
+                "intervalMs": 400
+            },
+            {
+                "timeMs": 60000,
+                "unitId": "enemy_yumemi",
+                "count": 10,
+                "intervalMs": 500
+            },
+            {
+                "timeMs": 72000,
+                "unitId": "enemy_cat_tank",
+                "count": 15,
+                "intervalMs": 300
+            }
+        ],
+        "reward": {
+            "coins": 10000
+        },
+        "background": {
+            "skyColor": "0x0a0000",
+            "groundColor": "0x050000",
+            "cloudColor": "0x300000"
+        }
     }
 ]

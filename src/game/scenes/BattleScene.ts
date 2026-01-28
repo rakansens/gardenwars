@@ -51,6 +51,8 @@ export class BattleScene extends Phaser.Scene {
     private costUpBtnZone!: Phaser.GameObjects.Zone;
     private costUpBtnText!: Phaser.GameObjects.Text;
     private costUpBtnCostText!: Phaser.GameObjects.Text;
+    private castleLevelText!: Phaser.GameObjects.Text;
+    private currentCastleLevel: number = 1;
     private costUpPulse?: Phaser.Tweens.Tween;
     private cannonCharge: number = 0;
     private cannonChargeMax: number = 20000;
@@ -359,7 +361,7 @@ export class BattleScene extends Phaser.Scene {
         // コストパネル（にゃんこ風）
         const panelX = 18;
         const panelY = 14;
-        const panelW = 230;
+        const panelW = 260;
         const panelH = 54;
         const panel = this.add.rectangle(panelX, panelY, panelW, panelH, 0xf8e7b6);
         panel.setOrigin(0, 0);
@@ -375,7 +377,16 @@ export class BattleScene extends Phaser.Scene {
         costLabel.setScrollFactor(0);
         costLabel.setDepth(101);
 
-        this.costBarMaxWidth = 140;
+        // 城レベル表示
+        this.castleLevelText = this.add.text(panelX + 70, panelY + 6, '🏰 Lv.1', {
+            fontSize: '12px',
+            color: '#b8860b',
+            fontStyle: 'bold',
+        });
+        this.castleLevelText.setScrollFactor(0);
+        this.castleLevelText.setDepth(101);
+
+        this.costBarMaxWidth = 130;
         this.costBarHeight = 14;
         this.costBarBg = this.add.rectangle(panelX + 12, panelY + 30, this.costBarMaxWidth, this.costBarHeight, 0xd7bf8a);
         this.costBarBg.setOrigin(0, 0.5);
@@ -388,8 +399,8 @@ export class BattleScene extends Phaser.Scene {
         this.costBarFill.setScrollFactor(0);
         this.costBarFill.setDepth(102);
 
-        this.costText = this.add.text(panelX + 165, panelY + 24, '0/1000', {
-            fontSize: '16px',
+        this.costText = this.add.text(panelX + 150, panelY + 30, '0/1000', {
+            fontSize: '14px',
             color: '#3b2a1a',
             fontStyle: 'bold',
         });
@@ -398,7 +409,7 @@ export class BattleScene extends Phaser.Scene {
         this.costText.setDepth(102);
 
         // コスト上限アップボタン（スマホ向けに大きく）
-        const costUpX = panelX + 120;
+        const costUpX = panelX + 140;
         const costUpY = panelY + 50;
         const costUpW = 140;
         const costUpH = 44;
@@ -773,6 +784,16 @@ export class BattleScene extends Phaser.Scene {
         this.costBarFill.height = this.costBarHeight;
         this.costText.setText(`${current}/${max}`);
 
+        // 城レベル計算（コスト上限に基づく）
+        const newLevel = this.costSystem.getLevel();
+        if (newLevel !== this.currentCastleLevel) {
+            this.currentCastleLevel = newLevel;
+            this.castleLevelText.setText(`🏰 Lv.${newLevel}`);
+
+            // 城レベルアップ時に城を拡大＆HP増加
+            this.onCastleLevelUp(newLevel);
+        }
+
         const upgradeCost = this.costSystem.getUpgradeCost();
         if (upgradeCost === null) {
             this.costUpBtnCostText.setText('MAX');
@@ -806,6 +827,53 @@ export class BattleScene extends Phaser.Scene {
                 }
             }
         }
+    }
+
+    private onCastleLevelUp(level: number) {
+        // 城のスケールを拡大（レベル1=1.0, レベル5=1.4）
+        const newScale = 1.0 + (level - 1) * 0.1;
+
+        if (this.allyCastle) {
+            this.tweens.add({
+                targets: this.allyCastle,
+                scaleX: newScale,
+                scaleY: newScale,
+                duration: 500,
+                ease: 'Back.easeOut',
+            });
+
+            // 城HP増加（レベルごとに20%増加）
+            const hpBonus = Math.floor(this.allyCastle.maxHp * 0.2);
+            this.allyCastle.maxHp += hpBonus;
+            this.allyCastle.hp = Math.min(this.allyCastle.hp + hpBonus, this.allyCastle.maxHp);
+
+            // レベルアップエフェクト
+            this.showLevelUpEffect();
+        }
+    }
+
+    private showLevelUpEffect() {
+        const centerX = 150;
+        const centerY = this.groundY - 80;
+
+        const levelUpText = this.add.text(centerX, centerY, '🏰 LEVEL UP!', {
+            fontSize: '24px',
+            color: '#ffd700',
+            fontStyle: 'bold',
+            stroke: '#4a3000',
+            strokeThickness: 4,
+        });
+        levelUpText.setOrigin(0.5);
+        levelUpText.setDepth(200);
+
+        this.tweens.add({
+            targets: levelUpText,
+            y: centerY - 50,
+            alpha: 0,
+            duration: 1500,
+            ease: 'Power2',
+            onComplete: () => levelUpText.destroy(),
+        });
     }
 
     private drawRoundedButton(

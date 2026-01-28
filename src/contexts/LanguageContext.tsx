@@ -58,6 +58,14 @@ const translations: Record<Language, Record<string, string>> = {
         "stage_7_desc": "Final showdown in scorching heat! Give it your all!",
         "stage_8_name": "Demon Castle",
         "stage_8_desc": "The strongest enemy awaits! Seize victory!",
+        "stage_9_name": "Zombie Rush",
+        "stage_9_desc": "⚠️ EXTREME! Endless hordes of enemies!",
+        "stage_10_name": "Nightmare Abyss",
+        "stage_10_desc": "💀 INSANE! SSR bosses everywhere!",
+        "stage_11_name": "Boss Rush",
+        "stage_11_desc": "🔥 HELL! Non-stop boss battles!",
+        "stage_12_name": "IMPOSSIBLE",
+        "stage_12_desc": "☠️ DEATH! 200+ enemies. Good luck.",
 
         // Team
         "team": "Team",
@@ -167,6 +175,14 @@ const translations: Record<Language, Record<string, string>> = {
         "stage_7_desc": "灼熱の地での最終決戦！全力で挑め！",
         "stage_8_name": "魔王の城",
         "stage_8_desc": "最強の敵が待ち構える！勝利をつかめ！",
+        "stage_9_name": "ゾンビラッシュ",
+        "stage_9_desc": "⚠️ 激ムズ！敵の大群が止まらない！",
+        "stage_10_name": "悪夢の深淵",
+        "stage_10_desc": "💀 狂気級！SSRボスが大量出現！",
+        "stage_11_name": "ボスラッシュ",
+        "stage_11_desc": "🔥 地獄級！ボス連戦を生き延びろ！",
+        "stage_12_name": "絶対不可能",
+        "stage_12_desc": "☠️ 死神級！敵200体以上。健闘を祈る。",
 
         // Team
         "team": "編成",
