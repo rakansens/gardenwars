@@ -7,17 +7,23 @@ import type { StageDefinition, UnitDefinition } from "@/data/types";
 let globalPhaserGame: Phaser.Game | null = null;
 
 interface PhaserGameProps {
-    stage: StageDefinition;
-    team: UnitDefinition[];
-    allUnits: UnitDefinition[];
-    onBattleEnd: (win: boolean, coinsGained: number) => void;
+    mode?: 'battle' | 'garden';
+    // Battle props
+    stage?: StageDefinition;
+    team?: UnitDefinition[];
+    allUnits?: UnitDefinition[];
+    onBattleEnd?: (win: boolean, coinsGained: number) => void;
+    // Garden props
+    gardenUnits?: UnitDefinition[]; // unitsだとallUnitsと混同するので明示的に
 }
 
 export default function PhaserGame({
+    mode = 'battle',
     stage,
     team,
     allUnits,
     onBattleEnd,
+    gardenUnits,
 }: PhaserGameProps) {
     const gameRef = useRef<HTMLDivElement>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -36,11 +42,11 @@ export default function PhaserGame({
     }, []);
 
     const handleBattleEnd = useCallback((win: boolean, coinsGained: number) => {
-        // 重複呼び出し防止
+        if (mode !== 'battle' || !onBattleEnd) return;
         if (battleEndedRef.current) return;
         battleEndedRef.current = true;
         onBattleEnd(win, coinsGained);
-    }, [onBattleEnd]);
+    }, [onBattleEnd, mode]);
 
     useEffect(() => {
         if (!gameRef.current) return;
@@ -54,55 +60,62 @@ export default function PhaserGame({
             globalPhaserGame = null;
         }
 
-        // バトル終了フラグをリセット
         battleEndedRef.current = false;
 
-        // 動的インポートでPhaserをロード（SSR回避）
         const initPhaser = async () => {
             const Phaser = (await import("phaser")).default;
-            const { BattleScene } = await import("@/game/scenes/BattleScene");
-            const { eventBus, GameEvents } = await import("@/game/utils/EventBus");
 
-            if (cancelled || initSeq !== initSeqRef.current) {
-                return () => { };
-            }
+            if (cancelled || initSeq !== initSeqRef.current) return () => { };
 
-            // 既存のリスナーをクリア
-            eventBus.removeAllListeners(GameEvents.BATTLE_WIN);
-            eventBus.removeAllListeners(GameEvents.BATTLE_LOSE);
-
-            // イベントリスナー設定
-            const handleWin = (...args: unknown[]) => {
-                const result = args[0] as { coinsGained?: number } | undefined;
-                handleBattleEnd(true, result?.coinsGained || 0);
-            };
-            const handleLose = () => {
-                handleBattleEnd(false, 0);
-            };
-
-            eventBus.on(GameEvents.BATTLE_WIN, handleWin);
-            eventBus.on(GameEvents.BATTLE_LOSE, handleLose);
-
-            // モバイル対応: Canvas強制でWebGL問題を回避
+            // モバイル対応
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+            let SceneClass: any;
+            let startKey: string;
+            let startData: any;
+
+            if (mode === 'garden') {
+                const { GardenScene } = await import("@/game/scenes/GardenScene");
+                SceneClass = GardenScene;
+                startKey = "GardenScene";
+                startData = { units: gardenUnits || [] };
+            } else {
+                const { BattleScene } = await import("@/game/scenes/BattleScene");
+                SceneClass = BattleScene;
+                startKey = "BattleScene";
+                startData = { stage, team, allUnits };
+
+                // Battle用イベントリスナー
+                const { eventBus, GameEvents } = await import("@/game/utils/EventBus");
+                eventBus.removeAllListeners(GameEvents.BATTLE_WIN);
+                eventBus.removeAllListeners(GameEvents.BATTLE_LOSE);
+
+                const handleWin = (...args: unknown[]) => {
+                    const result = args[0] as { coinsGained?: number } | undefined;
+                    handleBattleEnd(true, result?.coinsGained || 0);
+                };
+                const handleLose = () => {
+                    handleBattleEnd(false, 0);
+                };
+                eventBus.on(GameEvents.BATTLE_WIN, handleWin);
+                eventBus.on(GameEvents.BATTLE_LOSE, handleLose);
+            }
 
             const config: Phaser.Types.Core.GameConfig = {
                 type: isMobile ? Phaser.CANVAS : Phaser.AUTO,
                 parent: gameRef.current!,
                 width: 1200,
                 height: 675,
-                backgroundColor: "#1a1a2e",
-                scene: [BattleScene],
+                backgroundColor: mode === 'garden' ? "#87CEEB" : "#1a1a2e",
+                scene: [SceneClass],
                 scale: {
-                    mode: Phaser.Scale.FIT, // 親要素に合わせる
+                    mode: Phaser.Scale.FIT,
                     autoCenter: Phaser.Scale.CENTER_BOTH,
-                    expandParent: true, // 親要素いっぱいに広げる
+                    expandParent: true,
                 },
                 input: {
                     activePointers: 3,
-                    touch: {
-                        capture: true,
-                    },
+                    touch: { capture: true },
                 },
                 render: {
                     pixelArt: false,
@@ -111,22 +124,16 @@ export default function PhaserGame({
             };
 
             globalPhaserGame = new Phaser.Game(config);
-
-            // シーンにデータを渡して開始
-            globalPhaserGame.scene.start("BattleScene", {
-                stage,
-                team,
-                allUnits,
-            });
+            globalPhaserGame.scene.start(startKey, startData);
 
             if (!cancelled && initSeq === initSeqRef.current) {
                 setIsLoading(false);
             }
 
-            // クリーンアップ関数を返す
             return () => {
-                eventBus.off(GameEvents.BATTLE_WIN, handleWin);
-                eventBus.off(GameEvents.BATTLE_LOSE, handleLose);
+                if (mode === 'battle') {
+                    // EventBus cleanup could go here if we imported it
+                }
             };
         };
 
@@ -144,7 +151,7 @@ export default function PhaserGame({
                 globalPhaserGame = null;
             }
         };
-    }, [stage, team, allUnits, handleBattleEnd]);
+    }, [mode, stage, team, allUnits, gardenUnits, handleBattleEnd]);
 
     return (
         <div className="relative">
