@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import unitsData from "@/data/units.json";
-import playerDataInitial from "@/data/player.json";
 import type { UnitDefinition } from "@/data/types";
+import RarityFrame, { getRarityStars, getRarityGradientClass } from "@/components/ui/RarityFrame";
+import GachaReveal from "@/components/ui/GachaReveal";
+import { usePlayerData } from "@/hooks/usePlayerData";
 
 const allUnits = unitsData as UnitDefinition[];
 // ガチャ対象はallyユニットのみ
@@ -15,13 +16,10 @@ const SINGLE_COST = 100;
 const MULTI_COST = 900; // 10回で少しお得
 
 export default function GachaPage() {
-    const [coins, setCoins] = useState(playerDataInitial.coins);
-    const [inventory, setInventory] = useState<{ [key: string]: number }>(
-        playerDataInitial.unitInventory || {}
-    );
+    const { coins, unitInventory, spendCoins, addUnits, isLoaded } = usePlayerData();
     const [results, setResults] = useState<UnitDefinition[]>([]);
     const [isRolling, setIsRolling] = useState(false);
-    const [showResults, setShowResults] = useState(false);
+    const [showReveal, setShowReveal] = useState(false);
 
     // ガチャを引く
     const rollGacha = (count: number) => {
@@ -29,46 +27,53 @@ export default function GachaPage() {
         if (coins < cost) return;
 
         setIsRolling(true);
-        setCoins(coins - cost);
 
-        // ランダムにユニットを選ぶ
+        // コインを消費
+        spendCoins(cost);
+
+        // ランダムにユニットを選ぶ（レアリティで重み付け）
         const rolled: UnitDefinition[] = [];
         for (let i = 0; i < count; i++) {
-            const randomIndex = Math.floor(Math.random() * gachaPool.length);
-            rolled.push(gachaPool[randomIndex]);
+            const unit = pickRandomUnit();
+            rolled.push(unit);
         }
 
-        // 演出用の遅延
+        // カード演出開始
         setTimeout(() => {
-            // インベントリを更新
-            const newInventory = { ...inventory };
-            for (const unit of rolled) {
-                newInventory[unit.id] = (newInventory[unit.id] || 0) + 1;
-            }
-            setInventory(newInventory);
+            // ユニットをまとめて追加
+            addUnits(rolled.map(u => u.id));
             setResults(rolled);
             setIsRolling(false);
-            setShowResults(true);
-        }, 1500);
+            setShowReveal(true);
+        }, 100);
     };
 
-    const closeResults = () => {
-        setShowResults(false);
+    // レアリティで重み付けしてランダム選択
+    const pickRandomUnit = (): UnitDefinition => {
+        const weights = { N: 50, R: 30, SR: 15, SSR: 5 };
+        const totalWeight = gachaPool.reduce((sum, u) => sum + weights[u.rarity], 0);
+        let random = Math.random() * totalWeight;
+
+        for (const unit of gachaPool) {
+            random -= weights[unit.rarity];
+            if (random <= 0) return unit;
+        }
+        return gachaPool[0];
+    };
+
+    // カード演出完了時
+    const handleRevealComplete = () => {
+        setShowReveal(false);
         setResults([]);
     };
 
-    // レアリティに基づいた色（コスト基準）
-    const getRarityColor = (cost: number) => {
-        if (cost >= 150) return "from-purple-400 to-pink-400"; // レア
-        if (cost >= 100) return "from-yellow-400 to-orange-400"; // アンコモン
-        return "from-gray-300 to-gray-400"; // コモン
-    };
-
-    const getRarityLabel = (cost: number) => {
-        if (cost >= 150) return "⭐⭐⭐";
-        if (cost >= 100) return "⭐⭐";
-        return "⭐";
-    };
+    if (!isLoaded) {
+        return (
+            <main className="min-h-screen flex items-center justify-center">
+                <div className="text-xl">読み込み中...</div>
+            </main>
+        );
+    }
 
     return (
         <main className="min-h-screen p-8">
@@ -80,7 +85,7 @@ export default function GachaPage() {
                     </Link>
                     <h1 className="text-3xl font-bold">🎰 ガチャ</h1>
                     <div className="text-amber-700 font-bold">
-                        💰 {coins}
+                        💰 {coins.toLocaleString()}
                     </div>
                 </div>
             </div>
@@ -97,12 +102,20 @@ export default function GachaPage() {
                         同じユニットは複数所持でき、今後フュージョンに使用できます。
                     </p>
 
+                    {/* 排出率 */}
+                    <div className="flex justify-center gap-2 mb-6 text-xs">
+                        <span className="px-2 py-1 rounded bg-gray-200 text-gray-700">N: 50%</span>
+                        <span className="px-2 py-1 rounded bg-blue-200 text-blue-700">R: 30%</span>
+                        <span className="px-2 py-1 rounded bg-purple-200 text-purple-700">SR: 15%</span>
+                        <span className="px-2 py-1 rounded bg-amber-200 text-amber-700">SSR: 5%</span>
+                    </div>
+
                     {/* ガチャボタン */}
                     <div className="flex justify-center gap-4 flex-wrap">
                         <button
                             className={`btn btn-primary text-lg px-6 py-4 ${coins < SINGLE_COST || isRolling
-                                    ? "opacity-50 cursor-not-allowed"
-                                    : ""
+                                ? "opacity-50 cursor-not-allowed"
+                                : ""
                                 }`}
                             onClick={() => rollGacha(1)}
                             disabled={coins < SINGLE_COST || isRolling}
@@ -113,8 +126,8 @@ export default function GachaPage() {
 
                         <button
                             className={`btn btn-secondary text-lg px-6 py-4 ${coins < MULTI_COST || isRolling
-                                    ? "opacity-50 cursor-not-allowed"
-                                    : ""
+                                ? "opacity-50 cursor-not-allowed"
+                                : ""
                                 }`}
                             onClick={() => rollGacha(10)}
                             disabled={coins < MULTI_COST || isRolling}
@@ -132,35 +145,25 @@ export default function GachaPage() {
                     </h3>
                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
                         {gachaPool.map((unit) => {
-                            const count = inventory[unit.id] || 0;
+                            const count = unitInventory[unit.id] || 0;
                             return (
                                 <div
                                     key={unit.id}
-                                    className={`relative p-2 rounded-lg border-2 ${count > 0
-                                            ? "border-amber-600 bg-amber-50"
-                                            : "border-gray-300 bg-gray-100 opacity-50"
+                                    className={`relative p-2 rounded-lg ${count > 0 ? "" : "opacity-40"
                                         }`}
                                 >
-                                    <div className="w-12 h-12 mx-auto mb-1">
-                                        <Image
-                                            src={`/assets/sprites/${unit.id}.png`}
-                                            alt={unit.name}
-                                            width={48}
-                                            height={48}
-                                            className="object-contain"
+                                    <div className="flex justify-center">
+                                        <RarityFrame
+                                            unitId={unit.id}
+                                            unitName={unit.name}
+                                            rarity={unit.rarity}
+                                            size="md"
+                                            showLabel={true}
+                                            count={count}
                                         />
                                     </div>
-                                    <div className="text-xs text-center text-amber-950 truncate">
+                                    <div className="text-xs text-center text-amber-950 truncate mt-1">
                                         {unit.name}
-                                    </div>
-                                    {/* 所持個数 */}
-                                    <div
-                                        className={`absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${count > 0
-                                                ? "bg-amber-500 text-white"
-                                                : "bg-gray-400 text-white"
-                                            }`}
-                                    >
-                                        {count}
                                     </div>
                                 </div>
                             );
@@ -176,61 +179,12 @@ export default function GachaPage() {
                 </div>
             </div>
 
-            {/* ローディング */}
-            {isRolling && (
-                <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-                    <div className="text-center">
-                        <div className="text-6xl animate-bounce mb-4">🎰</div>
-                        <p className="text-2xl text-white font-bold">ガチャ中...</p>
-                    </div>
-                </div>
-            )}
-
-            {/* 結果表示 */}
-            {showResults && (
-                <div
-                    className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4"
-                    onClick={closeResults}
-                >
-                    <div
-                        className="bg-gradient-to-b from-amber-100 to-amber-200 rounded-2xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto border-4 border-amber-600"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <h2 className="text-2xl font-bold text-center mb-4 text-amber-950">
-                            🎉 ガチャ結果 🎉
-                        </h2>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
-                            {results.map((unit, index) => (
-                                <div
-                                    key={`${unit.id}-${index}`}
-                                    className={`bg-gradient-to-br ${getRarityColor(
-                                        unit.cost
-                                    )} rounded-xl p-3 text-center shadow-lg`}
-                                >
-                                    <div className="text-xs mb-1">{getRarityLabel(unit.cost)}</div>
-                                    <div className="w-16 h-16 mx-auto mb-2 bg-white rounded-lg p-1">
-                                        <Image
-                                            src={`/assets/sprites/${unit.id}.png`}
-                                            alt={unit.name}
-                                            width={56}
-                                            height={56}
-                                            className="object-contain"
-                                        />
-                                    </div>
-                                    <div className="font-bold text-sm text-white drop-shadow">
-                                        {unit.name}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        <button
-                            className="btn btn-primary w-full"
-                            onClick={closeResults}
-                        >
-                            OK
-                        </button>
-                    </div>
-                </div>
+            {/* カード演出 */}
+            {showReveal && (
+                <GachaReveal
+                    results={results}
+                    onComplete={handleRevealComplete}
+                />
             )}
         </main>
     );

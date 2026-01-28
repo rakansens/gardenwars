@@ -1,8 +1,8 @@
 [
     {
         "id": "stage_1",
-        "name": "草原の戦い",
-        "description": "はじめての戦場。敵の攻撃を退けよう！",
+        "name": "stage_1_name",
+        "description": "stage_1_desc",
         "length": 1200,
         "baseCastleHp": 1000,
         "enemyCastleHp": 800,
@@ -10,26 +10,26 @@
             {
                 "timeMs": 2000,
                 "unitId": "enemy_dog",
-                "count": 2,
+                "count": 3,
                 "intervalMs": 1500
             },
             {
                 "timeMs": 8000,
-                "unitId": "enemy_dog",
-                "count": 3,
+                "unitId": "enemy_sunflower",
+                "count": 2,
                 "intervalMs": 1200
             },
             {
-                "timeMs": 15000,
-                "unitId": "enemy_crow",
-                "count": 2,
-                "intervalMs": 2000
-            },
-            {
-                "timeMs": 20000,
+                "timeMs": 14000,
                 "unitId": "enemy_dog",
                 "count": 4,
                 "intervalMs": 1000
+            },
+            {
+                "timeMs": 20000,
+                "unitId": "enemy_corn_kid",
+                "count": 3,
+                "intervalMs": 1200
             }
         ],
         "reward": {
@@ -38,15 +38,15 @@
     },
     {
         "id": "stage_2",
-        "name": "森の遭遇戦",
-        "description": "オオカミが現れた！強敵に注意！",
+        "name": "stage_2_name",
+        "description": "stage_2_desc",
         "length": 1400,
         "baseCastleHp": 1200,
         "enemyCastleHp": 1000,
         "enemyWaves": [
             {
                 "timeMs": 2000,
-                "unitId": "enemy_dog",
+                "unitId": "enemy_cat_warrior",
                 "count": 3,
                 "intervalMs": 1200
             },
@@ -64,13 +64,13 @@
             },
             {
                 "timeMs": 18000,
-                "unitId": "enemy_dog",
+                "unitId": "enemy_cat_warrior",
                 "count": 4,
                 "intervalMs": 800
             },
             {
                 "timeMs": 25000,
-                "unitId": "enemy_wolf",
+                "unitId": "enemy_block",
                 "count": 2,
                 "intervalMs": 3000
             }
@@ -81,23 +81,23 @@
     },
     {
         "id": "stage_3",
-        "name": "荒野の決戦",
-        "description": "大群が押し寄せる！持ちこたえろ！",
+        "name": "stage_3_name",
+        "description": "stage_3_desc",
         "length": 1600,
         "baseCastleHp": 1500,
         "enemyCastleHp": 1500,
         "enemyWaves": [
             {
                 "timeMs": 1000,
-                "unitId": "enemy_dog",
-                "count": 5,
+                "unitId": "enemy_corn",
+                "count": 4,
                 "intervalMs": 800
             },
             {
                 "timeMs": 6000,
-                "unitId": "enemy_crow",
-                "count": 4,
-                "intervalMs": 1000
+                "unitId": "enemy_archer",
+                "count": 3,
+                "intervalMs": 1200
             },
             {
                 "timeMs": 12000,
@@ -107,25 +107,282 @@
             },
             {
                 "timeMs": 18000,
-                "unitId": "enemy_dog",
-                "count": 6,
+                "unitId": "enemy_sunflower",
+                "count": 5,
                 "intervalMs": 600
             },
             {
                 "timeMs": 25000,
-                "unitId": "enemy_wolf",
-                "count": 3,
+                "unitId": "enemy_cat_tank",
+                "count": 2,
                 "intervalMs": 2500
             },
             {
                 "timeMs": 32000,
                 "unitId": "enemy_crow",
+                "count": 4,
+                "intervalMs": 500
+            }
+        ],
+        "reward": {
+            "coins": 350
+        }
+    },
+    {
+        "id": "stage_4",
+        "name": "stage_4_name",
+        "description": "stage_4_desc",
+        "length": 1500,
+        "baseCastleHp": 1800,
+        "enemyCastleHp": 1800,
+        "enemyWaves": [
+            {
+                "timeMs": 1500,
+                "unitId": "enemy_ninja",
+                "count": 3,
+                "intervalMs": 1000
+            },
+            {
+                "timeMs": 7000,
+                "unitId": "enemy_ice_flower",
+                "count": 3,
+                "intervalMs": 1500
+            },
+            {
+                "timeMs": 14000,
+                "unitId": "enemy_watermelon",
+                "count": 2,
+                "intervalMs": 2000
+            },
+            {
+                "timeMs": 22000,
+                "unitId": "enemy_dog",
+                "count": 8,
+                "intervalMs": 500
+            },
+            {
+                "timeMs": 30000,
+                "unitId": "enemy_cat_tank",
+                "count": 3,
+                "intervalMs": 2000
+            }
+        ],
+        "reward": {
+            "coins": 450
+        }
+    },
+    {
+        "id": "stage_5",
+        "name": "stage_5_name",
+        "description": "stage_5_desc",
+        "length": 1700,
+        "baseCastleHp": 2000,
+        "enemyCastleHp": 2000,
+        "enemyWaves": [
+            {
+                "timeMs": 1000,
+                "unitId": "enemy_crow",
+                "count": 5,
+                "intervalMs": 800
+            },
+            {
+                "timeMs": 8000,
+                "unitId": "enemy_corn_kid",
+                "count": 6,
+                "intervalMs": 700
+            },
+            {
+                "timeMs": 15000,
+                "unitId": "enemy_mage",
+                "count": 2,
+                "intervalMs": 2000
+            },
+            {
+                "timeMs": 23000,
+                "unitId": "enemy_block",
+                "count": 3,
+                "intervalMs": 1500
+            },
+            {
+                "timeMs": 32000,
+                "unitId": "enemy_wolf",
+                "count": 4,
+                "intervalMs": 1200
+            },
+            {
+                "timeMs": 40000,
+                "unitId": "enemy_ninja",
                 "count": 5,
                 "intervalMs": 800
             }
         ],
         "reward": {
-            "coins": 350
+            "coins": 550
+        }
+    },
+    {
+        "id": "stage_6",
+        "name": "stage_6_name",
+        "description": "stage_6_desc",
+        "length": 1800,
+        "baseCastleHp": 2200,
+        "enemyCastleHp": 2500,
+        "enemyWaves": [
+            {
+                "timeMs": 2000,
+                "unitId": "enemy_ice_flower",
+                "count": 4,
+                "intervalMs": 1200
+            },
+            {
+                "timeMs": 10000,
+                "unitId": "enemy_cat_warrior",
+                "count": 6,
+                "intervalMs": 600
+            },
+            {
+                "timeMs": 18000,
+                "unitId": "enemy_watermelon",
+                "count": 3,
+                "intervalMs": 1500
+            },
+            {
+                "timeMs": 26000,
+                "unitId": "enemy_archer",
+                "count": 5,
+                "intervalMs": 800
+            },
+            {
+                "timeMs": 35000,
+                "unitId": "enemy_cat_tank",
+                "count": 3,
+                "intervalMs": 2000
+            },
+            {
+                "timeMs": 45000,
+                "unitId": "enemy_mage",
+                "count": 4,
+                "intervalMs": 1200
+            }
+        ],
+        "reward": {
+            "coins": 700
+        }
+    },
+    {
+        "id": "stage_7",
+        "name": "stage_7_name",
+        "description": "stage_7_desc",
+        "length": 2000,
+        "baseCastleHp": 2500,
+        "enemyCastleHp": 3000,
+        "enemyWaves": [
+            {
+                "timeMs": 1000,
+                "unitId": "enemy_wolf",
+                "count": 4,
+                "intervalMs": 1000
+            },
+            {
+                "timeMs": 8000,
+                "unitId": "enemy_corn",
+                "count": 5,
+                "intervalMs": 800
+            },
+            {
+                "timeMs": 16000,
+                "unitId": "enemy_ribbon",
+                "count": 1,
+                "intervalMs": 0
+            },
+            {
+                "timeMs": 20000,
+                "unitId": "enemy_ninja",
+                "count": 6,
+                "intervalMs": 600
+            },
+            {
+                "timeMs": 28000,
+                "unitId": "enemy_sunflower",
+                "count": 8,
+                "intervalMs": 400
+            },
+            {
+                "timeMs": 36000,
+                "unitId": "enemy_block",
+                "count": 4,
+                "intervalMs": 1500
+            },
+            {
+                "timeMs": 46000,
+                "unitId": "enemy_watermelon",
+                "count": 5,
+                "intervalMs": 1200
+            }
+        ],
+        "reward": {
+            "coins": 1000
+        }
+    },
+    {
+        "id": "stage_8",
+        "name": "stage_8_name",
+        "description": "stage_8_desc",
+        "length": 2200,
+        "baseCastleHp": 3000,
+        "enemyCastleHp": 4000,
+        "enemyWaves": [
+            {
+                "timeMs": 1000,
+                "unitId": "enemy_cat_tank",
+                "count": 2,
+                "intervalMs": 2000
+            },
+            {
+                "timeMs": 8000,
+                "unitId": "enemy_crow",
+                "count": 8,
+                "intervalMs": 500
+            },
+            {
+                "timeMs": 16000,
+                "unitId": "enemy_mage",
+                "count": 4,
+                "intervalMs": 1200
+            },
+            {
+                "timeMs": 24000,
+                "unitId": "enemy_yumemi",
+                "count": 1,
+                "intervalMs": 0
+            },
+            {
+                "timeMs": 28000,
+                "unitId": "enemy_dog",
+                "count": 12,
+                "intervalMs": 300
+            },
+            {
+                "timeMs": 38000,
+                "unitId": "enemy_ice_flower",
+                "count": 6,
+                "intervalMs": 800
+            },
+            {
+                "timeMs": 48000,
+                "unitId": "enemy_ribbon",
+                "count": 2,
+                "intervalMs": 3000
+            },
+            {
+                "timeMs": 56000,
+                "unitId": "enemy_cat_tank",
+                "count": 5,
+                "intervalMs": 1500
+            }
+        ],
+        "reward": {
+            "coins": 1500
         }
     }
 ]

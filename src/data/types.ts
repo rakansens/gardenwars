@@ -3,11 +3,17 @@
 // ============================================
 
 /**
+ * レアリティ
+ */
+export type Rarity = 'N' | 'R' | 'SR' | 'SSR';
+
+/**
  * ユニット定義（マスターデータ）
  */
 export interface UnitDefinition {
   id: string;
   name: string;
+  rarity: Rarity;             // レアリティ
   cost: number;
   maxHp: number;
   speed: number;              // pixels per second
@@ -24,6 +30,9 @@ export interface UnitDefinition {
     attack: string;
     die?: string;
   };
+  // 敵ユニット用：味方ユニットのスプライトを流用する場合
+  baseUnitId?: string;        // ベースとなる味方ユニットID
+  flipSprite?: boolean;       // スプライトを左右反転するか
 }
 
 /**

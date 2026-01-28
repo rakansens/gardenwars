@@ -62,15 +62,18 @@ export class Unit extends Phaser.GameObjects.Container {
         this.direction = side === 'ally' ? 1 : -1;
         this.stageLength = stageLength;
 
+        // スプライトに使用するユニットID（baseUnitIdがあればそれを使用）
+        const spriteUnitId = definition.baseUnitId || definition.id;
+
         // アニメーション対応チェック
-        this.hasAnimation = ANIMATED_UNITS.includes(definition.id);
+        this.hasAnimation = ANIMATED_UNITS.includes(spriteUnitId);
 
         if (this.hasAnimation) {
             // アニメーション対応ユニット
-            this.sprite = scene.add.sprite(0, 0, `${definition.id}_atlas`, `${definition.id}_idle.png`);
+            this.sprite = scene.add.sprite(0, 0, `${spriteUnitId}_atlas`, `${spriteUnitId}_idle.png`);
         } else {
             // 静止画ユニット
-            this.sprite = scene.add.image(0, 0, definition.id);
+            this.sprite = scene.add.image(0, 0, spriteUnitId);
         }
 
         // スケール調整（キャラを大きめに）
@@ -82,8 +85,14 @@ export class Unit extends Phaser.GameObjects.Container {
         // 原点を下中央に設定
         this.sprite.setOrigin(0.5, 1);
 
-        // 敵画像は右向きなので、左（味方城方向）に向かせるために反転
-        if (side === 'enemy') {
+        // 敵ユニットの向き設定
+        // - flipSpriteフラグがある場合は反転（味方スプライトを敵として使用）
+        // - 敵は左向き（味方城方向）に向かうために反転
+        if (definition.flipSprite) {
+            // baseUnitIdを使用する敵ユニット: 味方スプライトを反転
+            this.sprite.setFlipX(true);
+        } else if (side === 'enemy') {
+            // 既存の敵専用スプライト: 右向きなので反転
             this.sprite.setFlipX(true);
         }
 
@@ -146,13 +155,16 @@ export class Unit extends Phaser.GameObjects.Container {
 
         // アニメーション再生
         if (this.hasAnimation && this.sprite instanceof Phaser.GameObjects.Sprite) {
+            // スプライトに使用するユニットID
+            const spriteUnitId = this.definition.baseUnitId || this.definition.id;
+
             switch (newState) {
                 case 'SPAWN':
                 case 'WALK':
-                    this.sprite.play(`${this.definition.id}_walk`, true);
+                    this.sprite.play(`${spriteUnitId}_walk`, true);
                     break;
                 case 'ATTACK_WINDUP':
-                    this.sprite.play(`${this.definition.id}_attack`, true);
+                    this.sprite.play(`${spriteUnitId}_attack`, true);
                     break;
                 case 'ATTACK_COOLDOWN':
                     // 攻撃アニメ続行

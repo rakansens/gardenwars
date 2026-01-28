@@ -8,6 +8,7 @@ import stagesData from "@/data/stages.json";
 import unitsData from "@/data/units.json";
 import playerData from "@/data/player.json";
 import type { StageDefinition, UnitDefinition } from "@/data/types";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // Phaserコンポーネントを動的インポート（SSR無効）
 const PhaserGame = dynamic(
@@ -22,6 +23,7 @@ export default function BattlePage() {
     const router = useRouter();
     const params = useParams();
     const stageId = params.stageId as string;
+    const { t } = useLanguage();
 
     const [stage, setStage] = useState<StageDefinition | null>(null);
     const [team, setTeam] = useState<UnitDefinition[]>([]);
@@ -57,7 +59,7 @@ export default function BattlePage() {
     if (!stage) {
         return (
             <main className="min-h-screen flex items-center justify-center">
-                <div className="text-xl">Loading...</div>
+                <div className="text-xl">{t("loading")}</div>
             </main>
         );
     }
@@ -68,12 +70,12 @@ export default function BattlePage() {
             <div className="mb-4 flex items-center justify-between">
                 <div>
                     <Link href="/stages" className="text-amber-700 text-sm hover:text-amber-600">
-                        ← ステージ選択に戻る
+                        {t("back_to_stages")}
                     </Link>
                 </div>
-                <h1 className="text-xl font-bold">{stage.name}</h1>
+                <h1 className="text-xl font-bold">{t(stage.name)}</h1>
                 <div className="text-sm text-amber-900/60">
-                    編成: {team.length}体
+                    {t("team")}: {team.length}
                 </div>
             </div>
 
@@ -92,21 +94,21 @@ export default function BattlePage() {
                 <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
                     <div className="text-center">
                         <h2 className={`text-6xl font-bold mb-4 ${result.win ? "text-amber-400" : "text-red-600"}`}>
-                            {result.win ? "🎉 勝利！" : "💀 敗北..."}
+                            {result.win ? `🎉 ${t("victory")}` : `💀 ${t("defeat")}`}
                         </h2>
                         {result.win && (
                             <p className="text-2xl text-white">
-                                +{result.coins} コイン獲得！
+                                +{result.coins} {t("coins")}!
                             </p>
                         )}
-                        <p className="mt-4 text-amber-100/70">リザルト画面へ移動中...</p>
+                        <p className="mt-4 text-amber-100/70">{t("loading")}</p>
                     </div>
                 </div>
             )}
 
             {/* 操作説明 */}
             <div className="mt-4 text-center text-sm text-amber-900/60">
-                💡 下のボタンでユニットを召喚！ドラッグでカメラ移動
+                💡 {t("stage_hint")}
             </div>
         </main>
     );

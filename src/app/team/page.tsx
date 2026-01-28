@@ -1,33 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import unitsData from "@/data/units.json";
-import playerData from "@/data/player.json";
 import type { UnitDefinition } from "@/data/types";
+import RarityFrame from "@/components/ui/RarityFrame";
+import { usePlayerData } from "@/hooks/usePlayerData";
 
 const allUnits = unitsData as UnitDefinition[];
 // 味方ユニットのみフィルタ
 const allyUnits = allUnits.filter((u) => !u.id.startsWith("enemy_"));
 
 export default function TeamPage() {
-    // 初期編成
-    const [selectedTeam, setSelectedTeam] = useState<string[]>(
-        playerData.selectedTeam
-    );
-    const inventory: { [key: string]: number } = playerData.unitInventory || {};
+    const { selectedTeam, unitInventory, setTeam, isLoaded } = usePlayerData();
 
     const MAX_TEAM_SIZE = 8;
 
     const handleToggleUnit = (unitId: string) => {
         if (selectedTeam.includes(unitId)) {
             // 解除
-            setSelectedTeam(selectedTeam.filter((id) => id !== unitId));
+            setTeam(selectedTeam.filter((id) => id !== unitId));
         } else {
             // 追加（上限チェック）
             if (selectedTeam.length < MAX_TEAM_SIZE) {
-                setSelectedTeam([...selectedTeam, unitId]);
+                setTeam([...selectedTeam, unitId]);
             }
         }
     };
@@ -37,6 +33,14 @@ export default function TeamPage() {
             .map((id) => allyUnits.find((u) => u.id === id))
             .filter((u): u is UnitDefinition => u !== undefined);
     };
+
+    if (!isLoaded) {
+        return (
+            <main className="min-h-screen flex items-center justify-center">
+                <div className="text-xl">読み込み中...</div>
+            </main>
+        );
+    }
 
     return (
         <main className="min-h-screen p-8">
@@ -76,12 +80,12 @@ export default function TeamPage() {
                                 >
                                     {unit ? (
                                         <div className="text-center">
-                                            <Image
-                                                src={`/assets/sprites/${unit.id}.png`}
-                                                alt={unit.name}
-                                                width={48}
-                                                height={48}
-                                                className="object-contain mx-auto"
+                                            <RarityFrame
+                                                unitId={unit.id}
+                                                unitName={unit.name}
+                                                rarity={unit.rarity}
+                                                size="sm"
+                                                showLabel={true}
                                             />
                                             <div className="text-xs mt-1">{unit.name.slice(0, 4)}</div>
                                         </div>
@@ -100,6 +104,7 @@ export default function TeamPage() {
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                         {allyUnits.map((unit) => {
                             const isSelected = selectedTeam.includes(unit.id);
+                            const count = unitInventory[unit.id] || 0;
                             return (
                                 <div
                                     key={unit.id}
@@ -108,18 +113,18 @@ export default function TeamPage() {
                                     onClick={() => handleToggleUnit(unit.id)}
                                 >
                                     {/* 所持個数バッジ */}
-                                    <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-amber-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow">
-                                        {inventory[unit.id] || 0}
+                                    <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-amber-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10">
+                                        {count}
                                     </div>
 
                                     {/* アイコン */}
-                                    <div className="w-16 h-16 mx-auto mb-2 flex items-center justify-center">
-                                        <Image
-                                            src={`/assets/sprites/${unit.id}.png`}
-                                            alt={unit.name}
-                                            width={64}
-                                            height={64}
-                                            className="object-contain"
+                                    <div className="mx-auto mb-2 flex items-center justify-center">
+                                        <RarityFrame
+                                            unitId={unit.id}
+                                            unitName={unit.name}
+                                            rarity={unit.rarity}
+                                            size="lg"
+                                            showLabel={true}
                                         />
                                     </div>
 
