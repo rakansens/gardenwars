@@ -59,6 +59,15 @@ export class BattleScene extends Phaser.Scene {
     private cannonBarBg!: Phaser.GameObjects.Rectangle;
     private cannonBarFill!: Phaser.GameObjects.Rectangle;
 
+    // 掛け算クイズ
+    private quizActive: boolean = false;
+    private quizContainer!: Phaser.GameObjects.Container;
+    private quizQuestion!: Phaser.GameObjects.Text;
+    private quizButtons: Phaser.GameObjects.Container[] = [];
+    private quizCorrectAnswer: number = 0;
+    private pendingUnitId: string | null = null;
+    private pendingUnitCost: number = 0;
+
     constructor() {
         super({ key: 'BattleScene' });
     }
@@ -439,9 +448,9 @@ export class BattleScene extends Phaser.Scene {
             costText.setScrollFactor(0);
             costText.setDepth(101);
 
-            // クリックで召喚
+            // クリックでクイズ開始
             bg.on('pointerdown', () => {
-                this.summonAllyUnit(unit.id);
+                this.startQuiz(unit.id, unit.cost);
             });
 
             // ホバーエフェクト
@@ -485,8 +494,11 @@ export class BattleScene extends Phaser.Scene {
 
     private setupEventListeners() {
         // 召喚イベント（外部からの呼び出し用）
-        eventBus.on(GameEvents.SUMMON_UNIT, (unitId: string) => {
-            this.summonAllyUnit(unitId);
+        eventBus.on(GameEvents.SUMMON_UNIT, (...args: unknown[]) => {
+            const unitId = args[0] as string;
+            if (typeof unitId === 'string') {
+                this.summonAllyUnit(unitId);
+            }
         });
     }
 
@@ -729,5 +741,198 @@ export class BattleScene extends Phaser.Scene {
         const spawnX = this.enemyCastle.getX() - 60;
         const unit = new Unit(this, spawnX, this.groundY, unitDef, 'enemy', this.stageData.length);
         this.enemyUnits.push(unit);
+    }
+
+    // ========================================
+    // クイズ機能（コスト別の難易度）
+    // ========================================
+
+    private startQuiz(unitId: string, cost: number) {
+        if (this.gameState !== 'PLAYING' || this.quizActive) return;
+
+        // コストチェック
+        if (!this.costSystem.canAfford(cost)) {
+            return;
+        }
+
+        // コスト100以下: クイズなし、即座に召喚
+        if (cost <= 100) {
+            this.summonAllyUnit(unitId);
+            return;
+        }
+
+        // クイズ開始
+        this.quizActive = true;
+        this.pendingUnitId = unitId;
+        this.pendingUnitCost = cost;
+
+        let a: number, b: number, questionText: string;
+
+        if (cost >= 200) {
+            // コスト200以上: 掛け算（1〜9）
+            a = Phaser.Math.Between(2, 9);
+            b = Phaser.Math.Between(2, 9);
+            this.quizCorrectAnswer = a * b;
+            questionText = `${a} × ${b} = ?`;
+        } else {
+            // コスト101〜199: 足し算（一桁＋一桁）
+            a = Phaser.Math.Between(1, 9);
+            b = Phaser.Math.Between(1, 9);
+            this.quizCorrectAnswer = a + b;
+            questionText = `${a} + ${b} = ?`;
+        }
+
+        // 選択肢を生成
+        const choices = this.generateChoices(this.quizCorrectAnswer, cost >= 200);
+
+        // クイズUIを表示
+        this.showQuizUI(questionText, choices);
+    }
+
+    private generateChoices(correct: number, isMultiplication: boolean): number[] {
+        const choices: Set<number> = new Set([correct]);
+        const range = isMultiplication ? 15 : 5;
+
+        while (choices.size < 4) {
+            let wrong = correct + Phaser.Math.Between(-range, range);
+            if (wrong <= 0) wrong = Phaser.Math.Between(1, correct + range);
+            if (wrong !== correct) {
+                choices.add(wrong);
+            }
+        }
+
+        return Phaser.Utils.Array.Shuffle(Array.from(choices));
+    }
+
+    private showQuizUI(questionText: string, choices: number[]) {
+        const { width, height } = this.scale;
+
+        // コンテナ作成
+        this.quizContainer = this.add.container(0, 0);
+        this.quizContainer.setScrollFactor(0);
+        this.quizContainer.setDepth(300);
+
+        // 背景オーバーレイ
+        const overlay = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.7);
+        this.quizContainer.add(overlay);
+
+        // パネル背景（サイズ調整）
+        const panelW = 260;
+        const panelH = 220;
+        const panelY = height / 2 - 80;
+        const panel = this.add.rectangle(width / 2, panelY, panelW, panelH, 0xfff8e7);
+        panel.setStrokeStyle(4, 0x3b2a1a);
+        this.quizContainer.add(panel);
+
+        // タイトル
+        const titleY = panelY - 80;
+        const title = this.add.text(width / 2, titleY, '🧮 Quiz!', {
+            fontSize: '20px',
+            color: '#3b2a1a',
+            fontStyle: 'bold',
+        });
+        title.setOrigin(0.5, 0.5);
+        this.quizContainer.add(title);
+
+        // 問題
+        const questionY = panelY - 50;
+        this.quizQuestion = this.add.text(width / 2, questionY, questionText, {
+            fontSize: '28px',
+            color: '#2d6a4f',
+            fontStyle: 'bold',
+        });
+        this.quizQuestion.setOrigin(0.5, 0.5);
+        this.quizContainer.add(this.quizQuestion);
+
+        // 選択肢ボタン（2x2）
+        this.quizButtons = [];
+        const btnSize = 50;
+        const btnGap = 10;
+        const startX = width / 2 - btnSize - btnGap / 2;
+        const startY = panelY - 10;
+
+        choices.forEach((choice, index) => {
+            const row = Math.floor(index / 2);
+            const col = index % 2;
+            const bx = startX + col * (btnSize + btnGap) + btnSize / 2;
+            const by = startY + row * (btnSize + btnGap) + btnSize / 2;
+
+            const btnContainer = this.add.container(bx, by);
+
+            const btnBg = this.add.rectangle(0, 0, btnSize, btnSize, 0xffe066);
+            btnBg.setStrokeStyle(3, 0x3b2a1a);
+            btnBg.setInteractive({ useHandCursor: true });
+            btnContainer.add(btnBg);
+
+            const btnText = this.add.text(0, 0, `${choice}`, {
+                fontSize: '20px',
+                color: '#3b2a1a',
+                fontStyle: 'bold',
+            });
+            btnText.setOrigin(0.5, 0.5);
+            btnContainer.add(btnText);
+
+            btnBg.on('pointerdown', () => {
+                this.answerQuiz(choice);
+            });
+
+            btnBg.on('pointerover', () => btnBg.setFillStyle(0xfff3cf));
+            btnBg.on('pointerout', () => btnBg.setFillStyle(0xffe066));
+
+            this.quizContainer.add(btnContainer);
+            this.quizButtons.push(btnContainer);
+        });
+    }
+
+    private answerQuiz(answer: number) {
+        const correct = answer === this.quizCorrectAnswer;
+        const { width, height } = this.scale;
+        const panelY = height / 2 - 80;
+
+        if (correct) {
+            const successText = this.add.text(width / 2, panelY + 85, '✅ OK!', {
+                fontSize: '24px',
+                color: '#2d6a4f',
+                fontStyle: 'bold',
+            });
+            successText.setOrigin(0.5, 0.5);
+            successText.setScrollFactor(0);
+            successText.setDepth(301);
+            this.quizContainer.add(successText);
+
+            // 召喚実行
+            if (this.pendingUnitId && this.costSystem.spend(this.pendingUnitCost)) {
+                const spawnX = this.allyCastle.getX() + 60;
+                const unitDef = this.allUnitsData.find(u => u.id === this.pendingUnitId);
+                if (unitDef) {
+                    const unit = new Unit(this, spawnX, this.groundY, unitDef, 'ally', this.stageData.length);
+                    this.allyUnits.push(unit);
+                }
+            }
+        } else {
+            const failText = this.add.text(width / 2, panelY + 85, `❌ ${this.quizCorrectAnswer}`, {
+                fontSize: '24px',
+                color: '#c1121f',
+                fontStyle: 'bold',
+            });
+            failText.setOrigin(0.5, 0.5);
+            failText.setScrollFactor(0);
+            failText.setDepth(301);
+            this.quizContainer.add(failText);
+        }
+
+        this.time.delayedCall(correct ? 400 : 800, () => {
+            this.closeQuiz();
+        });
+    }
+
+    private closeQuiz() {
+        if (this.quizContainer) {
+            this.quizContainer.destroy();
+        }
+        this.quizActive = false;
+        this.pendingUnitId = null;
+        this.pendingUnitCost = 0;
+        this.quizButtons = [];
     }
 }

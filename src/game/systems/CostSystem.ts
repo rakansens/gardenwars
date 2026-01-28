@@ -51,6 +51,13 @@ export class CostSystem {
     }
 
     /**
+     * コストが足りるかチェック（消費しない）
+     */
+    canAfford(amount: number): boolean {
+        return this.current >= amount;
+    }
+
+    /**
      * 現在のコストを取得
      */
     getCurrent(): number {
