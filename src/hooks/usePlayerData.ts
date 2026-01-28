@@ -2,21 +2,34 @@
 
 import { useState, useEffect, useCallback } from "react";
 import playerDataInitial from "@/data/player.json";
+import unitsData from "@/data/units.json";
+import type { UnitDefinition } from "@/data/types";
 
 const STORAGE_KEY = "gardenwars_player";
+
+export interface ShopItem {
+    uid: string; // 一意なID (配列インデックスでもいいが、念のため)
+    unitId: string;
+    price: number;
+    soldOut: boolean;
+    isRare: boolean;
+    discount?: number;
+}
 
 // プレイヤーデータの型
 export interface PlayerData {
     coins: number;
     unitInventory: { [unitId: string]: number };
     selectedTeam: string[];
+    shopItems: ShopItem[];
 }
 
 // 初期データ
 const getInitialData = (): PlayerData => ({
-    coins: 10000, // 初期10000コイン
+    coins: 10000,
     unitInventory: playerDataInitial.unitInventory || {},
     selectedTeam: playerDataInitial.selectedTeam || [],
+    shopItems: [], // 初期は空。初回ロード時に生成するか、空なら生成するロジックが必要
 });
 
 // ローカルストレージから読み込み
@@ -31,6 +44,7 @@ const loadFromStorage = (): PlayerData => {
                 coins: parsed.coins ?? 10000,
                 unitInventory: parsed.unitInventory ?? getInitialData().unitInventory,
                 selectedTeam: parsed.selectedTeam ?? getInitialData().selectedTeam,
+                shopItems: parsed.shopItems ?? [],
             };
         }
     } catch (e) {
@@ -132,11 +146,96 @@ export function usePlayerData() {
         saveToStorage(initial);
     }, []);
 
+    // ショップを更新
+    const refreshShop = useCallback(() => {
+        const allUnits = (unitsData as UnitDefinition[]).filter(u => !u.id.startsWith("enemy_"));
+        const newItems: ShopItem[] = [];
+
+        // 重み付け抽選関数
+        const pickRandom = () => {
+            const weights = { N: 50, R: 30, SR: 15, SSR: 4, UR: 1 };
+            // ※SSR/URを少し出やすく調整 (ストアなので)
+
+            let totalWeight = 0;
+            for (const u of allUnits) totalWeight += weights[u.rarity] || 1;
+
+            let r = Math.random() * totalWeight;
+            for (const u of allUnits) {
+                r -= weights[u.rarity] || 1;
+                if (r <= 0) return u;
+            }
+            return allUnits[0];
+        };
+
+        for (let i = 0; i < 30; i++) {
+            const unit = pickRandom();
+
+            // 価格決定
+            let basePrice = 20;
+            switch (unit.rarity) {
+                case 'N': basePrice = 20; break;
+                case 'R': basePrice = 100; break;
+                case 'SR': basePrice = 500; break;
+                case 'SSR': basePrice = 3000; break;
+                case 'UR': basePrice = 10000; break;
+            }
+
+            // フラッシュセール割引 (0% - 50%)
+            const isDiscount = Math.random() < 0.3; // 30%で割引
+            const discount = isDiscount ? Math.floor(Math.random() * 5 + 1) * 10 : 0;
+            const price = Math.floor(basePrice * (100 - discount) / 100);
+
+            newItems.push({
+                uid: `${Date.now()}-${i}-${Math.random()}`,
+                unitId: unit.id,
+                price: price,
+                soldOut: false,
+                isRare: unit.rarity === 'SSR' || unit.rarity === 'UR',
+                discount: discount > 0 ? discount : undefined
+            });
+        }
+
+        setData(prev => ({ ...prev, shopItems: newItems }));
+    }, []);
+
+    // アイテム購入
+    const buyShopItem = useCallback((index: number): boolean => {
+        let success = false;
+        setData(prev => {
+            const items = [...prev.shopItems];
+            const item = items[index];
+            if (!item || item.soldOut || prev.coins < item.price) return prev;
+
+            // 購入処理
+            success = true;
+            items[index] = { ...item, soldOut: true };
+
+            const newInventory = { ...prev.unitInventory };
+            newInventory[item.unitId] = (newInventory[item.unitId] || 0) + 1;
+
+            return {
+                ...prev,
+                coins: prev.coins - item.price,
+                shopItems: items,
+                unitInventory: newInventory
+            };
+        });
+        return success;
+    }, []);
+
+    // 初期ロード時にショップが空なら更新
+    useEffect(() => {
+        if (isLoaded && data.shopItems.length === 0) {
+            refreshShop();
+        }
+    }, [isLoaded, data.shopItems.length, refreshShop]);
+
     return {
         // データ
         coins: data.coins,
         unitInventory: data.unitInventory,
         selectedTeam: data.selectedTeam,
+        shopItems: data.shopItems,
         isLoaded,
 
         // アクション
@@ -146,5 +245,7 @@ export function usePlayerData() {
         addUnits,
         setTeam,
         resetData,
+        refreshShop,
+        buyShopItem,
     };
 }

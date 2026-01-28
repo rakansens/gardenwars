@@ -44,6 +44,9 @@ export default function Home() {
         <Link href="/gacha" className="btn btn-primary text-center text-xl py-4">
           {t("menu_gacha")}
         </Link>
+        <Link href="/shop" className="btn btn-secondary text-center text-xl py-4 bg-gradient-to-r from-pink-500 to-red-500 border-pink-400 text-white shadow-lg animate-pulse hover:animate-none">
+          🛒 ショップ
+        </Link>
         <Link href="/fusion" className="btn btn-secondary text-center text-xl py-4">
           🔮 {t("fusion")}
         </Link>

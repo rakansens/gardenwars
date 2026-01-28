@@ -24,7 +24,7 @@ export default function BattlePage() {
     const params = useParams();
     const stageId = params.stageId as string;
     const { t } = useLanguage();
-    const { selectedTeam, isLoaded } = usePlayerData();
+    const { selectedTeam, isLoaded, refreshShop } = usePlayerData();
 
     const [stage, setStage] = useState<StageDefinition | null>(null);
     const [team, setTeam] = useState<UnitDefinition[]>([]);
@@ -53,6 +53,10 @@ export default function BattlePage() {
     const handleBattleEnd = (win: boolean, coinsGained: number) => {
         setBattleEnded(true);
         setResult({ win, coins: coinsGained });
+
+        if (win) {
+            refreshShop();
+        }
 
         // 3秒後にリザルト画面へ
         setTimeout(() => {
