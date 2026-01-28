@@ -68,18 +68,39 @@ export class Unit extends Phaser.GameObjects.Container {
         // スプライトに使用するユニットID（baseUnitIdがあればそれを使用）
         const spriteUnitId = definition.baseUnitId || definition.id;
 
-        // アニメーション対応チェック
-        this.hasAnimation = ANIMATED_UNITS.includes(spriteUnitId);
+        // アトラスが存在するかチェックしてモードを決定
+        const atlasKey = `${spriteUnitId}_atlas`;
+        this.hasAnimation = scene.textures.exists(atlasKey);
 
         if (this.hasAnimation) {
             // アニメーション対応ユニット
-            this.sprite = scene.add.sprite(0, 0, `${spriteUnitId}_atlas`, `${spriteUnitId}_idle.png`);
+            // 初期フレームは _idle.png を想定
+            // テクスチャフレームが存在するか確認したほうが安全だが、命名規則に従うと仮定
+            const initialFrame = `${spriteUnitId}_idle.png`;
+            this.sprite = scene.add.sprite(0, 0, atlasKey, initialFrame);
         } else {
             // 静止画ユニット
-            this.sprite = scene.add.image(0, 0, spriteUnitId);
+            // こちらもテクスチャが存在するか確認、なければダミーを表示してエラー回避
+            if (scene.textures.exists(spriteUnitId)) {
+                this.sprite = scene.add.image(0, 0, spriteUnitId);
+            } else {
+                console.warn(`Missing texture for unit: ${spriteUnitId}`);
+                // 代替テクスチャ（あれば）または矩形でフォールバック
+                this.sprite = scene.add.sprite(0, 0, 'n_mushroom'); // 仮のフォールバック
+                if (this.sprite instanceof Phaser.GameObjects.Sprite) {
+                    this.sprite.setTint(0x000000); // シルエットにして区別
+                }
+            }
         }
 
         // スケール調整（キャラを大きめに）
+        // スプライトサイズが取得できているか確認
+        if (this.sprite.width === 0) {
+            // まだロードされていない場合などの安全策（通常は起こらないはず）
+            this.sprite.width = 100;
+            this.sprite.height = 100;
+        }
+
         const targetHeight = 120;
         const customScale = definition.scale ?? 1.0;
         this.baseScale = (targetHeight / this.sprite.height) * customScale;

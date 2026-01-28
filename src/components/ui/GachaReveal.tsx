@@ -413,6 +413,7 @@ export default function GachaReveal({ results, onComplete }: GachaRevealProps) {
                                             rarity={unit.rarity}
                                             size="sm"
                                             showLabel={false}
+                                            baseUnitId={unit.baseUnitId}
                                         />
                                     </div>
                                     {!isMassive && (

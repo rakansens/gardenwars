@@ -100,6 +100,7 @@ export default function ShopPage() {
                                     rarity={unit.rarity}
                                     size="md"
                                     showLabel={false}
+                                    baseUnitId={unit.baseUnitId}
                                 />
                             </div>
 
@@ -144,6 +145,7 @@ export default function ShopPage() {
                                 rarity={targetUnit.rarity}
                                 size="xl"
                                 showLabel={true}
+                                baseUnitId={targetUnit.baseUnitId}
                             />
                         </div>
 
