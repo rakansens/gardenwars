@@ -15,6 +15,22 @@
         "penguin_boy",
         "cinnamon_girl"
     ],
+    "unitInventory": {
+        "cat_warrior": 1,
+        "cat_tank": 1,
+        "cat_archer": 1,
+        "cat_mage": 1,
+        "cat_ninja": 1,
+        "ice_flower": 1,
+        "corn_fighter": 1,
+        "block_slime": 1,
+        "sunflower": 1,
+        "watermelon": 1,
+        "corn_kid": 1,
+        "ribbon_girl": 1,
+        "penguin_boy": 1,
+        "cinnamon_girl": 1
+    },
     "selectedTeam": [
         "cat_warrior",
         "corn_fighter",
@@ -25,5 +41,5 @@
         "sunflower",
         "ice_flower"
     ],
-    "coins": 500
+    "coins": 1000
 }

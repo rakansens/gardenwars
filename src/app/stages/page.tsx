@@ -19,11 +19,11 @@ export default function StagesPage() {
             {/* ヘッダー */}
             <div className="page-header mb-8">
                 <div className="flex items-center justify-between">
-                    <Link href="/" className="text-blue-400 hover:text-blue-300">
+                    <Link href="/" className="text-amber-700 hover:text-amber-600">
                         ← ホームへ
                     </Link>
                     <h1 className="text-3xl font-bold">ステージ選択</h1>
-                    <Link href="/team" className="text-yellow-400 hover:text-yellow-300">
+                    <Link href="/team" className="text-amber-700 hover:text-amber-600">
                         編成 →
                     </Link>
                 </div>
@@ -39,30 +39,30 @@ export default function StagesPage() {
                             onClick={() => handleSelectStage(stage.id)}
                         >
                             {/* ステージ番号 */}
-                            <div className="text-sm text-gray-400 mb-2">
+                            <div className="text-sm text-amber-900/60 mb-2">
                                 Stage {index + 1}
                             </div>
 
                             {/* ステージ名 */}
-                            <h2 className="text-2xl font-bold mb-2 text-white">
+                            <h2 className="text-2xl font-bold mb-2 text-amber-950">
                                 {stage.name}
                             </h2>
 
                             {/* 説明 */}
-                            <p className="text-gray-400 mb-4">{stage.description}</p>
+                            <p className="text-amber-900/70 mb-4">{stage.description}</p>
 
                             {/* 情報 */}
                             <div className="flex justify-between text-sm">
-                                <span className="text-blue-400">
+                                <span className="text-amber-700">
                                     🏰 敵城HP: {stage.enemyCastleHp}
                                 </span>
-                                <span className="text-yellow-400">
+                                <span className="text-amber-700">
                                     💰 報酬: {stage.reward.coins}
                                 </span>
                             </div>
 
                             {/* Wave数 */}
-                            <div className="mt-4 text-sm text-gray-500">
+                            <div className="mt-4 text-sm text-amber-900/60">
                                 Wave数: {stage.enemyWaves.length}
                             </div>
                         </div>
@@ -72,7 +72,7 @@ export default function StagesPage() {
 
             {/* ヒント */}
             <div className="container mt-8">
-                <div className="card text-center text-gray-400">
+                <div className="card text-center text-amber-900/70">
                     💡 ステージをタップしてバトル開始！
                 </div>
             </div>

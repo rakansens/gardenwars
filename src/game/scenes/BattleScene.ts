@@ -42,6 +42,22 @@ export class BattleScene extends Phaser.Scene {
     // UI
     private costText!: Phaser.GameObjects.Text;
     private stateText!: Phaser.GameObjects.Text;
+    private costBarBg!: Phaser.GameObjects.Rectangle;
+    private costBarFill!: Phaser.GameObjects.Rectangle;
+    private costBarMaxWidth: number = 0;
+    private costBarHeight: number = 0;
+    private costUpBtnContainer!: Phaser.GameObjects.Container;
+    private costUpBtnBg!: Phaser.GameObjects.Graphics;
+    private costUpBtnZone!: Phaser.GameObjects.Zone;
+    private costUpBtnText!: Phaser.GameObjects.Text;
+    private costUpBtnCostText!: Phaser.GameObjects.Text;
+    private costUpPulse?: Phaser.Tweens.Tween;
+    private cannonCharge: number = 0;
+    private cannonChargeMax: number = 20000;
+    private cannonBtnBg!: Phaser.GameObjects.Rectangle;
+    private cannonBtnText!: Phaser.GameObjects.Text;
+    private cannonBarBg!: Phaser.GameObjects.Rectangle;
+    private cannonBarFill!: Phaser.GameObjects.Rectangle;
 
     constructor() {
         super({ key: 'BattleScene' });
@@ -118,7 +134,8 @@ export class BattleScene extends Phaser.Scene {
         this.createBackground();
 
         // 地面（床を大きく）
-        this.add.rectangle(width / 2, height - 65, width, 130, 0x3d2817);
+        const worldWidth = this.stageData.length + 100;
+        this.add.rectangle(worldWidth / 2, height - 65, worldWidth, 130, 0x3d2817);
 
         // 城を配置
         this.allyCastle = new Castle(this, 50, this.groundY, 'ally', this.stageData.baseCastleHp);
@@ -135,6 +152,8 @@ export class BattleScene extends Phaser.Scene {
             current: 200,
             max: 1000,
             regenRate: 50,
+            maxLevels: [1000, 1200, 1400, 1600, 1800],
+            upgradeCosts: [200, 400, 600, 800],
         });
 
         // UI作成
@@ -242,22 +261,96 @@ export class BattleScene extends Phaser.Scene {
     private createUI() {
         const { width, height } = this.scale;
 
-        // コストゲージ表示
-        this.costText = this.add.text(20, 20, 'Cost: 0 / 1000', {
-            fontSize: '20px',
-            color: '#ffffff',
-            backgroundColor: '#00000088',
-            padding: { x: 10, y: 5 },
+        // コストパネル（にゃんこ風）
+        const panelX = 18;
+        const panelY = 14;
+        const panelW = 230;
+        const panelH = 54;
+        const panel = this.add.rectangle(panelX, panelY, panelW, panelH, 0xf8e7b6);
+        panel.setOrigin(0, 0);
+        panel.setStrokeStyle(3, 0x3b2a1a);
+        panel.setScrollFactor(0);
+        panel.setDepth(100);
+
+        const costLabel = this.add.text(panelX + 12, panelY + 6, 'COST', {
+            fontSize: '12px',
+            color: '#4b2a10',
+            fontStyle: 'bold',
         });
+        costLabel.setScrollFactor(0);
+        costLabel.setDepth(101);
+
+        this.costBarMaxWidth = 140;
+        this.costBarHeight = 14;
+        this.costBarBg = this.add.rectangle(panelX + 12, panelY + 30, this.costBarMaxWidth, this.costBarHeight, 0xd7bf8a);
+        this.costBarBg.setOrigin(0, 0.5);
+        this.costBarBg.setStrokeStyle(2, 0x3b2a1a);
+        this.costBarBg.setScrollFactor(0);
+        this.costBarBg.setDepth(101);
+
+        this.costBarFill = this.add.rectangle(panelX + 12, panelY + 30, 0, this.costBarHeight, 0xffd45a);
+        this.costBarFill.setOrigin(0, 0.5);
+        this.costBarFill.setScrollFactor(0);
+        this.costBarFill.setDepth(102);
+
+        this.costText = this.add.text(panelX + 165, panelY + 24, '0/1000', {
+            fontSize: '16px',
+            color: '#3b2a1a',
+            fontStyle: 'bold',
+        });
+        this.costText.setOrigin(0, 0.5);
         this.costText.setScrollFactor(0);
-        this.costText.setDepth(100);
+        this.costText.setDepth(102);
+
+        // コスト上限アップボタン（丸めた形）
+        const costUpX = panelX + 120;
+        const costUpY = panelY + 54;
+        const costUpW = 120;
+        const costUpH = 30;
+        const costUpR = 12;
+
+        this.costUpBtnContainer = this.add.container(costUpX, costUpY);
+        this.costUpBtnContainer.setScrollFactor(0);
+        this.costUpBtnContainer.setDepth(101);
+
+        this.costUpBtnBg = this.add.graphics();
+        this.drawRoundedButton(this.costUpBtnBg, 0, 0, costUpW, costUpH, costUpR, 0xffe066);
+        this.costUpBtnContainer.add(this.costUpBtnBg);
+
+        this.costUpBtnText = this.add.text(10, 6, '上限UP', {
+            fontSize: '13px',
+            color: '#3b2a1a',
+            fontStyle: 'bold',
+        });
+        this.costUpBtnContainer.add(this.costUpBtnText);
+
+        this.costUpBtnCostText = this.add.text(62, 6, '¥0', {
+            fontSize: '12px',
+            color: '#3b2a1a',
+        });
+        this.costUpBtnContainer.add(this.costUpBtnCostText);
+
+        this.costUpBtnZone = this.add.zone(costUpX + costUpW / 2, costUpY + costUpH / 2, costUpW, costUpH);
+        this.costUpBtnZone.setScrollFactor(0);
+        this.costUpBtnZone.setDepth(102);
+        this.costUpBtnZone.setInteractive({ useHandCursor: true });
+        this.costUpBtnZone.on('pointerdown', () => {
+            this.costSystem.upgradeMax();
+        });
 
         // ゲーム状態表示
-        this.stateText = this.add.text(width - 20, 20, '', {
-            fontSize: '18px',
-            color: '#ffffff',
-            backgroundColor: '#00000088',
-            padding: { x: 10, y: 5 },
+        const statePanelW = 180;
+        const statePanelH = 40;
+        const statePanel = this.add.rectangle(width - 18, 14, statePanelW, statePanelH, 0xf8e7b6);
+        statePanel.setOrigin(1, 0);
+        statePanel.setStrokeStyle(3, 0x3b2a1a);
+        statePanel.setScrollFactor(0);
+        statePanel.setDepth(100);
+
+        this.stateText = this.add.text(width - 30, 32, '', {
+            fontSize: '16px',
+            color: '#3b2a1a',
+            fontStyle: 'bold',
         });
         this.stateText.setOrigin(1, 0);
         this.stateText.setScrollFactor(0);
@@ -269,7 +362,9 @@ export class BattleScene extends Phaser.Scene {
         // カメラ操作説明
         const helpText = this.add.text(width / 2, height - 20, 'ドラッグでカメラ移動', {
             fontSize: '14px',
-            color: '#ffffff',
+            color: '#fff2cc',
+            stroke: '#3b2a1a',
+            strokeThickness: 3,
         });
         helpText.setOrigin(0.5, 0.5);
         helpText.setScrollFactor(0);
@@ -289,8 +384,12 @@ export class BattleScene extends Phaser.Scene {
     }
 
     private createSummonButtons() {
-        const { height } = this.scale;
-        const buttonY = height - 50; // 画面下端に配置
+        const { width, height } = this.scale;
+        const bar = this.add.rectangle(width / 2, height - 55, width, 110, 0x6b4a2b, 0.95);
+        bar.setScrollFactor(0);
+        bar.setDepth(90);
+
+        const buttonY = height - 55; // 画面下端に配置
         const buttonWidth = 80;
         const buttonHeight = 90;
         const startX = 60;
@@ -300,11 +399,11 @@ export class BattleScene extends Phaser.Scene {
             const x = startX + index * (buttonWidth + gap);
 
             // ボタン背景
-            const bg = this.add.rectangle(x, buttonY, buttonWidth, buttonHeight, 0x4488ff, 0.9);
+            const bg = this.add.rectangle(x, buttonY, buttonWidth, buttonHeight, 0xf8e7b6, 1);
             bg.setScrollFactor(0);
             bg.setDepth(100);
             bg.setInteractive({ useHandCursor: true });
-            bg.setStrokeStyle(2, 0x2266cc);
+            bg.setStrokeStyle(3, 0x3b2a1a);
 
             // ユニット画像
             const unitIcon = this.add.image(x, buttonY - 20, unit.id);
@@ -316,8 +415,8 @@ export class BattleScene extends Phaser.Scene {
             // ユニット名
             const nameText = this.add.text(x, buttonY + 15, unit.name.slice(0, 4), {
                 fontSize: '11px',
-                color: '#ffffff',
-                stroke: '#000000',
+                color: '#3b2a1a',
+                stroke: '#ffffff',
                 strokeThickness: 1,
             });
             nameText.setOrigin(0.5, 0.5);
@@ -325,10 +424,15 @@ export class BattleScene extends Phaser.Scene {
             nameText.setDepth(101);
 
             // コスト表示
-            const costText = this.add.text(x, buttonY + 32, `¥${unit.cost}`, {
+            const costTag = this.add.rectangle(x, buttonY + 34, 46, 16, 0xffd45a);
+            costTag.setScrollFactor(0);
+            costTag.setDepth(101);
+            costTag.setStrokeStyle(2, 0x3b2a1a);
+
+            const costText = this.add.text(x, buttonY + 34, `¥${unit.cost}`, {
                 fontSize: '11px',
-                color: '#ffff00',
-                stroke: '#000000',
+                color: '#3b2a1a',
+                stroke: '#ffffff',
                 strokeThickness: 1,
             });
             costText.setOrigin(0.5, 0.5);
@@ -341,8 +445,41 @@ export class BattleScene extends Phaser.Scene {
             });
 
             // ホバーエフェクト
-            bg.on('pointerover', () => bg.setFillStyle(0x66aaff));
-            bg.on('pointerout', () => bg.setFillStyle(0x4488ff));
+            bg.on('pointerover', () => bg.setFillStyle(0xfff3cf));
+            bg.on('pointerout', () => bg.setFillStyle(0xf8e7b6));
+        });
+
+        // 城攻撃ボタン（右端）
+        const cannonX = width - 80;
+        const cannonY = buttonY - 5;
+        this.cannonBtnBg = this.add.rectangle(cannonX, cannonY, 110, 80, 0xf8e7b6);
+        this.cannonBtnBg.setScrollFactor(0);
+        this.cannonBtnBg.setDepth(100);
+        this.cannonBtnBg.setStrokeStyle(3, 0x3b2a1a);
+        this.cannonBtnBg.setInteractive({ useHandCursor: true });
+
+        this.cannonBtnText = this.add.text(cannonX, cannonY - 10, '城攻撃', {
+            fontSize: '12px',
+            color: '#3b2a1a',
+            fontStyle: 'bold',
+        });
+        this.cannonBtnText.setOrigin(0.5, 0.5);
+        this.cannonBtnText.setScrollFactor(0);
+        this.cannonBtnText.setDepth(101);
+
+        this.cannonBarBg = this.add.rectangle(cannonX - 40, cannonY + 20, 80, 10, 0xd7bf8a);
+        this.cannonBarBg.setOrigin(0, 0.5);
+        this.cannonBarBg.setScrollFactor(0);
+        this.cannonBarBg.setDepth(101);
+        this.cannonBarBg.setStrokeStyle(2, 0x3b2a1a);
+
+        this.cannonBarFill = this.add.rectangle(cannonX - 40, cannonY + 20, 0, 10, 0xffd45a);
+        this.cannonBarFill.setOrigin(0, 0.5);
+        this.cannonBarFill.setScrollFactor(0);
+        this.cannonBarFill.setDepth(102);
+
+        this.cannonBtnBg.on('pointerdown', () => {
+            this.fireCastleAttack();
         });
     }
 
@@ -371,6 +508,9 @@ export class BattleScene extends Phaser.Scene {
 
         // ユニット更新
         this.updateUnits(delta);
+
+        // 城攻撃ゲージ更新
+        this.updateCannonGauge(delta);
 
         // 戦闘判定
         this.combatSystem.update(
@@ -467,7 +607,92 @@ export class BattleScene extends Phaser.Scene {
     private updateCostUI() {
         const current = Math.floor(this.costSystem.getCurrent());
         const max = this.costSystem.getMax();
-        this.costText.setText(`Cost: ${current} / ${max}`);
+        const ratio = max > 0 ? current / max : 0;
+        const barWidth = Math.max(0, Math.min(1, ratio)) * this.costBarMaxWidth;
+        this.costBarFill.width = barWidth;
+        this.costBarFill.height = this.costBarHeight;
+        this.costText.setText(`${current}/${max}`);
+
+        const upgradeCost = this.costSystem.getUpgradeCost();
+        if (upgradeCost === null) {
+            this.costUpBtnCostText.setText('MAX');
+            this.drawRoundedButton(this.costUpBtnBg, 0, 0, 120, 30, 12, 0xd7bf8a);
+            this.costUpBtnZone.disableInteractive();
+            if (this.costUpPulse) {
+                this.costUpPulse.stop();
+                this.costUpPulse = undefined;
+            }
+        } else {
+            this.costUpBtnCostText.setText(`¥${upgradeCost}`);
+            const canUpgrade = this.costSystem.getCurrent() >= upgradeCost;
+            this.drawRoundedButton(this.costUpBtnBg, 0, 0, 120, 30, 12, canUpgrade ? 0xffe066 : 0xd7bf8a);
+            if (canUpgrade) {
+                this.costUpBtnZone.setInteractive({ useHandCursor: true });
+                if (!this.costUpPulse) {
+                    this.costUpPulse = this.tweens.add({
+                        targets: [this.costUpBtnContainer],
+                        scaleX: 1.04,
+                        scaleY: 1.04,
+                        duration: 500,
+                        yoyo: true,
+                        repeat: -1,
+                    });
+                }
+            } else {
+                this.costUpBtnZone.disableInteractive();
+                if (this.costUpPulse) {
+                    this.costUpPulse.stop();
+                    this.costUpPulse = undefined;
+                }
+            }
+        }
+    }
+
+    private drawRoundedButton(
+        graphics: Phaser.GameObjects.Graphics,
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+        radius: number,
+        fillColor: number
+    ) {
+        graphics.clear();
+        graphics.fillStyle(fillColor, 1);
+        graphics.lineStyle(3, 0x3b2a1a, 1);
+        graphics.fillRoundedRect(x, y, width, height, radius);
+        graphics.strokeRoundedRect(x, y, width, height, radius);
+    }
+
+    private updateCannonGauge(delta: number) {
+        this.cannonCharge = Math.min(this.cannonCharge + delta, this.cannonChargeMax);
+        const ratio = this.cannonCharge / this.cannonChargeMax;
+        const barWidth = Math.max(0, Math.min(1, ratio)) * 80;
+        this.cannonBarFill.width = barWidth;
+        this.cannonBarFill.height = 10;
+
+        if (this.cannonCharge >= this.cannonChargeMax) {
+            this.cannonBtnBg.setFillStyle(0xffe066);
+        } else {
+            this.cannonBtnBg.setFillStyle(0xf8e7b6);
+        }
+    }
+
+    private fireCastleAttack() {
+        if (this.cannonCharge < this.cannonChargeMax) return;
+
+        const damage = 200;
+        const knockback = 60;
+        const livingEnemies = this.enemyUnits.filter(u => !u.isDead());
+        if (livingEnemies.length > 0) {
+            for (const enemy of livingEnemies) {
+                enemy.takeDamage(damage, knockback);
+            }
+        } else {
+            this.enemyCastle.takeDamage(damage);
+        }
+
+        this.cannonCharge = 0;
     }
 
     private updateStateUI() {

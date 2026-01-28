@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import unitsData from "@/data/units.json";
 import playerData from "@/data/player.json";
 import type { UnitDefinition } from "@/data/types";
@@ -15,8 +16,9 @@ export default function TeamPage() {
     const [selectedTeam, setSelectedTeam] = useState<string[]>(
         playerData.selectedTeam
     );
+    const inventory: { [key: string]: number } = playerData.unitInventory || {};
 
-    const MAX_TEAM_SIZE = 5;
+    const MAX_TEAM_SIZE = 8;
 
     const handleToggleUnit = (unitId: string) => {
         if (selectedTeam.includes(unitId)) {
@@ -41,17 +43,23 @@ export default function TeamPage() {
             {/* ヘッダー */}
             <div className="page-header mb-8">
                 <div className="flex items-center justify-between">
-                    <Link href="/" className="text-blue-400 hover:text-blue-300">
+                    <Link href="/" className="text-amber-700 hover:text-amber-600">
                         ← ホームへ
                     </Link>
                     <h1 className="text-3xl font-bold">編成</h1>
-                    <Link href="/stages" className="text-green-400 hover:text-green-300">
+                    <Link href="/stages" className="text-amber-700 hover:text-amber-600">
                         ステージへ →
                     </Link>
                 </div>
             </div>
 
             <div className="container">
+                {/* ガチャへのリンク */}
+                <div className="mb-6 text-center">
+                    <Link href="/gacha" className="btn btn-secondary">
+                        🎰 ガチャを引く
+                    </Link>
+                </div>
                 {/* 現在の編成 */}
                 <section className="mb-8">
                     <h2 className="text-xl font-bold mb-4">
@@ -68,7 +76,13 @@ export default function TeamPage() {
                                 >
                                     {unit ? (
                                         <div className="text-center">
-                                            <div className="text-2xl">🐱</div>
+                                            <Image
+                                                src={`/assets/sprites/${unit.id}.png`}
+                                                alt={unit.name}
+                                                width={48}
+                                                height={48}
+                                                className="object-contain mx-auto"
+                                            />
                                             <div className="text-xs mt-1">{unit.name.slice(0, 4)}</div>
                                         </div>
                                     ) : (
@@ -89,22 +103,35 @@ export default function TeamPage() {
                             return (
                                 <div
                                     key={unit.id}
-                                    className={`unit-card cursor-pointer ${isSelected ? "selected" : ""
+                                    className={`unit-card cursor-pointer relative ${isSelected ? "selected" : ""
                                         }`}
                                     onClick={() => handleToggleUnit(unit.id)}
                                 >
+                                    {/* 所持個数バッジ */}
+                                    <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-amber-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow">
+                                        {inventory[unit.id] || 0}
+                                    </div>
+
                                     {/* アイコン */}
-                                    <div className="text-4xl mb-2">🐱</div>
+                                    <div className="w-16 h-16 mx-auto mb-2 flex items-center justify-center">
+                                        <Image
+                                            src={`/assets/sprites/${unit.id}.png`}
+                                            alt={unit.name}
+                                            width={64}
+                                            height={64}
+                                            className="object-contain"
+                                        />
+                                    </div>
 
                                     {/* 名前 */}
-                                    <h3 className="font-bold text-white mb-2">{unit.name}</h3>
+                                    <h3 className="font-bold text-amber-950 mb-2">{unit.name}</h3>
 
                                     {/* ステータス */}
-                                    <div className="text-xs text-gray-400 space-y-1">
+                                    <div className="text-xs text-amber-900/70 space-y-1">
                                         <div>❤️ HP: {unit.maxHp}</div>
                                         <div>⚔️ 攻撃: {unit.attackDamage}</div>
                                         <div>📏 射程: {unit.attackRange}</div>
-                                        <div className="text-yellow-400">💰 {unit.cost}</div>
+                                        <div className="text-amber-700">💰 {unit.cost}</div>
                                     </div>
 
                                     {/* 選択状態 */}
@@ -124,8 +151,8 @@ export default function TeamPage() {
                     <Link
                         href="/stages"
                         className={`btn btn-primary text-xl px-8 py-4 ${selectedTeam.length === 0
-                                ? "opacity-50 cursor-not-allowed"
-                                : ""
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
                             }`}
                     >
                         ⚔️ 出撃準備完了！

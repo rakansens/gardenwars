@@ -54,7 +54,8 @@ export interface StageDefinition {
  * プレイヤー状態
  */
 export interface PlayerState {
-  ownedUnits: string[];       // 所持ユニットID一覧
+  ownedUnits: string[];       // 所持ユニットID一覧（後方互換用）
+  unitInventory: { [unitId: string]: number };  // ユニット所持個数
   selectedTeam: string[];     // 編成中のユニットID（最大5体）
   coins: number;
 }

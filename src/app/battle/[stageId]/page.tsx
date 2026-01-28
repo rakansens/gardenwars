@@ -67,12 +67,12 @@ export default function BattlePage() {
             {/* ヘッダー */}
             <div className="mb-4 flex items-center justify-between">
                 <div>
-                    <Link href="/stages" className="text-blue-400 text-sm hover:text-blue-300">
+                    <Link href="/stages" className="text-amber-700 text-sm hover:text-amber-600">
                         ← ステージ選択に戻る
                     </Link>
                 </div>
                 <h1 className="text-xl font-bold">{stage.name}</h1>
-                <div className="text-sm text-gray-400">
+                <div className="text-sm text-amber-900/60">
                     編成: {team.length}体
                 </div>
             </div>
@@ -91,7 +91,7 @@ export default function BattlePage() {
             {battleEnded && result && (
                 <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
                     <div className="text-center">
-                        <h2 className={`text-6xl font-bold mb-4 ${result.win ? "text-yellow-400" : "text-red-500"}`}>
+                        <h2 className={`text-6xl font-bold mb-4 ${result.win ? "text-amber-400" : "text-red-600"}`}>
                             {result.win ? "🎉 勝利！" : "💀 敗北..."}
                         </h2>
                         {result.win && (
@@ -99,13 +99,13 @@ export default function BattlePage() {
                                 +{result.coins} コイン獲得！
                             </p>
                         )}
-                        <p className="mt-4 text-gray-400">リザルト画面へ移動中...</p>
+                        <p className="mt-4 text-amber-100/70">リザルト画面へ移動中...</p>
                     </div>
                 </div>
             )}
 
             {/* 操作説明 */}
-            <div className="mt-4 text-center text-sm text-gray-500">
+            <div className="mt-4 text-center text-sm text-amber-900/60">
                 💡 下のボタンでユニットを召喚！ドラッグでカメラ移動
             </div>
         </main>

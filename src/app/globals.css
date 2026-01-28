@@ -1,69 +1,68 @@
 @import "tailwindcss";
 
 :root {
-  --background: #1a1a2e;
-  --foreground: #eaeaea;
-  --primary: #4488ff;
-  --primary-hover: #66aaff;
-  --secondary: #ff6b6b;
-  --accent: #ffd93d;
-  --card-bg: #16213e;
-  --card-border: #0f3460;
+  --background: #f6ead2;
+  --foreground: #3b2a1a;
+  --primary: #f0b429;
+  --primary-hover: #ffd166;
+  --secondary: #ff8a65;
+  --accent: #ffe066;
+  --card-bg: #fff5de;
+  --card-border: #3b2a1a;
+  --shadow: #7a5a3a;
 }
 
 body {
-  background: var(--background);
+  background: linear-gradient(180deg, #f9efd9 0%, #f1dfbd 100%);
   color: var(--foreground);
-  font-family: var(--font-noto-sans-jp), Arial, sans-serif;
+  font-family: "Hiragino Maru Gothic ProN", "Hiragino Sans", var(--font-noto-sans-jp), Arial, sans-serif;
   min-height: 100vh;
 }
 
 /* ボタン共通スタイル */
 .btn {
   padding: 12px 24px;
-  border-radius: 12px;
+  border-radius: 14px;
   font-weight: 700;
   transition: all 0.2s ease;
   cursor: pointer;
-  border: none;
+  border: 3px solid var(--card-border);
   font-size: 16px;
+  box-shadow: 0 4px 0 var(--shadow);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary), #2266cc);
-  color: white;
-  box-shadow: 0 4px 15px rgba(68, 136, 255, 0.4);
+  background: linear-gradient(180deg, #ffe28a, var(--primary));
+  color: #3b2a1a;
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, var(--primary-hover), var(--primary));
+  background: linear-gradient(180deg, #fff2b0, var(--primary-hover));
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(68, 136, 255, 0.5);
 }
 
 .btn-secondary {
-  background: linear-gradient(135deg, var(--secondary), #cc4444);
-  color: white;
-  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+  background: linear-gradient(180deg, #ffb195, var(--secondary));
+  color: #3b2a1a;
 }
 
 .btn-secondary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
 }
 
 /* カードスタイル */
 .card {
   background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 16px;
+  border: 3px solid var(--card-border);
+  border-radius: 18px;
   padding: 20px;
   transition: all 0.2s ease;
+  box-shadow: 0 4px 0 var(--shadow);
 }
 
 .card:hover {
-  border-color: var(--primary);
-  box-shadow: 0 0 20px rgba(68, 136, 255, 0.2);
+  border-color: #5a3d25;
 }
 
 .card-interactive {
@@ -77,41 +76,42 @@ body {
 /* ユニットカード */
 .unit-card {
   background: var(--card-bg);
-  border: 2px solid var(--card-border);
-  border-radius: 12px;
+  border: 3px solid var(--card-border);
+  border-radius: 14px;
   padding: 16px;
   text-align: center;
   transition: all 0.2s ease;
+  box-shadow: 0 3px 0 var(--shadow);
 }
 
 .unit-card.selected {
   border-color: var(--accent);
-  box-shadow: 0 0 15px rgba(255, 217, 61, 0.4);
+  box-shadow: 0 0 0 3px rgba(255, 224, 102, 0.5), 0 3px 0 var(--shadow);
 }
 
 .unit-card:hover {
-  border-color: var(--primary);
+  border-color: #5a3d25;
 }
 
 /* ステージカード */
 .stage-card {
-  background: linear-gradient(135deg, var(--card-bg), #1a2744);
-  border: 2px solid var(--card-border);
-  border-radius: 16px;
+  background: linear-gradient(180deg, #fff2cc, #ffe4a8);
+  border: 3px solid var(--card-border);
+  border-radius: 18px;
   padding: 24px;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-shadow: 0 4px 0 var(--shadow);
 }
 
 .stage-card:hover {
-  border-color: var(--primary);
   transform: scale(1.02);
 }
 
 /* ヘッダー */
 .page-header {
   padding: 20px;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.5), transparent);
+  background: linear-gradient(180deg, rgba(255, 241, 201, 0.9), transparent);
 }
 
 /* コンテナ */
@@ -127,28 +127,30 @@ body {
   max-width: 1200px;
   aspect-ratio: 16 / 9;
   margin: 0 auto;
-  border-radius: 16px;
+  border-radius: 18px;
   overflow: hidden;
-  border: 3px solid var(--card-border);
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+  border: 4px solid var(--card-border);
+  box-shadow: 0 6px 0 var(--shadow);
 }
 
 /* スロット */
 .slot {
   width: 80px;
   height: 80px;
-  border: 2px dashed var(--card-border);
-  border-radius: 12px;
+  border: 3px dashed var(--card-border);
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #666;
+  color: #6b4a2b;
   font-size: 24px;
+  background: #fff5de;
+  box-shadow: 0 2px 0 var(--shadow);
 }
 
 .slot.filled {
   border-style: solid;
-  border-color: var(--primary);
+  border-color: #5a3d25;
 }
 
 /* アニメーション */

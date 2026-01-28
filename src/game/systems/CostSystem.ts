@@ -5,15 +5,26 @@ import { eventBus, GameEvents } from '../utils/EventBus';
 // CostSystem - コストゲージ管理
 // ============================================
 
+export interface CostSystemOptions extends CostGaugeState {
+    maxLevels?: number[];
+    upgradeCosts?: number[];
+}
+
 export class CostSystem {
     private current: number;
     private max: number;
     private regenRate: number;
+    private maxLevels: number[];
+    private upgradeCosts: number[];
+    private level: number;
 
-    constructor(initial: CostGaugeState) {
+    constructor(initial: CostSystemOptions) {
         this.current = initial.current;
         this.max = initial.max;
         this.regenRate = initial.regenRate;
+        this.maxLevels = initial.maxLevels ?? [initial.max];
+        this.upgradeCosts = initial.upgradeCosts ?? [];
+        this.level = Math.max(0, this.maxLevels.indexOf(this.max));
     }
 
     /**
@@ -51,6 +62,38 @@ export class CostSystem {
      */
     getMax(): number {
         return this.max;
+    }
+
+    /**
+     * コスト上限の現在レベル（1始まり）
+     */
+    getLevel(): number {
+        return this.level + 1;
+    }
+
+    getMaxLevel(): number {
+        return this.maxLevels.length;
+    }
+
+    getUpgradeCost(): number | null {
+        if (!this.canUpgrade()) return null;
+        return this.upgradeCosts[this.level] ?? null;
+    }
+
+    canUpgrade(): boolean {
+        return this.level < this.maxLevels.length - 1;
+    }
+
+    upgradeMax(): boolean {
+        if (!this.canUpgrade()) return false;
+        const cost = this.getUpgradeCost();
+        if (cost === null) return false;
+        if (this.current < cost) return false;
+        this.current -= cost;
+        this.level += 1;
+        this.max = this.maxLevels[this.level];
+        eventBus.emit(GameEvents.COST_CHANGED, this.current, this.max);
+        return true;
     }
 
     /**
