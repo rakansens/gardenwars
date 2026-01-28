@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import Image from "next/image";
 import type { UnitDefinition } from "@/data/types";
 import RarityFrame from "./RarityFrame";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface UnitDetailModalProps {
     unit: UnitDefinition;
@@ -21,6 +22,7 @@ export default function UnitDetailModal({
     onToggleTeam,
 }: UnitDetailModalProps) {
     const modalRef = useRef<HTMLDivElement>(null);
+    const { t } = useLanguage();
 
     // Click outside to close
     useEffect(() => {
@@ -44,6 +46,8 @@ export default function UnitDetailModal({
     }, []);
 
     const imageId = unit.atlasKey || unit.baseUnitId || unit.id;
+    const translatedName = t(unit.id);
+    const unitName = translatedName !== unit.id ? translatedName : unit.name;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 transition-opacity animate-in fade-in duration-200">
@@ -61,7 +65,7 @@ export default function UnitDetailModal({
                             ✕
                         </button>
                     </div>
-                    <h2 className="text-3xl font-bold text-white drop-shadow-md mt-4">{unit.name}</h2>
+                    <h2 className="text-3xl font-bold text-white drop-shadow-md mt-4">{unitName}</h2>
                 </div>
 
                 {/* Content */}
@@ -70,7 +74,7 @@ export default function UnitDetailModal({
                     <div className="relative mb-4">
                         <RarityFrame
                             unitId={unit.id}
-                            unitName={unit.name}
+                            unitName={unitName}
                             rarity={unit.rarity}
                             size="xl"
                             showLabel={true}
@@ -81,19 +85,19 @@ export default function UnitDetailModal({
                     {/* Stats */}
                     <div className="grid grid-cols-2 gap-4 w-full mb-6">
                         <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                            <div className="text-xs text-gray-500 mb-1">HP</div>
+                            <div className="text-xs text-gray-500 mb-1">{t("hp")}</div>
                             <div className="text-lg font-bold text-gray-800">❤️ {unit.maxHp}</div>
                         </div>
                         <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                            <div className="text-xs text-gray-500 mb-1">Attack</div>
+                            <div className="text-xs text-gray-500 mb-1">{t("attack")}</div>
                             <div className="text-lg font-bold text-gray-800">⚔️ {unit.attackDamage}</div>
                         </div>
                         <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                            <div className="text-xs text-gray-500 mb-1">Cost</div>
+                            <div className="text-xs text-gray-500 mb-1">{t("cost")}</div>
                             <div className="text-lg font-bold text-amber-600">💰 {unit.cost}</div>
                         </div>
                         <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                            <div className="text-xs text-gray-500 mb-1">Range</div>
+                            <div className="text-xs text-gray-500 mb-1">{t("range")}</div>
                             <div className="text-lg font-bold text-indigo-600">📏 {unit.attackRange}</div>
                         </div>
                     </div>
@@ -107,15 +111,15 @@ export default function UnitDetailModal({
                                     onClose();
                                 }}
                                 className={`w-full py-3 rounded-xl font-bold text-lg shadow-md transition-all active:scale-95 ${isInTeam
-                                        ? "bg-red-500 hover:bg-red-600 text-white border-b-4 border-red-700"
-                                        : "bg-green-500 hover:bg-green-600 text-white border-b-4 border-green-700"
+                                    ? "bg-red-500 hover:bg-red-600 text-white border-b-4 border-red-700"
+                                    : "bg-green-500 hover:bg-green-600 text-white border-b-4 border-green-700"
                                     }`}
                             >
-                                {isInTeam ? "チームから外す" : "チームに入れる"}
+                                {isInTeam ? t("remove_from_team") : t("add_to_team")}
                             </button>
                         ) : (
                             <div className="w-full py-3 bg-gray-200 text-gray-500 font-bold text-center rounded-xl">
-                                未所持
+                                {t("not_owned")}
                             </div>
                         )}
                     </div>

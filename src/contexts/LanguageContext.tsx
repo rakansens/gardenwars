@@ -27,7 +27,14 @@ const translations: Record<Language, Record<string, string>> = {
         "menu_stages": "⚔️ Stages",
         "menu_team": "🎖️ Team",
         "menu_gacha": "🎰 Gacha",
+        "menu_shop": "🛒 Shop",
+        "menu_garden": "🌱 Garden",
         "owned_coins": "Owned Coins",
+
+        // Unit Modal
+        "remove_from_team": "Remove from Team",
+        "add_to_team": "Add to Team",
+        "not_owned": "Not Owned",
 
         // Stages
         "stage_select": "Stage Select",
@@ -92,6 +99,24 @@ const translations: Record<Language, Record<string, string>> = {
         "cost": "Cost",
         "selected": "✓ Selected",
         "ready_to_deploy": "⚔️ Ready to Deploy!",
+
+        // Shop
+        "shop_title": "🛒 Flash Sale",
+        "shop_hint": "Shop lineup updates after clearing a stage!\nDon't miss these limited time prices!",
+        "sold_out": "SOLD OUT",
+        "buy": "Buy",
+        "not_enough_coins": "Not Enough Coins",
+        "confirm_purchase": "Confirm Purchase",
+        "cancel": "Cancel",
+
+        // Garden
+        "garden_title": "🌱 Paradise Garden",
+        "garden_hint": "friends playing in the garden",
+        "edit_garden": "⚙️ Edit",
+        "select_garden_friends": "Select Garden Friends",
+        "select_hint": "Select up to 20 units to display",
+        "auto_pick": "🎲 Auto Pick (Reset)",
+        "save_selection": "Save Selection",
 
         // Gacha
         "gacha": "🎰 Gacha",
@@ -162,7 +187,14 @@ const translations: Record<Language, Record<string, string>> = {
         "menu_stages": "⚔️ ステージへ",
         "menu_team": "🎖️ 編成",
         "menu_gacha": "🎰 ガチャ",
+        "menu_shop": "🛒 ショップ",
+        "menu_garden": "🌱 ガーデン",
         "owned_coins": "所持コイン",
+
+        // Unit Modal
+        "remove_from_team": "チームから外す",
+        "add_to_team": "チームに入れる",
+        "not_owned": "未所持",
 
         // Stages
         "stage_select": "ステージ選択",
@@ -227,6 +259,24 @@ const translations: Record<Language, Record<string, string>> = {
         "cost": "コスト",
         "selected": "✓ 選択中",
         "ready_to_deploy": "⚔️ 出撃準備完了！",
+
+        // Shop
+        "shop_title": "🛒 フラッシュセール",
+        "shop_hint": "ステージクリアでラインナップ更新！\n今だけの限定価格をお見逃しなく！",
+        "sold_out": "売り切れ",
+        "buy": "購入",
+        "not_enough_coins": "コイン不足",
+        "confirm_purchase": "購入確認",
+        "cancel": "キャンセル",
+
+        // Garden
+        "garden_title": "🌱 パラダイスガーデン",
+        "garden_hint": "匹の仲間が遊んでいます",
+        "edit_garden": "⚙️ 編集",
+        "select_garden_friends": "ガーデンの仲間を選択",
+        "select_hint": "最大20体まで表示できます",
+        "auto_pick": "🎲 おまかせ (リセット)",
+        "save_selection": "保存",
 
         // Gacha
         "gacha": "🎰 ガチャ",

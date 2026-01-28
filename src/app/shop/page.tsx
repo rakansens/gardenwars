@@ -7,17 +7,19 @@ import unitsData from "@/data/units.json";
 import type { UnitDefinition } from "@/data/types";
 import RarityFrame from "@/components/ui/RarityFrame";
 import UnitDetailModal from "@/components/ui/UnitDetailModal";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const allUnits = unitsData as UnitDefinition[];
 
 export default function ShopPage() {
     const { coins, shopItems, buyShopItem, isLoaded } = usePlayerData();
+    const { t } = useLanguage();
     const [viewingUnit, setViewingUnit] = useState<UnitDefinition | null>(null);
     const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
     const [targetIndex, setTargetIndex] = useState<number>(-1);
 
     if (!isLoaded) {
-        return <div className="min-h-screen flex items-center justify-center text-white">Loading...</div>;
+        return <div className="min-h-screen flex items-center justify-center text-white">{t("loading")}</div>;
     }
 
     const handleItemClick = (index: number) => {
@@ -35,30 +37,34 @@ export default function ShopPage() {
             alert("Purchased!");
             setPurchaseModalOpen(false);
         } else {
-            alert("Not enough coins!");
+            alert(t("not_enough_coins"));
         }
     };
 
     const targetItem = targetIndex !== -1 ? shopItems[targetIndex] : null;
     const targetUnit = targetItem ? allUnits.find(u => u.id === targetItem.unitId) : null;
 
+    const getUnitName = (unit: UnitDefinition) => {
+        const translated = t(unit.id);
+        return translated !== unit.id ? translated : unit.name;
+    };
+
     return (
         <main className="min-h-screen p-4 pb-24 bg-[#1a1a2e] text-white">
             {/* Header */}
             <div className="flex items-center justify-between mb-6 sticky top-0 bg-[#1a1a2e]/90 z-20 p-2 backdrop-blur-sm border-b border-white/10">
                 <Link href="/" className="btn btn-secondary text-sm">
-                    ← Home
+                    {t("back_to_home")}
                 </Link>
-                <h1 className="text-2xl font-bold text-amber-400">🛒 Flash Sale</h1>
+                <h1 className="text-2xl font-bold text-amber-400">{t("shop_title")}</h1>
                 <div className="btn btn-primary pointer-events-none">
                     💰 {coins.toLocaleString()}
                 </div>
             </div>
 
             {/* Hint */}
-            <div className="text-center text-sm text-gray-400 mb-6">
-                Shop lineup updates after clearing a stage!<br />
-                Don't miss these limited time prices!
+            <div className="text-center text-sm text-gray-400 mb-6 whitespace-pre-wrap">
+                {t("shop_hint")}
             </div>
 
             {/* Grid */}
@@ -66,6 +72,7 @@ export default function ShopPage() {
                 {shopItems.map((item, index) => {
                     const unit = allUnits.find(u => u.id === item.unitId);
                     if (!unit) return null;
+                    const unitName = getUnitName(unit);
 
                     return (
                         <div
@@ -96,7 +103,7 @@ export default function ShopPage() {
                             <div className="flex justify-center mb-2">
                                 <RarityFrame
                                     unitId={unit.id}
-                                    unitName={unit.name}
+                                    unitName={unitName}
                                     rarity={unit.rarity}
                                     size="md"
                                     showLabel={false}
@@ -107,10 +114,10 @@ export default function ShopPage() {
                             {/* Info */}
                             <div className="text-center">
                                 <div className="text-xs font-bold truncate mb-1 text-indigo-100">
-                                    {unit.name}
+                                    {unitName}
                                 </div>
                                 <div className={`text-sm font-bold ${item.soldOut ? "text-gray-500" : "text-amber-300"}`}>
-                                    {item.soldOut ? "SOLD OUT" : `💰 ${item.price}`}
+                                    {item.soldOut ? t("sold_out") : `💰 ${item.price}`}
                                 </div>
                             </div>
 
@@ -136,12 +143,12 @@ export default function ShopPage() {
                         {/* Background Glare */}
                         <div className="absolute -top-20 -left-20 w-60 h-60 bg-amber-500/20 blur-3xl rounded-full pointer-events-none"></div>
 
-                        <h2 className="text-2xl font-bold mb-4 text-white">Confirm Purchase</h2>
+                        <h2 className="text-2xl font-bold mb-4 text-white">{t("confirm_purchase")}</h2>
 
                         <div className="flex justify-center mb-6">
                             <RarityFrame
                                 unitId={targetUnit.id}
-                                unitName={targetUnit.name}
+                                unitName={getUnitName(targetUnit)}
                                 rarity={targetUnit.rarity}
                                 size="xl"
                                 showLabel={true}
@@ -158,7 +165,7 @@ export default function ShopPage() {
                                 onClick={() => setPurchaseModalOpen(false)}
                                 className="px-6 py-3 rounded-xl bg-gray-600 font-bold hover:bg-gray-500 transition-colors"
                             >
-                                Cancel
+                                {t("cancel")}
                             </button>
                             <button
                                 onClick={handleBuy}
@@ -170,7 +177,7 @@ export default function ShopPage() {
                                     }`
                                 }
                             >
-                                {coins < targetItem.price ? "Not Enough Coins" : "Buy"}
+                                {coins < targetItem.price ? t("not_enough_coins") : t("buy")}
                             </button>
                         </div>
                     </div>

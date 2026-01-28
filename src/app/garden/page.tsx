@@ -8,6 +8,7 @@ import unitsData from "@/data/units.json";
 import type { UnitDefinition } from "@/data/types";
 import RarityFrame from "@/components/ui/RarityFrame";
 import { eventBus, GameEvents } from "@/game/utils/EventBus";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const PhaserGame = dynamic(() => import('@/components/game/PhaserGame'), {
     ssr: false,
@@ -20,10 +21,21 @@ const allyUnits = allUnits.filter(u => !u.id.startsWith("enemy_"));
 
 export default function GardenPage() {
     const { unitInventory, selectedTeam, isLoaded } = usePlayerData();
+    const { t } = useLanguage();
     const [gardenUnits, setGardenUnits] = useState<UnitDefinition[]>([]);
     const [ready, setReady] = useState(false);
     const [isSelectModalOpen, setIsSelectModalOpen] = useState(false);
     const [editUnits, setEditUnits] = useState<string[]>([]);
+
+    // ... (logic from line 29-132 is unchanged so I won't repeat it all, but I need to substitute the whole function body or just the parts I touch. Since I am using replace_file_content, I need to match the block. I will replace the component body.)
+    // Wait, replacing the whole body is risky if I miss something.
+    // I will replace specific blocks.
+
+    // Helper
+    const getUnitName = (unit: UnitDefinition) => {
+        const translated = t(unit.id);
+        return translated !== unit.id ? translated : unit.name;
+    };
 
     // Load initial units
     useEffect(() => {
@@ -117,15 +129,6 @@ export default function GardenPage() {
     };
 
     const handleAutoPickInModal = () => {
-        autoPickUnits();
-        // Since autoPickUnits updates gardenUnits, we need to sync editUnits next tick or just recreate logic
-        // To be safe and simple, we'll just re-run auto logic locally for editUnits
-        const pickedIds = new Set<string>();
-        // ... (reuse logic or just simple: re-running useEffect logic is hard here without exposing it.
-        // Let's just close modal and run autoPick? No, user might want to edit auto-pick.
-        // Let's just call autoPickUnits and then sync editUnits from the result? 
-        // But autoPickUnits uses setGardenUnits state which is async.
-        // So simpler: Close modal, run autoPickUnits, clear localStorage.
         localStorage.removeItem('garden_selection');
         autoPickUnits();
         setIsSelectModalOpen(false);
@@ -142,7 +145,7 @@ export default function GardenPage() {
     };
 
     if (!isLoaded || !ready) {
-        return <div className="min-h-screen bg-[#87CEEB] flex items-center justify-center text-white text-2xl font-bold">Loading Garden...</div>;
+        return <div className="min-h-screen bg-[#87CEEB] flex items-center justify-center text-white text-2xl font-bold">{t("loading")}</div>;
     }
 
     // Filter owned units for modal list
@@ -155,19 +158,19 @@ export default function GardenPage() {
             <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-start z-10 pointer-events-none">
                 <div className="pointer-events-auto">
                     <Link href="/" className="btn bg-white/50 hover:bg-white/80 text-green-900 border-green-500 font-bold">
-                        ← Home
+                        {t("back_to_home")}
                     </Link>
                 </div>
                 <div className="bg-white/60 p-4 rounded-xl backdrop-blur-sm border-2 border-white/80 shadow-lg text-center">
-                    <h1 className="text-2xl font-bold text-green-800">🌱 Paradise Garden</h1>
-                    <p className="text-sm text-green-700 font-bold">{gardenUnits.length} friends playing in the garden</p>
+                    <h1 className="text-2xl font-bold text-green-800">{t("garden_title")}</h1>
+                    <p className="text-sm text-green-700 font-bold">{gardenUnits.length} {t("garden_hint")}</p>
                 </div>
                 <div className="pointer-events-auto">
                     <button
                         onClick={openEditModal}
                         className="btn bg-blue-500/80 hover:bg-blue-600 text-white border-blue-400 font-bold shadow-md"
                     >
-                        ⚙️ Edit
+                        {t("edit_garden")}
                     </button>
                 </div>
             </div>
@@ -205,9 +208,9 @@ export default function GardenPage() {
             {isSelectModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 animate-in fade-in zoom-in duration-200">
                     <div className="bg-slate-900 border-4 border-green-500 rounded-3xl p-6 w-full max-w-4xl h-[90vh] flex flex-col shadow-2xl relative">
-                        <h2 className="text-2xl font-bold text-white mb-2 text-center">Select Garden Friends</h2>
+                        <h2 className="text-2xl font-bold text-white mb-2 text-center">{t("select_garden_friends")}</h2>
                         <p className="text-center text-gray-400 mb-4">
-                            Select up to 20 units to display ({editUnits.length}/20)
+                            {t("select_hint").replace("20", `${editUnits.length}/20`)}
                         </p>
 
                         {/* Unit Grid */}
@@ -222,7 +225,7 @@ export default function GardenPage() {
                                     >
                                         <RarityFrame
                                             unitId={unit.id}
-                                            unitName={unit.name}
+                                            unitName={getUnitName(unit)}
                                             rarity={unit.rarity}
                                             size="sm"
                                             showLabel={false}
@@ -244,20 +247,20 @@ export default function GardenPage() {
                                 onClick={handleAutoPickInModal}
                                 className="px-6 py-3 rounded-xl bg-orange-600/80 hover:bg-orange-600 text-white font-bold"
                             >
-                                🎲 Auto Pick (Reset)
+                                {t("auto_pick")}
                             </button>
                             <div className="flex gap-4">
                                 <button
                                     onClick={() => setIsSelectModalOpen(false)}
                                     className="px-6 py-3 rounded-xl bg-gray-600 hover:bg-gray-500 text-white font-bold"
                                 >
-                                    Cancel
+                                    {t("cancel")}
                                 </button>
                                 <button
                                     onClick={saveSelection}
                                     className="px-8 py-3 rounded-xl bg-green-600 hover:bg-green-500 text-white font-bold shadow-lg shadow-green-900/50"
                                 >
-                                    Save Selection
+                                    {t("save_selection")}
                                 </button>
                             </div>
                         </div>
