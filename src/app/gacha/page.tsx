@@ -14,6 +14,7 @@ const gachaPool = allUnits.filter((u) => !u.id.startsWith("enemy_"));
 
 const SINGLE_COST = 100;
 const MULTI_COST = 900; // 10回で少しお得
+const SUPER_MULTI_COST = 9000; // 100回 (SSR大盛り⁉️)
 
 export default function GachaPage() {
     const { coins, unitInventory, spendCoins, addUnits, isLoaded } = usePlayerData();
@@ -135,6 +136,18 @@ export default function GachaPage() {
                         >
                             <div>10連ガチャ</div>
                             <div className="text-sm">💰 {MULTI_COST}</div>
+                        </button>
+
+                        <button
+                            className={`btn bg-gradient-to-r from-purple-600 to-pink-600 border-2 border-yellow-400 text-white text-lg px-6 py-4 shadow-xl ${coins < SUPER_MULTI_COST || isRolling
+                                ? "opacity-50 cursor-not-allowed"
+                                : "animate-pulse"
+                                }`}
+                            onClick={() => rollGacha(100)}
+                            disabled={coins < SUPER_MULTI_COST || isRolling}
+                        >
+                            <div className="font-bold">✨ 100連ガチャ ✨</div>
+                            <div className="text-sm font-bold text-yellow-300">💰 {SUPER_MULTI_COST}</div>
                         </button>
                     </div>
                 </div>

@@ -123,7 +123,7 @@ export default function GachaReveal({ results, onComplete }: GachaRevealProps) {
             <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
                 <video
                     ref={videoRef}
-                    src={isMulti ? "/assets/videos/gacha_multi.mp4" : "/assets/videos/gacha_single.mp4"}
+                    src={results.length >= 100 ? "/assets/videos/gacha-100.mp4" : isMulti ? "/assets/videos/gacha_multi.mp4" : "/assets/videos/gacha_single.mp4"}
                     autoPlay
                     playsInline
                     onEnded={handleVideoEnd}
@@ -352,18 +352,24 @@ export default function GachaReveal({ results, onComplete }: GachaRevealProps) {
             </h2>
 
             <div
-                className={`grid ${isMulti ? "grid-cols-5" : "grid-cols-1"} gap-3 mb-6 max-w-3xl ${!allRevealed ? "cursor-pointer" : ""}`}
+                className={`grid gap-2 mb-6 max-w-6xl ${results.length >= 100
+                    ? "grid-cols-5 md:grid-cols-10"
+                    : isMulti
+                        ? "grid-cols-5"
+                        : "grid-cols-1"
+                    } ${!allRevealed ? "cursor-pointer" : ""}`}
                 onClick={!allRevealed ? handleStartReveal : undefined}
             >
                 {results.map((unit, index) => {
                     const isRevealed = revealedCards[index];
                     const effect = rarityEffects[unit.rarity];
+                    const isMassive = results.length >= 100;
 
                     return (
                         <div
                             key={index}
                             className={`
-                                w-20 h-28 rounded-xl
+                                ${isMassive ? "w-14 h-20" : "w-20 h-28"} rounded-xl
                                 transform transition-all duration-200
                                 ${isRevealed
                                     ? `bg-gradient-to-br ${getRarityGradientClass(unit.rarity)} ${effect.glowColor} border-white/50`
