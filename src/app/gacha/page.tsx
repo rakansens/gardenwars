@@ -12,9 +12,9 @@ const allUnits = unitsData as UnitDefinition[];
 // ガチャ対象はallyユニットのみ
 const gachaPool = allUnits.filter((u) => !u.id.startsWith("enemy_"));
 
-const SINGLE_COST = 100;
-const MULTI_COST = 900; // 10回で少しお得
-const SUPER_MULTI_COST = 9000; // 100回 (SSR大盛り⁉️)
+const SINGLE_COST = 10;
+const MULTI_COST = 90; // 10回で少しお得
+const SUPER_MULTI_COST = 900; // 100回 (SSR大盛り⁉️)
 
 export default function GachaPage() {
     const { coins, unitInventory, spendCoins, addUnits, isLoaded } = usePlayerData();
@@ -24,7 +24,10 @@ export default function GachaPage() {
 
     // ガチャを引く
     const rollGacha = (count: number) => {
-        const cost = count === 1 ? SINGLE_COST : MULTI_COST;
+        let cost = SINGLE_COST;
+        if (count === 10) cost = MULTI_COST;
+        if (count === 100) cost = SUPER_MULTI_COST;
+
         if (coins < cost) return;
 
         setIsRolling(true);

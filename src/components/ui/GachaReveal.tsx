@@ -4,11 +4,13 @@ import { useState, useRef } from "react";
 import type { UnitDefinition, Rarity } from "@/data/types";
 import { getRarityStars, getRarityGradientClass } from "@/components/ui/RarityFrame";
 import RarityFrame from "@/components/ui/RarityFrame";
+import UnitDetailModal from "@/components/ui/UnitDetailModal";
 
 interface GachaRevealProps {
     results: UnitDefinition[];
     onComplete: () => void;
 }
+
 
 // レアリティごとの裏面カラー
 const rarityBackColors: Record<Rarity, string> = {
@@ -69,6 +71,7 @@ export default function GachaReveal({ results, onComplete }: GachaRevealProps) {
     const [phase, setPhase] = useState<"video" | "cards" | "single">("video");
     const [revealedCards, setRevealedCards] = useState<boolean[]>(results.map(() => false));
     const [currentSingleIndex, setCurrentSingleIndex] = useState<number>(0);
+    const [viewingUnit, setViewingUnit] = useState<UnitDefinition | null>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
 
     // 動画終了時の処理
@@ -240,6 +243,18 @@ export default function GachaReveal({ results, onComplete }: GachaRevealProps) {
                     {isSSR ? "🌟 SUPER RARE! 🌟" : "👆 タップして次へ"}
                 </div>
 
+                {/* スキップボタン */}
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setRevealedCards(results.map(() => true));
+                        setPhase("cards");
+                    }}
+                    className="absolute bottom-4 right-4 px-4 py-2 bg-white/20 hover:bg-white/30 text-white font-bold rounded-lg transition-colors z-20"
+                >
+                    スキップ (全開封)
+                </button>
+
                 <style jsx>{`
                     .flip-card-container {
                         perspective: 1000px;
@@ -357,23 +372,32 @@ export default function GachaReveal({ results, onComplete }: GachaRevealProps) {
                     : isMulti
                         ? "grid-cols-5"
                         : "grid-cols-1"
-                    } ${!allRevealed ? "cursor-pointer" : ""}`}
-                onClick={!allRevealed ? handleStartReveal : undefined}
+                    }`}
             >
                 {results.map((unit, index) => {
                     const isRevealed = revealedCards[index];
                     const effect = rarityEffects[unit.rarity];
                     const isMassive = results.length >= 100;
 
+                    const handleCardClick = () => {
+                        if (!isRevealed) {
+                            setCurrentSingleIndex(index);
+                            setPhase("single");
+                        } else {
+                            setViewingUnit(unit);
+                        }
+                    };
+
                     return (
                         <div
                             key={index}
+                            onClick={handleCardClick}
                             className={`
                                 ${isMassive ? "w-14 h-20" : "w-20 h-28"} rounded-xl
                                 transform transition-all duration-200
                                 ${isRevealed
-                                    ? `bg-gradient-to-br ${getRarityGradientClass(unit.rarity)} ${effect.glowColor} border-white/50`
-                                    : `bg-gradient-to-br ${rarityBackColors[unit.rarity]}`
+                                    ? `bg-gradient-to-br ${getRarityGradientClass(unit.rarity)} ${effect.glowColor} border-white/50 cursor-pointer hover:scale-105`
+                                    : `bg-gradient-to-br ${rarityBackColors[unit.rarity]} cursor-pointer hover:opacity-90`
                                 }
                                 border-3
                                 flex flex-col items-center justify-center
@@ -411,6 +435,17 @@ export default function GachaReveal({ results, onComplete }: GachaRevealProps) {
                 >
                     OK
                 </button>
+            )}
+
+            {/* 詳細モーダル */}
+            {viewingUnit && (
+                <UnitDetailModal
+                    unit={viewingUnit}
+                    isOwned={true}
+                    isInTeam={false}
+                    onClose={() => setViewingUnit(null)}
+                    onToggleTeam={() => { }}
+                />
             )}
         </div>
     );
