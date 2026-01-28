@@ -111,7 +111,7 @@ export default function PhaserGame({
                 scale: {
                     mode: Phaser.Scale.FIT,
                     autoCenter: Phaser.Scale.CENTER_BOTH,
-                    expandParent: true,
+                    expandParent: false,
                 },
                 input: {
                     activePointers: 3,
@@ -154,7 +154,7 @@ export default function PhaserGame({
     }, [mode, stage, team, allUnits, gardenUnits, handleBattleEnd]);
 
     return (
-        <div className="relative">
+        <div className="relative w-full h-full">
             {/* ローディング表示 */}
             {isLoading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-80 z-10">
@@ -180,7 +180,7 @@ export default function PhaserGame({
             )}
 
             {/* ゲームコンテナ */}
-            <div ref={gameRef} className="game-container" />
+            <div ref={gameRef} className="game-container w-full h-full" />
         </div>
     );
 }
