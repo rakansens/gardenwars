@@ -16,6 +16,7 @@ export interface UnitDefinition {
   attackCooldownMs: number;   // 攻撃後のクールダウン時間
   attackWindupMs: number;     // ダメージ発生までのモーション時間
   knockback: number;          // 与えるノックバック距離
+  scale?: number;             // スプライトのスケール倍率（オプション）
   atlasKey: string;
   animKeys: {
     idle: string;
@@ -71,12 +72,12 @@ export interface BattleResult {
 /**
  * ユニット状態（状態機械）
  */
-export type UnitState = 
-  | 'SPAWN' 
-  | 'WALK' 
-  | 'ATTACK_WINDUP' 
-  | 'ATTACK_COOLDOWN' 
-  | 'HITSTUN' 
+export type UnitState =
+  | 'SPAWN'
+  | 'WALK'
+  | 'ATTACK_WINDUP'
+  | 'ATTACK_COOLDOWN'
+  | 'HITSTUN'
   | 'DIE';
 
 /**
@@ -92,11 +93,11 @@ export type CastleSide = 'ally' | 'enemy';
 /**
  * ゲーム状態
  */
-export type GameState = 
-  | 'LOADING' 
-  | 'PLAYING' 
-  | 'PAUSED' 
-  | 'WIN' 
+export type GameState =
+  | 'LOADING'
+  | 'PLAYING'
+  | 'PAUSED'
+  | 'WIN'
   | 'LOSE';
 
 /**

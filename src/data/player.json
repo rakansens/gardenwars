@@ -4,12 +4,26 @@
         "cat_tank",
         "cat_archer",
         "cat_mage",
-        "cat_ninja"
+        "cat_ninja",
+        "ice_flower",
+        "corn_fighter",
+        "block_slime",
+        "sunflower",
+        "watermelon",
+        "corn_kid",
+        "ribbon_girl",
+        "penguin_boy",
+        "cinnamon_girl"
     ],
     "selectedTeam": [
         "cat_warrior",
-        "cat_tank",
-        "cat_archer"
+        "corn_fighter",
+        "ribbon_girl",
+        "penguin_boy",
+        "cinnamon_girl",
+        "watermelon",
+        "sunflower",
+        "ice_flower"
     ],
     "coins": 500
 }

@@ -95,6 +95,180 @@
     }
   },
   {
+    "id": "ice_flower",
+    "name": "氷花",
+    "cost": 75,
+    "maxHp": 180,
+    "speed": 30,
+    "attackDamage": 40,
+    "attackRange": 180,
+    "attackCooldownMs": 2000,
+    "attackWindupMs": 600,
+    "knockback": 25,
+    "atlasKey": "ice_flower",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "corn_fighter",
+    "name": "コーン",
+    "cost": 90,
+    "maxHp": 250,
+    "speed": 100,
+    "attackDamage": 55,
+    "attackRange": 50,
+    "attackCooldownMs": 1000,
+    "attackWindupMs": 350,
+    "knockback": 30,
+    "atlasKey": "corn_fighter",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "block_slime",
+    "name": "ブロック",
+    "cost": 60,
+    "maxHp": 500,
+    "speed": 20,
+    "attackDamage": 15,
+    "attackRange": 30,
+    "attackCooldownMs": 2500,
+    "attackWindupMs": 800,
+    "knockback": 10,
+    "atlasKey": "block_slime",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "sunflower",
+    "name": "ひまわり",
+    "cost": 100,
+    "maxHp": 120,
+    "speed": 45,
+    "attackDamage": 35,
+    "attackRange": 200,
+    "attackCooldownMs": 1800,
+    "attackWindupMs": 500,
+    "knockback": 15,
+    "atlasKey": "sunflower",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "watermelon",
+    "name": "スイカ",
+    "cost": 85,
+    "maxHp": 450,
+    "speed": 35,
+    "attackDamage": 40,
+    "attackRange": 35,
+    "attackCooldownMs": 1500,
+    "attackWindupMs": 450,
+    "knockback": 35,
+    "atlasKey": "watermelon",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "corn_kid",
+    "name": "コーンキ",
+    "cost": 70,
+    "maxHp": 200,
+    "speed": 80,
+    "attackDamage": 30,
+    "attackRange": 45,
+    "attackCooldownMs": 1100,
+    "attackWindupMs": 350,
+    "knockback": 20,
+    "atlasKey": "corn_kid",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "ribbon_girl",
+    "name": "リボン",
+    "cost": 150,
+    "maxHp": 300,
+    "speed": 60,
+    "attackDamage": 50,
+    "attackRange": 60,
+    "attackCooldownMs": 1200,
+    "attackWindupMs": 400,
+    "knockback": 25,
+    "scale": 1.8,
+    "atlasKey": "ribbon_girl",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "penguin_boy",
+    "name": "ペンギン",
+    "cost": 90,
+    "maxHp": 380,
+    "speed": 50,
+    "attackDamage": 35,
+    "attackRange": 40,
+    "attackCooldownMs": 1300,
+    "attackWindupMs": 400,
+    "knockback": 30,
+    "scale": 1.8,
+    "atlasKey": "penguin_boy",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "cinnamon_girl",
+    "name": "ユメミ",
+    "cost": 120,
+    "maxHp": 250,
+    "speed": 70,
+    "attackDamage": 45,
+    "attackRange": 55,
+    "attackCooldownMs": 1000,
+    "attackWindupMs": 350,
+    "knockback": 20,
+    "scale": 1.8,
+    "atlasKey": "cinnamon_girl",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
     "id": "enemy_dog",
     "name": "敵イヌ",
     "cost": 0,

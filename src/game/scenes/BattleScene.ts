@@ -37,6 +37,7 @@ export class BattleScene extends Phaser.Scene {
     // ゲーム状態
     private gameState: GameState = 'LOADING';
     private groundY: number = 0;
+    private sceneId: string = '';
 
     // UI
     private costText!: Phaser.GameObjects.Text;
@@ -47,9 +48,21 @@ export class BattleScene extends Phaser.Scene {
     }
 
     init(data: BattleSceneData) {
+        // シーンIDを生成
+        this.sceneId = Math.random().toString(36).substr(2, 6);
+        console.log(`[BattleScene ${this.sceneId}] Initializing...`);
+
         this.stageData = data.stage;
         this.teamData = data.team;
         this.allUnitsData = data.allUnits;
+
+        // 前のゲームの状態をリセット
+        this.gameState = 'LOADING';
+        this.allyUnits = [];
+        this.enemyUnits = [];
+
+        // 前のイベントリスナーをクリア
+        eventBus.removeAllListeners(GameEvents.SUMMON_UNIT);
     }
 
     preload() {
@@ -57,26 +70,55 @@ export class BattleScene extends Phaser.Scene {
         this.load.image('castle_ally', '/assets/sprites/castle_ally.png');
         this.load.image('castle_enemy', '/assets/sprites/castle_enemy.png');
 
-        // ユニットスプライトをロード
+        // ユニットスプライトをロード（静止画フォールバック用）
         this.load.image('cat_warrior', '/assets/sprites/cat_warrior.png');
         this.load.image('cat_tank', '/assets/sprites/cat_tank.png');
         this.load.image('cat_archer', '/assets/sprites/cat_archer.png');
         this.load.image('cat_mage', '/assets/sprites/cat_mage.png');
         this.load.image('cat_ninja', '/assets/sprites/cat_ninja.png');
+        this.load.image('ice_flower', '/assets/sprites/ice_flower.png');
+        this.load.image('corn_fighter', '/assets/sprites/corn_fighter.png');
+        this.load.image('block_slime', '/assets/sprites/block_slime.png');
+        this.load.image('sunflower', '/assets/sprites/sunflower.png');
+        this.load.image('watermelon', '/assets/sprites/watermelon.png');
+        this.load.image('corn_kid', '/assets/sprites/corn_kid.png');
+        this.load.image('ribbon_girl', '/assets/sprites/ribbon_girl.png');
+        this.load.image('penguin_boy', '/assets/sprites/penguin_boy.png');
+        this.load.image('cinnamon_girl', '/assets/sprites/cinnamon_girl.png');
         this.load.image('enemy_dog', '/assets/sprites/enemy_dog.png');
         this.load.image('enemy_wolf', '/assets/sprites/enemy_wolf.png');
         this.load.image('enemy_crow', '/assets/sprites/enemy_crow.png');
+
+        // スプライトシート（アトラス）をロード
+        this.load.atlas(
+            'cat_warrior_atlas',
+            '/assets/sprites/cat_warrior_sheet.png',
+            '/assets/sprites/cat_warrior_sheet.json'
+        );
+        this.load.atlas(
+            'corn_fighter_atlas',
+            '/assets/sprites/corn_fighter_sheet.png',
+            '/assets/sprites/corn_fighter_sheet.json'
+        );
+        this.load.atlas(
+            'penguin_boy_atlas',
+            '/assets/sprites/penguin_boy_sheet.png',
+            '/assets/sprites/penguin_boy_sheet.json'
+        );
     }
 
     create() {
         const { width, height } = this.scale;
-        this.groundY = height - 80;
+        this.groundY = height - 130; // ボタン用スペースを確保
+
+        // アニメーション作成
+        this.createAnimations();
 
         // 背景
         this.createBackground();
 
-        // 地面
-        this.add.rectangle(width / 2, height - 40, width, 80, 0x3d2817);
+        // 地面（床を大きく）
+        this.add.rectangle(width / 2, height - 65, width, 130, 0x3d2817);
 
         // 城を配置
         this.allyCastle = new Castle(this, 50, this.groundY, 'ally', this.stageData.baseCastleHp);
@@ -103,6 +145,77 @@ export class BattleScene extends Phaser.Scene {
 
         // ゲーム開始
         this.startBattle();
+    }
+
+    private createAnimations() {
+        // ネコ戦士のアニメーション
+        this.anims.create({
+            key: 'cat_warrior_idle',
+            frames: [{ key: 'cat_warrior_atlas', frame: 'cat_warrior_idle.png' }],
+            frameRate: 1,
+            repeat: -1,
+        });
+
+        this.anims.create({
+            key: 'cat_warrior_walk',
+            frames: [
+                { key: 'cat_warrior_atlas', frame: 'cat_warrior_walk_1.png' },
+                { key: 'cat_warrior_atlas', frame: 'cat_warrior_walk_2.png' },
+                { key: 'cat_warrior_atlas', frame: 'cat_warrior_walk_3.png' },
+                { key: 'cat_warrior_atlas', frame: 'cat_warrior_walk_4.png' },
+            ],
+            frameRate: 8,
+            repeat: -1,
+        });
+
+        this.anims.create({
+            key: 'cat_warrior_attack',
+            frames: [
+                { key: 'cat_warrior_atlas', frame: 'cat_warrior_attack_1.png' },
+                { key: 'cat_warrior_atlas', frame: 'cat_warrior_attack_2.png' },
+                { key: 'cat_warrior_atlas', frame: 'cat_warrior_attack_3.png' },
+            ],
+            frameRate: 10,
+            repeat: 0,
+        });
+
+        // コーンファイターのアニメーション
+        this.anims.create({
+            key: 'corn_fighter_idle',
+            frames: [{ key: 'corn_fighter_atlas', frame: 'corn_fighter_idle.png' }],
+            frameRate: 1,
+            repeat: -1,
+        });
+
+        this.anims.create({
+            key: 'corn_fighter_attack',
+            frames: [
+                { key: 'corn_fighter_atlas', frame: 'corn_fighter_attack_1.png' },
+                { key: 'corn_fighter_atlas', frame: 'corn_fighter_attack_2.png' },
+                { key: 'corn_fighter_atlas', frame: 'corn_fighter_attack_3.png' },
+            ],
+            frameRate: 8,
+            repeat: 0,
+        });
+
+        // ペンギンボーイのアニメーション
+        this.anims.create({
+            key: 'penguin_boy_idle',
+            frames: [{ key: 'penguin_boy_atlas', frame: 'penguin_boy_idle.png' }],
+            frameRate: 1,
+            repeat: -1,
+        });
+
+        this.anims.create({
+            key: 'penguin_boy_attack',
+            frames: [
+                { key: 'penguin_boy_atlas', frame: 'penguin_boy_attack_1.png' },
+                { key: 'penguin_boy_atlas', frame: 'penguin_boy_attack_2.png' },
+                { key: 'penguin_boy_atlas', frame: 'penguin_boy_attack_3.png' },
+            ],
+            frameRate: 8,
+            repeat: 0,
+        });
     }
 
     private createBackground() {
@@ -177,11 +290,11 @@ export class BattleScene extends Phaser.Scene {
 
     private createSummonButtons() {
         const { height } = this.scale;
-        const buttonY = height - 40; // 画面下端に配置
-        const buttonWidth = 100;
-        const buttonHeight = 50;
-        const startX = 120;
-        const gap = 15;
+        const buttonY = height - 50; // 画面下端に配置
+        const buttonWidth = 80;
+        const buttonHeight = 90;
+        const startX = 60;
+        const gap = 10;
 
         this.teamData.forEach((unit, index) => {
             const x = startX + index * (buttonWidth + gap);
@@ -191,20 +304,32 @@ export class BattleScene extends Phaser.Scene {
             bg.setScrollFactor(0);
             bg.setDepth(100);
             bg.setInteractive({ useHandCursor: true });
+            bg.setStrokeStyle(2, 0x2266cc);
+
+            // ユニット画像
+            const unitIcon = this.add.image(x, buttonY - 20, unit.id);
+            const iconScale = 40 / unitIcon.height; // 40pxに収める
+            unitIcon.setScale(iconScale);
+            unitIcon.setScrollFactor(0);
+            unitIcon.setDepth(101);
 
             // ユニット名
-            const nameText = this.add.text(x, buttonY - 10, unit.name.slice(0, 4), {
-                fontSize: '14px',
+            const nameText = this.add.text(x, buttonY + 15, unit.name.slice(0, 4), {
+                fontSize: '11px',
                 color: '#ffffff',
+                stroke: '#000000',
+                strokeThickness: 1,
             });
             nameText.setOrigin(0.5, 0.5);
             nameText.setScrollFactor(0);
             nameText.setDepth(101);
 
             // コスト表示
-            const costText = this.add.text(x, buttonY + 15, `¥${unit.cost}`, {
-                fontSize: '12px',
+            const costText = this.add.text(x, buttonY + 32, `¥${unit.cost}`, {
+                fontSize: '11px',
                 color: '#ffff00',
+                stroke: '#000000',
+                strokeThickness: 1,
             });
             costText.setOrigin(0.5, 0.5);
             costText.setScrollFactor(0);
@@ -255,9 +380,6 @@ export class BattleScene extends Phaser.Scene {
             this.enemyCastle
         );
 
-        // 城への直接攻撃チェック
-        this.checkCastleAttacks();
-
         // 死亡ユニットの除去
         this.cleanupDeadUnits();
 
@@ -276,67 +398,35 @@ export class BattleScene extends Phaser.Scene {
         }
     }
 
-    private checkCastleAttacks() {
-        // 味方ユニットが敵城に攻撃
-        for (const ally of this.allyUnits) {
-            if (ally.isDead()) continue;
-            if (!ally.target && ally.state === 'WALK') {
-                const distance = Math.abs(ally.getX() - this.enemyCastle.getX());
-                if (distance <= ally.definition.attackRange) {
-                    // 強制的に戦闘開始（城攻撃）
-                    if (ally.state === 'WALK') {
-                        // 城への攻撃状態に
-                        ally['setState']('ATTACK_WINDUP');
-                    }
-                }
-            }
-            // ATTACK_WINDUP完了時に城へダメージ
-            if (!ally.target && ally.state === 'ATTACK_COOLDOWN') {
-                const distance = Math.abs(ally.getX() - this.enemyCastle.getX());
-                if (distance <= ally.definition.attackRange) {
-                    // 攻撃サイクルで1回だけダメージ
-                    // ステートタイマーが0に近い時（状態移行直後）
-                    if (ally['stateTimer'] < 100) {
-                        this.enemyCastle.takeDamage(ally.definition.attackDamage);
-                    }
-                }
-            }
-        }
-
-        // 敵ユニットが味方城に攻撃
-        for (const enemy of this.enemyUnits) {
-            if (enemy.isDead()) continue;
-            if (!enemy.target && enemy.state === 'WALK') {
-                const distance = Math.abs(enemy.getX() - this.allyCastle.getX());
-                if (distance <= enemy.definition.attackRange) {
-                    enemy['setState']('ATTACK_WINDUP');
-                }
-            }
-            if (!enemy.target && enemy.state === 'ATTACK_COOLDOWN') {
-                const distance = Math.abs(enemy.getX() - this.allyCastle.getX());
-                if (distance <= enemy.definition.attackRange) {
-                    if (enemy['stateTimer'] < 100) {
-                        this.allyCastle.takeDamage(enemy.definition.attackDamage);
-                    }
-                }
-            }
-        }
-    }
-
     private cleanupDeadUnits() {
         this.allyUnits = this.allyUnits.filter(u => !u.isDead() || u.active);
         this.enemyUnits = this.enemyUnits.filter(u => !u.isDead() || u.active);
     }
 
     private checkGameEnd() {
+        // 既に終了している場合は処理しない
+        if (this.gameState === 'WIN' || this.gameState === 'LOSE') {
+            return;
+        }
+
+        // デバッグ: 城のHP確認（シーンID付き）
+        console.log(`[Scene ${this.sceneId}] Ally HP: ${this.allyCastle.hp}/${this.allyCastle.maxHp}, Enemy HP: ${this.enemyCastle.hp}/${this.enemyCastle.maxHp}`);
+
         if (this.enemyCastle.isDestroyed()) {
+            console.log('[GameEnd] Enemy castle destroyed!');
             this.endBattle(true);
         } else if (this.allyCastle.isDestroyed()) {
+            console.log('[GameEnd] Ally castle destroyed!');
             this.endBattle(false);
         }
     }
 
     private endBattle(win: boolean) {
+        // 既に終了している場合は処理しない
+        if (this.gameState === 'WIN' || this.gameState === 'LOSE') {
+            return;
+        }
+
         this.gameState = win ? 'WIN' : 'LOSE';
 
         // 結果を通知

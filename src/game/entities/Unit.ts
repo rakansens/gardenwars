@@ -1,9 +1,13 @@
 import Phaser from 'phaser';
 import type { UnitDefinition, UnitState, UnitSide } from '@/data/types';
+import type { Castle } from './Castle';
 
 // ============================================
 // Unit Entity - 状態機械による自動戦闘ユニット
 // ============================================
+
+// アニメーション対応ユニットIDのリスト
+const ANIMATED_UNITS = ['cat_warrior', 'corn_fighter', 'penguin_boy'];
 
 export class Unit extends Phaser.GameObjects.Container {
     // 基本データ
@@ -21,9 +25,10 @@ export class Unit extends Phaser.GameObjects.Container {
 
     // ターゲット
     public target: Unit | null = null;
+    public castleTarget: Castle | null = null;
 
     // ビジュアル
-    private sprite: Phaser.GameObjects.Image;
+    private sprite: Phaser.GameObjects.Sprite | Phaser.GameObjects.Image;
     private hpBar: Phaser.GameObjects.Rectangle;
     private hpBarBg: Phaser.GameObjects.Rectangle;
 
@@ -35,6 +40,9 @@ export class Unit extends Phaser.GameObjects.Container {
 
     // スプライトのベーススケール
     private baseScale: number = 1;
+
+    // アニメーション対応フラグ
+    private hasAnimation: boolean = false;
 
     constructor(
         scene: Phaser.Scene,
@@ -54,13 +62,21 @@ export class Unit extends Phaser.GameObjects.Container {
         this.direction = side === 'ally' ? 1 : -1;
         this.stageLength = stageLength;
 
-        // スプライト画像を使用
-        const textureKey = definition.id;
-        this.sprite = scene.add.image(0, 0, textureKey);
+        // アニメーション対応チェック
+        this.hasAnimation = ANIMATED_UNITS.includes(definition.id);
+
+        if (this.hasAnimation) {
+            // アニメーション対応ユニット
+            this.sprite = scene.add.sprite(0, 0, `${definition.id}_atlas`, `${definition.id}_idle.png`);
+        } else {
+            // 静止画ユニット
+            this.sprite = scene.add.image(0, 0, definition.id);
+        }
 
         // スケール調整（キャラを大きめに）
         const targetHeight = 120;
-        this.baseScale = targetHeight / this.sprite.height;
+        const customScale = definition.scale ?? 1.0;
+        this.baseScale = (targetHeight / this.sprite.height) * customScale;
         this.sprite.setScale(this.baseScale);
 
         // 原点を下中央に設定
@@ -128,7 +144,30 @@ export class Unit extends Phaser.GameObjects.Container {
         this.state = newState;
         this.stateTimer = 0;
 
-        // ビジュアル更新（反転はsetFlipXで制御するのでスケールは常に正）
+        // アニメーション再生
+        if (this.hasAnimation && this.sprite instanceof Phaser.GameObjects.Sprite) {
+            switch (newState) {
+                case 'SPAWN':
+                case 'WALK':
+                    this.sprite.play(`${this.definition.id}_walk`, true);
+                    break;
+                case 'ATTACK_WINDUP':
+                    this.sprite.play(`${this.definition.id}_attack`, true);
+                    break;
+                case 'ATTACK_COOLDOWN':
+                    // 攻撃アニメ続行
+                    break;
+                case 'HITSTUN':
+                    // ヒット時は一時停止
+                    this.sprite.anims.pause();
+                    break;
+                case 'DIE':
+                    this.sprite.anims.stop();
+                    break;
+            }
+        }
+
+        // ビジュアル更新
         switch (newState) {
             case 'SPAWN':
                 // スポーン時のスケールアニメーション
@@ -149,8 +188,8 @@ export class Unit extends Phaser.GameObjects.Container {
                 // 攻撃時に少し大きく
                 this.scene.tweens.add({
                     targets: this.sprite,
-                    scaleX: this.baseScale * 1.2,
-                    scaleY: this.baseScale * 1.2,
+                    scaleX: this.baseScale * 1.1,
+                    scaleY: this.baseScale * 1.1,
                     duration: 100,
                 });
                 break;
@@ -184,13 +223,17 @@ export class Unit extends Phaser.GameObjects.Container {
             this.setUnitState('ATTACK_WINDUP');
             return;
         }
+        // 城がターゲットで射程内なら攻撃開始
+        if (this.castleTarget && this.isInRangeOfCastle()) {
+            this.setUnitState('ATTACK_WINDUP');
+            return;
+        }
 
         // 前進
         const speed = this.definition.speed * (delta / 1000);
         this.x += speed * this.direction;
 
-        // 城との衝突判定（城への直接攻撃はCombatSystemで処理）
-        // ここでは位置クランプのみ
+        // 城との衝突判定
         if (this.side === 'ally') {
             this.x = Math.min(this.x, this.stageLength - 30);
         } else {
@@ -212,6 +255,8 @@ export class Unit extends Phaser.GameObjects.Container {
             // ターゲットがまだ射程内なら再度攻撃
             if (this.target && !this.target.isDead() && this.isInRange(this.target)) {
                 this.setUnitState('ATTACK_WINDUP');
+            } else if (this.castleTarget && this.isInRangeOfCastle()) {
+                this.setUnitState('ATTACK_WINDUP');
             } else {
                 this.target = null;
                 this.setUnitState('WALK');
@@ -227,9 +272,13 @@ export class Unit extends Phaser.GameObjects.Container {
     }
 
     private dealDamage(): void {
-        if (!this.target || this.target.isDead()) return;
-
-        this.target.takeDamage(this.definition.attackDamage, this.definition.knockback);
+        if (this.target && !this.target.isDead()) {
+            this.target.takeDamage(this.definition.attackDamage, this.definition.knockback);
+            return;
+        }
+        if (this.castleTarget) {
+            this.castleTarget.takeDamage(this.definition.attackDamage);
+        }
     }
 
     public takeDamage(damage: number, knockback: number): void {
@@ -321,5 +370,11 @@ export class Unit extends Phaser.GameObjects.Container {
 
     public getX(): number {
         return this.x;
+    }
+
+    private isInRangeOfCastle(): boolean {
+        if (!this.castleTarget) return false;
+        const distance = Math.abs(this.x - this.castleTarget.getX());
+        return distance <= this.definition.attackRange;
     }
 }

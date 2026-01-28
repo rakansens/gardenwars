@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import type { StageDefinition, UnitDefinition } from "@/data/types";
 
-// Phaser関連のインポートはクライアントサイドでのみ行う
+// グローバルなゲームインスタンス参照（重複防止）
+let globalPhaserGame: Phaser.Game | null = null;
 
 interface PhaserGameProps {
     stage: StageDefinition;
@@ -19,15 +20,28 @@ export default function PhaserGame({
     onBattleEnd,
 }: PhaserGameProps) {
     const gameRef = useRef<HTMLDivElement>(null);
-    const phaserGameRef = useRef<Phaser.Game | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const battleEndedRef = useRef(false);
 
     const handleBattleEnd = useCallback((win: boolean, coinsGained: number) => {
+        // 重複呼び出し防止
+        if (battleEndedRef.current) return;
+        battleEndedRef.current = true;
         onBattleEnd(win, coinsGained);
     }, [onBattleEnd]);
 
     useEffect(() => {
-        if (!gameRef.current || phaserGameRef.current) return;
+        if (!gameRef.current) return;
+
+        // 既存のゲームインスタンスを破棄
+        if (globalPhaserGame) {
+            console.log('[PhaserGame] Destroying existing game instance');
+            globalPhaserGame.destroy(true);
+            globalPhaserGame = null;
+        }
+
+        // バトル終了フラグをリセット
+        battleEndedRef.current = false;
 
         // 動的インポートでPhaserをロード（SSR回避）
         const initPhaser = async () => {
@@ -35,9 +49,13 @@ export default function PhaserGame({
             const { BattleScene } = await import("@/game/scenes/BattleScene");
             const { eventBus, GameEvents } = await import("@/game/utils/EventBus");
 
+            // 既存のリスナーをクリア
+            eventBus.removeAllListeners(GameEvents.BATTLE_WIN);
+            eventBus.removeAllListeners(GameEvents.BATTLE_LOSE);
+
             // イベントリスナー設定
-            const handleWin = (result: { coinsGained: number }) => {
-                handleBattleEnd(true, result.coinsGained);
+            const handleWin = (result: { coinsGained?: number }) => {
+                handleBattleEnd(true, result?.coinsGained || 0);
             };
             const handleLose = () => {
                 handleBattleEnd(false, 0);
@@ -63,10 +81,10 @@ export default function PhaserGame({
                 },
             };
 
-            phaserGameRef.current = new Phaser.Game(config);
+            globalPhaserGame = new Phaser.Game(config);
 
             // シーンにデータを渡して開始
-            phaserGameRef.current.scene.start("BattleScene", {
+            globalPhaserGame.scene.start("BattleScene", {
                 stage,
                 team,
                 allUnits,
@@ -74,7 +92,7 @@ export default function PhaserGame({
 
             setIsLoading(false);
 
-            // クリーンアップ関数を返すためのリファレンス保存
+            // クリーンアップ関数を返す
             return () => {
                 eventBus.off(GameEvents.BATTLE_WIN, handleWin);
                 eventBus.off(GameEvents.BATTLE_LOSE, handleLose);
@@ -87,10 +105,11 @@ export default function PhaserGame({
         });
 
         return () => {
+            console.log('[PhaserGame] Cleanup');
             cleanup?.();
-            if (phaserGameRef.current) {
-                phaserGameRef.current.destroy(true);
-                phaserGameRef.current = null;
+            if (globalPhaserGame) {
+                globalPhaserGame.destroy(true);
+                globalPhaserGame = null;
             }
         };
     }, [stage, team, allUnits, handleBattleEnd]);

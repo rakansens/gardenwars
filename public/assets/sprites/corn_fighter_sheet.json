@@ -1,0 +1,95 @@
+{
+    "frames": {
+        "corn_fighter_idle.png": {
+            "frame": {
+                "x": 0,
+                "y": 0,
+                "w": 1024,
+                "h": 1024
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 1024,
+                "h": 1024
+            },
+            "sourceSize": {
+                "w": 1024,
+                "h": 1024
+            }
+        },
+        "corn_fighter_attack_1.png": {
+            "frame": {
+                "x": 1024,
+                "y": 0,
+                "w": 1024,
+                "h": 1024
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 1024,
+                "h": 1024
+            },
+            "sourceSize": {
+                "w": 1024,
+                "h": 1024
+            }
+        },
+        "corn_fighter_attack_2.png": {
+            "frame": {
+                "x": 2048,
+                "y": 0,
+                "w": 1024,
+                "h": 1024
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 1024,
+                "h": 1024
+            },
+            "sourceSize": {
+                "w": 1024,
+                "h": 1024
+            }
+        },
+        "corn_fighter_attack_3.png": {
+            "frame": {
+                "x": 3072,
+                "y": 0,
+                "w": 1024,
+                "h": 1024
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 1024,
+                "h": 1024
+            },
+            "sourceSize": {
+                "w": 1024,
+                "h": 1024
+            }
+        }
+    },
+    "meta": {
+        "app": "manual",
+        "version": "1.0",
+        "image": "corn_fighter_sheet.png",
+        "format": "RGBA8888",
+        "size": {
+            "w": 4096,
+            "h": 1024
+        },
+        "scale": "1"
+    }
+}
