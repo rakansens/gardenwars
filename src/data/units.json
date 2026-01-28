@@ -1047,5 +1047,320 @@
       "attack": "attack",
       "die": "die"
     }
+  },
+  {
+    "id": "n_mushroom",
+    "name": "Mushroom",
+    "rarity": "N",
+    "cost": 25,
+    "maxHp": 150,
+    "speed": 65,
+    "attackDamage": 20,
+    "attackRange": 35,
+    "attackCooldownMs": 1100,
+    "attackWindupMs": 350,
+    "knockback": 12,
+    "scale": 0.95,
+    "atlasKey": "n_mushroom",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "n_apple",
+    "name": "Apple",
+    "rarity": "N",
+    "cost": 30,
+    "maxHp": 170,
+    "speed": 70,
+    "attackDamage": 22,
+    "attackRange": 40,
+    "attackCooldownMs": 1200,
+    "attackWindupMs": 400,
+    "knockback": 14,
+    "scale": 1.0,
+    "atlasKey": "n_apple",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "n_carrot",
+    "name": "Carrot",
+    "rarity": "N",
+    "cost": 28,
+    "maxHp": 160,
+    "speed": 80,
+    "attackDamage": 18,
+    "attackRange": 45,
+    "attackCooldownMs": 1000,
+    "attackWindupMs": 350,
+    "knockback": 10,
+    "scale": 1.05,
+    "atlasKey": "n_carrot",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "n_pumpkin",
+    "name": "Pumpkin",
+    "rarity": "N",
+    "cost": 40,
+    "maxHp": 250,
+    "speed": 50,
+    "attackDamage": 30,
+    "attackRange": 35,
+    "attackCooldownMs": 1500,
+    "attackWindupMs": 500,
+    "knockback": 20,
+    "scale": 1.15,
+    "atlasKey": "n_pumpkin",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "n_acorn",
+    "name": "Acorn",
+    "rarity": "N",
+    "cost": 20,
+    "maxHp": 120,
+    "speed": 85,
+    "attackDamage": 15,
+    "attackRange": 30,
+    "attackCooldownMs": 900,
+    "attackWindupMs": 300,
+    "knockback": 8,
+    "scale": 0.85,
+    "atlasKey": "n_acorn",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "n_strawberry",
+    "name": "Strawberry",
+    "rarity": "N",
+    "cost": 32,
+    "maxHp": 140,
+    "speed": 75,
+    "attackDamage": 28,
+    "attackRange": 60,
+    "attackCooldownMs": 1300,
+    "attackWindupMs": 450,
+    "knockback": 15,
+    "scale": 0.9,
+    "atlasKey": "n_strawberry",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "n_onion",
+    "name": "Onion",
+    "rarity": "N",
+    "cost": 35,
+    "maxHp": 200,
+    "speed": 60,
+    "attackDamage": 25,
+    "attackRange": 40,
+    "attackCooldownMs": 1400,
+    "attackWindupMs": 450,
+    "knockback": 18,
+    "scale": 1.0,
+    "atlasKey": "n_onion",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "n_grape",
+    "name": "Grape",
+    "rarity": "N",
+    "cost": 22,
+    "maxHp": 130,
+    "speed": 90,
+    "attackDamage": 16,
+    "attackRange": 35,
+    "attackCooldownMs": 800,
+    "attackWindupMs": 280,
+    "knockback": 6,
+    "scale": 0.8,
+    "atlasKey": "n_grape",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "r_tomato",
+    "name": "Tomato",
+    "rarity": "R",
+    "cost": 60,
+    "maxHp": 320,
+    "speed": 65,
+    "attackDamage": 45,
+    "attackRange": 50,
+    "attackCooldownMs": 1400,
+    "attackWindupMs": 450,
+    "knockback": 25,
+    "scale": 1.15,
+    "atlasKey": "r_tomato",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "r_pepper",
+    "name": "Hot Pepper",
+    "rarity": "R",
+    "cost": 55,
+    "maxHp": 280,
+    "speed": 80,
+    "attackDamage": 55,
+    "attackRange": 45,
+    "attackCooldownMs": 1200,
+    "attackWindupMs": 400,
+    "knockback": 20,
+    "scale": 1.1,
+    "atlasKey": "r_pepper",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "r_broccoli",
+    "name": "Broccoli",
+    "rarity": "R",
+    "cost": 75,
+    "maxHp": 450,
+    "speed": 50,
+    "attackDamage": 40,
+    "attackRange": 40,
+    "attackCooldownMs": 1600,
+    "attackWindupMs": 500,
+    "knockback": 30,
+    "scale": 1.25,
+    "atlasKey": "r_broccoli",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "r_eggplant",
+    "name": "Eggplant",
+    "rarity": "R",
+    "cost": 65,
+    "maxHp": 380,
+    "speed": 55,
+    "attackDamage": 50,
+    "attackRange": 55,
+    "attackCooldownMs": 1500,
+    "attackWindupMs": 480,
+    "knockback": 28,
+    "scale": 1.2,
+    "atlasKey": "r_eggplant",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "r_cherry",
+    "name": "Cherry",
+    "rarity": "R",
+    "cost": 50,
+    "maxHp": 250,
+    "speed": 85,
+    "attackDamage": 48,
+    "attackRange": 100,
+    "attackCooldownMs": 1100,
+    "attackWindupMs": 380,
+    "knockback": 18,
+    "scale": 1.0,
+    "atlasKey": "r_cherry",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "r_lemon",
+    "name": "Lemon",
+    "rarity": "R",
+    "cost": 58,
+    "maxHp": 300,
+    "speed": 70,
+    "attackDamage": 52,
+    "attackRange": 120,
+    "attackCooldownMs": 1300,
+    "attackWindupMs": 420,
+    "knockback": 22,
+    "scale": 1.05,
+    "atlasKey": "r_lemon",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "r_radish",
+    "name": "Radish",
+    "rarity": "R",
+    "cost": 70,
+    "maxHp": 420,
+    "speed": 60,
+    "attackDamage": 42,
+    "attackRange": 45,
+    "attackCooldownMs": 1400,
+    "attackWindupMs": 450,
+    "knockback": 26,
+    "scale": 1.15,
+    "atlasKey": "r_radish",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
   }
 ]

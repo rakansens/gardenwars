@@ -164,6 +164,25 @@ export class BattleScene extends Phaser.Scene {
         this.load.image('ur_phoenix', '/assets/sprites/ur_phoenix.png');
         this.load.image('ur_golem', '/assets/sprites/ur_golem.png');
         this.load.image('ur_angel', '/assets/sprites/ur_angel.png');
+
+        // Normal Units
+        this.load.image('n_mushroom', '/assets/sprites/n_mushroom.png');
+        this.load.image('n_apple', '/assets/sprites/n_apple.png');
+        this.load.image('n_carrot', '/assets/sprites/n_carrot.png');
+        this.load.image('n_pumpkin', '/assets/sprites/n_pumpkin.png');
+        this.load.image('n_acorn', '/assets/sprites/n_acorn.png');
+        this.load.image('n_strawberry', '/assets/sprites/n_strawberry.png');
+        this.load.image('n_onion', '/assets/sprites/n_onion.png');
+        this.load.image('n_grape', '/assets/sprites/n_grape.png');
+
+        // Rare Units
+        this.load.image('r_tomato', '/assets/sprites/r_tomato.png');
+        this.load.image('r_pepper', '/assets/sprites/r_pepper.png');
+        this.load.image('r_broccoli', '/assets/sprites/r_broccoli.png');
+        this.load.image('r_eggplant', '/assets/sprites/r_eggplant.png');
+        this.load.image('r_cherry', '/assets/sprites/r_cherry.png');
+        this.load.image('r_lemon', '/assets/sprites/r_lemon.png');
+        this.load.image('r_radish', '/assets/sprites/r_radish.png');
     }
 
     create() {

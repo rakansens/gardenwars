@@ -1,8 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import unitsData from "@/data/units.json";
-import type { UnitDefinition } from "@/data/types";
+import type { UnitDefinition, Rarity } from "@/data/types";
 import RarityFrame from "@/components/ui/RarityFrame";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
@@ -14,7 +15,20 @@ const allyUnits = allUnits.filter((u) => !u.id.startsWith("enemy_"));
 export default function TeamPage() {
     const { selectedTeam, unitInventory, setTeam, isLoaded } = usePlayerData();
     const { t } = useLanguage();
+    const [rarityFilter, setRarityFilter] = useState<Rarity | "ALL">("ALL");
 
+    const rarityTabs: { key: Rarity | "ALL"; label: string; color: string }[] = [
+        { key: "ALL", label: "ALL", color: "bg-gray-500" },
+        { key: "N", label: "N", color: "bg-gray-400" },
+        { key: "R", label: "R", color: "bg-blue-500" },
+        { key: "SR", label: "SR", color: "bg-purple-500" },
+        { key: "SSR", label: "SSR", color: "bg-amber-500" },
+        { key: "UR", label: "UR", color: "bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500" },
+    ];
+
+    const filteredUnits = rarityFilter === "ALL"
+        ? allyUnits
+        : allyUnits.filter(u => u.rarity === rarityFilter);
     const MAX_TEAM_SIZE = 8;
 
     const handleToggleUnit = (unitId: string) => {
@@ -110,8 +124,33 @@ export default function TeamPage() {
                 {/* 所持ユニット */}
                 <section>
                     <h2 className="text-xl font-bold mb-4">🎖️ {t("owned_units")}</h2>
+
+                    {/* レアリティフィルタータブ */}
+                    <div className="flex gap-2 mb-4 flex-wrap">
+                        {rarityTabs.map(tab => (
+                            <button
+                                key={tab.key}
+                                onClick={() => setRarityFilter(tab.key)}
+                                className={`
+                                    px-4 py-2 rounded-lg font-bold text-sm transition-all
+                                    ${rarityFilter === tab.key
+                                        ? `${tab.color} text-white shadow-lg scale-105`
+                                        : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                                    }
+                                `}
+                            >
+                                {tab.label}
+                                <span className="ml-1 text-xs opacity-75">
+                                    ({tab.key === "ALL"
+                                        ? allyUnits.length
+                                        : allyUnits.filter(u => u.rarity === tab.key).length})
+                                </span>
+                            </button>
+                        ))}
+                    </div>
+
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                        {allyUnits.map((unit) => {
+                        {filteredUnits.map((unit) => {
                             const isSelected = selectedTeam.includes(unit.id);
                             const count = unitInventory[unit.id] || 0;
                             return (
