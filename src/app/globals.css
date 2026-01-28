@@ -138,11 +138,16 @@ body {
   width: 100%;
   max-width: 1200px;
   aspect-ratio: 16 / 9;
+  min-height: 300px;
   margin: 0 auto;
   border-radius: 18px;
   overflow: hidden;
   border: 4px solid var(--card-border);
   box-shadow: 0 6px 0 var(--shadow);
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 /* スロット */

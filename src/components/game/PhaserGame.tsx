@@ -82,6 +82,16 @@ export default function PhaserGame({
                 scale: {
                     mode: Phaser.Scale.FIT,
                     autoCenter: Phaser.Scale.CENTER_BOTH,
+                    min: {
+                        width: 400,
+                        height: 225,
+                    },
+                },
+                input: {
+                    activePointers: 3,
+                    touch: {
+                        capture: true,
+                    },
                 },
                 render: {
                     pixelArt: false,
