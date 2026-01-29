@@ -252,6 +252,10 @@ export default function TeamPage() {
                                                                 <span>📏 {t("range")}:</span>
                                                                 <span className="font-bold">{unit.attackRange}</span>
                                                             </div>
+                                                            <div className="flex justify-between text-orange-500">
+                                                                <span>⏱️ {t("attack_speed")}:</span>
+                                                                <span className="font-bold">{(1000 / unit.attackCooldownMs).toFixed(1)}/s</span>
+                                                            </div>
                                                             <div className="flex justify-between text-amber-600">
                                                                 <span>💰 {t("cost")}:</span>
                                                                 <span className="font-bold">¥{unit.cost}</span>
@@ -349,6 +353,10 @@ export default function TeamPage() {
                                                             <div className="flex justify-between">
                                                                 <span>📏 {t("range")}:</span>
                                                                 <span className="font-bold">{unit.attackRange}</span>
+                                                            </div>
+                                                            <div className="flex justify-between text-orange-500">
+                                                                <span>⏱️ {t("attack_speed")}:</span>
+                                                                <span className="font-bold">{(1000 / unit.attackCooldownMs).toFixed(1)}/s</span>
                                                             </div>
                                                             <div className="flex justify-between">
                                                                 <span>💰 {t("cost")}:</span>
