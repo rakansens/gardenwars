@@ -49,7 +49,7 @@ export class BattleScene extends Phaser.Scene {
     private costBarMaxWidth: number = 0;
     private costBarHeight: number = 0;
     private costUpBtnContainer!: Phaser.GameObjects.Container;
-    private costUpBtnBg!: Phaser.GameObjects.Graphics;
+    private costUpBtnBg!: Phaser.GameObjects.Arc; // 円形ボタン
     private costUpBtnZone!: Phaser.GameObjects.Zone;
     private costUpBtnText!: Phaser.GameObjects.Text;
     private costUpBtnCostText!: Phaser.GameObjects.Text;
@@ -504,38 +504,40 @@ export class BattleScene extends Phaser.Scene {
         this.costText.setScrollFactor(0);
         this.costText.setDepth(102);
 
-        // コスト上限アップボタン（スマホ向けに大きく）
-        const costUpX = panelX + 140;
-        const costUpY = panelY + 50;
-        const costUpW = 140;
-        const costUpH = 44;
-        const costUpR = 14;
+        // コスト上限アップボタン（丸いアイコン、HPゲージの下に配置）
+        const costUpX = panelX + 35;   // パネル左寄り
+        const costUpY = panelY + 100;  // パネルのさらに下
+        const costUpRadius = 28;       // 大きめのボタン
 
         this.costUpBtnContainer = this.add.container(costUpX, costUpY);
         this.costUpBtnContainer.setScrollFactor(0);
-        this.costUpBtnContainer.setDepth(101);
+        this.costUpBtnContainer.setDepth(103);
 
-        this.costUpBtnBg = this.add.graphics();
-        this.drawRoundedButton(this.costUpBtnBg, 0, 0, costUpW, costUpH, costUpR, 0xffe066);
+        // 円形の背景
+        this.costUpBtnBg = this.add.circle(0, 0, costUpRadius, 0xffe066);
+        this.costUpBtnBg.setStrokeStyle(3, 0x3b2a1a);
         this.costUpBtnContainer.add(this.costUpBtnBg);
 
-        this.costUpBtnText = this.add.text(12, 10, '上限UP', {
-            fontSize: '16px',
-            color: '#3b2a1a',
-            fontStyle: 'bold',
+        // ⬆️ アイコン（上矢印）
+        this.costUpBtnText = this.add.text(0, -4, '⬆️', {
+            fontSize: '22px',
         });
+        this.costUpBtnText.setOrigin(0.5, 0.5);
         this.costUpBtnContainer.add(this.costUpBtnText);
 
-        this.costUpBtnCostText = this.add.text(72, 11, '¥0', {
-            fontSize: '15px',
+        // コスト表示（ボタン内下部に小さく表示）
+        this.costUpBtnCostText = this.add.text(0, 14, '¥0', {
+            fontSize: '10px',
             color: '#3b2a1a',
             fontStyle: 'bold',
         });
+        this.costUpBtnCostText.setOrigin(0.5, 0.5);
         this.costUpBtnContainer.add(this.costUpBtnCostText);
 
-        this.costUpBtnZone = this.add.zone(costUpX + costUpW / 2, costUpY + costUpH / 2, costUpW + 10, costUpH + 10);
+        // クリック可能エリア
+        this.costUpBtnZone = this.add.zone(costUpX, costUpY, costUpRadius * 2 + 10, costUpRadius * 2 + 10);
         this.costUpBtnZone.setScrollFactor(0);
-        this.costUpBtnZone.setDepth(102);
+        this.costUpBtnZone.setDepth(104);
         this.costUpBtnZone.setInteractive({ useHandCursor: true });
         this.costUpBtnZone.on('pointerdown', () => {
             this.costSystem.upgradeMax();
@@ -607,9 +609,8 @@ export class BattleScene extends Phaser.Scene {
     }
 
     private createMathModeToggle() {
-        // === 算数モードトグルボタン（左上、COSTパネルの右隣） ===
-        // COSTパネルがX=18~278（幅260）、上限UPボタンはX=140~280付近なので、その右に配置
-        this.mathModeBtn = this.add.container(310, 75);
+        // === 算数モードトグルボタン（COSTパネルの右端） ===
+        this.mathModeBtn = this.add.container(300, 55);
         this.mathModeBtn.setScrollFactor(0);
         this.mathModeBtn.setDepth(100);
 
@@ -1116,7 +1117,7 @@ export class BattleScene extends Phaser.Scene {
         const upgradeCost = this.costSystem.getUpgradeCost();
         if (upgradeCost === null) {
             this.costUpBtnCostText.setText('MAX');
-            this.drawRoundedButton(this.costUpBtnBg, 0, 0, 120, 30, 12, 0xd7bf8a);
+            this.costUpBtnBg.setFillStyle(0xd7bf8a); // グレーアウト
             this.costUpBtnZone.disableInteractive();
             if (this.costUpPulse) {
                 this.costUpPulse.stop();
@@ -1125,15 +1126,15 @@ export class BattleScene extends Phaser.Scene {
         } else {
             this.costUpBtnCostText.setText(`¥${upgradeCost}`);
             const canUpgrade = this.costSystem.getCurrent() >= upgradeCost;
-            this.drawRoundedButton(this.costUpBtnBg, 0, 0, 120, 30, 12, canUpgrade ? 0xffe066 : 0xd7bf8a);
+            this.costUpBtnBg.setFillStyle(canUpgrade ? 0xffe066 : 0xd7bf8a);
             if (canUpgrade) {
                 this.costUpBtnZone.setInteractive({ useHandCursor: true });
                 if (!this.costUpPulse) {
                     this.costUpPulse = this.tweens.add({
                         targets: [this.costUpBtnContainer],
-                        scaleX: 1.04,
-                        scaleY: 1.04,
-                        duration: 500,
+                        scaleX: 1.15,
+                        scaleY: 1.15,
+                        duration: 400,
                         yoyo: true,
                         repeat: -1,
                     });
@@ -1143,6 +1144,7 @@ export class BattleScene extends Phaser.Scene {
                 if (this.costUpPulse) {
                     this.costUpPulse.stop();
                     this.costUpPulse = undefined;
+                    this.costUpBtnContainer.setScale(1);
                 }
             }
         }
