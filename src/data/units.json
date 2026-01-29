@@ -2260,7 +2260,14 @@
     "attackCooldownMs": 700,
     "attackWindupMs": 200,
     "knockback": 40,
-    "scale": 1.0
+    "scale": 1.0,
+    "atlasKey": "sr_coffee_ninja",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
   },
   {
     "id": "sr_cappuccino_assassin",
@@ -2274,7 +2281,14 @@
     "attackCooldownMs": 750,
     "attackWindupMs": 220,
     "knockback": 38,
-    "scale": 1.0
+    "scale": 1.0,
+    "atlasKey": "sr_cappuccino_assassin",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
   },
   {
     "id": "sr_odindindun",
@@ -2288,7 +2302,14 @@
     "attackCooldownMs": 1100,
     "attackWindupMs": 400,
     "knockback": 55,
-    "scale": 1.1
+    "scale": 1.1,
+    "atlasKey": "sr_odindindun",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
   },
   {
     "id": "sr_traffarella",
@@ -2302,6 +2323,13 @@
     "attackCooldownMs": 850,
     "attackWindupMs": 280,
     "knockback": 42,
-    "scale": 1.05
+    "scale": 1.05,
+    "atlasKey": "sr_traffarella",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
   }
 ]

@@ -274,6 +274,12 @@ export class BattleScene extends Phaser.Scene {
         this.load.atlas('sr_bamboo_mech_atlas', '/assets/sprites/sr_bamboo_mech_sheet.png', '/assets/sprites/sr_bamboo_mech_sheet.json');
         this.load.atlas('sr_sun_pirate_atlas', '/assets/sprites/sr_sun_pirate_sheet.png', '/assets/sprites/sr_sun_pirate_sheet.json');
         this.load.atlas('sr_tulip_idol_atlas', '/assets/sprites/sr_tulip_idol_sheet.png', '/assets/sprites/sr_tulip_idol_sheet.json');
+        this.load.atlas('sr_cappuccino_assassin_atlas', '/assets/sprites/sr_cappuccino_assassin_sheet.png', '/assets/sprites/sr_cappuccino_assassin_sheet.json');
+        this.load.atlas('sr_capybara_ninja_atlas', '/assets/sprites/sr_capybara_ninja_sheet.png', '/assets/sprites/sr_capybara_ninja_sheet.json');
+        this.load.atlas('sr_capybara_shaman_atlas', '/assets/sprites/sr_capybara_shaman_sheet.png', '/assets/sprites/sr_capybara_shaman_sheet.json');
+        this.load.atlas('sr_coffee_ninja_atlas', '/assets/sprites/sr_coffee_ninja_sheet.png', '/assets/sprites/sr_coffee_ninja_sheet.json');
+        this.load.atlas('sr_odindindun_atlas', '/assets/sprites/sr_odindindun_sheet.png', '/assets/sprites/sr_odindindun_sheet.json');
+        this.load.atlas('sr_traffarella_atlas', '/assets/sprites/sr_traffarella_sheet.png', '/assets/sprites/sr_traffarella_sheet.json');
 
         // SSR Unit Atlases (animations)
         this.load.atlas('flame_knight_atlas', '/assets/sprites/flame_knight_sheet.png', '/assets/sprites/flame_knight_sheet.json');
@@ -516,7 +522,7 @@ export class BattleScene extends Phaser.Scene {
         });
 
         // SR Units animations
-        const srUnits = ['sr_rose_hero', 'sr_corn_tank', 'sr_bamboo_mech', 'sr_sun_pirate', 'sr_tulip_idol'];
+        const srUnits = ['sr_rose_hero', 'sr_corn_tank', 'sr_bamboo_mech', 'sr_sun_pirate', 'sr_tulip_idol', 'sr_cappuccino_assassin', 'sr_capybara_ninja', 'sr_capybara_shaman', 'sr_coffee_ninja', 'sr_odindindun', 'sr_traffarella'];
         srUnits.forEach(unit => {
             this.anims.create({
                 key: `${unit}_idle`,
