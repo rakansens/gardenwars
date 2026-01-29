@@ -130,19 +130,26 @@ export default function CollectionPage() {
                         </div>
                     </div>
 
-                    {/* レアリティ別進捗 */}
-                    <div className="grid grid-cols-5 gap-2">
+                    {/* レアリティ別進捗バー */}
+                    <div className="space-y-2">
                         {stats.byRarity.map(({ rarity, total, collected }) => {
                             const percent = total > 0 ? Math.round((collected / total) * 100) : 0;
                             const isComplete = collected === total && total > 0;
+
+                            // レアリティ別カラー
+                            const barColors: Record<string, { bg: string; fill: string; text: string }> = {
+                                N: { bg: "bg-gray-200", fill: "bg-gray-500", text: "text-gray-700" },
+                                R: { bg: "bg-blue-100", fill: "bg-blue-500", text: "text-blue-700" },
+                                SR: { bg: "bg-purple-100", fill: "bg-purple-500", text: "text-purple-700" },
+                                SSR: { bg: "bg-amber-100", fill: "bg-gradient-to-r from-amber-400 to-yellow-500", text: "text-amber-700" },
+                                UR: { bg: "bg-pink-100", fill: "bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500", text: "text-purple-700" },
+                            };
+                            const colors = barColors[rarity] || barColors.N;
+
                             return (
-                                <div
-                                    key={rarity}
-                                    className={`p-2 rounded-lg text-center ${
-                                        isComplete ? "bg-green-100 border-2 border-green-400" : "bg-white/50"
-                                    }`}
-                                >
-                                    <div className={`text-sm font-bold ${
+                                <div key={rarity} className="flex items-center gap-2">
+                                    {/* レアリティラベル */}
+                                    <div className={`w-10 text-sm font-bold text-center ${
                                         rarity === "UR" ? "text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500" :
                                         rarity === "SSR" ? "text-amber-600" :
                                         rarity === "SR" ? "text-purple-600" :
@@ -151,10 +158,24 @@ export default function CollectionPage() {
                                     }`}>
                                         {rarity}
                                     </div>
-                                    <div className="text-xs text-gray-600">
-                                        {collected}/{total}
+
+                                    {/* プログレスバー */}
+                                    <div className={`flex-1 h-5 ${colors.bg} rounded-full overflow-hidden relative`}>
+                                        <div
+                                            className={`h-full ${colors.fill} transition-all duration-500 ${isComplete ? "animate-pulse" : ""}`}
+                                            style={{ width: `${percent}%` }}
+                                        />
+                                        {/* コンプリートエフェクト */}
+                                        {isComplete && (
+                                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
+                                        )}
                                     </div>
-                                    {isComplete && <div className="text-xs">✨</div>}
+
+                                    {/* 数値 */}
+                                    <div className={`w-16 text-xs font-bold text-right ${colors.text}`}>
+                                        {collected}/{total}
+                                        {isComplete && " ✨"}
+                                    </div>
                                 </div>
                             );
                         })}
