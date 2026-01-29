@@ -96,6 +96,12 @@ const translations: Record<Language, Record<string, string>> = {
         "boss_stage_5_name": "🌙 BOSS: MOOOOONA",
         "boss_stage_5_desc": "💜 ULTIMATE! The moon goddess awakens!",
 
+        // Special Rush Stages
+        "stage_ur_rush_name": "⚔️ UR RUSH",
+        "stage_ur_rush_desc": "💀 All UR enemies attack at once!",
+        "stage_sr_rush_name": "🔥 SR RUSH",
+        "stage_sr_rush_desc": "🌟 All SR enemies attack!",
+
         // Team
         "team": "Team",
         "team_title": "Team Setup",
@@ -296,6 +302,12 @@ const translations: Record<Language, Record<string, string>> = {
         "boss_stage_4_desc": "🔥 伝説級！彼女が来るぞ！",
         "boss_stage_5_name": "🌙 BOSS: MOOOOONA",
         "boss_stage_5_desc": "💜 究極！月の女神が目覚める！",
+
+        // Special Rush Stages
+        "stage_ur_rush_name": "⚔️ UR ラッシュ",
+        "stage_ur_rush_desc": "💀 全URユニットが一斉襲来！",
+        "stage_sr_rush_name": "🔥 SR ラッシュ",
+        "stage_sr_rush_desc": "🌟 全SRユニットが一斉襲来！",
 
         // Team
         "team": "編成",
