@@ -5,11 +5,20 @@ import { CombatSystem } from '../systems/CombatSystem';
 import { WaveSystem } from '../systems/WaveSystem';
 import { CostSystem } from '../systems/CostSystem';
 import { eventBus, GameEvents } from '../utils/EventBus';
-import type { StageDefinition, UnitDefinition, GameState } from '@/data/types';
+import type { StageDefinition, UnitDefinition, GameState, Rarity } from '@/data/types';
 
 // ============================================
 // BattleScene - メインバトルシーン
 // ============================================
+
+// レアリティ別クールダウン時間（ミリ秒）
+const COOLDOWN_BY_RARITY: Record<Rarity, number> = {
+    N: 2000,    // 2秒
+    R: 4000,    // 4秒
+    SR: 8000,   // 8秒
+    SSR: 12000, // 12秒
+    UR: 15000,  // 15秒
+};
 
 export interface BattleSceneData {
     stage: StageDefinition;
@@ -84,6 +93,9 @@ export class BattleScene extends Phaser.Scene {
     private activeLoadoutIndex: number = 0;
     private deckSwitchBtn!: Phaser.GameObjects.Container;
 
+    // クールダウンシステム
+    private unitCooldowns: Map<string, number> = new Map(); // unitId -> クールダウン終了時刻
+
     constructor() {
         super({ key: 'BattleScene' });
     }
@@ -105,6 +117,9 @@ export class BattleScene extends Phaser.Scene {
         this.gameState = 'LOADING';
         this.allyUnits = [];
         this.enemyUnits = [];
+
+        // クールダウンをリセット
+        this.unitCooldowns = new Map();
 
         // 前のイベントリスナーをクリア
         eventBus.removeAllListeners(GameEvents.SUMMON_UNIT);
@@ -209,12 +224,20 @@ export class BattleScene extends Phaser.Scene {
     private summonUIButtons: {
         unitId: string;
         cost: number;
+        rarity: Rarity;
         bg: Phaser.GameObjects.Rectangle;
         icon: Phaser.GameObjects.Image;
         nameText: Phaser.GameObjects.Text;
         costTag: Phaser.GameObjects.Rectangle;
         costText: Phaser.GameObjects.Text;
         originalColor: number;
+        // クールダウンUI
+        cooldownOverlay: Phaser.GameObjects.Rectangle;
+        cooldownText: Phaser.GameObjects.Text;
+        cooldownDuration: number; // クールダウン全体の長さ（ms）
+        buttonX: number;
+        buttonY: number;
+        buttonHeight: number;
     }[] = [];
 
     create() {
@@ -665,12 +688,15 @@ export class BattleScene extends Phaser.Scene {
             btn.nameText.destroy();
             btn.costTag.destroy();
             btn.costText.destroy();
+            btn.cooldownOverlay.destroy();
+            btn.cooldownText.destroy();
         });
         this.summonUIButtons = [];
 
         // 新しいUIで再構築
         const buttonY = this.scale.height - 85;
         const buttonWidth = 90;
+        const buttonHeight = 100;
         const startX = 155; // デッキ切り替えボタン分右にずらす
         const gap = 8;
 
@@ -678,7 +704,7 @@ export class BattleScene extends Phaser.Scene {
             const x = startX + index * (buttonWidth + gap);
 
             // ボタン背景
-            const bg = this.add.rectangle(x, buttonY, buttonWidth, 100, 0xf8e7b6, 1);
+            const bg = this.add.rectangle(x, buttonY, buttonWidth, buttonHeight, 0xf8e7b6, 1);
             bg.setScrollFactor(0);
             bg.setDepth(100);
             bg.setInteractive({ useHandCursor: true });
@@ -720,15 +746,41 @@ export class BattleScene extends Phaser.Scene {
             costText.setScrollFactor(0);
             costText.setDepth(101);
 
+            // クールダウンオーバーレイ（上から下に減っていくバー）
+            const cooldownOverlay = this.add.rectangle(x, buttonY - buttonHeight / 2 + 2, buttonWidth - 4, buttonHeight - 4, 0x000000, 0.75);
+            cooldownOverlay.setOrigin(0.5, 0); // 上端を基準に
+            cooldownOverlay.setScrollFactor(0);
+            cooldownOverlay.setDepth(105);
+            cooldownOverlay.setVisible(false);
+
+            const cooldownText = this.add.text(x, buttonY - 10, '', {
+                fontSize: '20px',
+                color: '#ffffff',
+                fontStyle: 'bold',
+                stroke: '#000000',
+                strokeThickness: 4,
+            });
+            cooldownText.setOrigin(0.5, 0.5);
+            cooldownText.setScrollFactor(0);
+            cooldownText.setDepth(106);
+            cooldownText.setVisible(false);
+
             this.summonUIButtons.push({
                 unitId: unit.id,
                 cost: unit.cost,
+                rarity: unit.rarity,
                 bg,
                 icon: unitIcon,
                 nameText,
                 costTag,
                 costText,
-                originalColor: 0xf8e7b6
+                originalColor: 0xf8e7b6,
+                cooldownOverlay,
+                cooldownText,
+                cooldownDuration: COOLDOWN_BY_RARITY[unit.rarity],
+                buttonX: x,
+                buttonY: buttonY,
+                buttonHeight: buttonHeight,
             });
 
             // クリックでクイズ開始
@@ -840,16 +892,42 @@ export class BattleScene extends Phaser.Scene {
             costText.setScrollFactor(0);
             costText.setDepth(101);
 
+            // クールダウンオーバーレイ（上から下に減っていくバー）
+            const cooldownOverlay = this.add.rectangle(x, buttonY - buttonHeight / 2 + 2, buttonWidth - 4, buttonHeight - 4, 0x000000, 0.75);
+            cooldownOverlay.setOrigin(0.5, 0); // 上端を基準に
+            cooldownOverlay.setScrollFactor(0);
+            cooldownOverlay.setDepth(105);
+            cooldownOverlay.setVisible(false);
+
+            const cooldownText = this.add.text(x, buttonY - 10, '', {
+                fontSize: '20px',
+                color: '#ffffff',
+                fontStyle: 'bold',
+                stroke: '#000000',
+                strokeThickness: 4,
+            });
+            cooldownText.setOrigin(0.5, 0.5);
+            cooldownText.setScrollFactor(0);
+            cooldownText.setDepth(106);
+            cooldownText.setVisible(false);
+
             // UI管理配列に追加
             this.summonUIButtons.push({
                 unitId: unit.id,
                 cost: unit.cost,
+                rarity: unit.rarity,
                 bg,
                 icon: unitIcon,
                 nameText,
                 costTag,
                 costText,
-                originalColor: 0xf8e7b6
+                originalColor: 0xf8e7b6,
+                cooldownOverlay,
+                cooldownText,
+                cooldownDuration: COOLDOWN_BY_RARITY[unit.rarity],
+                buttonX: x,
+                buttonY: buttonY,
+                buttonHeight: buttonHeight,
             });
 
             // クリックでクイズ開始
@@ -1088,9 +1166,57 @@ export class BattleScene extends Phaser.Scene {
         this.costBarFill.height = this.costBarHeight;
         this.costText.setText(`${current}/${max}`);
 
-        // ユニット召喚ボタンの有効/無効状態を更新
+        // ユニット召喚ボタンの有効/無効状態を更新（クールダウン含む）
+        const now = this.time.now;
         this.summonUIButtons.forEach(btn => {
-            const canSummon = current >= btn.cost;
+            const cooldownEnd = this.unitCooldowns.get(btn.unitId);
+            const isOnCooldown = cooldownEnd && now < cooldownEnd;
+            const canAffordCost = current >= btn.cost;
+            const canSummon = canAffordCost && !isOnCooldown;
+
+            // クールダウン表示更新
+            if (isOnCooldown && cooldownEnd && btn.cooldownDuration > 0) {
+                const remainingMs = cooldownEnd - now;
+                const remainingSec = Math.ceil(remainingMs / 1000);
+                const progress = remainingMs / btn.cooldownDuration; // 1.0 → 0.0
+                const maxHeight = btn.buttonHeight - 4;
+
+                // オーバーレイの高さを残り時間に応じて減少
+                btn.cooldownOverlay.setVisible(true);
+                btn.cooldownOverlay.height = maxHeight * progress;
+
+                // 進捗に応じて色を変更（黒 → 薄い色）
+                const alpha = 0.3 + (progress * 0.45); // 0.75 → 0.3
+                btn.cooldownOverlay.setAlpha(alpha);
+
+                // テキスト表示
+                btn.cooldownText.setVisible(true);
+                btn.cooldownText.setText(`${remainingSec}s`);
+
+                // 残り1秒以下でテキストを点滅
+                if (remainingSec <= 1) {
+                    btn.cooldownText.setAlpha(now % 200 < 100 ? 1 : 0.5);
+                } else {
+                    btn.cooldownText.setAlpha(1);
+                }
+            } else {
+                btn.cooldownOverlay.setVisible(false);
+                btn.cooldownText.setVisible(false);
+
+                // クールダウン終了時のフラッシュエフェクト（既存のTweenがなければ）
+                if (cooldownEnd && now >= cooldownEnd && now < cooldownEnd + 100) {
+                    this.tweens.add({
+                        targets: btn.bg,
+                        scaleX: 1.1,
+                        scaleY: 1.1,
+                        duration: 100,
+                        yoyo: true,
+                        onComplete: () => btn.bg.setScale(1),
+                    });
+                }
+            }
+
+            // ボタンの見た目更新
             if (canSummon) {
                 btn.bg.setFillStyle(btn.originalColor);
                 btn.bg.setAlpha(1);
@@ -1257,11 +1383,21 @@ export class BattleScene extends Phaser.Scene {
         const unitDef = this.allUnitsData.find(u => u.id === unitId);
         if (!unitDef) return;
 
+        // クールダウンチェック
+        const cooldownEnd = this.unitCooldowns.get(unitId);
+        if (cooldownEnd && this.time.now < cooldownEnd) {
+            return; // クールダウン中
+        }
+
         // コストチェック
         if (!this.costSystem.spend(unitDef.cost)) {
             // コスト不足
             return;
         }
+
+        // クールダウンを設定
+        const cooldownMs = COOLDOWN_BY_RARITY[unitDef.rarity];
+        this.unitCooldowns.set(unitId, this.time.now + cooldownMs);
 
         // 城の少し前からスポーン
         const spawnX = this.allyCastle.getX() + 60;
@@ -1287,6 +1423,12 @@ export class BattleScene extends Phaser.Scene {
     private startQuiz(unitId: string, cost: number) {
         if (this.gameState !== 'PLAYING' || this.quizActive) return;
 
+        // クールダウンチェック
+        const cooldownEnd = this.unitCooldowns.get(unitId);
+        if (cooldownEnd && this.time.now < cooldownEnd) {
+            return; // クールダウン中
+        }
+
         // コストチェック
         if (!this.costSystem.canAfford(cost)) {
             return;
@@ -1305,8 +1447,25 @@ export class BattleScene extends Phaser.Scene {
 
         let a: number, b: number, questionText: string;
 
-        if (cost >= 200) {
-            // コスト200以上: 掛け算（1〜9）
+        if (cost >= 1000) {
+            // コスト1000以上: 2桁の掛け算または割り算
+            const useDivision = Phaser.Math.Between(0, 1) === 0;
+            if (useDivision) {
+                // 割り算: 2桁 ÷ 1桁 = 整数の問題
+                b = Phaser.Math.Between(2, 9);
+                const result = Phaser.Math.Between(2, 12);
+                a = b * result;
+                this.quizCorrectAnswer = result;
+                questionText = `${a} ÷ ${b} = ?`;
+            } else {
+                // 掛け算: 2桁 × 1桁
+                a = Phaser.Math.Between(10, 25);
+                b = Phaser.Math.Between(2, 5);
+                this.quizCorrectAnswer = a * b;
+                questionText = `${a} × ${b} = ?`;
+            }
+        } else if (cost >= 200) {
+            // コスト200〜999: 掛け算（1桁×1桁）
             a = Phaser.Math.Between(2, 9);
             b = Phaser.Math.Between(2, 9);
             this.quizCorrectAnswer = a * b;
@@ -1442,6 +1601,10 @@ export class BattleScene extends Phaser.Scene {
                 const spawnX = this.allyCastle.getX() + 60;
                 const unitDef = this.allUnitsData.find(u => u.id === this.pendingUnitId);
                 if (unitDef) {
+                    // クールダウンを設定
+                    const cooldownMs = COOLDOWN_BY_RARITY[unitDef.rarity];
+                    this.unitCooldowns.set(unitDef.id, this.time.now + cooldownMs);
+
                     const unit = new Unit(this, spawnX, this.groundY, unitDef, 'ally', this.stageData.length);
                     this.allyUnits.push(unit);
                 }
