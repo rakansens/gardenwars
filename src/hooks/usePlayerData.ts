@@ -148,6 +148,24 @@ export function usePlayerData() {
         }));
     }, []);
 
+    // ユニットを削除（単体）
+    const removeUnit = useCallback((unitId: string, count: number = 1) => {
+        setData((prev) => {
+            const currentCount = prev.unitInventory[unitId] || 0;
+            const newCount = Math.max(0, currentCount - count);
+            const newInventory = { ...prev.unitInventory };
+            if (newCount <= 0) {
+                delete newInventory[unitId];
+            } else {
+                newInventory[unitId] = newCount;
+            }
+            return {
+                ...prev,
+                unitInventory: newInventory,
+            };
+        });
+    }, []);
+
     // 複数ユニットをまとめて追加（ガチャ用）
     const addUnits = useCallback((unitIds: string[]) => {
         setData((prev) => {
@@ -328,6 +346,7 @@ export function usePlayerData() {
         addCoins,
         spendCoins,
         addUnit,
+        removeUnit,
         addUnits,
         setTeam,
         switchLoadout,

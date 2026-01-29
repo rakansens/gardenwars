@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import playerData from "@/data/player.json";
 import unitsData from "@/data/units.json";
 import type { UnitDefinition, Rarity } from "@/data/types";
 import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
 import RarityFrame from "@/components/ui/RarityFrame";
+import { usePlayerData } from "@/hooks/usePlayerData";
 
 const allUnits = unitsData as UnitDefinition[];
 // 味方ユニットのみ（enemy_で始まらない）かつボスではない
@@ -35,25 +35,15 @@ type FusionMode = 3 | 10;
 
 export default function FusionPage() {
     const { t } = useLanguage();
-    const [ownedUnits, setOwnedUnits] = useState<Record<string, number>>({});
+    const { unitInventory, addUnit, removeUnit, isLoaded } = usePlayerData();
     const [selectedUnits, setSelectedUnits] = useState<string[]>([]);
     const [fusionResult, setFusionResult] = useState<UnitDefinition | null>(null);
     const [showVideo, setShowVideo] = useState(false);
     const [fusionMode, setFusionMode] = useState<FusionMode>(3);
     const videoRef = useRef<HTMLVideoElement>(null);
 
-    useEffect(() => {
-        // LocalStorageから読み込み
-        const saved = localStorage.getItem("gardenwars_player");
-        if (saved) {
-            const data = JSON.parse(saved);
-            // LocalStorageのownedUnitsはRecord<string, number>形式
-            setOwnedUnits(data.ownedUnits || data.unitInventory || {});
-        } else {
-            // player.jsonのunitInventoryを使用
-            setOwnedUnits(playerData.unitInventory);
-        }
-    }, []);
+    // usePlayerDataから取得したインベントリを使用
+    const ownedUnits = unitInventory;
 
     // モード変更時に選択をリセット
     const changeMode = (mode: FusionMode) => {
@@ -153,23 +143,14 @@ export default function FusionPage() {
         const candidates = allyUnits.filter(u => u.rarity === resultRarity);
         const resultUnit = candidates[Math.floor(Math.random() * candidates.length)];
 
-        // 素材ユニットを消費
-        const newOwned = { ...ownedUnits };
+        // 素材ユニットを消費（usePlayerData経由）
         selectedUnits.forEach(id => {
-            newOwned[id] = (newOwned[id] || 1) - 1;
-            if (newOwned[id] <= 0) delete newOwned[id];
+            removeUnit(id, 1);
         });
 
-        // 結果ユニットを追加
-        newOwned[resultUnit.id] = (newOwned[resultUnit.id] || 0) + 1;
+        // 結果ユニットを追加（usePlayerData経由）
+        addUnit(resultUnit.id, 1);
 
-        // LocalStorageに保存
-        const saved = localStorage.getItem("gardenwars_player");
-        const data = saved ? JSON.parse(saved) : { ...playerData };
-        data.ownedUnits = newOwned;
-        localStorage.setItem("gardenwars_player", JSON.stringify(data));
-
-        setOwnedUnits(newOwned);
         setSelectedUnits([]);
         setFusionResult(resultUnit);
         setShowVideo(true);
