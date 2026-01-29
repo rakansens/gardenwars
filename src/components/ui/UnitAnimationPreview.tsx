@@ -26,6 +26,11 @@ export const ANIMATED_UNITS = [
     "ur_spirit",
     "ur_phoenix",
     "ur_angel",
+    "sr_bamboo_mech",
+    "sr_corn_tank",
+    "sr_rose_hero",
+    "sr_sun_pirate",
+    "sr_tulip_idol",
 ] as const;
 
 export type AnimatedUnitId = (typeof ANIMATED_UNITS)[number];
@@ -110,7 +115,7 @@ export default function UnitAnimationPreview({
                     this.sprite = this.add.sprite(width / 2, height / 2, `${unitId}_atlas`);
 
                     // スケールを調整（新URキャラはスプライトが小さいので倍率UP）
-                    const smallSpriteUnits = ["thunder_golem", "flame_knight", "ice_samurai", "shadow_assassin", "ur_dragon", "ur_golem", "ur_mage", "ur_ninja", "ur_tank", "ur_knight", "ur_archer", "ur_healer", "ur_spirit", "ur_phoenix", "ur_angel"];
+                    const smallSpriteUnits = ["thunder_golem", "flame_knight", "ice_samurai", "shadow_assassin", "ur_dragon", "ur_golem", "ur_mage", "ur_ninja", "ur_tank", "ur_knight", "ur_archer", "ur_healer", "ur_spirit", "ur_phoenix", "ur_angel", "sr_bamboo_mech", "sr_corn_tank", "sr_rose_hero", "sr_sun_pirate", "sr_tulip_idol"];
                     const isSmallSprite = smallSpriteUnits.includes(unitId);
                     const baseScale = isSmallSprite ? (compact ? 0.35 : 0.55) : (compact ? 0.15 : 0.25);
                     this.sprite.setScale(baseScale);
