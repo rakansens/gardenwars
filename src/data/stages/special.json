@@ -1,0 +1,202 @@
+[
+  {
+    "id": "stage_ur_rush",
+    "name": "stage_ur_rush_name",
+    "description": "stage_ur_rush_desc",
+    "length": 3000,
+    "baseCastleHp": 20000,
+    "enemyCastleHp": 50000,
+    "enemyWaves": [
+      {
+        "timeMs": 3000,
+        "unitId": "enemy_ur_knight",
+        "count": 3,
+        "intervalMs": 2000
+      },
+      {
+        "timeMs": 15000,
+        "unitId": "enemy_ur_mage",
+        "count": 3,
+        "intervalMs": 2500
+      },
+      {
+        "timeMs": 30000,
+        "unitId": "enemy_ur_tank",
+        "count": 2,
+        "intervalMs": 3000
+      },
+      {
+        "timeMs": 45000,
+        "unitId": "enemy_ur_angel",
+        "count": 4,
+        "intervalMs": 2000
+      },
+      {
+        "timeMs": 60000,
+        "unitId": "enemy_ur_dragon",
+        "count": 3,
+        "intervalMs": 3500
+      },
+      {
+        "timeMs": 80000,
+        "unitId": "enemy_ur_knight",
+        "count": 5,
+        "intervalMs": 1500
+      },
+      {
+        "timeMs": 95000,
+        "unitId": "enemy_ur_mage",
+        "count": 5,
+        "intervalMs": 1500
+      },
+      {
+        "timeMs": 110000,
+        "unitId": "enemy_ur_tank",
+        "count": 4,
+        "intervalMs": 2000
+      },
+      {
+        "timeMs": 130000,
+        "unitId": "enemy_ur_angel",
+        "count": 6,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 150000,
+        "unitId": "enemy_ur_dragon",
+        "count": 5,
+        "intervalMs": 2000
+      }
+    ],
+    "reward": {
+      "coins": 50000,
+      "drops": [
+        {
+          "unitId": "ur_knight",
+          "rate": 10
+        },
+        {
+          "unitId": "ur_mage",
+          "rate": 10
+        },
+        {
+          "unitId": "ur_tank",
+          "rate": 10
+        },
+        {
+          "unitId": "ur_dragon",
+          "rate": 8
+        },
+        {
+          "unitId": "ur_angel",
+          "rate": 8
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0xffd700",
+      "groundColor": "0x8b6914",
+      "cloudColor": "0xffec8b"
+    }
+  },
+  {
+    "id": "stage_sr_rush",
+    "name": "stage_sr_rush_name",
+    "description": "stage_sr_rush_desc",
+    "length": 3000,
+    "baseCastleHp": 10000,
+    "enemyCastleHp": 30000,
+    "enemyWaves": [
+      {
+        "timeMs": 3000,
+        "unitId": "enemy_mage",
+        "count": 3,
+        "intervalMs": 1500
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_sr_rose",
+        "count": 3,
+        "intervalMs": 2000
+      },
+      {
+        "timeMs": 25000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 2,
+        "intervalMs": 3000
+      },
+      {
+        "timeMs": 40000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 3,
+        "intervalMs": 2000
+      },
+      {
+        "timeMs": 55000,
+        "unitId": "enemy_sr_pirate",
+        "count": 4,
+        "intervalMs": 1500
+      },
+      {
+        "timeMs": 70000,
+        "unitId": "enemy_sr_tulip",
+        "count": 3,
+        "intervalMs": 2000
+      },
+      {
+        "timeMs": 85000,
+        "unitId": "enemy_mage",
+        "count": 5,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 100000,
+        "unitId": "enemy_sr_rose",
+        "count": 4,
+        "intervalMs": 1500
+      },
+      {
+        "timeMs": 115000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 3,
+        "intervalMs": 2500
+      },
+      {
+        "timeMs": 130000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 4,
+        "intervalMs": 1500
+      }
+    ],
+    "reward": {
+      "coins": 25000,
+      "drops": [
+        {
+          "unitId": "sr_rose_hero",
+          "rate": 15
+        },
+        {
+          "unitId": "sr_corn_tank",
+          "rate": 15
+        },
+        {
+          "unitId": "sr_bamboo_mech",
+          "rate": 12
+        },
+        {
+          "unitId": "sr_sun_pirate",
+          "rate": 12
+        },
+        {
+          "unitId": "sr_tulip_idol",
+          "rate": 10
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x9370db",
+      "groundColor": "0x483d8b",
+      "cloudColor": "0xdda0dd"
+    }
+  }
+]

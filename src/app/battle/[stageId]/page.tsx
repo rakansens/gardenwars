@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import stagesData from "@/data/stages.json";
+import stagesData from "@/data/stages";
 import unitsData from "@/data/units";
 import type { StageDefinition, UnitDefinition } from "@/data/types";
 import { useLanguage } from "@/contexts/LanguageContext";

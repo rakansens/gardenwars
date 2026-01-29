@@ -1,0 +1,189 @@
+[
+  {
+    "id": "boss_stage_1",
+    "name": "boss_stage_1_name",
+    "description": "boss_stage_1_desc",
+    "length": 2000,
+    "baseCastleHp": 3000,
+    "enemyCastleHp": 1,
+    "isBossStage": true,
+    "enemyWaves": [
+      {
+        "timeMs": 3000,
+        "unitId": "boss_giant_king",
+        "count": 1,
+        "intervalMs": 0
+      }
+    ],
+    "reward": {
+      "coins": 5000,
+      "drops": [
+        {
+          "unitId": "cat_tank",
+          "rate": 50
+        },
+        {
+          "unitId": "ribbon_girl",
+          "rate": 20
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x2a1a1a",
+      "groundColor": "0x1a0a0a",
+      "cloudColor": "0x4a2a2a"
+    }
+  },
+  {
+    "id": "boss_stage_2",
+    "name": "boss_stage_2_name",
+    "description": "boss_stage_2_desc",
+    "length": 2200,
+    "baseCastleHp": 4000,
+    "enemyCastleHp": 1,
+    "isBossStage": true,
+    "enemyWaves": [
+      {
+        "timeMs": 3000,
+        "unitId": "boss_dragon",
+        "count": 1,
+        "intervalMs": 0
+      }
+    ],
+    "reward": {
+      "coins": 8000,
+      "drops": [
+        {
+          "unitId": "ribbon_girl",
+          "rate": 30
+        },
+        {
+          "unitId": "cinnamon_girl",
+          "rate": 15
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x1a2a1a",
+      "groundColor": "0x0a1a0a",
+      "cloudColor": "0x2a4a2a"
+    }
+  },
+  {
+    "id": "boss_stage_3",
+    "name": "boss_stage_3_name",
+    "description": "boss_stage_3_desc",
+    "length": 2500,
+    "baseCastleHp": 5000,
+    "enemyCastleHp": 1,
+    "isBossStage": true,
+    "enemyWaves": [
+      {
+        "timeMs": 5000,
+        "unitId": "boss_death_titan",
+        "count": 1,
+        "intervalMs": 0
+      }
+    ],
+    "reward": {
+      "coins": 15000,
+      "drops": [
+        {
+          "unitId": "cinnamon_girl",
+          "rate": 25
+        },
+        {
+          "unitId": "nika",
+          "rate": 10
+        },
+        {
+          "unitId": "lennon",
+          "rate": 5
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x0a0a1a",
+      "groundColor": "0x050510",
+      "cloudColor": "0x1a1a3a"
+    }
+  },
+  {
+    "id": "boss_stage_4",
+    "name": "boss_stage_4_name",
+    "description": "boss_stage_4_desc",
+    "length": 2300,
+    "baseCastleHp": 4500,
+    "enemyCastleHp": 1,
+    "isBossStage": true,
+    "enemyWaves": [
+      {
+        "timeMs": 3000,
+        "unitId": "boss_nika",
+        "count": 1,
+        "intervalMs": 0
+      }
+    ],
+    "reward": {
+      "coins": 12000,
+      "drops": [
+        {
+          "unitId": "nika",
+          "rate": 40
+        },
+        {
+          "unitId": "cinnamon_girl",
+          "rate": 20
+        },
+        {
+          "unitId": "lennon",
+          "rate": 8
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x1a0a2a",
+      "groundColor": "0x100520",
+      "cloudColor": "0x2a1a4a"
+    }
+  },
+  {
+    "id": "boss_stage_5",
+    "name": "boss_stage_5_name",
+    "description": "boss_stage_5_desc",
+    "length": 2400,
+    "baseCastleHp": 5000,
+    "enemyCastleHp": 1,
+    "isBossStage": true,
+    "enemyWaves": [
+      {
+        "timeMs": 3000,
+        "unitId": "boss_mona",
+        "count": 1,
+        "intervalMs": 0
+      }
+    ],
+    "reward": {
+      "coins": 18000,
+      "drops": [
+        {
+          "unitId": "cinnamon_girl",
+          "rate": 50
+        },
+        {
+          "unitId": "nika",
+          "rate": 25
+        },
+        {
+          "unitId": "lennon",
+          "rate": 10
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x2a0a1a",
+      "groundColor": "0x150510",
+      "cloudColor": "0x4a1a2a"
+    }
+  }
+]
