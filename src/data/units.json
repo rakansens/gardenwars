@@ -1353,7 +1353,7 @@
   },
   {
     "id": "r_tomato",
-    "name": "Tomato",
+    "name": "Big Sunflower",
     "rarity": "R",
     "cost": 60,
     "maxHp": 320,
@@ -1374,7 +1374,7 @@
   },
   {
     "id": "r_pepper",
-    "name": "Hot Pepper",
+    "name": "Aloe Sprite",
     "rarity": "R",
     "cost": 55,
     "maxHp": 280,
@@ -1395,7 +1395,7 @@
   },
   {
     "id": "r_broccoli",
-    "name": "Broccoli",
+    "name": "Lucky Clover",
     "rarity": "R",
     "cost": 75,
     "maxHp": 450,
@@ -1416,7 +1416,7 @@
   },
   {
     "id": "r_eggplant",
-    "name": "Eggplant",
+    "name": "Red Mushroom",
     "rarity": "R",
     "cost": 65,
     "maxHp": 380,
@@ -1437,7 +1437,7 @@
   },
   {
     "id": "r_cherry",
-    "name": "Cherry",
+    "name": "Tulip Trio",
     "rarity": "R",
     "cost": 50,
     "maxHp": 250,
@@ -1458,7 +1458,7 @@
   },
   {
     "id": "r_lemon",
-    "name": "Lemon",
+    "name": "Lavender Spirit",
     "rarity": "R",
     "cost": 58,
     "maxHp": 300,
@@ -1479,7 +1479,7 @@
   },
   {
     "id": "r_radish",
-    "name": "Radish",
+    "name": "Bluebell Singer",
     "rarity": "R",
     "cost": 70,
     "maxHp": 420,
