@@ -15,6 +15,8 @@ export interface BattleSceneData {
     stage: StageDefinition;
     team: UnitDefinition[];
     allUnits: UnitDefinition[];
+    loadouts?: [UnitDefinition[], UnitDefinition[], UnitDefinition[]]; // 3つのデッキ
+    activeLoadoutIndex?: number;
 }
 
 export class BattleScene extends Phaser.Scene {
@@ -77,6 +79,11 @@ export class BattleScene extends Phaser.Scene {
     private pendingUnitId: string | null = null;
     private pendingUnitCost: number = 0;
 
+    // ロードアウト（デッキ）切り替え
+    private loadoutsData: [UnitDefinition[], UnitDefinition[], UnitDefinition[]] = [[], [], []];
+    private activeLoadoutIndex: number = 0;
+    private deckSwitchBtn!: Phaser.GameObjects.Container;
+
     constructor() {
         super({ key: 'BattleScene' });
     }
@@ -89,6 +96,10 @@ export class BattleScene extends Phaser.Scene {
         this.stageData = data.stage;
         this.teamData = data.team;
         this.allUnitsData = data.allUnits;
+
+        // ロードアウト初期化
+        this.loadoutsData = data.loadouts || [data.team, [], []];
+        this.activeLoadoutIndex = data.activeLoadoutIndex ?? 0;
 
         // 前のゲームの状態をリセット
         this.gameState = 'LOADING';
@@ -200,6 +211,9 @@ export class BattleScene extends Phaser.Scene {
         cost: number;
         bg: Phaser.GameObjects.Rectangle;
         icon: Phaser.GameObjects.Image;
+        nameText: Phaser.GameObjects.Text;
+        costTag: Phaser.GameObjects.Rectangle;
+        costText: Phaser.GameObjects.Text;
         originalColor: number;
     }[] = [];
 
@@ -593,21 +607,20 @@ export class BattleScene extends Phaser.Scene {
     }
 
     private createMathModeToggle() {
-        const { width } = this.scale;
-
-        // トグルボタンコンテナ
-        this.mathModeBtn = this.add.container(width - 100, 70);
+        // === 算数モードトグルボタン（左上、COSTパネルの右隣） ===
+        // COSTパネルがX=18~278（幅260）、上限UPボタンはX=140~280付近なので、その右に配置
+        this.mathModeBtn = this.add.container(310, 75);
         this.mathModeBtn.setScrollFactor(0);
         this.mathModeBtn.setDepth(100);
 
         // 背景
-        const bg = this.add.rectangle(0, 0, 160, 36, this.mathModeEnabled ? 0x4ade80 : 0x6b7280);
-        bg.setStrokeStyle(3, 0x3b2a1a);
+        const bg = this.add.rectangle(0, 0, 80, 32, this.mathModeEnabled ? 0x4ade80 : 0x6b7280);
+        bg.setStrokeStyle(2, 0x3b2a1a);
         bg.setInteractive({ useHandCursor: true });
 
         // テキスト
-        const text = this.add.text(0, 0, this.mathModeEnabled ? '🧮 Math: ON' : '🧮 Math: OFF', {
-            fontSize: '14px',
+        const text = this.add.text(0, 0, this.mathModeEnabled ? '🧮 ON' : '🧮 OFF', {
+            fontSize: '12px',
             color: '#ffffff',
             fontStyle: 'bold',
         });
@@ -619,7 +632,7 @@ export class BattleScene extends Phaser.Scene {
         bg.on('pointerdown', () => {
             this.mathModeEnabled = !this.mathModeEnabled;
             bg.setFillStyle(this.mathModeEnabled ? 0x4ade80 : 0x6b7280);
-            text.setText(this.mathModeEnabled ? '🧮 Math: ON' : '🧮 Math: OFF');
+            text.setText(this.mathModeEnabled ? '🧮 ON' : '🧮 OFF');
         });
 
         // ホバーエフェクト
@@ -631,28 +644,40 @@ export class BattleScene extends Phaser.Scene {
         });
     }
 
-    private createSummonButtons() {
-        const { width, height } = this.scale;
-        // iPad等の下部バーを考慮して高さを150確保、位置微調整
-        const barHeight = 150;
-        const barY = height - barHeight / 2; // 中心位置
-        // 背景バー：高さ150で画面下部をカバー
-        const bar = this.add.rectangle(width / 2, height - 75, width, 150, 0x6b4a2b, 0.95);
-        bar.setScrollFactor(0);
-        bar.setDepth(90);
+    // デッキ（ロードアウト）を次のものに切り替え
+    private switchToNextDeck() {
+        this.activeLoadoutIndex = (this.activeLoadoutIndex + 1) % 3;
+        this.teamData = this.loadoutsData[this.activeLoadoutIndex] || [];
 
-        // ボタン配置Y座標: 画面下から85px (元は55px) -> 30px上に移動 (セーフエリア回避)
-        const buttonY = height - 85;
+        // サモンボタンを更新
+        this.updateSummonButtons();
+
+        console.log(`[Deck Switch] Now using deck ${this.activeLoadoutIndex + 1} with ${this.teamData.length} units`);
+    }
+
+    // サモンボタンのUIを更新
+    private updateSummonButtons() {
+        // 現在のボタンを完全に削除
+        this.summonUIButtons.forEach(btn => {
+            btn.bg.destroy();
+            btn.icon.destroy();
+            btn.nameText.destroy();
+            btn.costTag.destroy();
+            btn.costText.destroy();
+        });
+        this.summonUIButtons = [];
+
+        // 新しいUIで再構築
+        const buttonY = this.scale.height - 85;
         const buttonWidth = 90;
-        const buttonHeight = 100;
-        const startX = 65;
+        const startX = 155; // デッキ切り替えボタン分右にずらす
         const gap = 8;
 
         this.teamData.forEach((unit, index) => {
             const x = startX + index * (buttonWidth + gap);
 
             // ボタン背景
-            const bg = this.add.rectangle(x, buttonY, buttonWidth, buttonHeight, 0xf8e7b6, 1);
+            const bg = this.add.rectangle(x, buttonY, buttonWidth, 100, 0xf8e7b6, 1);
             bg.setScrollFactor(0);
             bg.setDepth(100);
             bg.setInteractive({ useHandCursor: true });
@@ -660,19 +685,10 @@ export class BattleScene extends Phaser.Scene {
 
             // ユニット画像
             const unitIcon = this.add.image(x, buttonY - 22, unit.id);
-            const iconScale = 45 / unitIcon.height; // 45pxに収める
+            const iconScale = 45 / unitIcon.height;
             unitIcon.setScale(iconScale);
             unitIcon.setScrollFactor(0);
             unitIcon.setDepth(101);
-
-            // UI管理配列に追加
-            this.summonUIButtons.push({
-                unitId: unit.id,
-                cost: unit.cost,
-                bg,
-                icon: unitIcon,
-                originalColor: 0xf8e7b6
-            });
 
             // ユニット名
             const nameText = this.add.text(x, buttonY + 16, unit.name.slice(0, 5), {
@@ -702,6 +718,138 @@ export class BattleScene extends Phaser.Scene {
             costText.setOrigin(0.5, 0.5);
             costText.setScrollFactor(0);
             costText.setDepth(101);
+
+            this.summonUIButtons.push({
+                unitId: unit.id,
+                cost: unit.cost,
+                bg,
+                icon: unitIcon,
+                nameText,
+                costTag,
+                costText,
+                originalColor: 0xf8e7b6
+            });
+
+            // クリックでクイズ開始
+            bg.on('pointerdown', () => {
+                this.startQuiz(unit.id, unit.cost);
+            });
+
+            bg.on('pointerover', () => bg.setFillStyle(0xfff3cf));
+            bg.on('pointerout', () => bg.setFillStyle(0xf8e7b6));
+        });
+    }
+
+    private createSummonButtons() {
+        const { width, height } = this.scale;
+        // iPad等の下部バーを考慮して高さを150確保、位置微調整
+        const barHeight = 150;
+        const barY = height - barHeight / 2; // 中心位置
+        // 背景バー：高さ150で画面下部をカバー
+        const bar = this.add.rectangle(width / 2, height - 75, width, 150, 0x6b4a2b, 0.95);
+        bar.setScrollFactor(0);
+        bar.setDepth(90);
+
+        // ボタン配置Y座標: 画面下から85px (元は55px) -> 30px上に移動 (セーフエリア回避)
+        const buttonY = height - 85;
+        const buttonWidth = 90;
+        const buttonHeight = 100;
+        const startX = 155; // 65 -> 155 (デッキ切り替えボタン分右にずらす)
+        const gap = 8;
+
+        // デッキ切り替えボタン（キャラカードの左端）
+        const deckBtnX = 55;
+        const deckBtnBg = this.add.rectangle(deckBtnX, buttonY, 80, buttonHeight, 0xf97316);
+        deckBtnBg.setScrollFactor(0);
+        deckBtnBg.setDepth(100);
+        deckBtnBg.setInteractive({ useHandCursor: true });
+        deckBtnBg.setStrokeStyle(3, 0x3b2a1a);
+
+        const deckLabel = this.activeLoadoutIndex === 0 ? '🅰️' : this.activeLoadoutIndex === 1 ? '🅱️' : '🅲';
+        const deckSwitchIcon = this.add.text(deckBtnX, buttonY - 15, `🔄`, {
+            fontSize: '24px',
+            color: '#ffffff',
+        });
+        deckSwitchIcon.setOrigin(0.5, 0.5);
+        deckSwitchIcon.setScrollFactor(0);
+        deckSwitchIcon.setDepth(101);
+
+        const deckLabelText = this.add.text(deckBtnX, buttonY + 20, deckLabel, {
+            fontSize: '22px',
+            color: '#ffffff',
+            fontStyle: 'bold',
+        });
+        deckLabelText.setOrigin(0.5, 0.5);
+        deckLabelText.setScrollFactor(0);
+        deckLabelText.setDepth(101);
+
+        // クリックでデッキ切り替え
+        deckBtnBg.on('pointerdown', () => {
+            this.switchToNextDeck();
+            const newLabel = this.activeLoadoutIndex === 0 ? '🅰️' : this.activeLoadoutIndex === 1 ? '🅱️' : '🅲';
+            deckLabelText.setText(newLabel);
+        });
+
+        deckBtnBg.on('pointerover', () => deckBtnBg.setAlpha(0.8));
+        deckBtnBg.on('pointerout', () => deckBtnBg.setAlpha(1));
+
+        this.teamData.forEach((unit, index) => {
+            const x = startX + index * (buttonWidth + gap);
+
+            // ボタン背景
+            const bg = this.add.rectangle(x, buttonY, buttonWidth, buttonHeight, 0xf8e7b6, 1);
+            bg.setScrollFactor(0);
+            bg.setDepth(100);
+            bg.setInteractive({ useHandCursor: true });
+            bg.setStrokeStyle(3, 0x3b2a1a);
+
+            // ユニット画像
+            const unitIcon = this.add.image(x, buttonY - 22, unit.id);
+            const iconScale = 45 / unitIcon.height; // 45pxに収める
+            unitIcon.setScale(iconScale);
+            unitIcon.setScrollFactor(0);
+            unitIcon.setDepth(101);
+
+            // ユニット名
+            const nameText = this.add.text(x, buttonY + 16, unit.name.slice(0, 5), {
+                fontSize: '13px',
+                color: '#3b2a1a',
+                stroke: '#ffffff',
+                strokeThickness: 1,
+                fontStyle: 'bold',
+            });
+            nameText.setOrigin(0.5, 0.5);
+            nameText.setScrollFactor(0);
+            nameText.setDepth(101);
+
+            // コスト表示
+            const costTag = this.add.rectangle(x, buttonY + 38, 54, 20, 0xffd45a);
+            costTag.setScrollFactor(0);
+            costTag.setDepth(101);
+            costTag.setStrokeStyle(2, 0x3b2a1a);
+
+            const costText = this.add.text(x, buttonY + 38, `¥${unit.cost}`, {
+                fontSize: '13px',
+                color: '#3b2a1a',
+                stroke: '#ffffff',
+                strokeThickness: 1,
+                fontStyle: 'bold',
+            });
+            costText.setOrigin(0.5, 0.5);
+            costText.setScrollFactor(0);
+            costText.setDepth(101);
+
+            // UI管理配列に追加
+            this.summonUIButtons.push({
+                unitId: unit.id,
+                cost: unit.cost,
+                bg,
+                icon: unitIcon,
+                nameText,
+                costTag,
+                costText,
+                originalColor: 0xf8e7b6
+            });
 
             // クリックでクイズ開始
             bg.on('pointerdown', () => {

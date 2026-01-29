@@ -12,6 +12,8 @@ interface PhaserGameProps {
     stage?: StageDefinition;
     team?: UnitDefinition[];
     allUnits?: UnitDefinition[];
+    loadouts?: [UnitDefinition[], UnitDefinition[], UnitDefinition[]]; // 3つのデッキ
+    activeLoadoutIndex?: number;
     onBattleEnd?: (win: boolean, coinsGained: number) => void;
     // Garden props
     gardenUnits?: UnitDefinition[]; // unitsだとallUnitsと混同するので明示的に
@@ -22,6 +24,8 @@ export default function PhaserGame({
     stage,
     team,
     allUnits,
+    loadouts,
+    activeLoadoutIndex,
     onBattleEnd,
     gardenUnits,
 }: PhaserGameProps) {
@@ -83,7 +87,7 @@ export default function PhaserGame({
                 const { BattleScene } = await import("@/game/scenes/BattleScene");
                 SceneClass = BattleScene;
                 startKey = "BattleScene";
-                startData = { stage, team, allUnits };
+                startData = { stage, team, allUnits, loadouts, activeLoadoutIndex };
 
                 // Battle用イベントリスナー
                 const { eventBus, GameEvents } = await import("@/game/utils/EventBus");

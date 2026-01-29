@@ -24,10 +24,11 @@ export default function BattlePage() {
     const params = useParams();
     const stageId = params.stageId as string;
     const { t } = useLanguage();
-    const { selectedTeam, isLoaded, refreshShop, nextLoadout, activeLoadoutIndex } = usePlayerData();
+    const { selectedTeam, isLoaded, refreshShop, loadouts, activeLoadoutIndex } = usePlayerData();
 
     const [stage, setStage] = useState<StageDefinition | null>(null);
     const [team, setTeam] = useState<UnitDefinition[]>([]);
+    const [loadoutDefs, setLoadoutDefs] = useState<[UnitDefinition[], UnitDefinition[], UnitDefinition[]]>([[], [], []]);
     const [battleEnded, setBattleEnded] = useState(false);
     const [result, setResult] = useState<{ win: boolean; coins: number } | null>(null);
 
@@ -48,7 +49,15 @@ export default function BattlePage() {
             .map((id) => allUnits.find((u) => u.id === id))
             .filter((u): u is UnitDefinition => u !== undefined);
         setTeam(teamDefs);
-    }, [stageId, router, selectedTeam, isLoaded]);
+
+        // 全ロードアウトを変換
+        const convertedLoadouts: [UnitDefinition[], UnitDefinition[], UnitDefinition[]] = [
+            (loadouts[0] || []).map(id => allUnits.find(u => u.id === id)).filter((u): u is UnitDefinition => u !== undefined),
+            (loadouts[1] || []).map(id => allUnits.find(u => u.id === id)).filter((u): u is UnitDefinition => u !== undefined),
+            (loadouts[2] || []).map(id => allUnits.find(u => u.id === id)).filter((u): u is UnitDefinition => u !== undefined),
+        ];
+        setLoadoutDefs(convertedLoadouts);
+    }, [stageId, router, selectedTeam, loadouts, isLoaded]);
 
     const handleBattleEnd = (win: boolean, coinsGained: number) => {
         setBattleEnded(true);
@@ -79,20 +88,8 @@ export default function BattlePage() {
                 <Link href="/stages" className="btn btn-secondary text-sm py-2 px-3 pointer-events-auto shadow-lg border-2 border-white/20">
                     ← {t("back_to_stages")}
                 </Link>
-                <div className="flex items-center gap-2 pointer-events-auto">
-                    {/* ロードアウト切り替えボタン */}
-                    <button
-                        onClick={() => {
-                            nextLoadout();
-                        }}
-                        className="btn btn-secondary text-sm py-2 px-3 shadow-lg border-2 border-white/20 hover:bg-orange-500 transition-all"
-                        title="次のデッキに切り替え"
-                    >
-                        🔄 {activeLoadoutIndex === 0 ? "🅰️" : activeLoadoutIndex === 1 ? "🅱️" : "🅲"}
-                    </button>
-                    <div className="btn btn-primary pointer-events-none text-sm py-2 px-3 shadow-lg border-2 border-white/20">
-                        🎮 {team.length}
-                    </div>
+                <div className="btn btn-primary pointer-events-none text-sm py-2 px-3 shadow-lg border-2 border-white/20">
+                    🎮 {team.length}
                 </div>
             </div>
 
@@ -102,6 +99,8 @@ export default function BattlePage() {
                     stage={stage}
                     team={team}
                     allUnits={allUnits}
+                    loadouts={loadoutDefs}
+                    activeLoadoutIndex={activeLoadoutIndex}
                     onBattleEnd={handleBattleEnd}
                 />
             </div>
