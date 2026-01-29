@@ -11,12 +11,15 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 const allUnits = unitsData as UnitDefinition[];
 
+const REFRESH_COST = 100;
+
 export default function ShopPage() {
-    const { coins, shopItems, buyShopItem, isLoaded } = usePlayerData();
+    const { coins, shopItems, buyShopItem, refreshShop, spendCoins, isLoaded } = usePlayerData();
     const { t } = useLanguage();
     const [viewingUnit, setViewingUnit] = useState<UnitDefinition | null>(null);
     const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
     const [targetIndex, setTargetIndex] = useState<number>(-1);
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
     if (!isLoaded) {
         return <div className="min-h-screen flex items-center justify-center text-white">{t("loading")}</div>;
@@ -41,6 +44,16 @@ export default function ShopPage() {
         }
     };
 
+    const handleRefresh = () => {
+        if (coins < REFRESH_COST) return;
+        setIsRefreshing(true);
+        spendCoins(REFRESH_COST);
+        setTimeout(() => {
+            refreshShop();
+            setIsRefreshing(false);
+        }, 300);
+    };
+
     const targetItem = targetIndex !== -1 ? shopItems[targetIndex] : null;
     const targetUnit = targetItem ? allUnits.find(u => u.id === targetItem.unitId) : null;
 
@@ -62,9 +75,21 @@ export default function ShopPage() {
                 </div>
             </div>
 
-            {/* Hint */}
-            <div className="text-center text-sm text-gray-400 mb-6 whitespace-pre-wrap">
-                {t("shop_hint")}
+            {/* Hint + Refresh */}
+            <div className="text-center mb-6">
+                <p className="text-sm text-gray-400 mb-3 whitespace-pre-wrap">
+                    {t("shop_hint")}
+                </p>
+                <button
+                    onClick={handleRefresh}
+                    disabled={coins < REFRESH_COST || isRefreshing}
+                    className={`px-6 py-3 rounded-xl font-bold transition-all ${coins < REFRESH_COST || isRefreshing
+                        ? "bg-gray-700 text-gray-500 cursor-not-allowed"
+                        : "bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:scale-105 shadow-lg"
+                        }`}
+                >
+                    {isRefreshing ? "🔄..." : `🔄 ${t("refresh_shop")} (💰 ${REFRESH_COST})`}
+                </button>
             </div>
 
             {/* Grid */}
@@ -100,20 +125,26 @@ export default function ShopPage() {
                             )}
 
                             {/* Unit Icon */}
-                            <div className="flex justify-center mb-2">
+                            <div className="flex justify-center mb-1">
                                 <RarityFrame
                                     unitId={unit.id}
                                     unitName={unitName}
                                     rarity={unit.rarity}
-                                    size="md"
+                                    size="sm"
                                     showLabel={false}
                                     baseUnitId={unit.baseUnitId}
                                 />
                             </div>
 
+                            {/* Stats */}
+                            <div className="flex justify-center gap-2 mb-1 text-[10px]">
+                                <span className="text-green-400">❤️{unit.maxHp}</span>
+                                <span className="text-red-400">⚔️{unit.attackDamage}</span>
+                            </div>
+
                             {/* Info */}
                             <div className="text-center">
-                                <div className="text-xs font-bold truncate mb-1 text-indigo-100">
+                                <div className="text-[10px] font-bold truncate mb-1 text-indigo-100">
                                     {unitName}
                                 </div>
                                 <div className={`text-sm font-bold ${item.soldOut ? "text-gray-500" : "text-amber-300"}`}>

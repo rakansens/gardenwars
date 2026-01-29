@@ -128,6 +128,7 @@ const translations: Record<Language, Record<string, string>> = {
         "not_enough_coins": "Not Enough Coins",
         "confirm_purchase": "Confirm Purchase",
         "cancel": "Cancel",
+        "refresh_shop": "Refresh Shop",
 
         // Garden
         "garden_title": "🌱 Paradise Garden",
@@ -171,6 +172,11 @@ const translations: Record<Language, Record<string, string>> = {
         "fusion_result": "Fusion Complete!",
         "select_materials": "📦 Select Materials",
         "no_units": "No units available. Get some from Gacha first!",
+        "fusion_3_title": "⚗️ 3-Unit Fusion",
+        "fusion_10_title": "✨ 10-Unit Super Fusion",
+        "fusion_10_mode": "🌟 10-Unit Super Fusion Mode 🌟",
+        "fusion_10_desc": "Fuse 10 units to aim for a UR!",
+        "fusion_10_hint": "※ UR probability is greatly increased!",
 
         // Unit names
         "cat_warrior": "Cat Warrior",
@@ -308,6 +314,7 @@ const translations: Record<Language, Record<string, string>> = {
         "not_enough_coins": "コイン不足",
         "confirm_purchase": "購入確認",
         "cancel": "キャンセル",
+        "refresh_shop": "ラインナップ更新",
 
         // Garden
         "garden_title": "🌱 パラダイスガーデン",
@@ -350,6 +357,11 @@ const translations: Record<Language, Record<string, string>> = {
         "fusion_result": "合成完了！",
         "select_materials": "📦 素材を選択",
         "no_units": "ユニットがありません。ガチャで手に入れよう！",
+        "fusion_3_title": "⚗️ 3体合成",
+        "fusion_10_title": "✨ 10体超合成",
+        "fusion_10_mode": "🌟 10体超合成モード 🌟",
+        "fusion_10_desc": "10体のユニットを合成して、URを狙おう！",
+        "fusion_10_hint": "※ URが出る確率が大幅アップ！",
 
         // Unit names
         "cat_warrior": "ネコ戦士",
