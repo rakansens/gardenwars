@@ -6,6 +6,7 @@ import unitsData from "@/data/units.json";
 import type { UnitDefinition, Rarity } from "@/data/types";
 import RarityFrame from "@/components/ui/RarityFrame";
 import UnitDetailModal from "@/components/ui/UnitDetailModal";
+import { hasAnimation } from "@/components/ui/UnitAnimationPreview";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
 
@@ -159,6 +160,7 @@ export default function TeamPage() {
                         {filteredUnits.map((unit) => {
                             const isSelected = selectedTeam.includes(unit.id);
                             const count = unitInventory[unit.id] || 0;
+                            const unitHasAnimation = hasAnimation(unit.atlasKey || unit.id);
                             return (
                                 <div
                                     key={unit.id}
@@ -170,6 +172,13 @@ export default function TeamPage() {
                                     <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-amber-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10">
                                         {count}
                                     </div>
+
+                                    {/* アニメーションバッジ */}
+                                    {unitHasAnimation && (
+                                        <div className="absolute -top-2 -left-2 w-7 h-7 rounded-full bg-purple-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10" title="Has Animation">
+                                            🎬
+                                        </div>
+                                    )}
 
                                     {/* アイコン */}
                                     <RarityFrame
