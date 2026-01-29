@@ -15,7 +15,7 @@ const allUnits = unitsData as UnitDefinition[];
 const allyUnits = allUnits.filter((u) => !u.id.startsWith("enemy_"));
 
 export default function TeamPage() {
-    const { selectedTeam, unitInventory, setTeam, isLoaded } = usePlayerData();
+    const { selectedTeam, unitInventory, setTeam, isLoaded, activeLoadoutIndex, switchLoadout } = usePlayerData();
     const { t } = useLanguage();
     const [rarityFilter, setRarityFilter] = useState<Rarity | "ALL">("ALL");
     const [viewingUnit, setViewingUnit] = useState<UnitDefinition | null>(null);
@@ -90,20 +90,45 @@ export default function TeamPage() {
             <div className="container">
                 {/* 現在の編成 */}
                 <section className="mb-8">
-                    <h2 className="text-xl font-bold mb-4">
-                        📋 {t("team_members")} ({selectedTeam.length}/{MAX_TEAM_SIZE})
-                    </h2>
+                    {/* ロードアウト切り替えタブ */}
+                    <div className="flex items-center gap-4 mb-4">
+                        <h2 className="text-xl font-bold">
+                            📋 {t("team_members")} ({selectedTeam.length}/{MAX_TEAM_SIZE})
+                        </h2>
+                        <div className="flex gap-2">
+                            {[0, 1, 2].map((idx) => (
+                                <button
+                                    key={idx}
+                                    onClick={() => switchLoadout(idx)}
+                                    className={`
+                                        px-4 py-2 rounded-lg font-bold text-sm transition-all
+                                        ${activeLoadoutIndex === idx
+                                            ? "bg-orange-500 text-white shadow-lg scale-105"
+                                            : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                                        }
+                                    `}
+                                >
+                                    {idx === 0 ? "🅰️" : idx === 1 ? "🅱️" : "🅲"} Deck {idx + 1}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                     <div className="flex gap-4 flex-wrap">
                         {Array.from({ length: MAX_TEAM_SIZE }).map((_, index) => {
                             const unit = getSelectedTeamDefs()[index];
                             return (
                                 <div
                                     key={index}
-                                    className={`slot ${unit ? "filled" : ""}`}
-                                    onClick={() => unit && handleUnitClick(unit)}
+                                    className={`slot ${unit ? "filled cursor-pointer" : ""}`}
+                                    onClick={() => unit && handleToggleUnit(unit.id)}
+                                    title={unit ? `${t("click_to_remove") || "タップで解除"}` : undefined}
                                 >
                                     {unit ? (
-                                        <div className="text-center">
+                                        <div className="text-center relative">
+                                            {/* 解除アイコン */}
+                                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center shadow-md z-10">
+                                                ×
+                                            </div>
                                             <RarityFrame
                                                 unitId={unit.id}
                                                 unitName={unit.name}

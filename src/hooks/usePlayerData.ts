@@ -20,7 +20,9 @@ export interface ShopItem {
 export interface PlayerData {
     coins: number;
     unitInventory: { [unitId: string]: number };
-    selectedTeam: string[];
+    selectedTeam: string[]; // 現在アクティブなチーム (後方互換用)
+    loadouts: [string[], string[], string[]]; // 3種類のロードアウト
+    activeLoadoutIndex: number; // 0, 1, 2
     shopItems: ShopItem[];
 }
 
@@ -29,6 +31,12 @@ const getInitialData = (): PlayerData => ({
     coins: 10000,
     unitInventory: playerDataInitial.unitInventory || {},
     selectedTeam: playerDataInitial.selectedTeam || [],
+    loadouts: [
+        playerDataInitial.selectedTeam || [],
+        [],
+        []
+    ],
+    activeLoadoutIndex: 0,
     shopItems: [], // 初期は空。初回ロード時に生成するか、空なら生成するロジックが必要
 });
 
@@ -40,10 +48,23 @@ const loadFromStorage = (): PlayerData => {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
             const parsed = JSON.parse(saved);
+            const initial = getInitialData();
+
+            // 後方互換: loadoutsがなければselectedTeamから生成
+            let loadouts: [string[], string[], string[]] = parsed.loadouts ?? [
+                parsed.selectedTeam ?? initial.selectedTeam,
+                [],
+                []
+            ];
+
+            const activeLoadoutIndex = parsed.activeLoadoutIndex ?? 0;
+
             return {
                 coins: parsed.coins ?? 10000,
-                unitInventory: parsed.unitInventory ?? getInitialData().unitInventory,
-                selectedTeam: parsed.selectedTeam ?? getInitialData().selectedTeam,
+                unitInventory: parsed.unitInventory ?? initial.unitInventory,
+                selectedTeam: loadouts[activeLoadoutIndex] ?? [],
+                loadouts: loadouts,
+                activeLoadoutIndex: activeLoadoutIndex,
                 shopItems: parsed.shopItems ?? [],
             };
         }
@@ -131,12 +152,39 @@ export function usePlayerData() {
         });
     }, []);
 
-    // 編成を更新
+    // 編成を更新（現在のロードアウトに保存）
     const setTeam = useCallback((team: string[]) => {
+        setData((prev) => {
+            const newLoadouts = [...prev.loadouts] as [string[], string[], string[]];
+            newLoadouts[prev.activeLoadoutIndex] = team;
+            return {
+                ...prev,
+                selectedTeam: team,
+                loadouts: newLoadouts,
+            };
+        });
+    }, []);
+
+    // ロードアウトを切り替え
+    const switchLoadout = useCallback((index: number) => {
+        if (index < 0 || index > 2) return;
         setData((prev) => ({
             ...prev,
-            selectedTeam: team,
+            activeLoadoutIndex: index,
+            selectedTeam: prev.loadouts[index] ?? [],
         }));
+    }, []);
+
+    // 次のロードアウトに切り替え
+    const nextLoadout = useCallback(() => {
+        setData((prev) => {
+            const nextIndex = (prev.activeLoadoutIndex + 1) % 3;
+            return {
+                ...prev,
+                activeLoadoutIndex: nextIndex,
+                selectedTeam: prev.loadouts[nextIndex] ?? [],
+            };
+        });
     }, []);
 
     // データリセット（デバッグ用）
@@ -235,6 +283,8 @@ export function usePlayerData() {
         coins: data.coins,
         unitInventory: data.unitInventory,
         selectedTeam: data.selectedTeam,
+        loadouts: data.loadouts,
+        activeLoadoutIndex: data.activeLoadoutIndex,
         shopItems: data.shopItems,
         isLoaded,
 
@@ -244,6 +294,8 @@ export function usePlayerData() {
         addUnit,
         addUnits,
         setTeam,
+        switchLoadout,
+        nextLoadout,
         resetData,
         refreshShop,
         buyShopItem,

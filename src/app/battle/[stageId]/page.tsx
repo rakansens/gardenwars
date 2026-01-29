@@ -24,7 +24,7 @@ export default function BattlePage() {
     const params = useParams();
     const stageId = params.stageId as string;
     const { t } = useLanguage();
-    const { selectedTeam, isLoaded, refreshShop } = usePlayerData();
+    const { selectedTeam, isLoaded, refreshShop, nextLoadout, activeLoadoutIndex } = usePlayerData();
 
     const [stage, setStage] = useState<StageDefinition | null>(null);
     const [team, setTeam] = useState<UnitDefinition[]>([]);
@@ -79,8 +79,20 @@ export default function BattlePage() {
                 <Link href="/stages" className="btn btn-secondary text-sm py-2 px-3 pointer-events-auto shadow-lg border-2 border-white/20">
                     ← {t("back_to_stages")}
                 </Link>
-                <div className="btn btn-primary pointer-events-none text-sm py-2 px-3 shadow-lg border-2 border-white/20">
-                    🎮 {team.length}
+                <div className="flex items-center gap-2 pointer-events-auto">
+                    {/* ロードアウト切り替えボタン */}
+                    <button
+                        onClick={() => {
+                            nextLoadout();
+                        }}
+                        className="btn btn-secondary text-sm py-2 px-3 shadow-lg border-2 border-white/20 hover:bg-orange-500 transition-all"
+                        title="次のデッキに切り替え"
+                    >
+                        🔄 {activeLoadoutIndex === 0 ? "🅰️" : activeLoadoutIndex === 1 ? "🅱️" : "🅲"}
+                    </button>
+                    <div className="btn btn-primary pointer-events-none text-sm py-2 px-3 shadow-lg border-2 border-white/20">
+                        🎮 {team.length}
+                    </div>
                 </div>
             </div>
 
