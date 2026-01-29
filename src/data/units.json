@@ -1162,28 +1162,6 @@
     }
   },
   {
-    "id": "n_bee",
-    "name": "Buzzy Bee",
-    "rarity": "N",
-    "cost": 120,
-    "maxHp": 200,
-    "speed": 100,
-    "attackDamage": 45,
-    "attackRange": 40,
-    "attackCooldownMs": 800,
-    "attackWindupMs": 300,
-    "knockback": 15,
-    "scale": 0.8,
-    "isFlying": true,
-    "atlasKey": "n_bee",
-    "animKeys": {
-      "idle": "idle",
-      "walk": "walk",
-      "attack": "attack",
-      "die": "die"
-    }
-  },
-  {
     "id": "n_mushroom",
     "name": "Cactus Fighter",
     "rarity": "N",
