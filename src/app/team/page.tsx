@@ -35,13 +35,16 @@ export default function TeamPage() {
     const MAX_TEAM_SIZE = 8;
 
     const handleToggleUnit = (unitId: string) => {
-        if (selectedTeam.includes(unitId)) {
+        // 有効なIDのみをフィルタリング（無効なIDを削除）
+        const validTeam = selectedTeam.filter((id) => allyUnits.some((u) => u.id === id));
+
+        if (validTeam.includes(unitId)) {
             // 解除
-            setTeam(selectedTeam.filter((id) => id !== unitId));
+            setTeam(validTeam.filter((id) => id !== unitId));
         } else {
-            // 追加（上限チェック）
-            if (selectedTeam.length < MAX_TEAM_SIZE) {
-                setTeam([...selectedTeam, unitId]);
+            // 追加（上限チェック - 有効なユニット数でチェック）
+            if (validTeam.length < MAX_TEAM_SIZE) {
+                setTeam([...validTeam, unitId]);
             }
         }
     };
@@ -55,6 +58,9 @@ export default function TeamPage() {
             .map((id) => allyUnits.find((u) => u.id === id))
             .filter((u): u is UnitDefinition => u !== undefined);
     };
+
+    // 有効なチームメンバー数（存在するユニットのみカウント）
+    const validTeamCount = getSelectedTeamDefs().length;
 
     // チームの合計コストを計算
     const getTotalCost = () => {
@@ -93,7 +99,7 @@ export default function TeamPage() {
                     {/* ロードアウト切り替えタブ */}
                     <div className="flex items-center gap-4 mb-4">
                         <h2 className="text-xl font-bold">
-                            📋 {t("team_members")} ({selectedTeam.length}/{MAX_TEAM_SIZE})
+                            📋 {t("team_members")} ({validTeamCount}/{MAX_TEAM_SIZE})
                         </h2>
                         <div className="flex gap-2">
                             {[0, 1, 2].map((idx) => (
@@ -199,7 +205,7 @@ export default function TeamPage() {
                                             const isSelected = selectedTeam.includes(unit.id);
                                             const count = unitInventory[unit.id] || 0;
                                             const unitHasAnimation = hasAnimation(unit.atlasKey || unit.id);
-                                            const canAdd = !isSelected && selectedTeam.length < MAX_TEAM_SIZE;
+                                            const canAdd = !isSelected && validTeamCount < MAX_TEAM_SIZE;
                                             return (
                                                 <div
                                                     key={unit.id}
