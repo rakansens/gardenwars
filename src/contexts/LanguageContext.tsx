@@ -218,6 +218,13 @@ const translations: Record<Language, Record<string, string>> = {
         "sr_sun_pirate": "Sun Pirate",
         "sr_tulip_idol": "Tulip Idol",
         "sr_rose_hero": "Rose Hero",
+
+        // Collection
+        "collection_title": "Collection",
+        "collection_progress": "Collection Progress",
+        "collection_hint": "Get units from Gacha and Fusion to complete your collection!",
+        "no_units_in_filter": "No units found in this category",
+        "menu_collection": "📖 Collection",
     },
     ja: {
         // Common
@@ -425,6 +432,13 @@ const translations: Record<Language, Record<string, string>> = {
         "sr_sun_pirate": "サンパイレーツ",
         "sr_tulip_idol": "チューリップアイドル",
         "sr_rose_hero": "ローズヒーロー",
+
+        // Collection
+        "collection_title": "コレクション",
+        "collection_progress": "コレクション進捗",
+        "collection_hint": "ガチャやフュージョンでユニットを集めてコンプリートしよう！",
+        "no_units_in_filter": "このカテゴリにはユニットがいません",
+        "menu_collection": "📖 図鑑",
     },
 };
 

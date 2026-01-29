@@ -80,6 +80,7 @@ export default function Home() {
     { href: "/stages", icon: "⚔️", label: t("menu_stages"), type: "primary" },
     { href: "/worldmap", icon: "🗺️", label: t("world_map"), type: "primary" },
     { href: "/team", icon: "🎖️", label: t("menu_team"), type: "secondary" },
+    { href: "/collection", icon: "📖", label: t("menu_collection"), type: "secondary" },
     { href: "/gacha", icon: "🎰", label: t("menu_gacha"), type: "primary" },
     { href: "/shop", icon: "🛒", label: t("menu_shop"), type: "secondary" },
     { href: "/fusion", icon: "🔮", label: t("fusion"), type: "secondary" },
