@@ -1887,5 +1887,68 @@
       "attack": "attack",
       "die": "die"
     }
+  },
+  {
+    "id": "n_pebble",
+    "name": "Pebble",
+    "rarity": "N",
+    "cost": 60,
+    "maxHp": 800,
+    "speed": 25,
+    "attackDamage": 20,
+    "attackRange": 35,
+    "attackCooldownMs": 2500,
+    "attackWindupMs": 800,
+    "knockback": 10,
+    "scale": 1.1,
+    "atlasKey": "n_pebble",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "n_dew",
+    "name": "Dew Drop",
+    "rarity": "N",
+    "cost": 70,
+    "maxHp": 200,
+    "speed": 50,
+    "attackDamage": 35,
+    "attackRange": 150,
+    "attackCooldownMs": 1800,
+    "attackWindupMs": 500,
+    "knockback": 12,
+    "scale": 1.0,
+    "atlasKey": "n_dew",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "n_root",
+    "name": "Root",
+    "rarity": "N",
+    "cost": 65,
+    "maxHp": 350,
+    "speed": 45,
+    "attackDamage": 40,
+    "attackRange": 45,
+    "attackCooldownMs": 1200,
+    "attackWindupMs": 400,
+    "knockback": 18,
+    "scale": 1.15,
+    "atlasKey": "n_root",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
   }
 ]

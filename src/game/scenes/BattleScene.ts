@@ -215,6 +215,9 @@ export class BattleScene extends Phaser.Scene {
         this.load.image('n_dust_bunny', '/assets/sprites/n_dust_bunny.png');
         this.load.image('n_hibiscus', '/assets/sprites/n_hibiscus.png');
         this.load.image('n_leaf_sprite', '/assets/sprites/n_leaf_sprite.png');
+        this.load.image('n_pebble', '/assets/sprites/n_pebble.png');
+        this.load.image('n_dew', '/assets/sprites/n_dew.png');
+        this.load.image('n_root', '/assets/sprites/n_root.png');
 
         // Rare Units
         this.load.image('r_tomato', '/assets/sprites/r_tomato.png');
