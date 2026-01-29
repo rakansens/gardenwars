@@ -206,24 +206,37 @@ export default function FusionPage() {
             </div>
 
             {/* モード切替 */}
-            <div className="flex justify-center gap-4 mb-6">
+            <div className="flex justify-center gap-6 mb-6 flex-wrap">
+                {/* 3体合成 */}
                 <button
                     onClick={() => changeMode(3)}
-                    className={`px-6 py-3 rounded-xl font-bold text-lg transition-all ${fusionMode === 3
-                        ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg scale-105"
-                        : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                    className={`flex flex-col items-center p-4 rounded-2xl transition-all hover:scale-105 ${fusionMode === 3
+                        ? "bg-gradient-to-b from-purple-600 to-pink-700 text-white shadow-xl scale-105 border-4 border-purple-300"
+                        : "bg-gray-200 text-gray-600 hover:bg-gray-300 border-4 border-transparent"
                         }`}
                 >
-                    ⚗️ 3体合成
+                    <img
+                        src="/assets/ui/fusion_3slot.png"
+                        alt={t("fusion_3_title")}
+                        className="w-24 h-24 object-contain mb-2"
+                    />
+                    <div className="font-bold text-lg">{t("fusion_3_title")}</div>
                 </button>
+
+                {/* 10体超合成 */}
                 <button
                     onClick={() => changeMode(10)}
-                    className={`px-6 py-3 rounded-xl font-bold text-lg transition-all ${fusionMode === 10
-                        ? "bg-gradient-to-r from-amber-500 via-pink-500 to-purple-600 text-white shadow-lg scale-105 animate-pulse"
-                        : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                    className={`flex flex-col items-center p-4 rounded-2xl transition-all hover:scale-105 ${fusionMode === 10
+                        ? "bg-gradient-to-b from-amber-500 via-pink-600 to-purple-700 text-white shadow-xl scale-105 border-4 border-yellow-300 animate-pulse"
+                        : "bg-gray-200 text-gray-600 hover:bg-gray-300 border-4 border-transparent"
                         }`}
                 >
-                    ✨ 10体超合成
+                    <img
+                        src="/assets/ui/fusion_main.png"
+                        alt={t("fusion_10_title")}
+                        className="w-28 h-28 object-contain mb-2"
+                    />
+                    <div className="font-bold text-lg">{t("fusion_10_title")}</div>
                 </button>
             </div>
 
@@ -233,9 +246,9 @@ export default function FusionPage() {
                     <p className="text-amber-800">{t("fusion_desc")}</p>
                 ) : (
                     <div>
-                        <p className="text-purple-800 font-bold text-lg">🌟 10体超合成モード 🌟</p>
-                        <p className="text-pink-700 mt-1">10体のユニットを合成して、URを狙おう！</p>
-                        <p className="text-xs text-gray-600 mt-2">※ URが出る確率が大幅アップ！</p>
+                        <p className="text-purple-800 font-bold text-lg">{t("fusion_10_mode")}</p>
+                        <p className="text-pink-700 mt-1">{t("fusion_10_desc")}</p>
+                        <p className="text-xs text-gray-600 mt-2">{t("fusion_10_hint")}</p>
                     </div>
                 )}
             </div>
@@ -255,8 +268,8 @@ export default function FusionPage() {
                                 }
                             }}
                             className={`${fusionMode === 10 ? "w-14 h-16" : "w-20 h-24"} rounded-lg border-3 flex flex-col items-center justify-center transition-all ${unitDef
-                                    ? `${rarityColors[unitDef.rarity]} cursor-pointer hover:opacity-70 hover:scale-95 active:scale-90`
-                                    : fusionMode === 10 ? "bg-purple-200 border-purple-700" : "bg-amber-200 border-amber-700"
+                                ? `${rarityColors[unitDef.rarity]} cursor-pointer hover:opacity-70 hover:scale-95 active:scale-90`
+                                : fusionMode === 10 ? "bg-purple-200 border-purple-700" : "bg-amber-200 border-amber-700"
                                 }`}
                             title={unitDef ? "タップで解除" : ""}
                         >
