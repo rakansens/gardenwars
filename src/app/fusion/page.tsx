@@ -31,12 +31,15 @@ const rarityColors: Record<Rarity, string> = {
     UR: "border-pink-400 bg-gradient-to-br from-pink-100 via-purple-100 to-cyan-100",
 };
 
+type FusionMode = 3 | 10;
+
 export default function FusionPage() {
     const { t } = useLanguage();
     const [ownedUnits, setOwnedUnits] = useState<Record<string, number>>({});
     const [selectedUnits, setSelectedUnits] = useState<string[]>([]);
     const [fusionResult, setFusionResult] = useState<UnitDefinition | null>(null);
     const [showVideo, setShowVideo] = useState(false);
+    const [fusionMode, setFusionMode] = useState<FusionMode>(3);
     const videoRef = useRef<HTMLVideoElement>(null);
 
     useEffect(() => {
@@ -52,6 +55,12 @@ export default function FusionPage() {
         }
     }, []);
 
+    // モード変更時に選択をリセット
+    const changeMode = (mode: FusionMode) => {
+        setFusionMode(mode);
+        setSelectedUnits([]);
+    };
+
     // 所持しているユニットのリスト（1体以上）
     const availableUnits = allyUnits.filter(u => (ownedUnits[u.id] || 0) >= 1);
 
@@ -60,8 +69,8 @@ export default function FusionPage() {
         const owned = ownedUnits[unitId] || 0;
         const alreadySelected = selectedUnits.filter(id => id === unitId).length;
 
-        // まだ追加できる場合（3体未満かつ所持数以内）
-        if (selectedUnits.length < 3 && alreadySelected < owned) {
+        // まだ追加できる場合（モード数未満かつ所持数以内）
+        if (selectedUnits.length < fusionMode && alreadySelected < owned) {
             setSelectedUnits(prev => [...prev, unitId]);
         } else if (alreadySelected > 0) {
             // 追加できない場合は解除
@@ -74,43 +83,70 @@ export default function FusionPage() {
 
     // フュージョン実行
     const executeFusion = () => {
-        if (selectedUnits.length !== 3) return;
+        if (selectedUnits.length !== fusionMode) return;
 
         // 選択されたユニットのレアリティ平均 → 結果レアリティ確率
         const selectedDefs = selectedUnits.map(id => allyUnits.find(u => u.id === id)!);
         const totalWeight = selectedDefs.reduce((sum, u) => sum + rarityWeights[u.rarity], 0);
-        const avgWeight = totalWeight / 3;
+        const avgWeight = totalWeight / fusionMode;
 
         // 結果レアリティを決定
         let resultRarity: Rarity;
         const roll = Math.random() * 100;
 
-        if (avgWeight >= 6) {
-            // SSR素材が多い (平均6以上) -> 最低でもSR (1段階ダウンまで保証)
-            // 以前: SSR 30%, SR 30%, R 25%, N 15%
-            // 修正: SSR 60%, SR 40% (R, Nは排除)
-            if (roll < 60) resultRarity = "SSR";
-            else resultRarity = "SR";
-        } else if (avgWeight >= 4) {
-            // SR素材が多い (平均4以上) -> 最低でもR (1段階ダウンまで保証)
-            // 以前: SSR 15%, SR 30%, R 35%, N 20%
-            // 修正: SSR 20%, SR 50%, R 30% (Nは排除)
-            if (roll < 20) resultRarity = "SSR";
-            else if (roll < 70) resultRarity = "SR";
-            else resultRarity = "R";
-        } else if (avgWeight >= 2) {
-            // R素材が多い
-            // 修正: SSR 5%, SR 25%, R 50%, N 20% (Nの確率を低減)
-            if (roll < 5) resultRarity = "SSR";
-            else if (roll < 30) resultRarity = "SR";
-            else if (roll < 80) resultRarity = "R";
-            else resultRarity = "N";
+        if (fusionMode === 10) {
+            // 10体モード: URが出やすい！
+            if (avgWeight >= 8) {
+                // SSR以上が多い → UR高確率
+                if (roll < 30) resultRarity = "UR";
+                else if (roll < 70) resultRarity = "SSR";
+                else resultRarity = "SR";
+            } else if (avgWeight >= 6) {
+                // SSRが多い
+                if (roll < 15) resultRarity = "UR";
+                else if (roll < 55) resultRarity = "SSR";
+                else resultRarity = "SR";
+            } else if (avgWeight >= 4) {
+                // SR素材が多い
+                if (roll < 8) resultRarity = "UR";
+                else if (roll < 35) resultRarity = "SSR";
+                else if (roll < 75) resultRarity = "SR";
+                else resultRarity = "R";
+            } else if (avgWeight >= 2) {
+                // R素材が多い
+                if (roll < 3) resultRarity = "UR";
+                else if (roll < 15) resultRarity = "SSR";
+                else if (roll < 45) resultRarity = "SR";
+                else if (roll < 80) resultRarity = "R";
+                else resultRarity = "N";
+            } else {
+                // N素材が多い
+                if (roll < 1) resultRarity = "UR";
+                else if (roll < 5) resultRarity = "SSR";
+                else if (roll < 20) resultRarity = "SR";
+                else if (roll < 50) resultRarity = "R";
+                else resultRarity = "N";
+            }
         } else {
-            // N素材のみ
-            if (roll < 2) resultRarity = "SSR";
-            else if (roll < 8) resultRarity = "SR";
-            else if (roll < 30) resultRarity = "R";
-            else resultRarity = "N";
+            // 3体モード（従来のロジック）
+            if (avgWeight >= 6) {
+                if (roll < 60) resultRarity = "SSR";
+                else resultRarity = "SR";
+            } else if (avgWeight >= 4) {
+                if (roll < 20) resultRarity = "SSR";
+                else if (roll < 70) resultRarity = "SR";
+                else resultRarity = "R";
+            } else if (avgWeight >= 2) {
+                if (roll < 5) resultRarity = "SSR";
+                else if (roll < 30) resultRarity = "SR";
+                else if (roll < 80) resultRarity = "R";
+                else resultRarity = "N";
+            } else {
+                if (roll < 2) resultRarity = "SSR";
+                else if (roll < 8) resultRarity = "SR";
+                else if (roll < 30) resultRarity = "R";
+                else resultRarity = "N";
+            }
         }
 
         // そのレアリティからランダムに1体選択
@@ -155,6 +191,9 @@ export default function FusionPage() {
         return selectedUnits.filter(id => id === unitId).length;
     };
 
+    // 動画ソース
+    const videoSrc = fusionMode === 10 ? "/assets/videos/fusion_10x.mp4" : "/assets/videos/fusion.mp4";
+
     return (
         <main className="min-h-screen p-4">
             {/* ヘッダー */}
@@ -166,52 +205,106 @@ export default function FusionPage() {
                 <LanguageSwitch />
             </div>
 
+            {/* モード切替 */}
+            <div className="flex justify-center gap-4 mb-6">
+                <button
+                    onClick={() => changeMode(3)}
+                    className={`px-6 py-3 rounded-xl font-bold text-lg transition-all ${fusionMode === 3
+                        ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg scale-105"
+                        : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                        }`}
+                >
+                    ⚗️ 3体合成
+                </button>
+                <button
+                    onClick={() => changeMode(10)}
+                    className={`px-6 py-3 rounded-xl font-bold text-lg transition-all ${fusionMode === 10
+                        ? "bg-gradient-to-r from-amber-500 via-pink-500 to-purple-600 text-white shadow-lg scale-105 animate-pulse"
+                        : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                        }`}
+                >
+                    ✨ 10体超合成
+                </button>
+            </div>
+
             {/* 説明 */}
-            <div className="bg-amber-100 rounded-lg p-4 mb-6 text-center">
-                <p className="text-amber-800">{t("fusion_desc")}</p>
+            <div className={`rounded-lg p-4 mb-6 text-center ${fusionMode === 10 ? "bg-gradient-to-r from-amber-100 via-pink-100 to-purple-100" : "bg-amber-100"}`}>
+                {fusionMode === 3 ? (
+                    <p className="text-amber-800">{t("fusion_desc")}</p>
+                ) : (
+                    <div>
+                        <p className="text-purple-800 font-bold text-lg">🌟 10体超合成モード 🌟</p>
+                        <p className="text-pink-700 mt-1">10体のユニットを合成して、URを狙おう！</p>
+                        <p className="text-xs text-gray-600 mt-2">※ URが出る確率が大幅アップ！</p>
+                    </div>
+                )}
             </div>
 
             {/* 選択スロット */}
-            <div className="flex justify-center gap-4 mb-6">
-                {[0, 1, 2].map(i => {
+            <div className="flex justify-center gap-2 mb-6 flex-wrap">
+                {Array.from({ length: fusionMode }).map((_, i) => {
                     const unitId = selectedUnits[i];
                     const unitDef = unitId ? allyUnits.find(u => u.id === unitId) : null;
                     return (
                         <div
                             key={i}
-                            className={`w-20 h-24 rounded-lg border-3 flex flex-col items-center justify-center ${unitDef ? rarityColors[unitDef.rarity] : "bg-amber-200 border-amber-700"
+                            onClick={() => {
+                                // スロットにユニットがあればそのインデックスの要素を削除
+                                if (unitId) {
+                                    setSelectedUnits(prev => [...prev.slice(0, i), ...prev.slice(i + 1)]);
+                                }
+                            }}
+                            className={`${fusionMode === 10 ? "w-14 h-16" : "w-20 h-24"} rounded-lg border-3 flex flex-col items-center justify-center transition-all ${unitDef
+                                    ? `${rarityColors[unitDef.rarity]} cursor-pointer hover:opacity-70 hover:scale-95 active:scale-90`
+                                    : fusionMode === 10 ? "bg-purple-200 border-purple-700" : "bg-amber-200 border-amber-700"
                                 }`}
+                            title={unitDef ? "タップで解除" : ""}
                         >
                             {unitDef ? (
-                                <>
+                                <div className="relative">
                                     <Image
                                         src={`/assets/sprites/${unitDef.atlasKey || unitDef.baseUnitId || unitDef.id}.png`}
                                         alt={unitDef.name}
-                                        width={48}
-                                        height={48}
+                                        width={fusionMode === 10 ? 32 : 48}
+                                        height={fusionMode === 10 ? 32 : 48}
                                         className="object-contain"
                                     />
-                                    <span className="text-xs mt-1 font-bold">{unitDef.name.slice(0, 5)}</span>
-                                </>
+                                    {/* 解除マーク */}
+                                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center font-bold shadow">
+                                        ✕
+                                    </div>
+                                    {fusionMode === 3 && (
+                                        <span className="text-xs mt-1 font-bold block text-center">{unitDef.name.slice(0, 5)}</span>
+                                    )}
+                                </div>
                             ) : (
-                                <span className="text-amber-600 text-3xl">?</span>
+                                <span className={`${fusionMode === 10 ? "text-purple-600 text-xl" : "text-amber-600 text-3xl"}`}>?</span>
                             )}
                         </div>
                     );
                 })}
             </div>
 
+            {/* 選択カウンター */}
+            <div className="text-center mb-4">
+                <span className={`text-lg font-bold ${selectedUnits.length === fusionMode ? "text-green-600" : "text-gray-600"}`}>
+                    {selectedUnits.length} / {fusionMode}
+                </span>
+            </div>
+
             {/* フュージョンボタン */}
             <div className="text-center mb-6">
                 <button
                     onClick={executeFusion}
-                    disabled={selectedUnits.length !== 3}
-                    className={`px-8 py-3 rounded-lg font-bold text-xl transition-all ${selectedUnits.length === 3
-                        ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 shadow-lg"
+                    disabled={selectedUnits.length !== fusionMode}
+                    className={`px-8 py-3 rounded-lg font-bold text-xl transition-all ${selectedUnits.length === fusionMode
+                        ? fusionMode === 10
+                            ? "bg-gradient-to-r from-amber-500 via-pink-500 to-purple-600 text-white hover:from-amber-600 hover:via-pink-600 hover:to-purple-700 shadow-lg animate-pulse"
+                            : "bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 shadow-lg"
                         : "bg-gray-300 text-gray-500 cursor-not-allowed"
                         }`}
                 >
-                    🔮 {t("fusion_execute")}
+                    {fusionMode === 10 ? "✨ 超合成実行！ ✨" : `🔮 ${t("fusion_execute")}`}
                 </button>
             </div>
 
@@ -222,7 +315,7 @@ export default function FusionPage() {
                     {availableUnits.map(unit => {
                         const owned = ownedUnits[unit.id] || 0;
                         const selected = getSelectedCount(unit.id);
-                        const canSelect = selected < owned && selectedUnits.length < 3;
+                        const canSelect = selected < owned && selectedUnits.length < fusionMode;
 
                         return (
                             <div
@@ -265,7 +358,7 @@ export default function FusionPage() {
                 <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
                     <video
                         ref={videoRef}
-                        src="/assets/videos/fusion.mp4"
+                        src={videoSrc}
                         className="max-w-full max-h-full"
                         onEnded={handleVideoEnd}
                         autoPlay
@@ -284,8 +377,10 @@ export default function FusionPage() {
             {/* 結果表示 */}
             {fusionResult && !showVideo && (
                 <div className="fixed inset-0 bg-black bg-opacity-80 z-40 flex items-center justify-center">
-                    <div className="bg-amber-50 rounded-xl p-8 text-center max-w-sm">
-                        <h2 className="text-2xl font-bold mb-4">🎉 {t("fusion_result")}</h2>
+                    <div className={`rounded-xl p-8 text-center max-w-sm ${fusionResult.rarity === "UR" ? "bg-gradient-to-br from-pink-100 via-purple-100 to-cyan-100" : "bg-amber-50"}`}>
+                        <h2 className="text-2xl font-bold mb-4">
+                            {fusionResult.rarity === "UR" ? "🌟✨ 大当たり！ ✨🌟" : `🎉 ${t("fusion_result")}`}
+                        </h2>
                         <RarityFrame
                             unitId={fusionResult.id}
                             unitName={fusionResult.name}
@@ -293,10 +388,11 @@ export default function FusionPage() {
                             size="lg"
                         />
                         <div className="mt-4">
-                            <span className={`text-sm font-bold px-2 py-1 rounded ${fusionResult.rarity === "SSR" ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-white" :
-                                fusionResult.rarity === "SR" ? "bg-purple-500 text-white" :
-                                    fusionResult.rarity === "R" ? "bg-blue-500 text-white" :
-                                        "bg-gray-400 text-white"
+                            <span className={`text-sm font-bold px-2 py-1 rounded ${fusionResult.rarity === "UR" ? "bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 text-white animate-pulse" :
+                                fusionResult.rarity === "SSR" ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-white" :
+                                    fusionResult.rarity === "SR" ? "bg-purple-500 text-white" :
+                                        fusionResult.rarity === "R" ? "bg-blue-500 text-white" :
+                                            "bg-gray-400 text-white"
                                 }`}>
                                 {fusionResult.rarity}
                             </span>

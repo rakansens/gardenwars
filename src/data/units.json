@@ -1078,6 +1078,90 @@
     }
   },
   {
+    "id": "thunder_golem",
+    "name": "Thunder Golem",
+    "rarity": "UR",
+    "cost": 4500,
+    "maxHp": 12000,
+    "speed": 35,
+    "attackDamage": 3000,
+    "attackRange": 80,
+    "attackCooldownMs": 2500,
+    "attackWindupMs": 800,
+    "knockback": 100,
+    "scale": 1.5,
+    "atlasKey": "thunder_golem",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "flame_knight",
+    "name": "Flame Knight",
+    "rarity": "UR",
+    "cost": 4200,
+    "maxHp": 9000,
+    "speed": 60,
+    "attackDamage": 2800,
+    "attackRange": 100,
+    "attackCooldownMs": 1800,
+    "attackWindupMs": 600,
+    "knockback": 80,
+    "scale": 1.6,
+    "atlasKey": "flame_knight",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "ice_samurai",
+    "name": "Ice Samurai",
+    "rarity": "UR",
+    "cost": 3800,
+    "maxHp": 7500,
+    "speed": 80,
+    "attackDamage": 2400,
+    "attackRange": 120,
+    "attackCooldownMs": 1400,
+    "attackWindupMs": 400,
+    "knockback": 60,
+    "scale": 1.5,
+    "atlasKey": "ice_samurai",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "shadow_assassin",
+    "name": "Shadow Assassin",
+    "rarity": "UR",
+    "cost": 3500,
+    "maxHp": 5000,
+    "speed": 140,
+    "attackDamage": 3500,
+    "attackRange": 60,
+    "attackCooldownMs": 1000,
+    "attackWindupMs": 250,
+    "knockback": 40,
+    "scale": 1.4,
+    "atlasKey": "shadow_assassin",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
     "id": "n_bee",
     "name": "Buzzy Bee",
     "rarity": "N",
