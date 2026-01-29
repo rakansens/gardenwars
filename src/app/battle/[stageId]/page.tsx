@@ -24,7 +24,7 @@ export default function BattlePage() {
     const params = useParams();
     const stageId = params.stageId as string;
     const { t } = useLanguage();
-    const { selectedTeam, isLoaded, refreshShop, loadouts, activeLoadoutIndex } = usePlayerData();
+    const { selectedTeam, isLoaded, refreshShop, loadouts, activeLoadoutIndex, addCoins } = usePlayerData();
 
     const [stage, setStage] = useState<StageDefinition | null>(null);
     const [team, setTeam] = useState<UnitDefinition[]>([]);
@@ -64,6 +64,8 @@ export default function BattlePage() {
         setResult({ win, coins: coinsGained });
 
         if (win) {
+            // コイン加算（usePlayerData経由で状態管理）
+            addCoins(coinsGained);
             refreshShop();
         }
 

@@ -7,6 +7,7 @@ import { Suspense, useEffect, useState } from "react";
 import stages from "@/data/stages.json";
 import allUnits from "@/data/units.json";
 import type { StageDefinition, UnitDefinition } from "@/data/types";
+import { usePlayerData } from "@/hooks/usePlayerData";
 
 const typedStages = stages as StageDefinition[];
 const typedUnits = allUnits as UnitDefinition[];
@@ -18,6 +19,7 @@ interface DroppedUnit {
 
 function ResultContent() {
     const searchParams = useSearchParams();
+    const { addUnit, isLoaded } = usePlayerData();
 
     const win = searchParams.get("win") === "true";
     const coins = Number(searchParams.get("coins") || 0);
@@ -28,30 +30,22 @@ function ResultContent() {
 
     // ドロップ処理 & ステージクリア保存
     useEffect(() => {
-        if (!win || processed) return;
+        if (!win || processed || !isLoaded) return;
 
-        // ステージクリア保存 & コイン加算
+        // ステージクリア保存
         try {
-            // ステージクリア保存
             const clearedStages = JSON.parse(localStorage.getItem("clearedStages") || "[]");
             if (!clearedStages.includes(stageId)) {
                 clearedStages.push(stageId);
                 localStorage.setItem("clearedStages", JSON.stringify(clearedStages));
             }
-
-            // コイン加算
-            const savedPlayer = localStorage.getItem("gardenwars_player");
-            const player = savedPlayer ? JSON.parse(savedPlayer) : { coins: 0, ownedUnits: {} };
-
-            // 現在のコイン数に獲得分を加算
-            player.coins = (player.coins || 0) + coins;
-
-            // 保存
-            localStorage.setItem("gardenwars_player", JSON.stringify(player));
         } catch (e) {
-            console.error("Failed to save progress", e);
+            console.error("Failed to save cleared stages", e);
         }
 
+        // コイン加算はbattleページで実施済み
+
+        // ドロップ処理
         const stage = typedStages.find(s => s.id === stageId);
         if (!stage?.reward.drops) {
             setProcessed(true);
@@ -65,26 +59,15 @@ function ResultContent() {
                 const unit = typedUnits.find(u => u.id === drop.unitId);
                 if (unit) {
                     drops.push({ unit, rate: drop.rate });
-                    // ローカルストレージに保存
-                    try {
-                        const inventory = JSON.parse(localStorage.getItem("ownedUnits") || "[]");
-                        const existing = inventory.find((u: { id: string }) => u.id === unit.id);
-                        if (existing) {
-                            existing.count = (existing.count || 1) + 1;
-                        } else {
-                            inventory.push({ id: unit.id, count: 1 });
-                        }
-                        localStorage.setItem("ownedUnits", JSON.stringify(inventory));
-                    } catch {
-                        console.error("Failed to save drop");
-                    }
+                    // usePlayerData経由でユニット追加
+                    addUnit(unit.id, 1);
                 }
             }
         });
 
         setDroppedUnits(drops);
         setProcessed(true);
-    }, [win, stageId, processed]);
+    }, [win, stageId, processed, isLoaded, addUnit]);
 
     return (
         <main className="min-h-screen flex flex-col items-center justify-center p-8">
