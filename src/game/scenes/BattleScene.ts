@@ -224,6 +224,21 @@ export class BattleScene extends Phaser.Scene {
         this.load.image('sr_capybara_ninja', '/assets/sprites/sr_capybara_ninja.png');
         this.load.image('sr_capybara_shaman', '/assets/sprites/sr_capybara_shaman.png');
 
+        // New N Units
+        this.load.image('n_log', '/assets/sprites/n_log.png');
+        this.load.image('n_octopus', '/assets/sprites/n_octopus.png');
+        this.load.image('n_dolphin', '/assets/sprites/n_dolphin.png');
+        this.load.image('n_bean', '/assets/sprites/n_bean.png');
+        this.load.image('n_frog', '/assets/sprites/n_frog.png');
+
+        // New R Units
+        this.load.image('r_croc_pilot', '/assets/sprites/r_croc_pilot.png');
+        this.load.image('r_latte_ballerina', '/assets/sprites/r_latte_ballerina.png');
+        this.load.image('r_penguin_scholar', '/assets/sprites/r_penguin_scholar.png');
+
+        // New SR Units
+        this.load.image('sr_coffee_ninja', '/assets/sprites/sr_coffee_ninja.png');
+
         // Rare Units
         this.load.image('r_tomato', '/assets/sprites/r_tomato.png');
         this.load.image('r_pepper', '/assets/sprites/r_pepper.png');
