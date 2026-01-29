@@ -153,12 +153,9 @@ export default function TeamPage() {
                     </div>
                 </section>
 
-                {/* 所持ユニット */}
-                <section>
-                    <h2 className="text-xl font-bold mb-4">🎖️ {t("owned_units")}</h2>
-
-                    {/* レアリティフィルタータブ */}
-                    <div className="flex gap-2 mb-4 flex-wrap">
+                {/* レアリティフィルタータブ */}
+                <section className="mb-6">
+                    <div className="flex gap-2 flex-wrap">
                         {rarityTabs.map(tab => (
                             <button
                                 key={tab.key}
@@ -180,78 +177,197 @@ export default function TeamPage() {
                             </button>
                         ))}
                     </div>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                        {filteredUnits.map((unit) => {
-                            const isSelected = selectedTeam.includes(unit.id);
-                            const count = unitInventory[unit.id] || 0;
-                            const unitHasAnimation = hasAnimation(unit.atlasKey || unit.id);
-                            return (
-                                <div
-                                    key={unit.id}
-                                    className={`unit-card cursor-pointer relative ${isSelected ? "selected" : ""
-                                        }`}
-                                    onClick={() => handleUnitClick(unit)}
-                                >
-                                    {/* 所持個数バッジ */}
-                                    <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-amber-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10">
-                                        {count}
-                                    </div>
-
-                                    {/* アニメーションバッジ */}
-                                    {unitHasAnimation && (
-                                        <div className="absolute -top-2 -left-2 w-7 h-7 rounded-full bg-purple-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10" title="Has Animation">
-                                            🎬
-                                        </div>
-                                    )}
-
-                                    {/* アイコン */}
-                                    <RarityFrame
-                                        unitId={unit.id}
-                                        unitName={unit.name}
-                                        rarity={unit.rarity}
-                                        size="md"
-                                        showLabel={true}
-                                        baseUnitId={unit.baseUnitId}
-                                        grayscale={count === 0}
-                                    />
-
-                                    {/* ユニット名 */}
-                                    <div className="mt-2 text-center">
-                                        <div className="font-medium text-sm">{unit.name}</div>
-                                    </div>
-
-                                    {/* ステータス */}
-                                    <div className="mt-1 text-xs text-gray-600 space-y-0.5">
-                                        <div className="flex justify-between">
-                                            <span>❤️ {t("hp")}:</span>
-                                            <span className="font-bold">{unit.maxHp}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span>⚔️ {t("attack")}:</span>
-                                            <span className="font-bold">{unit.attackDamage}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span>📏 {t("range")}:</span>
-                                            <span className="font-bold">{unit.attackRange}</span>
-                                        </div>
-                                        <div className="flex justify-between text-amber-600">
-                                            <span>💰 {t("cost")}:</span>
-                                            <span className="font-bold">¥{unit.cost}</span>
-                                        </div>
-                                    </div>
-
-                                    {/* 選択マーク */}
-                                    {isSelected && (
-                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl">
-                                            ✓
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
                 </section>
+
+                {/* 保有ユニット */}
+                {(() => {
+                    const ownedUnits = filteredUnits.filter(u => (unitInventory[u.id] || 0) > 0);
+                    const unownedUnits = filteredUnits.filter(u => (unitInventory[u.id] || 0) === 0);
+
+                    return (
+                        <>
+                            <section className="mb-8">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <h2 className="text-xl font-bold text-green-700">✅ {t("owned_units")}</h2>
+                                    <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-bold">
+                                        {ownedUnits.length} {t("units_count")}
+                                    </span>
+                                </div>
+                                {ownedUnits.length > 0 ? (
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                                        {ownedUnits.map((unit) => {
+                                            const isSelected = selectedTeam.includes(unit.id);
+                                            const count = unitInventory[unit.id] || 0;
+                                            const unitHasAnimation = hasAnimation(unit.atlasKey || unit.id);
+                                            const canAdd = !isSelected && selectedTeam.length < MAX_TEAM_SIZE;
+                                            return (
+                                                <div
+                                                    key={unit.id}
+                                                    className={`unit-card relative ${isSelected ? "selected" : ""}`}
+                                                >
+                                                    {/* 所持個数バッジ */}
+                                                    <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-green-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10">
+                                                        {count}
+                                                    </div>
+
+                                                    {/* アニメーションバッジ */}
+                                                    {unitHasAnimation && (
+                                                        <div className="absolute -top-2 -left-2 w-7 h-7 rounded-full bg-purple-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10" title="Has Animation">
+                                                            🎬
+                                                        </div>
+                                                    )}
+
+                                                    {/* クリックで詳細表示エリア */}
+                                                    <div
+                                                        className="cursor-pointer"
+                                                        onClick={() => handleUnitClick(unit)}
+                                                    >
+                                                        <RarityFrame
+                                                            unitId={unit.id}
+                                                            unitName={unit.name}
+                                                            rarity={unit.rarity}
+                                                            size="md"
+                                                            showLabel={true}
+                                                            baseUnitId={unit.baseUnitId}
+                                                        />
+                                                        <div className="mt-2 text-center">
+                                                            <div className="font-medium text-sm">{unit.name}</div>
+                                                        </div>
+                                                        <div className="mt-1 text-xs text-gray-600 space-y-0.5">
+                                                            <div className="flex justify-between">
+                                                                <span>❤️ {t("hp")}:</span>
+                                                                <span className="font-bold">{unit.maxHp}</span>
+                                                            </div>
+                                                            <div className="flex justify-between">
+                                                                <span>⚔️ {t("attack")}:</span>
+                                                                <span className="font-bold">{unit.attackDamage}</span>
+                                                            </div>
+                                                            <div className="flex justify-between">
+                                                                <span>📏 {t("range")}:</span>
+                                                                <span className="font-bold">{unit.attackRange}</span>
+                                                            </div>
+                                                            <div className="flex justify-between text-amber-600">
+                                                                <span>💰 {t("cost")}:</span>
+                                                                <span className="font-bold">¥{unit.cost}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* 追加/削除ボタン */}
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleToggleUnit(unit.id);
+                                                        }}
+                                                        disabled={!isSelected && !canAdd}
+                                                        className={`
+                                                            w-full mt-2 py-2 rounded-lg font-bold text-sm transition-all
+                                                            ${isSelected
+                                                                ? "bg-red-500 hover:bg-red-600 text-white"
+                                                                : canAdd
+                                                                    ? "bg-green-500 hover:bg-green-600 text-white"
+                                                                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                                            }
+                                                        `}
+                                                    >
+                                                        {isSelected ? t("remove_quick") : canAdd ? t("add_quick") : t("team_full")}
+                                                    </button>
+
+                                                    {/* 選択マーク */}
+                                                    {isSelected && (
+                                                        <div className="absolute top-12 left-1/2 -translate-x-1/2 text-4xl pointer-events-none">
+                                                            ✓
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
+                                        {t("no_owned_in_rarity")}
+                                    </div>
+                                )}
+                            </section>
+
+                            {/* 未保有ユニット */}
+                            <section>
+                                <div className="flex items-center gap-3 mb-4">
+                                    <h2 className="text-xl font-bold text-gray-500">🔒 {t("unowned_units")}</h2>
+                                    <span className="px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-sm font-bold">
+                                        {unownedUnits.length} {t("units_count")}
+                                    </span>
+                                </div>
+                                {unownedUnits.length > 0 ? (
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 opacity-60">
+                                        {unownedUnits.map((unit) => {
+                                            const unitHasAnimation = hasAnimation(unit.atlasKey || unit.id);
+                                            return (
+                                                <div
+                                                    key={unit.id}
+                                                    className="unit-card relative"
+                                                >
+                                                    {/* アニメーションバッジ */}
+                                                    {unitHasAnimation && (
+                                                        <div className="absolute -top-2 -left-2 w-7 h-7 rounded-full bg-purple-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10" title="Has Animation">
+                                                            🎬
+                                                        </div>
+                                                    )}
+
+                                                    {/* クリックで詳細表示エリア */}
+                                                    <div
+                                                        className="cursor-pointer"
+                                                        onClick={() => handleUnitClick(unit)}
+                                                    >
+                                                        <RarityFrame
+                                                            unitId={unit.id}
+                                                            unitName={unit.name}
+                                                            rarity={unit.rarity}
+                                                            size="md"
+                                                            showLabel={true}
+                                                            baseUnitId={unit.baseUnitId}
+                                                            grayscale={true}
+                                                        />
+                                                        <div className="mt-2 text-center">
+                                                            <div className="font-medium text-sm text-gray-500">{unit.name}</div>
+                                                        </div>
+                                                        <div className="mt-1 text-xs text-gray-400 space-y-0.5">
+                                                            <div className="flex justify-between">
+                                                                <span>❤️ {t("hp")}:</span>
+                                                                <span className="font-bold">{unit.maxHp}</span>
+                                                            </div>
+                                                            <div className="flex justify-between">
+                                                                <span>⚔️ {t("attack")}:</span>
+                                                                <span className="font-bold">{unit.attackDamage}</span>
+                                                            </div>
+                                                            <div className="flex justify-between">
+                                                                <span>📏 {t("range")}:</span>
+                                                                <span className="font-bold">{unit.attackRange}</span>
+                                                            </div>
+                                                            <div className="flex justify-between">
+                                                                <span>💰 {t("cost")}:</span>
+                                                                <span className="font-bold">¥{unit.cost}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* 未保有表示 */}
+                                                    <div className="w-full mt-2 py-2 rounded-lg font-bold text-sm bg-gray-200 text-gray-500 text-center">
+                                                        {t("not_owned")}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-8 text-green-600 bg-green-50 rounded-lg font-bold">
+                                        {t("all_owned_in_rarity")}
+                                    </div>
+                                )}
+                            </section>
+                        </>
+                    );
+                })()}
             </div>
 
             {/* 詳細モーダル */}

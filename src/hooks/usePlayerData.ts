@@ -16,6 +16,13 @@ export interface ShopItem {
     discount?: number;
 }
 
+// ガチャ履歴エントリ
+export interface GachaHistoryEntry {
+    timestamp: number;
+    unitIds: string[];
+    count: number; // 1, 10, or 100
+}
+
 // プレイヤーデータの型
 export interface PlayerData {
     coins: number;
@@ -24,6 +31,7 @@ export interface PlayerData {
     loadouts: [string[], string[], string[]]; // 3種類のロードアウト
     activeLoadoutIndex: number; // 0, 1, 2
     shopItems: ShopItem[];
+    gachaHistory: GachaHistoryEntry[];
 }
 
 // 初期データ
@@ -38,6 +46,7 @@ const getInitialData = (): PlayerData => ({
     ],
     activeLoadoutIndex: 0,
     shopItems: [], // 初期は空。初回ロード時に生成するか、空なら生成するロジックが必要
+    gachaHistory: [],
 });
 
 // ローカルストレージから読み込み
@@ -66,6 +75,7 @@ const loadFromStorage = (): PlayerData => {
                 loadouts: loadouts,
                 activeLoadoutIndex: activeLoadoutIndex,
                 shopItems: parsed.shopItems ?? [],
+                gachaHistory: parsed.gachaHistory ?? [],
             };
         }
     } catch (e) {
@@ -271,6 +281,31 @@ export function usePlayerData() {
         return success;
     }, []);
 
+    // ガチャ履歴を追加
+    const addGachaHistory = useCallback((unitIds: string[]) => {
+        setData((prev) => {
+            const entry: GachaHistoryEntry = {
+                timestamp: Date.now(),
+                unitIds: unitIds,
+                count: unitIds.length,
+            };
+            // 最新100件まで保持
+            const newHistory = [entry, ...prev.gachaHistory].slice(0, 100);
+            return {
+                ...prev,
+                gachaHistory: newHistory,
+            };
+        });
+    }, []);
+
+    // ガチャ履歴をクリア
+    const clearGachaHistory = useCallback(() => {
+        setData((prev) => ({
+            ...prev,
+            gachaHistory: [],
+        }));
+    }, []);
+
     // 初期ロード時にショップが空なら更新
     useEffect(() => {
         if (isLoaded && data.shopItems.length === 0) {
@@ -286,6 +321,7 @@ export function usePlayerData() {
         loadouts: data.loadouts,
         activeLoadoutIndex: data.activeLoadoutIndex,
         shopItems: data.shopItems,
+        gachaHistory: data.gachaHistory,
         isLoaded,
 
         // アクション
@@ -299,5 +335,7 @@ export function usePlayerData() {
         resetData,
         refreshShop,
         buyShopItem,
+        addGachaHistory,
+        clearGachaHistory,
     };
 }

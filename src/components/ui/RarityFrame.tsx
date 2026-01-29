@@ -7,7 +7,7 @@ interface RarityFrameProps {
     unitId: string;
     unitName: string;
     rarity: Rarity;
-    size?: "sm" | "md" | "lg" | "xl";
+    size?: "xs" | "sm" | "md" | "lg" | "xl";
     showLabel?: boolean;
     count?: number;
     baseUnitId?: string; // 画像表示用のベースユニットID
@@ -66,6 +66,12 @@ const rarityStyles: Record<Rarity, {
 };
 
 const sizeClasses = {
+    xs: {
+        frame: "w-10 h-10",
+        image: 28,
+        labelText: "text-[6px]",
+        countBadge: "w-4 h-4 text-[8px]",
+    },
     sm: {
         frame: "w-14 h-14",
         image: 40,

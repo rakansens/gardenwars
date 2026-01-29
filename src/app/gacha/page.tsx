@@ -17,10 +17,11 @@ const MULTI_COST = 90; // 10回で少しお得
 const SUPER_MULTI_COST = 900; // 100回 (SSR大盛り⁉️)
 
 export default function GachaPage() {
-    const { coins, unitInventory, spendCoins, addUnits, isLoaded } = usePlayerData();
+    const { coins, unitInventory, spendCoins, addUnits, addGachaHistory, gachaHistory, isLoaded } = usePlayerData();
     const [results, setResults] = useState<UnitDefinition[]>([]);
     const [isRolling, setIsRolling] = useState(false);
     const [showReveal, setShowReveal] = useState(false);
+    const [showHistory, setShowHistory] = useState(false);
 
     // ガチャを引く
     const rollGacha = (count: number) => {
@@ -44,8 +45,11 @@ export default function GachaPage() {
 
         // カード演出開始
         setTimeout(() => {
+            const unitIds = rolled.map(u => u.id);
             // ユニットをまとめて追加
-            addUnits(rolled.map(u => u.id));
+            addUnits(unitIds);
+            // 履歴に追加
+            addGachaHistory(unitIds);
             setResults(rolled);
             setIsRolling(false);
             setShowReveal(true);
@@ -69,6 +73,22 @@ export default function GachaPage() {
     const handleRevealComplete = () => {
         setShowReveal(false);
         setResults([]);
+    };
+
+    // 日時フォーマット
+    const formatDate = (timestamp: number) => {
+        const date = new Date(timestamp);
+        return `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+    };
+
+    // 履歴内のユニットをカウント
+    const countRarityInHistory = (unitIds: string[]) => {
+        const counts = { N: 0, R: 0, SR: 0, SSR: 0, UR: 0 };
+        for (const id of unitIds) {
+            const unit = allUnits.find(u => u.id === id);
+            if (unit) counts[unit.rarity]++;
+        }
+        return counts;
     };
 
     if (!isLoaded) {
@@ -116,43 +136,151 @@ export default function GachaPage() {
                     </div>
 
                     {/* ガチャボタン */}
-                    <div className="flex justify-center gap-4 flex-wrap">
+                    <div className="flex justify-center gap-6 flex-wrap">
+                        {/* 1回ガチャ */}
                         <button
-                            className={`btn btn-primary text-lg px-6 py-4 ${coins < SINGLE_COST || isRolling
-                                ? "opacity-50 cursor-not-allowed"
-                                : ""
+                            className={`flex flex-col items-center p-4 rounded-2xl bg-gradient-to-b from-slate-700 to-slate-800 border-4 border-slate-500 shadow-xl transition-all hover:scale-105 hover:border-green-400 ${coins < SINGLE_COST || isRolling
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : ""
                                 }`}
                             onClick={() => rollGacha(1)}
                             disabled={coins < SINGLE_COST || isRolling}
                         >
-                            <div>1回ガチャ</div>
-                            <div className="text-sm">💰 {SINGLE_COST}</div>
+                            <img
+                                src="/assets/ui/gacha_1pull.png"
+                                alt="1回ガチャ"
+                                className="w-24 h-24 object-contain mb-2"
+                            />
+                            <div className="text-white font-bold text-lg">1回ガチャ</div>
+                            <div className="text-green-300 font-bold">💰 {SINGLE_COST}</div>
                         </button>
 
+                        {/* 10連ガチャ */}
                         <button
-                            className={`btn btn-secondary text-lg px-6 py-4 ${coins < MULTI_COST || isRolling
-                                ? "opacity-50 cursor-not-allowed"
-                                : ""
+                            className={`flex flex-col items-center p-4 rounded-2xl bg-gradient-to-b from-purple-700 to-purple-900 border-4 border-purple-400 shadow-xl transition-all hover:scale-105 hover:border-pink-400 ${coins < MULTI_COST || isRolling
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : ""
                                 }`}
                             onClick={() => rollGacha(10)}
                             disabled={coins < MULTI_COST || isRolling}
                         >
-                            <div>10連ガチャ</div>
-                            <div className="text-sm">💰 {MULTI_COST}</div>
+                            <img
+                                src="/assets/ui/gacha_10pull.png"
+                                alt="10連ガチャ"
+                                className="w-28 h-28 object-contain mb-2"
+                            />
+                            <div className="text-white font-bold text-lg">10連ガチャ</div>
+                            <div className="text-yellow-300 font-bold">💰 {MULTI_COST}</div>
                         </button>
 
+                        {/* 100連ガチャ */}
                         <button
-                            className={`btn bg-gradient-to-r from-purple-600 to-pink-600 border-2 border-yellow-400 text-white text-lg px-6 py-4 shadow-xl ${coins < SUPER_MULTI_COST || isRolling
-                                ? "opacity-50 cursor-not-allowed"
-                                : "animate-pulse"
+                            className={`flex flex-col items-center p-4 rounded-2xl bg-gradient-to-b from-amber-600 via-orange-700 to-red-800 border-4 border-yellow-400 shadow-2xl transition-all hover:scale-105 ${coins < SUPER_MULTI_COST || isRolling
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : "animate-pulse hover:animate-none"
                                 }`}
                             onClick={() => rollGacha(100)}
                             disabled={coins < SUPER_MULTI_COST || isRolling}
                         >
-                            <div className="font-bold">✨ 100連ガチャ ✨</div>
-                            <div className="text-sm font-bold text-yellow-300">💰 {SUPER_MULTI_COST}</div>
+                            <img
+                                src="/assets/ui/gacha_100pull.png"
+                                alt="100連ガチャ"
+                                className="w-32 h-32 object-contain mb-2"
+                            />
+                            <div className="text-white font-bold text-xl">✨ 100連ガチャ ✨</div>
+                            <div className="text-yellow-200 font-bold text-lg">💰 {SUPER_MULTI_COST}</div>
                         </button>
                     </div>
+                </div>
+
+                {/* ガチャ履歴 */}
+                <div className="card mb-8">
+                    <div
+                        className="flex items-center justify-between cursor-pointer"
+                        onClick={() => setShowHistory(!showHistory)}
+                    >
+                        <h3 className="text-xl font-bold text-amber-950">
+                            📜 ガチャ履歴 ({gachaHistory.length})
+                        </h3>
+                        <span className="text-2xl">{showHistory ? '▲' : '▼'}</span>
+                    </div>
+
+                    {showHistory && (
+                        <div className="mt-4 space-y-4 max-h-[500px] overflow-y-auto">
+                            {gachaHistory.length === 0 ? (
+                                <p className="text-amber-900/50 text-center py-4">まだ履歴がありません</p>
+                            ) : (
+                                gachaHistory.map((entry, index) => {
+                                    const counts = countRarityInHistory(entry.unitIds);
+                                    // ユニット情報を取得
+                                    const units = entry.unitIds
+                                        .map(id => allUnits.find(u => u.id === id))
+                                        .filter((u): u is UnitDefinition => u !== undefined);
+
+                                    return (
+                                        <div
+                                            key={`${entry.timestamp}-${index}`}
+                                            className="p-3 bg-amber-50 rounded-lg border border-amber-200"
+                                        >
+                                            <div className="flex items-center justify-between mb-3">
+                                                <span className="text-sm text-amber-700 font-medium">
+                                                    {formatDate(entry.timestamp)}
+                                                </span>
+                                                <span className="text-sm font-bold text-amber-900">
+                                                    {entry.count === 1 ? '1回' : entry.count === 10 ? '10連' : '100連'}
+                                                </span>
+                                            </div>
+
+                                            {/* キャラアイコン */}
+                                            <div className="flex gap-1 flex-wrap mb-3">
+                                                {units.map((unit, unitIndex) => (
+                                                    <div key={unitIndex} className="w-10 h-10">
+                                                        <RarityFrame
+                                                            unitId={unit.id}
+                                                            unitName={unit.name}
+                                                            rarity={unit.rarity}
+                                                            size="xs"
+                                                            showLabel={false}
+                                                            baseUnitId={unit.baseUnitId}
+                                                        />
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            {/* レアリティサマリー */}
+                                            <div className="flex gap-2 flex-wrap text-xs">
+                                                {counts.UR > 0 && (
+                                                    <span className="px-2 py-1 rounded bg-gradient-to-r from-pink-400 to-cyan-400 text-white font-bold">
+                                                        UR: {counts.UR}
+                                                    </span>
+                                                )}
+                                                {counts.SSR > 0 && (
+                                                    <span className="px-2 py-1 rounded bg-amber-400 text-white font-bold">
+                                                        SSR: {counts.SSR}
+                                                    </span>
+                                                )}
+                                                {counts.SR > 0 && (
+                                                    <span className="px-2 py-1 rounded bg-purple-400 text-white">
+                                                        SR: {counts.SR}
+                                                    </span>
+                                                )}
+                                                {counts.R > 0 && (
+                                                    <span className="px-2 py-1 rounded bg-blue-300 text-blue-800">
+                                                        R: {counts.R}
+                                                    </span>
+                                                )}
+                                                {counts.N > 0 && (
+                                                    <span className="px-2 py-1 rounded bg-gray-300 text-gray-700">
+                                                        N: {counts.N}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 {/* 所持ユニット一覧 */}
@@ -206,3 +334,4 @@ export default function GachaPage() {
         </main>
     );
 }
+
