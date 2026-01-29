@@ -232,7 +232,7 @@
   },
   {
     "id": "ribbon_girl",
-    "name": "Ribbon Valkyrie",
+    "name": "Mama",
     "rarity": "SSR",
     "cost": 1500,
     "maxHp": 3500,
@@ -253,7 +253,7 @@
   },
   {
     "id": "penguin_boy",
-    "name": "Penguin Paladin",
+    "name": "Juno",
     "rarity": "SSR",
     "cost": 1200,
     "maxHp": 5000,
@@ -274,7 +274,7 @@
   },
   {
     "id": "cinnamon_girl",
-    "name": "Cinnamon Mage",
+    "name": "Mona",
     "rarity": "SSR",
     "cost": 1600,
     "maxHp": 3000,
@@ -316,7 +316,7 @@
   },
   {
     "id": "lennon",
-    "name": "Lemon Hero",
+    "name": "Lennon",
     "rarity": "SSR",
     "cost": 2000,
     "maxHp": 3800,

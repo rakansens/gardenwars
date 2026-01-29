@@ -145,3 +145,48 @@ const smallSpriteUnits = [
 
 ### 静止画のまま動く
 - `walk` アニメーションが定義されていない場合、エラーにならず静止画のまま移動します（仕様）
+
+## 9. Background Removal ⚠️ IMPORTANT
+
+AI画像生成ツールで作成したスプライトシートは、グレーチェッカー背景が残っていることがあります。
+**必ず背景抜き処理を行ってください。**
+
+### 推奨ツール: @imgly/background-removal-node
+
+```bash
+# インストール済み
+npm install @imgly/background-removal-node --save-dev
+```
+
+### 使用方法
+
+```javascript
+const { removeBackground } = require('@imgly/background-removal-node');
+const fs = require('fs');
+
+async function removeBg(inputPath) {
+  console.log('Removing background...');
+  const blob = await removeBackground(inputPath);
+  const buffer = Buffer.from(await blob.arrayBuffer());
+  fs.writeFileSync(inputPath, buffer);
+  console.log('Done!');
+}
+
+removeBg('public/assets/sprites/[unit_id]_sheet.png');
+```
+
+### ワンライナー実行
+
+```bash
+node -e "
+const { removeBackground } = require('@imgly/background-removal-node');
+const fs = require('fs');
+(async () => {
+  const blob = await removeBackground('public/assets/sprites/YOUR_UNIT_sheet.png');
+  fs.writeFileSync('public/assets/sprites/YOUR_UNIT_sheet.png', Buffer.from(await blob.arrayBuffer()));
+  console.log('Done!');
+})();
+"
+```
+
+**注意**: 処理に少し時間がかかります（10-30秒程度）
