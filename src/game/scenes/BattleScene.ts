@@ -210,6 +210,11 @@ export class BattleScene extends Phaser.Scene {
         this.load.image('n_strawberry', '/assets/sprites/n_strawberry.png');
         this.load.image('n_onion', '/assets/sprites/n_onion.png');
         this.load.image('n_grape', '/assets/sprites/n_grape.png');
+        this.load.image('n_aloe_beast', '/assets/sprites/n_aloe_beast.png');
+        this.load.image('n_cherry_bomb', '/assets/sprites/n_cherry_bomb.png');
+        this.load.image('n_dust_bunny', '/assets/sprites/n_dust_bunny.png');
+        this.load.image('n_hibiscus', '/assets/sprites/n_hibiscus.png');
+        this.load.image('n_leaf_sprite', '/assets/sprites/n_leaf_sprite.png');
 
         // Rare Units
         this.load.image('r_tomato', '/assets/sprites/r_tomato.png');
@@ -219,6 +224,49 @@ export class BattleScene extends Phaser.Scene {
         this.load.image('r_cherry', '/assets/sprites/r_cherry.png');
         this.load.image('r_lemon', '/assets/sprites/r_lemon.png');
         this.load.image('r_radish', '/assets/sprites/r_radish.png');
+        this.load.image('r_pumpkin_brawler', '/assets/sprites/r_pumpkin_brawler.png');
+        this.load.image('r_solar_spike', '/assets/sprites/r_solar_spike.png');
+        this.load.image('r_fire_chili', '/assets/sprites/r_fire_chili.png');
+        this.load.image('r_leaf_ninja', '/assets/sprites/r_leaf_ninja.png');
+
+        // SR Units
+        this.load.image('sr_rose_hero', '/assets/sprites/sr_rose_hero.png');
+        this.load.image('sr_corn_tank', '/assets/sprites/sr_corn_tank.png');
+        this.load.image('sr_bamboo_mech', '/assets/sprites/sr_bamboo_mech.png');
+        this.load.image('sr_sun_pirate', '/assets/sprites/sr_sun_pirate.png');
+        this.load.image('sr_tulip_idol', '/assets/sprites/sr_tulip_idol.png');
+
+        // SSR Units
+        this.load.image('flame_knight', '/assets/sprites/flame_knight.png');
+        this.load.image('ice_samurai', '/assets/sprites/ice_samurai.png');
+        this.load.image('shadow_assassin', '/assets/sprites/shadow_assassin.png');
+        this.load.image('thunder_golem', '/assets/sprites/thunder_golem.png');
+
+        // SR Unit Atlases (animations)
+        this.load.atlas('sr_rose_hero_atlas', '/assets/sprites/sr_rose_hero_sheet.png', '/assets/sprites/sr_rose_hero_sheet.json');
+        this.load.atlas('sr_corn_tank_atlas', '/assets/sprites/sr_corn_tank_sheet.png', '/assets/sprites/sr_corn_tank_sheet.json');
+        this.load.atlas('sr_bamboo_mech_atlas', '/assets/sprites/sr_bamboo_mech_sheet.png', '/assets/sprites/sr_bamboo_mech_sheet.json');
+        this.load.atlas('sr_sun_pirate_atlas', '/assets/sprites/sr_sun_pirate_sheet.png', '/assets/sprites/sr_sun_pirate_sheet.json');
+        this.load.atlas('sr_tulip_idol_atlas', '/assets/sprites/sr_tulip_idol_sheet.png', '/assets/sprites/sr_tulip_idol_sheet.json');
+
+        // SSR Unit Atlases (animations)
+        this.load.atlas('flame_knight_atlas', '/assets/sprites/flame_knight_sheet.png', '/assets/sprites/flame_knight_sheet.json');
+        this.load.atlas('ice_samurai_atlas', '/assets/sprites/ice_samurai_sheet.png', '/assets/sprites/ice_samurai_sheet.json');
+        this.load.atlas('shadow_assassin_atlas', '/assets/sprites/shadow_assassin_sheet.png', '/assets/sprites/shadow_assassin_sheet.json');
+        this.load.atlas('thunder_golem_atlas', '/assets/sprites/thunder_golem_sheet.png', '/assets/sprites/thunder_golem_sheet.json');
+
+        // UR Unit Atlases (animations)
+        this.load.atlas('ur_knight_atlas', '/assets/sprites/ur_knight_sheet.png', '/assets/sprites/ur_knight_sheet.json');
+        this.load.atlas('ur_mage_atlas', '/assets/sprites/ur_mage_sheet.png', '/assets/sprites/ur_mage_sheet.json');
+        this.load.atlas('ur_archer_atlas', '/assets/sprites/ur_archer_sheet.png', '/assets/sprites/ur_archer_sheet.json');
+        this.load.atlas('ur_tank_atlas', '/assets/sprites/ur_tank_sheet.png', '/assets/sprites/ur_tank_sheet.json');
+        this.load.atlas('ur_ninja_atlas', '/assets/sprites/ur_ninja_sheet.png', '/assets/sprites/ur_ninja_sheet.json');
+        this.load.atlas('ur_healer_atlas', '/assets/sprites/ur_healer_sheet.png', '/assets/sprites/ur_healer_sheet.json');
+        this.load.atlas('ur_dragon_atlas', '/assets/sprites/ur_dragon_sheet.png', '/assets/sprites/ur_dragon_sheet.json');
+        this.load.atlas('ur_spirit_atlas', '/assets/sprites/ur_spirit_sheet.png', '/assets/sprites/ur_spirit_sheet.json');
+        this.load.atlas('ur_phoenix_atlas', '/assets/sprites/ur_phoenix_sheet.png', '/assets/sprites/ur_phoenix_sheet.json');
+        this.load.atlas('ur_golem_atlas', '/assets/sprites/ur_golem_sheet.png', '/assets/sprites/ur_golem_sheet.json');
+        this.load.atlas('ur_angel_atlas', '/assets/sprites/ur_angel_sheet.png', '/assets/sprites/ur_angel_sheet.json');
     }
 
     private summonUIButtons: {
@@ -439,6 +487,102 @@ export class BattleScene extends Phaser.Scene {
             ],
             frameRate: 12,
             repeat: 0,
+        });
+
+        // SR Units animations
+        const srUnits = ['sr_rose_hero', 'sr_corn_tank', 'sr_bamboo_mech', 'sr_sun_pirate', 'sr_tulip_idol'];
+        srUnits.forEach(unit => {
+            this.anims.create({
+                key: `${unit}_idle`,
+                frames: [{ key: `${unit}_atlas`, frame: `${unit}_idle.png` }],
+                frameRate: 1,
+                repeat: -1,
+            });
+            this.anims.create({
+                key: `${unit}_walk`,
+                frames: [
+                    { key: `${unit}_atlas`, frame: `${unit}_walk_1.png` },
+                    { key: `${unit}_atlas`, frame: `${unit}_walk_2.png` },
+                    { key: `${unit}_atlas`, frame: `${unit}_walk_3.png` },
+                ],
+                frameRate: 8,
+                repeat: -1,
+            });
+            this.anims.create({
+                key: `${unit}_attack`,
+                frames: [
+                    { key: `${unit}_atlas`, frame: `${unit}_attack_1.png` },
+                    { key: `${unit}_atlas`, frame: `${unit}_attack_2.png` },
+                    { key: `${unit}_atlas`, frame: `${unit}_attack_3.png` },
+                    { key: `${unit}_atlas`, frame: `${unit}_attack_4.png` },
+                ],
+                frameRate: 10,
+                repeat: 0,
+            });
+        });
+
+        // SSR Units animations
+        const ssrUnits = ['flame_knight', 'ice_samurai', 'shadow_assassin', 'thunder_golem'];
+        ssrUnits.forEach(unit => {
+            this.anims.create({
+                key: `${unit}_idle`,
+                frames: [{ key: `${unit}_atlas`, frame: `${unit}_idle.png` }],
+                frameRate: 1,
+                repeat: -1,
+            });
+            this.anims.create({
+                key: `${unit}_walk`,
+                frames: [
+                    { key: `${unit}_atlas`, frame: `${unit}_walk_1.png` },
+                    { key: `${unit}_atlas`, frame: `${unit}_walk_2.png` },
+                    { key: `${unit}_atlas`, frame: `${unit}_walk_3.png` },
+                ],
+                frameRate: 8,
+                repeat: -1,
+            });
+            this.anims.create({
+                key: `${unit}_attack`,
+                frames: [
+                    { key: `${unit}_atlas`, frame: `${unit}_attack_1.png` },
+                    { key: `${unit}_atlas`, frame: `${unit}_attack_2.png` },
+                    { key: `${unit}_atlas`, frame: `${unit}_attack_3.png` },
+                    { key: `${unit}_atlas`, frame: `${unit}_attack_4.png` },
+                ],
+                frameRate: 10,
+                repeat: 0,
+            });
+        });
+
+        // UR Units animations
+        const urUnits = ['ur_knight', 'ur_mage', 'ur_archer', 'ur_tank', 'ur_ninja', 'ur_healer', 'ur_dragon', 'ur_spirit', 'ur_phoenix', 'ur_golem', 'ur_angel'];
+        urUnits.forEach(unit => {
+            this.anims.create({
+                key: `${unit}_idle`,
+                frames: [{ key: `${unit}_atlas`, frame: `${unit}_idle.png` }],
+                frameRate: 1,
+                repeat: -1,
+            });
+            this.anims.create({
+                key: `${unit}_walk`,
+                frames: [
+                    { key: `${unit}_atlas`, frame: `${unit}_walk_1.png` },
+                    { key: `${unit}_atlas`, frame: `${unit}_walk_2.png` },
+                    { key: `${unit}_atlas`, frame: `${unit}_walk_3.png` },
+                ],
+                frameRate: 8,
+                repeat: -1,
+            });
+            this.anims.create({
+                key: `${unit}_attack`,
+                frames: [
+                    { key: `${unit}_atlas`, frame: `${unit}_attack_1.png` },
+                    { key: `${unit}_atlas`, frame: `${unit}_attack_2.png` },
+                    { key: `${unit}_atlas`, frame: `${unit}_attack_3.png` },
+                    { key: `${unit}_atlas`, frame: `${unit}_attack_4.png` },
+                ],
+                frameRate: 10,
+                repeat: 0,
+            });
         });
     }
 
