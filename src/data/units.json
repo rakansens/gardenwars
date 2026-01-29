@@ -1950,5 +1950,110 @@
       "attack": "attack",
       "die": "die"
     }
+  },
+  {
+    "id": "n_capybara",
+    "name": "Sprout Capy",
+    "rarity": "N",
+    "cost": 55,
+    "maxHp": 600,
+    "speed": 30,
+    "attackDamage": 25,
+    "attackRange": 40,
+    "attackCooldownMs": 2000,
+    "attackWindupMs": 600,
+    "knockback": 8,
+    "scale": 1.2,
+    "atlasKey": "n_capybara",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "r_capybara_gardener",
+    "name": "Gardener Capy",
+    "rarity": "R",
+    "cost": 200,
+    "maxHp": 500,
+    "speed": 40,
+    "attackDamage": 55,
+    "attackRange": 180,
+    "attackCooldownMs": 1600,
+    "attackWindupMs": 500,
+    "knockback": 15,
+    "scale": 1.1,
+    "atlasKey": "r_capybara_gardener",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "r_capybara_spa",
+    "name": "Spa Capy",
+    "rarity": "R",
+    "cost": 280,
+    "maxHp": 1200,
+    "speed": 25,
+    "attackDamage": 45,
+    "attackRange": 50,
+    "attackCooldownMs": 2200,
+    "attackWindupMs": 700,
+    "knockback": 20,
+    "scale": 1.3,
+    "atlasKey": "r_capybara_spa",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "sr_capybara_ninja",
+    "name": "Ninja Capy",
+    "rarity": "SR",
+    "cost": 480,
+    "maxHp": 650,
+    "speed": 95,
+    "attackDamage": 150,
+    "attackRange": 55,
+    "attackCooldownMs": 800,
+    "attackWindupMs": 250,
+    "knockback": 35,
+    "scale": 1.0,
+    "atlasKey": "sr_capybara_ninja",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "sr_capybara_shaman",
+    "name": "Shaman Capy",
+    "rarity": "SR",
+    "cost": 550,
+    "maxHp": 550,
+    "speed": 35,
+    "attackDamage": 200,
+    "attackRange": 280,
+    "attackCooldownMs": 2000,
+    "attackWindupMs": 800,
+    "knockback": 50,
+    "scale": 1.15,
+    "atlasKey": "sr_capybara_shaman",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
   }
 ]

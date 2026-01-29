@@ -218,6 +218,11 @@ export class BattleScene extends Phaser.Scene {
         this.load.image('n_pebble', '/assets/sprites/n_pebble.png');
         this.load.image('n_dew', '/assets/sprites/n_dew.png');
         this.load.image('n_root', '/assets/sprites/n_root.png');
+        this.load.image('n_capybara', '/assets/sprites/n_capybara.png');
+        this.load.image('r_capybara_gardener', '/assets/sprites/r_capybara_gardener.png');
+        this.load.image('r_capybara_spa', '/assets/sprites/r_capybara_spa.png');
+        this.load.image('sr_capybara_ninja', '/assets/sprites/sr_capybara_ninja.png');
+        this.load.image('sr_capybara_shaman', '/assets/sprites/sr_capybara_shaman.png');
 
         // Rare Units
         this.load.image('r_tomato', '/assets/sprites/r_tomato.png');
