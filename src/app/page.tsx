@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
-import unitsData from "@/data/units.json";
+import unitsData from "@/data/units";
 import type { UnitDefinition } from "@/data/types";
 
 const allUnits = unitsData as UnitDefinition[];

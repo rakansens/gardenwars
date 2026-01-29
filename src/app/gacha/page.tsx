@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import unitsData from "@/data/units.json";
+import unitsData from "@/data/units";
 import type { UnitDefinition } from "@/data/types";
 import RarityFrame, { getRarityStars, getRarityGradientClass } from "@/components/ui/RarityFrame";
 import GachaReveal from "@/components/ui/GachaReveal";

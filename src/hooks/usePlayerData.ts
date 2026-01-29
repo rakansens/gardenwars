@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import playerDataInitial from "@/data/player.json";
-import unitsData from "@/data/units.json";
+import unitsData from "@/data/units";
 import type { UnitDefinition } from "@/data/types";
 
 const STORAGE_KEY = "gardenwars_player";

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { PlayerState, BattleResult, StageDefinition, UnitDefinition, CostGaugeState, GameState } from '@/data/types';
 import playerData from '@/data/player.json';
-import unitsData from '@/data/units.json';
+import unitsData from '@/data/units';
 import stagesData from '@/data/stages.json';
 
 // ============================================

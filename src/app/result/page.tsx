@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Suspense, useEffect, useState } from "react";
 import stages from "@/data/stages.json";
-import allUnits from "@/data/units.json";
+import allUnits from "@/data/units";
 import type { StageDefinition, UnitDefinition } from "@/data/types";
 import { usePlayerData } from "@/hooks/usePlayerData";
 

@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import unitsData from "@/data/units.json";
+import unitsData from "@/data/units";
 import type { UnitDefinition, Rarity } from "@/data/types";
 import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
 import RarityFrame from "@/components/ui/RarityFrame";

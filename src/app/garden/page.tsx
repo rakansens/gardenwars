@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import dynamic from 'next/dynamic';
 import { usePlayerData } from "@/hooks/usePlayerData";
-import unitsData from "@/data/units.json";
+import unitsData from "@/data/units";
 import type { UnitDefinition } from "@/data/types";
 import RarityFrame from "@/components/ui/RarityFrame";
 import { eventBus, GameEvents } from "@/game/utils/EventBus";

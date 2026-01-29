@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import unitsData from "@/data/units.json";
+import unitsData from "@/data/units";
 import type { UnitDefinition, Rarity } from "@/data/types";
 import RarityFrame from "@/components/ui/RarityFrame";
 import UnitDetailModal from "@/components/ui/UnitDetailModal";

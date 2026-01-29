@@ -1,0 +1,123 @@
+[
+  {
+    "id": "boss_giant_king",
+    "name": "Emp. Penguin",
+    "rarity": "SSR",
+    "cost": 2000,
+    "maxHp": 25000,
+    "speed": 25,
+    "attackDamage": 800,
+    "attackRange": 80,
+    "attackCooldownMs": 2500,
+    "attackWindupMs": 800,
+    "knockback": 100,
+    "atlasKey": "penguin_boy",
+    "baseUnitId": "penguin_boy",
+    "flipSprite": true,
+    "scale": 3.2,
+    "isBoss": true,
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "boss_dragon",
+    "name": "Big Lemon",
+    "rarity": "SSR",
+    "cost": 2000,
+    "maxHp": 35000,
+    "speed": 20,
+    "attackDamage": 1200,
+    "attackRange": 150,
+    "attackCooldownMs": 3000,
+    "attackWindupMs": 1000,
+    "knockback": 150,
+    "atlasKey": "lennon",
+    "baseUnitId": "lennon",
+    "flipSprite": true,
+    "scale": 4.2,
+    "isBoss": true,
+    "isFlying": true,
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "boss_death_titan",
+    "name": "Dark Valkyrie",
+    "rarity": "SSR",
+    "cost": 2000,
+    "maxHp": 50000,
+    "speed": 15,
+    "attackDamage": 2000,
+    "attackRange": 120,
+    "attackCooldownMs": 4000,
+    "attackWindupMs": 1200,
+    "knockback": 200,
+    "atlasKey": "ribbon_girl",
+    "baseUnitId": "ribbon_girl",
+    "flipSprite": true,
+    "scale": 5.2,
+    "isBoss": true,
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "boss_nika",
+    "name": "GearMaster Nika",
+    "rarity": "SSR",
+    "cost": 2000,
+    "maxHp": 45000,
+    "speed": 35,
+    "attackDamage": 1800,
+    "attackRange": 100,
+    "attackCooldownMs": 2800,
+    "attackWindupMs": 900,
+    "knockback": 180,
+    "atlasKey": "nika",
+    "baseUnitId": "nika",
+    "flipSprite": true,
+    "scale": 4.8,
+    "isBoss": true,
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "boss_mona",
+    "name": "Queen Cinnamon",
+    "rarity": "SSR",
+    "cost": 2000,
+    "maxHp": 60000,
+    "speed": 25,
+    "attackDamage": 2500,
+    "attackRange": 140,
+    "attackCooldownMs": 3200,
+    "attackWindupMs": 1000,
+    "knockback": 200,
+    "atlasKey": "cinnamon_girl",
+    "baseUnitId": "cinnamon_girl",
+    "flipSprite": true,
+    "scale": 5,
+    "isBoss": true,
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  }
+]
