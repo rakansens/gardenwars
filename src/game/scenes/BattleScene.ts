@@ -277,7 +277,7 @@ export class BattleScene extends Phaser.Scene {
         this.load.atlas('sr_cappuccino_assassin_atlas', '/assets/sprites/sr_cappuccino_assassin_sheet.png', '/assets/sprites/sr_cappuccino_assassin_sheet.json');
         this.load.atlas('sr_capybara_ninja_atlas', '/assets/sprites/sr_capybara_ninja_sheet.png', '/assets/sprites/sr_capybara_ninja_sheet.json');
         this.load.atlas('sr_capybara_shaman_atlas', '/assets/sprites/sr_capybara_shaman_sheet.png', '/assets/sprites/sr_capybara_shaman_sheet.json');
-        this.load.atlas('sr_coffee_ninja_atlas', '/assets/sprites/sr_coffee_ninja_sheet.png', '/assets/sprites/sr_coffee_ninja_sheet.json');
+        // sr_coffee_ninja uses static image (no sprite sheet)
         this.load.atlas('sr_odindindun_atlas', '/assets/sprites/sr_odindindun_sheet.png', '/assets/sprites/sr_odindindun_sheet.json');
         this.load.atlas('sr_traffarella_atlas', '/assets/sprites/sr_traffarella_sheet.png', '/assets/sprites/sr_traffarella_sheet.json');
 
@@ -522,7 +522,7 @@ export class BattleScene extends Phaser.Scene {
         });
 
         // SR Units animations
-        const srUnits = ['sr_rose_hero', 'sr_corn_tank', 'sr_bamboo_mech', 'sr_sun_pirate', 'sr_tulip_idol', 'sr_cappuccino_assassin', 'sr_capybara_ninja', 'sr_capybara_shaman', 'sr_coffee_ninja', 'sr_odindindun', 'sr_traffarella'];
+        const srUnits = ['sr_rose_hero', 'sr_corn_tank', 'sr_bamboo_mech', 'sr_sun_pirate', 'sr_tulip_idol', 'sr_cappuccino_assassin', 'sr_capybara_ninja', 'sr_capybara_shaman', 'sr_odindindun', 'sr_traffarella'];
         srUnits.forEach(unit => {
             this.anims.create({
                 key: `${unit}_idle`,
