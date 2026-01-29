@@ -196,6 +196,21 @@ const translations: Record<Language, Record<string, string>> = {
         "enemy_dog": "Dog",
         "enemy_wolf": "Wolf",
         "enemy_crow": "Crow",
+        // New units
+        "n_leaf_sprite": "Leaf Sprite",
+        "n_aloe_beast": "Aloe Beast",
+        "n_cherry_bomb": "Cherry Bomb",
+        "n_dust_bunny": "Dust Bunny",
+        "n_hibiscus": "Hibiscus",
+        "r_fire_chili": "Fire Chili",
+        "r_pumpkin_brawler": "Pumpkin Brawler",
+        "r_solar_spike": "Solar Spike",
+        "r_leaf_ninja": "Leaf Ninja",
+        "sr_corn_tank": "Corn Tank",
+        "sr_bamboo_mech": "Bamboo Mech",
+        "sr_sun_pirate": "Sun Pirate",
+        "sr_tulip_idol": "Tulip Idol",
+        "sr_rose_hero": "Rose Hero",
     },
     ja: {
         // Common
@@ -381,6 +396,21 @@ const translations: Record<Language, Record<string, string>> = {
         "enemy_dog": "敵イヌ",
         "enemy_wolf": "敵オオカミ",
         "enemy_crow": "敵カラス",
+        // New units
+        "n_leaf_sprite": "リーフスプライト",
+        "n_aloe_beast": "アロエビースト",
+        "n_cherry_bomb": "チェリーボム",
+        "n_dust_bunny": "ダストバニー",
+        "n_hibiscus": "ハイビスカス",
+        "r_fire_chili": "ファイアチリ",
+        "r_pumpkin_brawler": "パンプキンブロウラー",
+        "r_solar_spike": "ソーラースパイク",
+        "r_leaf_ninja": "リーフニンジャ",
+        "sr_corn_tank": "コーンタンク",
+        "sr_bamboo_mech": "バンブーメカ",
+        "sr_sun_pirate": "サンパイレーツ",
+        "sr_tulip_idol": "チューリップアイドル",
+        "sr_rose_hero": "ローズヒーロー",
     },
 };
 
