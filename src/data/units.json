@@ -2181,5 +2181,47 @@
     "attackWindupMs": 200,
     "knockback": 40,
     "scale": 1.0
+  },
+  {
+    "id": "sr_cappuccino_assassin",
+    "name": "Cappuccino Assassin",
+    "rarity": "SR",
+    "cost": 520,
+    "maxHp": 550,
+    "speed": 105,
+    "attackDamage": 170,
+    "attackRange": 55,
+    "attackCooldownMs": 750,
+    "attackWindupMs": 220,
+    "knockback": 38,
+    "scale": 1.0
+  },
+  {
+    "id": "sr_odindindun",
+    "name": "Odindindun",
+    "rarity": "SR",
+    "cost": 480,
+    "maxHp": 750,
+    "speed": 55,
+    "attackDamage": 140,
+    "attackRange": 45,
+    "attackCooldownMs": 1100,
+    "attackWindupMs": 400,
+    "knockback": 55,
+    "scale": 1.1
+  },
+  {
+    "id": "sr_traffarella",
+    "name": "Traffarella",
+    "rarity": "SR",
+    "cost": 500,
+    "maxHp": 620,
+    "speed": 85,
+    "attackDamage": 155,
+    "attackRange": 50,
+    "attackCooldownMs": 850,
+    "attackWindupMs": 280,
+    "knockback": 42,
+    "scale": 1.05
   }
 ]

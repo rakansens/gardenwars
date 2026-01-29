@@ -238,6 +238,9 @@ export class BattleScene extends Phaser.Scene {
 
         // New SR Units
         this.load.image('sr_coffee_ninja', '/assets/sprites/sr_coffee_ninja.png');
+        this.load.image('sr_cappuccino_assassin', '/assets/sprites/sr_cappuccino_assassin.png');
+        this.load.image('sr_odindindun', '/assets/sprites/sr_odindindun.png');
+        this.load.image('sr_traffarella', '/assets/sprites/sr_traffarella.png');
 
         // Rare Units
         this.load.image('r_tomato', '/assets/sprites/r_tomato.png');
