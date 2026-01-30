@@ -59,8 +59,12 @@ body {
 }
 
 /* iOS Safari ダークモード対策 - テキスト色の強制リセット */
+:root {
+  color-scheme: light only !important;
+}
+
 * {
-  -webkit-text-fill-color: inherit;
+  -webkit-text-fill-color: inherit !important;
 }
 
 /* フォーム要素の明示的な色指定（ライト背景用） */
