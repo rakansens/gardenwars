@@ -9,6 +9,8 @@ import GachaReveal from "@/components/ui/GachaReveal";
 import UnitDetailModal from "@/components/ui/UnitDetailModal";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { incrementGachaCount } from "@/lib/supabase";
 
 const allUnits = unitsData as UnitDefinition[];
 // ガチャ対象はallyユニットのみ
@@ -21,6 +23,7 @@ const SUPER_MULTI_COST = 900; // 100回 (SSR大盛り⁉️)
 export default function GachaPage() {
     const { coins, unitInventory, spendCoins, addUnits, addGachaHistory, gachaHistory, isLoaded } = usePlayerData();
     const { t } = useLanguage();
+    const { playerId } = useAuth();
     const [results, setResults] = useState<UnitDefinition[]>([]);
     const [isRolling, setIsRolling] = useState(false);
     const [showReveal, setShowReveal] = useState(false);
@@ -66,6 +69,10 @@ export default function GachaPage() {
             addUnits(unitIds);
             // 履歴に追加
             addGachaHistory(unitIds);
+            // ランキング用ガチャ回数カウント
+            if (playerId) {
+                incrementGachaCount(playerId, count);
+            }
             setResults(rolled);
             setIsRolling(false);
             setShowReveal(true);

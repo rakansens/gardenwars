@@ -9,6 +9,8 @@ import type { UnitDefinition } from "@/data/types";
 import RarityFrame from "@/components/ui/RarityFrame";
 import { eventBus, GameEvents } from "@/game/utils/EventBus";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { incrementGardenVisits } from "@/lib/supabase";
 
 const PhaserGame = dynamic(() => import('@/components/game/PhaserGame'), {
     ssr: false,
@@ -22,6 +24,7 @@ const allyUnits = allUnits.filter(u => !u.id.startsWith("enemy_") && !u.id.start
 export default function GardenPage() {
     const { unitInventory, selectedTeam, gardenUnits: savedGardenUnitIds, setGardenUnits: saveGardenUnits, isLoaded } = usePlayerData();
     const { t } = useLanguage();
+    const { playerId } = useAuth();
     const [displayUnits, setDisplayUnits] = useState<UnitDefinition[]>([]);
     const [ready, setReady] = useState(false);
     const [isSelectModalOpen, setIsSelectModalOpen] = useState(false);
@@ -53,6 +56,13 @@ export default function GardenPage() {
         // Auto-selection if no save
         autoPickUnits();
     }, [isLoaded, selectedTeam, unitInventory, savedGardenUnitIds]);
+
+    // Track garden visits for ranking
+    useEffect(() => {
+        if (playerId && isLoaded) {
+            incrementGardenVisits(playerId);
+        }
+    }, [playerId, isLoaded]);
 
     const autoPickUnits = () => {
         const pickedIds = new Set<string>();

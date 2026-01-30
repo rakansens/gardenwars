@@ -48,6 +48,8 @@ export {
     markShopItemSold,
     updateRankings,
     incrementBattleStats,
+    incrementGachaCount,
+    incrementGardenVisits,
     syncRankingStats,
     getRankings,
 } from "./playerData";

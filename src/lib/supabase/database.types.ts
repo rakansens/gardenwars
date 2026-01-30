@@ -121,6 +121,12 @@ export type Database = {
           total_coins: number | null
           total_units: number | null
           total_wins: number | null
+          ur_unit_count: number | null
+          gacha_count: number | null
+          garden_visits: number | null
+          stages_cleared: number | null
+          win_streak: number | null
+          max_win_streak: number | null
           updated_at: string | null
         }
         Insert: {
@@ -132,6 +138,12 @@ export type Database = {
           total_coins?: number | null
           total_units?: number | null
           total_wins?: number | null
+          ur_unit_count?: number | null
+          gacha_count?: number | null
+          garden_visits?: number | null
+          stages_cleared?: number | null
+          win_streak?: number | null
+          max_win_streak?: number | null
           updated_at?: string | null
         }
         Update: {
@@ -143,6 +155,12 @@ export type Database = {
           total_coins?: number | null
           total_units?: number | null
           total_wins?: number | null
+          ur_unit_count?: number | null
+          gacha_count?: number | null
+          garden_visits?: number | null
+          stages_cleared?: number | null
+          win_streak?: number | null
+          max_win_streak?: number | null
           updated_at?: string | null
         }
         Relationships: [

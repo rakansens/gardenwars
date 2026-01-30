@@ -9,9 +9,14 @@ import { useLanguage } from "@/contexts/LanguageContext";
 const SORT_OPTIONS: { key: RankingSortBy; labelKey: string; icon: string }[] = [
     { key: "max_stage", labelKey: "ranking_max_stage", icon: "🏆" },
     { key: "total_wins", labelKey: "ranking_wins", icon: "⚔️" },
+    { key: "max_win_streak", labelKey: "ranking_win_streak", icon: "🔥" },
     { key: "total_battles", labelKey: "ranking_battles", icon: "🎮" },
     { key: "collection_count", labelKey: "ranking_collection", icon: "📖" },
+    { key: "ur_unit_count", labelKey: "ranking_ur_units", icon: "💎" },
     { key: "total_units", labelKey: "ranking_units", icon: "👥" },
+    { key: "gacha_count", labelKey: "ranking_gacha", icon: "🎰" },
+    { key: "garden_visits", labelKey: "ranking_garden", icon: "🌱" },
+    { key: "stages_cleared", labelKey: "ranking_stages_cleared", icon: "✅" },
     { key: "total_coins", labelKey: "ranking_coins", icon: "💰" },
 ];
 
@@ -77,7 +82,7 @@ export default function RankingPage() {
                             <button
                                 key={option.key}
                                 onClick={() => setSortBy(option.key)}
-                                className={`px-4 py-2 rounded-lg font-bold text-sm transition-all ${
+                                className={`px-3 py-2 min-h-[44px] rounded-lg font-bold text-sm transition-all active:scale-95 ${
                                     sortBy === option.key
                                         ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg scale-105"
                                         : "bg-slate-700 text-gray-300 hover:bg-slate-600"

@@ -81,6 +81,13 @@ export interface DBRankings {
     total_coins: number | null;  // DEFAULT 0
     collection_count: number | null;  // DEFAULT 0 (unique units)
     total_units: number | null;  // DEFAULT 0 (including duplicates)
+    // 新規追加フィールド
+    ur_unit_count: number | null;  // DEFAULT 0 (UR units owned)
+    gacha_count: number | null;  // DEFAULT 0 (total gacha rolls)
+    garden_visits: number | null;  // DEFAULT 0 (garden visit count)
+    stages_cleared: number | null;  // DEFAULT 0 (number of stages cleared)
+    win_streak: number | null;  // DEFAULT 0 (current win streak)
+    max_win_streak: number | null;  // DEFAULT 0 (best win streak)
     updated_at: string | null;
 }
 

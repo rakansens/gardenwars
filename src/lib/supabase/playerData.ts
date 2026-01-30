@@ -159,6 +159,13 @@ export interface RankingUpdateData {
     total_coins?: number;
     collection_count?: number;
     total_units?: number;
+    // 新規追加フィールド
+    ur_unit_count?: number;
+    gacha_count?: number;
+    garden_visits?: number;
+    stages_cleared?: number;
+    win_streak?: number;
+    max_win_streak?: number;
 }
 
 export interface RankingEntry {
@@ -170,6 +177,13 @@ export interface RankingEntry {
     total_coins: number;
     collection_count: number;
     total_units: number;
+    // 新規追加フィールド
+    ur_unit_count: number;
+    gacha_count: number;
+    garden_visits: number;
+    stages_cleared: number;
+    win_streak: number;
+    max_win_streak: number;
 }
 
 // Update rankings
@@ -205,6 +219,8 @@ export async function incrementBattleStats(
     const totalBattles = rankings.total_battles ?? 0;
     const totalWins = rankings.total_wins ?? 0;
     const maxStage = rankings.max_stage ?? 0;
+    const currentStreak = rankings.win_streak ?? 0;
+    const maxStreak = rankings.max_win_streak ?? 0;
 
     const updates: RankingUpdateData = {
         total_battles: totalBattles + 1,
@@ -212,32 +228,97 @@ export async function incrementBattleStats(
 
     if (won) {
         updates.total_wins = totalWins + 1;
+        // 連勝記録を更新
+        const newStreak = currentStreak + 1;
+        updates.win_streak = newStreak;
+        if (newStreak > maxStreak) {
+            updates.max_win_streak = newStreak;
+        }
         if (stageNum !== undefined && stageNum > maxStage) {
             updates.max_stage = stageNum;
         }
+    } else {
+        // 負けたら連勝リセット
+        updates.win_streak = 0;
     }
 
     return updateRankings(playerId, updates);
+}
+
+// Increment gacha count (called after gacha pull)
+export async function incrementGachaCount(
+    playerId: string,
+    count: number = 1
+): Promise<boolean> {
+    const { data: rankings, error: fetchError } = await supabase
+        .from("rankings")
+        .select("gacha_count")
+        .eq("player_id", playerId)
+        .single();
+
+    if (fetchError || !rankings) return false;
+
+    const currentCount = rankings.gacha_count ?? 0;
+    return updateRankings(playerId, { gacha_count: currentCount + count });
+}
+
+// Increment garden visits (called when opening garden)
+export async function incrementGardenVisits(
+    playerId: string
+): Promise<boolean> {
+    const { data: rankings, error: fetchError } = await supabase
+        .from("rankings")
+        .select("garden_visits")
+        .eq("player_id", playerId)
+        .single();
+
+    if (fetchError || !rankings) return false;
+
+    const currentVisits = rankings.garden_visits ?? 0;
+    return updateRankings(playerId, { garden_visits: currentVisits + 1 });
 }
 
 // Update collection and coin stats (called when player data changes)
 export async function syncRankingStats(
     playerId: string,
     coins: number,
-    unitInventory: Record<string, number>
+    unitInventory: Record<string, number>,
+    clearedStages?: string[]
 ): Promise<boolean> {
     const collectionCount = Object.keys(unitInventory).length;
     const totalUnits = Object.values(unitInventory).reduce((sum, count) => sum + count, 0);
+    // URユニット数をカウント（IDに"ur_"を含むもの）
+    const urUnitCount = Object.keys(unitInventory).filter(id =>
+        id.startsWith("ur_") && unitInventory[id] > 0
+    ).length;
 
-    return updateRankings(playerId, {
+    const updates: RankingUpdateData = {
         total_coins: coins,
         collection_count: collectionCount,
         total_units: totalUnits,
-    });
+        ur_unit_count: urUnitCount,
+    };
+
+    if (clearedStages !== undefined) {
+        updates.stages_cleared = clearedStages.length;
+    }
+
+    return updateRankings(playerId, updates);
 }
 
 // Get rankings (leaderboard)
-export type RankingSortBy = "max_stage" | "total_wins" | "total_battles" | "total_coins" | "collection_count" | "total_units";
+export type RankingSortBy =
+    | "max_stage"
+    | "total_wins"
+    | "total_battles"
+    | "total_coins"
+    | "collection_count"
+    | "total_units"
+    | "ur_unit_count"
+    | "gacha_count"
+    | "garden_visits"
+    | "stages_cleared"
+    | "max_win_streak";
 
 export async function getRankings(
     sortBy: RankingSortBy = "max_stage",
@@ -253,6 +334,12 @@ export async function getRankings(
             total_coins,
             collection_count,
             total_units,
+            ur_unit_count,
+            gacha_count,
+            garden_visits,
+            stages_cleared,
+            win_streak,
+            max_win_streak,
             players!inner(name)
         `)
         .order(sortBy, { ascending: false })
@@ -269,5 +356,11 @@ export async function getRankings(
         total_coins: row.total_coins ?? 0,
         collection_count: row.collection_count ?? 0,
         total_units: row.total_units ?? 0,
+        ur_unit_count: row.ur_unit_count ?? 0,
+        gacha_count: row.gacha_count ?? 0,
+        garden_visits: row.garden_visits ?? 0,
+        stages_cleared: row.stages_cleared ?? 0,
+        win_streak: row.win_streak ?? 0,
+        max_win_streak: row.max_win_streak ?? 0,
     }));
 }
