@@ -5,10 +5,12 @@ import type { UnitDefinition, Rarity } from "@/data/types";
 import { getRarityStars, getRarityGradientClass } from "@/components/ui/RarityFrame";
 import RarityFrame from "@/components/ui/RarityFrame";
 import UnitDetailModal from "@/components/ui/UnitDetailModal";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface GachaRevealProps {
     results: UnitDefinition[];
     onComplete: () => void;
+    dropRates?: number[];
 }
 
 
@@ -66,7 +68,8 @@ const rarityEffects: Record<Rarity, {
     },
 };
 
-export default function GachaReveal({ results, onComplete }: GachaRevealProps) {
+export default function GachaReveal({ results, onComplete, dropRates }: GachaRevealProps) {
+    const { t } = useLanguage();
     const isMulti = results.length > 1;
     const [phase, setPhase] = useState<"video" | "cards" | "single">("video");
     const [revealedCards, setRevealedCards] = useState<boolean[]>(results.map(() => false));
@@ -136,7 +139,7 @@ export default function GachaReveal({ results, onComplete }: GachaRevealProps) {
                     onClick={handleSkip}
                     className="absolute bottom-8 right-8 px-4 py-2 bg-white/20 hover:bg-white/30 text-white font-bold rounded-lg transition-colors"
                 >
-                    スキップ →
+                    {t("skip_video")}
                 </button>
             </div>
         );
@@ -233,6 +236,13 @@ export default function GachaReveal({ results, onComplete }: GachaRevealProps) {
                                     }`}>
                                     {unit.rarity}
                                 </div>
+
+                                {/* ドロップレート */}
+                                {dropRates && dropRates[currentSingleIndex] !== undefined && (
+                                    <div className="mt-2 text-sm text-white/70">
+                                        {t("drop_rate")}: {dropRates[currentSingleIndex].toFixed(2)}%
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -240,7 +250,7 @@ export default function GachaReveal({ results, onComplete }: GachaRevealProps) {
 
                 {/* テキスト */}
                 <div className={`absolute bottom-12 text-lg animate-pulse z-10 ${isSSR ? "text-yellow-300" : "text-white/70"}`}>
-                    {isSSR ? "🌟 SUPER RARE! 🌟" : "👆 タップして次へ"}
+                    {isSSR ? t("super_rare_message") : t("tap_for_next")}
                 </div>
 
                 {/* スキップボタン */}
@@ -252,7 +262,7 @@ export default function GachaReveal({ results, onComplete }: GachaRevealProps) {
                     }}
                     className="absolute bottom-4 right-4 px-4 py-2 bg-white/20 hover:bg-white/30 text-white font-bold rounded-lg transition-colors z-20"
                 >
-                    スキップ (全開封)
+                    {t("skip_reveal_all")}
                 </button>
 
                 <style jsx>{`
@@ -363,7 +373,7 @@ export default function GachaReveal({ results, onComplete }: GachaRevealProps) {
     return (
         <div className="fixed inset-0 z-50 bg-gradient-to-b from-amber-100 to-amber-200 flex flex-col items-center p-4 pb-32 overflow-y-auto">
             <h2 className="text-2xl font-bold text-amber-950 mb-4 mt-4 sticky top-0 bg-amber-100/90 backdrop-blur-sm px-4 py-2 rounded-lg z-10">
-                {allRevealed ? "🎉 ガチャ結果 🎉" : "🎁 タップしてカードを開こう！"}
+                {allRevealed ? t("gacha_result") : t("tap_to_reveal")}
             </h2>
 
             <div
@@ -431,14 +441,24 @@ export default function GachaReveal({ results, onComplete }: GachaRevealProps) {
                 })}
             </div>
 
-            {allRevealed && (
-                <button
-                    onClick={onComplete}
-                    className="px-10 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xl font-bold rounded-xl border-4 border-green-300 shadow-lg hover:scale-105 transition-transform"
-                >
-                    OK
-                </button>
-            )}
+            <div className="flex gap-4 flex-wrap justify-center">
+                {!allRevealed && (
+                    <button
+                        onClick={() => setRevealedCards(results.map(() => true))}
+                        className="px-8 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white text-lg font-bold rounded-xl border-4 border-gray-400 shadow-lg hover:scale-105 transition-transform"
+                    >
+                        {t("skip_reveal_all")}
+                    </button>
+                )}
+                {allRevealed && (
+                    <button
+                        onClick={onComplete}
+                        className="px-10 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xl font-bold rounded-xl border-4 border-green-300 shadow-lg hover:scale-105 transition-transform"
+                    >
+                        OK
+                    </button>
+                )}
+            </div>
 
             {/* 詳細モーダル */}
             {viewingUnit && (

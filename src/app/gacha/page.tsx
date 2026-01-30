@@ -574,6 +574,7 @@ export default function GachaPage() {
                 <GachaReveal
                     results={results}
                     onComplete={handleRevealComplete}
+                    dropRates={results.map(u => getDropRate(u))}
                 />
             )}
 
