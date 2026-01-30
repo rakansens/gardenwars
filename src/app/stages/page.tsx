@@ -209,27 +209,39 @@ export default function StagesPage() {
                         {filteredStages.map((stage) => {
                             const enemyUnits = getUniqueEnemyUnits(stage);
                             const isCleared = clearedStages.includes(stage.id);
+                            const stageImage = stage.background?.image || `/assets/stages/${stage.id}.png`;
                             return (
                                 <div
                                     key={stage.id}
-                                    className={`stage-card relative ${isCleared ? 'ring-2 ring-green-400' : ''}`}
+                                    className={`stage-card relative overflow-hidden ${isCleared ? 'ring-2 ring-green-400' : ''}`}
                                     onClick={() => handleSelectStage(stage.id)}
                                 >
-                                    {/* クリアバッジ */}
-                                    {isCleared && (
-                                        <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg z-10">
-                                            ✓ CLEAR
-                                        </div>
-                                    )}
+                                    {/* サムネイル画像 */}
+                                    <div className="relative h-32 -mx-4 -mt-4 mb-3 overflow-hidden">
+                                        <Image
+                                            src={stageImage}
+                                            alt={t(stage.name)}
+                                            fill
+                                            className="object-cover"
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-amber-50 via-transparent to-transparent" />
 
-                                    {/* ステージ番号とアイコン */}
-                                    <div className="flex items-center justify-between mb-2">
-                                        <span className="text-sm text-amber-900/60">
-                                            {stage.id}
-                                        </span>
-                                        <span className="text-2xl">
-                                            {stageIcons[stage.id] || "🎮"}
-                                        </span>
+                                        {/* クリアバッジ */}
+                                        {isCleared && (
+                                            <div className="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg z-10">
+                                                ✓ CLEAR
+                                            </div>
+                                        )}
+
+                                        {/* ステージ番号とアイコン */}
+                                        <div className="absolute bottom-2 left-3 right-3 flex items-center justify-between">
+                                            <span className="text-sm text-white drop-shadow-lg font-medium">
+                                                {stage.id}
+                                            </span>
+                                            <span className="text-2xl drop-shadow-lg">
+                                                {stageIcons[stage.id] || "🎮"}
+                                            </span>
+                                        </div>
                                     </div>
 
                                     {/* ステージ名 */}
