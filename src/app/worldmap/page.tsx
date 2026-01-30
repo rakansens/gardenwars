@@ -416,6 +416,7 @@ export default function WorldMapPage() {
                                     {/* ステージ名 */}
                                     <div className="mt-2 text-center">
                                         <div
+                                            suppressHydrationWarning
                                             className={`
                                                 text-xs font-bold px-2 py-1 rounded-lg
                                                 border-2 truncate
