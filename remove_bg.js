@@ -32,19 +32,28 @@ async function processImage() {
             { r: 85, g: 85, b: 85 },    // Dark checkerboard
         ];
 
-        const threshold = 25;
+        const threshold = 30;
 
         image.scan(0, 0, image.bitmap.width, image.bitmap.height, function (x, y, idx) {
             const red = this.bitmap.data[idx + 0];
             const green = this.bitmap.data[idx + 1];
             const blue = this.bitmap.data[idx + 2];
 
-            // Check if pixel is grayscale (R ≈ G ≈ B)
-            const isGrayscale = Math.abs(red - green) < 15 && Math.abs(green - blue) < 15 && Math.abs(red - blue) < 15;
-            const isCheckerboardGray = isGrayscale && red >= 70 && red <= 255;
+            // Check if pixel is grayscale (R ≈ G ≈ B) with wider tolerance
+            const colorDiff = Math.max(
+                Math.abs(red - green),
+                Math.abs(green - blue),
+                Math.abs(red - blue)
+            );
+            const isGrayscale = colorDiff < 25; // Wider tolerance for color variation
+            const avgColor = (red + green + blue) / 3;
+            const isCheckerboardGray = isGrayscale && avgColor >= 60 && avgColor <= 255;
 
-            // Also catch near-white pixels
-            const isNearWhite = red > 240 && green > 240 && blue > 240;
+            // Catch near-white pixels
+            const isNearWhite = red > 230 && green > 230 && blue > 230;
+
+            // Catch near-gray pixels (slight color tint allowed)
+            const isNearGray = colorDiff < 35 && avgColor >= 100 && avgColor <= 230;
 
             let minDist = Infinity;
             for (const targetColor of targetColors) {
@@ -56,7 +65,7 @@ async function processImage() {
                 if (dist < minDist) minDist = dist;
             }
 
-            if (minDist < threshold || isCheckerboardGray || isNearWhite) {
+            if (minDist < threshold || isCheckerboardGray || isNearWhite || isNearGray) {
                 this.bitmap.data[idx + 3] = 0; // Set Alpha to 0
             }
         });
