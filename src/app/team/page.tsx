@@ -139,7 +139,7 @@ export default function TeamPage() {
     const filteredUnits = rarityFilter === "ALL"
         ? allyUnits
         : allyUnits.filter(u => u.rarity === rarityFilter);
-    const MAX_TEAM_SIZE = 8;
+    const MAX_TEAM_SIZE = 7;
 
     const handleToggleUnit = (unitId: string) => {
         // 有効なIDのみをフィルタリング（無効なIDを削除）
@@ -226,7 +226,7 @@ export default function TeamPage() {
                             ))}
                         </div>
                     </div>
-                    <div className="flex gap-4 flex-wrap">
+                    <div className="flex gap-3 md:gap-4 flex-wrap">
                         {Array.from({ length: MAX_TEAM_SIZE }).map((_, index) => {
                             const unit = getSelectedTeamDefs()[index];
                             return (
@@ -237,24 +237,24 @@ export default function TeamPage() {
                                     title={unit ? `${t("click_to_remove") || "タップで解除"}` : undefined}
                                 >
                                     {unit ? (
-                                        <div className="text-center relative">
+                                        <div className="text-center relative w-full h-full flex flex-col items-center justify-center">
                                             {/* 解除アイコン */}
-                                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center shadow-md z-10">
+                                            <div className="absolute -top-1 -right-1 w-6 h-6 md:w-7 md:h-7 bg-red-500 rounded-full text-white text-sm md:text-base flex items-center justify-center shadow-md z-10 font-bold">
                                                 ×
                                             </div>
                                             <RarityFrame
                                                 unitId={unit.id}
                                                 unitName={unit.name}
                                                 rarity={unit.rarity}
-                                                size="sm"
+                                                size="lg"
                                                 showLabel={true}
                                                 baseUnitId={unit.baseUnitId}
                                             />
-                                            <div className="text-xs mt-1">{unit.name.slice(0, 4)}</div>
-                                            <div className="text-xs text-amber-600 font-bold">¥{unit.cost}</div>
+                                            <div className="text-xs md:text-sm mt-1 font-medium truncate max-w-full px-1">{unit.name.slice(0, 6)}</div>
+                                            <div className="text-xs md:text-sm text-amber-600 font-bold">¥{unit.cost}</div>
                                         </div>
                                     ) : (
-                                        <span>+</span>
+                                        <span className="text-amber-400">+</span>
                                     )}
                                 </div>
                             );
@@ -333,7 +333,7 @@ export default function TeamPage() {
                                     </span>
                                 </div>
                                 {ownedUnits.length > 0 ? (
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-5">
                                         {ownedUnits.map((unit) => {
                                             const isSelected = selectedTeam.includes(unit.id);
                                             const count = unitInventory[unit.id] || 0;
@@ -374,7 +374,7 @@ export default function TeamPage() {
                                                             unitId={unit.id}
                                                             unitName={unit.name}
                                                             rarity={unit.rarity}
-                                                            size="md"
+                                                            size="lg"
                                                             showLabel={true}
                                                             baseUnitId={unit.baseUnitId}
                                                         />
@@ -496,7 +496,7 @@ export default function TeamPage() {
                                     </span>
                                 </div>
                                 {unownedUnits.length > 0 ? (
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 opacity-60">
+                                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-5 opacity-60">
                                         {unownedUnits.map((unit) => {
                                             const unitHasAnimation = hasAnimation(unit.atlasKey || unit.id);
                                             return (
@@ -527,7 +527,7 @@ export default function TeamPage() {
                                                             unitId={unit.id}
                                                             unitName={unit.name}
                                                             rarity={unit.rarity}
-                                                            size="md"
+                                                            size="lg"
                                                             showLabel={true}
                                                             baseUnitId={unit.baseUnitId}
                                                             grayscale={true}
