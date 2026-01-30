@@ -102,6 +102,10 @@ export class BattleScene extends Phaser.Scene {
     // クールダウンシステム
     private unitCooldowns: Map<string, number> = new Map(); // unitId -> クールダウン終了時刻
 
+    // ゲーム速度（1x, 2x, 3x）
+    private gameSpeed: number = 1;
+    private speedBtn!: Phaser.GameObjects.Container;
+
     constructor() {
         super({ key: 'BattleScene' });
     }
@@ -896,6 +900,9 @@ export class BattleScene extends Phaser.Scene {
         // 算数モードトグルボタン（右上）
         this.createMathModeToggle();
 
+        // 速度切り替えボタン
+        this.createSpeedToggle();
+
         // 召喚ボタン（チーム分）
         this.createSummonButtons();
 
@@ -975,6 +982,41 @@ export class BattleScene extends Phaser.Scene {
         bg.on('pointerout', () => {
             bg.setAlpha(1);
         });
+    }
+
+    private createSpeedToggle() {
+        // === 速度切り替えボタン（算数モードボタンの右） ===
+        this.speedBtn = this.add.container(390, 55);
+        this.speedBtn.setScrollFactor(0);
+        this.speedBtn.setDepth(100);
+
+        // 背景
+        const bg = this.add.rectangle(0, 0, 60, 32, 0x3b82f6);
+        bg.setStrokeStyle(2, 0x1e40af);
+        bg.setInteractive({ useHandCursor: true });
+
+        // テキスト
+        const text = this.add.text(0, 0, '▶ 1x', {
+            fontSize: '14px',
+            color: '#ffffff',
+            fontStyle: 'bold',
+        });
+        text.setOrigin(0.5, 0.5);
+
+        this.speedBtn.add([bg, text]);
+
+        // クリックで速度切り替え（1x → 2x → 3x → 1x）
+        bg.on('pointerdown', () => {
+            this.gameSpeed = this.gameSpeed >= 3 ? 1 : this.gameSpeed + 1;
+            const speedTexts = ['▶ 1x', '▶▶ 2x', '▶▶▶ 3x'];
+            const colors = [0x3b82f6, 0xf59e0b, 0xef4444]; // blue, amber, red
+            text.setText(speedTexts[this.gameSpeed - 1]);
+            bg.setFillStyle(colors[this.gameSpeed - 1]);
+        });
+
+        // ホバーエフェクト
+        bg.on('pointerover', () => bg.setAlpha(0.8));
+        bg.on('pointerout', () => bg.setAlpha(1));
     }
 
     // デッキ（ロードアウト）を次のものに切り替え
@@ -1337,18 +1379,21 @@ export class BattleScene extends Phaser.Scene {
     update(time: number, delta: number) {
         if (this.gameState !== 'PLAYING') return;
 
+        // ゲーム速度を適用
+        const adjustedDelta = delta * this.gameSpeed;
+
         // コスト回復
-        this.costSystem.update(delta);
+        this.costSystem.update(adjustedDelta);
         this.updateCostUI();
 
         // Wave処理（敵出現）
         this.waveSystem.update();
 
         // ユニット更新
-        this.updateUnits(delta);
+        this.updateUnits(adjustedDelta);
 
         // 城攻撃ゲージ更新
-        this.updateCannonGauge(delta);
+        this.updateCannonGauge(adjustedDelta);
 
         // 戦闘判定
         this.combatSystem.update(
