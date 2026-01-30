@@ -8,86 +8,124 @@
     "baseCastleHp": 2000,
     "enemyCastleHp": 1500,
     "enemyWaves": [
-      {
-        "timeMs": 3000,
-        "unitId": "enemy_sunflower",
-        "lane": 2,
-        "count": 2,
-        "intervalMs": 3000
-      },
-      {
-        "timeMs": 8000,
-        "unitId": "enemy_sunflower",
-        "lane": 0,
-        "count": 2,
-        "intervalMs": 2500
-      },
-      {
-        "timeMs": 8000,
-        "unitId": "enemy_sunflower",
-        "lane": 4,
-        "count": 2,
-        "intervalMs": 2500
-      },
-      {
-        "timeMs": 15000,
-        "unitId": "enemy_corn_kid",
-        "lane": "random",
-        "count": 3,
-        "intervalMs": 2000
-      },
-      {
-        "timeMs": 25000,
-        "unitId": "enemy_dog",
-        "lane": 1,
-        "count": 2,
-        "intervalMs": 2000
-      },
-      {
-        "timeMs": 25000,
-        "unitId": "enemy_dog",
-        "lane": 3,
-        "count": 2,
-        "intervalMs": 2000
-      },
-      {
-        "timeMs": 35000,
-        "unitId": "enemy_corn_kid",
-        "lane": "random",
-        "count": 5,
-        "intervalMs": 1500
-      },
-      {
-        "timeMs": 45000,
-        "unitId": "enemy_wolf",
-        "lane": 2,
-        "count": 3,
-        "intervalMs": 2000
-      },
-      {
-        "timeMs": 55000,
-        "unitId": "enemy_dog",
-        "lane": "random",
-        "count": 6,
-        "intervalMs": 1000
-      }
+      { "timeMs": 3000, "unitId": "enemy_sunflower", "lane": 2, "count": 2, "intervalMs": 3000 },
+      { "timeMs": 8000, "unitId": "enemy_sunflower", "lane": 0, "count": 2, "intervalMs": 2500 },
+      { "timeMs": 8000, "unitId": "enemy_sunflower", "lane": 4, "count": 2, "intervalMs": 2500 },
+      { "timeMs": 15000, "unitId": "enemy_corn_kid", "lane": "random", "count": 3, "intervalMs": 2000 },
+      { "timeMs": 25000, "unitId": "enemy_dog", "lane": 1, "count": 2, "intervalMs": 2000 },
+      { "timeMs": 25000, "unitId": "enemy_dog", "lane": 3, "count": 2, "intervalMs": 2000 },
+      { "timeMs": 35000, "unitId": "enemy_corn_kid", "lane": "random", "count": 5, "intervalMs": 1500 },
+      { "timeMs": 45000, "unitId": "enemy_wolf", "lane": 2, "count": 3, "intervalMs": 2000 },
+      { "timeMs": 55000, "unitId": "enemy_dog", "lane": "random", "count": 6, "intervalMs": 1000 }
     ],
-    "reward": {
-      "coins": 150,
-      "drops": [
-        {
-          "unitId": "cat_warrior",
-          "rate": 50
-        },
-        {
-          "unitId": "sunflower",
-          "rate": 40
-        }
-      ]
-    },
-    "background": {
-      "color": "0x2d5a27"
-    },
+    "reward": { "coins": 150, "drops": [{ "unitId": "cat_warrior", "rate": 50 }, { "unitId": "sunflower", "rate": 40 }] },
+    "background": { "color": "0x2d5a27" },
+    "difficulty": "easy"
+  },
+  {
+    "id": "arena_2",
+    "name": "arena_2_name",
+    "description": "arena_2_desc",
+    "laneCount": 5,
+    "arenaHeight": 600,
+    "baseCastleHp": 2500,
+    "enemyCastleHp": 2000,
+    "enemyWaves": [
+      { "timeMs": 2000, "unitId": "enemy_dog", "lane": 2, "count": 2, "intervalMs": 2000 },
+      { "timeMs": 6000, "unitId": "enemy_corn_kid", "lane": 0, "count": 2, "intervalMs": 2000 },
+      { "timeMs": 6000, "unitId": "enemy_corn_kid", "lane": 4, "count": 2, "intervalMs": 2000 },
+      { "timeMs": 12000, "unitId": "enemy_wolf", "lane": "random", "count": 3, "intervalMs": 2500 },
+      { "timeMs": 20000, "unitId": "enemy_cat_warrior", "lane": 1, "count": 3, "intervalMs": 1500 },
+      { "timeMs": 20000, "unitId": "enemy_cat_warrior", "lane": 3, "count": 3, "intervalMs": 1500 },
+      { "timeMs": 30000, "unitId": "enemy_archer", "lane": "random", "count": 4, "intervalMs": 1500 },
+      { "timeMs": 40000, "unitId": "enemy_wolf", "lane": 2, "count": 4, "intervalMs": 1200 },
+      { "timeMs": 50000, "unitId": "enemy_cat_tank", "lane": "random", "count": 3, "intervalMs": 2000 },
+      { "timeMs": 60000, "unitId": "enemy_dog", "lane": "random", "count": 8, "intervalMs": 800 }
+    ],
+    "reward": { "coins": 250, "drops": [{ "unitId": "corn_kid", "rate": 40 }, { "unitId": "cat_tank", "rate": 30 }] },
+    "background": { "color": "0x3d4a37" },
     "difficulty": "normal"
+  },
+  {
+    "id": "arena_3",
+    "name": "arena_3_name",
+    "description": "arena_3_desc",
+    "laneCount": 5,
+    "arenaHeight": 600,
+    "baseCastleHp": 3000,
+    "enemyCastleHp": 2500,
+    "enemyWaves": [
+      { "timeMs": 2000, "unitId": "enemy_wolf", "lane": 0, "count": 2, "intervalMs": 2000 },
+      { "timeMs": 2000, "unitId": "enemy_wolf", "lane": 4, "count": 2, "intervalMs": 2000 },
+      { "timeMs": 8000, "unitId": "enemy_cat_warrior", "lane": "random", "count": 4, "intervalMs": 1500 },
+      { "timeMs": 15000, "unitId": "enemy_mage", "lane": 2, "count": 2, "intervalMs": 2500 },
+      { "timeMs": 20000, "unitId": "enemy_cat_tank", "lane": 1, "count": 2, "intervalMs": 2000 },
+      { "timeMs": 20000, "unitId": "enemy_cat_tank", "lane": 3, "count": 2, "intervalMs": 2000 },
+      { "timeMs": 28000, "unitId": "enemy_ninja", "lane": "random", "count": 4, "intervalMs": 1200 },
+      { "timeMs": 35000, "unitId": "enemy_archer", "lane": 0, "count": 3, "intervalMs": 1500 },
+      { "timeMs": 35000, "unitId": "enemy_archer", "lane": 4, "count": 3, "intervalMs": 1500 },
+      { "timeMs": 45000, "unitId": "enemy_penguin", "lane": 2, "count": 3, "intervalMs": 2000 },
+      { "timeMs": 55000, "unitId": "enemy_wolf", "lane": "random", "count": 6, "intervalMs": 1000 },
+      { "timeMs": 65000, "unitId": "enemy_sr_corn_tank", "lane": 2, "count": 2, "intervalMs": 3000 }
+    ],
+    "reward": { "coins": 400, "drops": [{ "unitId": "penguin_boy", "rate": 30 }, { "unitId": "cat_ninja", "rate": 25 }] },
+    "background": { "color": "0x4a3d27" },
+    "difficulty": "hard"
+  },
+  {
+    "id": "arena_4",
+    "name": "arena_4_name",
+    "description": "arena_4_desc",
+    "laneCount": 5,
+    "arenaHeight": 600,
+    "baseCastleHp": 4000,
+    "enemyCastleHp": 3500,
+    "enemyWaves": [
+      { "timeMs": 1000, "unitId": "enemy_cat_warrior", "lane": "random", "count": 5, "intervalMs": 1000 },
+      { "timeMs": 8000, "unitId": "enemy_cat_tank", "lane": 0, "count": 2, "intervalMs": 2500 },
+      { "timeMs": 8000, "unitId": "enemy_cat_tank", "lane": 4, "count": 2, "intervalMs": 2500 },
+      { "timeMs": 15000, "unitId": "enemy_mage", "lane": "random", "count": 4, "intervalMs": 1500 },
+      { "timeMs": 22000, "unitId": "enemy_sr_pirate", "lane": 2, "count": 2, "intervalMs": 2000 },
+      { "timeMs": 28000, "unitId": "enemy_ninja", "lane": 1, "count": 4, "intervalMs": 1000 },
+      { "timeMs": 28000, "unitId": "enemy_ninja", "lane": 3, "count": 4, "intervalMs": 1000 },
+      { "timeMs": 38000, "unitId": "enemy_sr_bamboo", "lane": "random", "count": 3, "intervalMs": 2000 },
+      { "timeMs": 48000, "unitId": "enemy_penguin", "lane": 0, "count": 3, "intervalMs": 1500 },
+      { "timeMs": 48000, "unitId": "enemy_penguin", "lane": 4, "count": 3, "intervalMs": 1500 },
+      { "timeMs": 58000, "unitId": "enemy_sr_tulip", "lane": 2, "count": 2, "intervalMs": 2500 },
+      { "timeMs": 68000, "unitId": "enemy_cat_tank", "lane": "random", "count": 5, "intervalMs": 1200 },
+      { "timeMs": 78000, "unitId": "enemy_ur_knight", "lane": 2, "count": 1, "intervalMs": 1000 }
+    ],
+    "reward": { "coins": 600, "drops": [{ "unitId": "cinnamon_girl", "rate": 25 }, { "unitId": "ice_flower", "rate": 30 }] },
+    "background": { "color": "0x5a2727" },
+    "difficulty": "extreme"
+  },
+  {
+    "id": "arena_5",
+    "name": "arena_5_name",
+    "description": "arena_5_desc",
+    "laneCount": 5,
+    "arenaHeight": 600,
+    "baseCastleHp": 5000,
+    "enemyCastleHp": 5000,
+    "enemyWaves": [
+      { "timeMs": 1000, "unitId": "enemy_wolf", "lane": "random", "count": 5, "intervalMs": 800 },
+      { "timeMs": 6000, "unitId": "enemy_sr_corn_tank", "lane": 0, "count": 2, "intervalMs": 2000 },
+      { "timeMs": 6000, "unitId": "enemy_sr_corn_tank", "lane": 4, "count": 2, "intervalMs": 2000 },
+      { "timeMs": 12000, "unitId": "enemy_ninja", "lane": "random", "count": 6, "intervalMs": 800 },
+      { "timeMs": 20000, "unitId": "enemy_mage", "lane": 1, "count": 3, "intervalMs": 1500 },
+      { "timeMs": 20000, "unitId": "enemy_mage", "lane": 3, "count": 3, "intervalMs": 1500 },
+      { "timeMs": 28000, "unitId": "enemy_ur_tank", "lane": 2, "count": 1, "intervalMs": 1000 },
+      { "timeMs": 35000, "unitId": "enemy_sr_pirate", "lane": "random", "count": 4, "intervalMs": 1200 },
+      { "timeMs": 45000, "unitId": "enemy_nika", "lane": 0, "count": 1, "intervalMs": 1000 },
+      { "timeMs": 45000, "unitId": "enemy_lennon", "lane": 4, "count": 1, "intervalMs": 1000 },
+      { "timeMs": 55000, "unitId": "enemy_ur_mage", "lane": "random", "count": 2, "intervalMs": 3000 },
+      { "timeMs": 65000, "unitId": "enemy_penguin", "lane": "random", "count": 6, "intervalMs": 1000 },
+      { "timeMs": 75000, "unitId": "enemy_ur_knight", "lane": 1, "count": 1, "intervalMs": 1000 },
+      { "timeMs": 75000, "unitId": "enemy_ur_knight", "lane": 3, "count": 1, "intervalMs": 1000 },
+      { "timeMs": 85000, "unitId": "enemy_ur_dragon", "lane": 2, "count": 1, "intervalMs": 1000 }
+    ],
+    "reward": { "coins": 1000, "drops": [{ "unitId": "nika", "rate": 10 }, { "unitId": "lennon", "rate": 10 }] },
+    "background": { "color": "0x1a1a3a" },
+    "difficulty": "extreme"
   }
 ]

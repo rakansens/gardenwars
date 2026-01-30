@@ -43,7 +43,6 @@
 body {
   background: linear-gradient(180deg, #f9efd9 0%, #f1dfbd 100%);
   color: var(--foreground);
-  -webkit-text-fill-color: inherit;
   font-family: "Hiragino Maru Gothic ProN", "Hiragino Sans", var(--font-noto-sans-jp), Arial, sans-serif;
   min-height: 100vh;
   /* モバイル最適化 */
@@ -60,16 +59,22 @@ body {
   padding-right: env(safe-area-inset-right);
 }
 
-/* フォーム要素のダークモード対策 */
-input, textarea, select {
-  color: #1f2937;
+/* フォーム要素のダークモード対策（iOS Safari） */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+  color: #1f2937 !important;
   background-color: #ffffff;
-  -webkit-text-fill-color: #1f2937;
+  -webkit-text-fill-color: #1f2937 !important;
 }
 
-input::placeholder, textarea::placeholder {
-  color: #9ca3af;
-  -webkit-text-fill-color: #9ca3af;
+input::placeholder,
+textarea::placeholder {
+  color: #9ca3af !important;
+  -webkit-text-fill-color: #9ca3af !important;
 }
 
 /* ボタン共通スタイル */
