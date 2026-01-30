@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
+import Modal, { SuccessModal, ConfirmModal } from "@/components/ui/Modal";
 import unitsData from "@/data/units";
 import type { UnitDefinition } from "@/data/types";
 
@@ -27,6 +28,8 @@ export default function Home() {
   const { status, playerName, player, logout } = useAuth();
   const [paradeChars, setParadeChars] = useState<ParadeChar[]>([]);
   const [showPinModal, setShowPinModal] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showLogoutSuccess, setShowLogoutSuccess] = useState(false);
 
   // 所持ユニットからパレードキャラを生成
   useEffect(() => {
@@ -202,9 +205,9 @@ export default function Home() {
       </footer>
 
       {/* PIN確認モーダル */}
-      {showPinModal && player && (
-        <div className="fixed inset-0 bg-black/50 flex items-start sm:items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl p-4 sm:p-6 max-w-sm w-full shadow-2xl my-auto sm:my-4">
+      <Modal isOpen={showPinModal && !!player} onClose={() => setShowPinModal(false)} showCloseButton={false}>
+        {player && (
+          <div className="p-6">
             <h2 className="text-xl font-bold text-green-700 mb-4 text-center">
               {language === "ja" ? "アカウント情報" : "Account Info"}
             </h2>
@@ -237,26 +240,54 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <button
                 onClick={() => setShowPinModal(false)}
-                className="flex-1 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-xl transition-colors"
+                className="flex-1 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-xl transition-all active:scale-95 min-h-[48px]"
               >
                 {language === "ja" ? "とじる" : "Close"}
               </button>
               <button
                 onClick={() => {
-                  logout();
                   setShowPinModal(false);
+                  setShowLogoutConfirm(true);
                 }}
-                className="flex-1 py-3 bg-red-100 hover:bg-red-200 text-red-700 font-bold rounded-xl transition-colors"
+                className="flex-1 py-3 bg-red-100 hover:bg-red-200 text-red-700 font-bold rounded-xl transition-all active:scale-95 min-h-[48px]"
               >
                 {language === "ja" ? "ログアウト" : "Logout"}
               </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </Modal>
+
+      {/* ログアウト確認モーダル */}
+      <ConfirmModal
+        isOpen={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+        onConfirm={() => {
+          logout();
+          setShowLogoutSuccess(true);
+        }}
+        icon="👋"
+        title={language === "ja" ? "ログアウトしますか？" : "Log out?"}
+        message={language === "ja"
+          ? "別の端末でプレイするときは、番号を覚えておいてね！"
+          : "Remember your number to play on other devices!"}
+        confirmText={language === "ja" ? "ログアウト" : "Log out"}
+        cancelText={language === "ja" ? "やめる" : "Cancel"}
+        confirmColor="red"
+      />
+
+      {/* ログアウト完了モーダル */}
+      <SuccessModal
+        isOpen={showLogoutSuccess}
+        onClose={() => setShowLogoutSuccess(false)}
+        icon="👋"
+        title={language === "ja" ? "ログアウトしました" : "Logged out"}
+        message={language === "ja" ? "またね！" : "See you again!"}
+        buttonText="OK"
+      />
     </main>
   );
 }
