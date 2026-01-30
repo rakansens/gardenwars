@@ -1,0 +1,350 @@
+"use client";
+
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { usePlayerData } from "./usePlayerData";
+import {
+    MarketplaceListing,
+    MarketplaceNotification,
+    ListingFilter,
+} from "@/lib/supabase/marketplaceTypes";
+import {
+    createListing,
+    getActiveListings,
+    getMyListings,
+    purchaseListing,
+    cancelListing,
+    getUnreadNotifications,
+    getAllNotifications,
+    markNotificationRead,
+    markAllNotificationsRead,
+    claimNotification,
+    getUnreadNotificationCount,
+} from "@/lib/supabase/marketplace";
+
+export interface UseMarketplaceReturn {
+    // State
+    listings: MarketplaceListing[];
+    myListings: MarketplaceListing[];
+    notifications: MarketplaceNotification[];
+    unreadCount: number;
+    isLoading: boolean;
+    isAuthenticated: boolean;
+
+    // Actions
+    refreshListings: (filter?: ListingFilter) => Promise<void>;
+    refreshMyListings: () => Promise<void>;
+    refreshNotifications: () => Promise<void>;
+    createNewListing: (
+        unitId: string,
+        quantity: number,
+        pricePerUnit: number,
+        expiresInDays?: number
+    ) => Promise<boolean>;
+    buyListing: (listingId: string) => Promise<boolean>;
+    cancelMyListing: (listingId: string) => Promise<boolean>;
+    claimSoldNotification: (notificationId: string) => Promise<boolean>;
+    markNotificationAsRead: (notificationId: string) => Promise<boolean>;
+    markAllNotificationsAsRead: () => Promise<boolean>;
+}
+
+/**
+ * マーケットプレイス管理フック
+ * usePlayerDataと連携してコイン・ユニット管理を行う
+ */
+export function useMarketplace(): UseMarketplaceReturn {
+    const { status, playerId } = useAuth();
+    const { addCoins, addUnit, removeUnit, unitInventory, coins } = usePlayerData();
+    const isAuthenticated = status === "authenticated" && !!playerId;
+
+    const [listings, setListings] = useState<MarketplaceListing[]>([]);
+    const [myListings, setMyListings] = useState<MarketplaceListing[]>([]);
+    const [notifications, setNotifications] = useState<MarketplaceNotification[]>([]);
+    const [unreadCount, setUnreadCount] = useState(0);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const lastFetchRef = useRef<number>(0);
+    const FETCH_COOLDOWN = 5000; // 5秒のクールダウン
+
+    // リスティング一覧を取得
+    const refreshListings = useCallback(
+        async (filter?: ListingFilter) => {
+            if (!isAuthenticated || !playerId) return;
+
+            const now = Date.now();
+            if (now - lastFetchRef.current < FETCH_COOLDOWN) return;
+            lastFetchRef.current = now;
+
+            setIsLoading(true);
+            try {
+                const data = await getActiveListings(playerId, {
+                    excludeOwnListings: false,
+                    ...filter,
+                });
+                setListings(data);
+            } catch (error) {
+                console.error("Failed to refresh listings:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        },
+        [isAuthenticated, playerId]
+    );
+
+    // 自分の出品一覧を取得
+    const refreshMyListings = useCallback(async () => {
+        if (!isAuthenticated || !playerId) return;
+
+        try {
+            const data = await getMyListings(playerId, true);
+            setMyListings(data);
+        } catch (error) {
+            console.error("Failed to refresh my listings:", error);
+        }
+    }, [isAuthenticated, playerId]);
+
+    // 通知を取得
+    const refreshNotifications = useCallback(async () => {
+        if (!isAuthenticated || !playerId) return;
+
+        try {
+            const [notifs, count] = await Promise.all([
+                getUnreadNotifications(playerId),
+                getUnreadNotificationCount(playerId),
+            ]);
+            setNotifications(notifs);
+            setUnreadCount(count);
+        } catch (error) {
+            console.error("Failed to refresh notifications:", error);
+        }
+    }, [isAuthenticated, playerId]);
+
+    // 初回読み込み
+    useEffect(() => {
+        if (isAuthenticated && playerId) {
+            Promise.all([
+                refreshListings(),
+                refreshMyListings(),
+                refreshNotifications(),
+            ]).finally(() => setIsLoading(false));
+        } else {
+            setIsLoading(false);
+        }
+    }, [isAuthenticated, playerId, refreshListings, refreshMyListings, refreshNotifications]);
+
+    // 新規出品
+    const createNewListing = useCallback(
+        async (
+            unitId: string,
+            quantity: number,
+            pricePerUnit: number,
+            expiresInDays?: number
+        ): Promise<boolean> => {
+            if (!isAuthenticated || !playerId) return false;
+
+            // ローカルでの所持数チェック
+            const ownedCount = unitInventory[unitId] || 0;
+            if (ownedCount < quantity) {
+                console.error("Not enough units to list");
+                return false;
+            }
+
+            try {
+                const listingId = await createListing(
+                    playerId,
+                    unitId,
+                    quantity,
+                    pricePerUnit,
+                    expiresInDays
+                );
+
+                if (listingId) {
+                    // ローカル状態も更新（removeUnitはusePlayerDataが処理）
+                    removeUnit(unitId, quantity);
+                    // リスト更新
+                    await Promise.all([refreshListings(), refreshMyListings()]);
+                    return true;
+                }
+                return false;
+            } catch (error) {
+                console.error("Failed to create listing:", error);
+                return false;
+            }
+        },
+        [isAuthenticated, playerId, unitInventory, removeUnit, refreshListings, refreshMyListings]
+    );
+
+    // 購入
+    const buyListing = useCallback(
+        async (listingId: string): Promise<boolean> => {
+            if (!isAuthenticated || !playerId) return false;
+
+            // リスティングを見つける
+            const listing = listings.find((l) => l.id === listingId);
+            if (!listing) {
+                console.error("Listing not found");
+                return false;
+            }
+
+            // コイン残高チェック
+            if (coins < listing.totalPrice) {
+                console.error("Not enough coins");
+                return false;
+            }
+
+            // 自分の出品は購入不可
+            if (listing.isOwn) {
+                console.error("Cannot buy own listing");
+                return false;
+            }
+
+            try {
+                const success = await purchaseListing(playerId, listingId);
+
+                if (success) {
+                    // ローカル状態を更新（Supabaseでは既に処理済み）
+                    // usePlayerDataが自動的にSupabaseと同期するため、
+                    // ここでは状態の即時反映のためにローカル更新
+                    addUnit(listing.unitId, listing.quantity);
+                    // コインはSupabaseで処理済み、ローカルも同期されるはず
+
+                    // リスト更新
+                    await refreshListings();
+                    return true;
+                }
+                return false;
+            } catch (error) {
+                console.error("Failed to buy listing:", error);
+                return false;
+            }
+        },
+        [isAuthenticated, playerId, listings, coins, addUnit, refreshListings]
+    );
+
+    // 出品キャンセル
+    const cancelMyListing = useCallback(
+        async (listingId: string): Promise<boolean> => {
+            if (!isAuthenticated || !playerId) return false;
+
+            // リスティングを見つける
+            const listing = myListings.find((l) => l.id === listingId);
+            if (!listing || !listing.isOwn) {
+                console.error("Listing not found or not owned");
+                return false;
+            }
+
+            try {
+                const success = await cancelListing(playerId, listingId);
+
+                if (success) {
+                    // ユニットを戻す（ローカル）
+                    addUnit(listing.unitId, listing.quantity);
+                    // リスト更新
+                    await Promise.all([refreshListings(), refreshMyListings()]);
+                    return true;
+                }
+                return false;
+            } catch (error) {
+                console.error("Failed to cancel listing:", error);
+                return false;
+            }
+        },
+        [isAuthenticated, playerId, myListings, addUnit, refreshListings, refreshMyListings]
+    );
+
+    // 売却通知を受け取る（コインを獲得）
+    const claimSoldNotification = useCallback(
+        async (notificationId: string): Promise<boolean> => {
+            if (!isAuthenticated || !playerId) return false;
+
+            // 通知を見つける
+            const notification = notifications.find((n) => n.id === notificationId);
+            if (!notification) {
+                console.error("Notification not found");
+                return false;
+            }
+
+            try {
+                const success = await claimNotification(playerId, notificationId);
+
+                if (success) {
+                    // コインを追加（item_soldの場合）
+                    if (notification.notificationType === "item_sold" && notification.coinsEarned > 0) {
+                        addCoins(notification.coinsEarned);
+                    }
+                    // 期限切れ・キャンセルの場合はユニットを返却
+                    if (
+                        (notification.notificationType === "listing_expired" ||
+                            notification.notificationType === "listing_cancelled") &&
+                        notification.unitId &&
+                        notification.quantity > 0
+                    ) {
+                        addUnit(notification.unitId, notification.quantity);
+                    }
+                    // 通知更新
+                    await refreshNotifications();
+                    return true;
+                }
+                return false;
+            } catch (error) {
+                console.error("Failed to claim notification:", error);
+                return false;
+            }
+        },
+        [isAuthenticated, playerId, notifications, addCoins, addUnit, refreshNotifications]
+    );
+
+    // 通知を既読にする
+    const markNotificationAsRead = useCallback(
+        async (notificationId: string): Promise<boolean> => {
+            try {
+                const success = await markNotificationRead(notificationId);
+                if (success) {
+                    await refreshNotifications();
+                }
+                return success;
+            } catch (error) {
+                console.error("Failed to mark notification as read:", error);
+                return false;
+            }
+        },
+        [refreshNotifications]
+    );
+
+    // 全通知を既読にする
+    const markAllNotificationsAsRead = useCallback(async (): Promise<boolean> => {
+        if (!isAuthenticated || !playerId) return false;
+
+        try {
+            const success = await markAllNotificationsRead(playerId);
+            if (success) {
+                await refreshNotifications();
+            }
+            return success;
+        } catch (error) {
+            console.error("Failed to mark all notifications as read:", error);
+            return false;
+        }
+    }, [isAuthenticated, playerId, refreshNotifications]);
+
+    return {
+        // State
+        listings,
+        myListings,
+        notifications,
+        unreadCount,
+        isLoading,
+        isAuthenticated,
+
+        // Actions
+        refreshListings,
+        refreshMyListings,
+        refreshNotifications,
+        createNewListing,
+        buyListing,
+        cancelMyListing,
+        claimSoldNotification,
+        markNotificationAsRead,
+        markAllNotificationsAsRead,
+    };
+}

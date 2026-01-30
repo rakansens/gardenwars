@@ -125,6 +125,7 @@ export default function Home() {
     { href: "/collection", icon: "📖", label: t("menu_collection"), type: "secondary" },
     { href: "/gacha", icon: "🎰", label: t("menu_gacha"), type: "primary" },
     { href: "/shop", icon: "🛒", label: t("menu_shop"), type: "secondary" },
+    { href: "/marketplace", icon: "🏪", label: t("menu_marketplace"), type: "secondary" },
     { href: "/fusion", icon: "🔮", label: t("fusion"), type: "secondary" },
     { href: "/garden", icon: "🌱", label: t("menu_garden"), type: "primary" },
     { href: "/ranking", icon: "🏅", label: t("menu_ranking"), type: "secondary" },

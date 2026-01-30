@@ -81,7 +81,7 @@ export default function GachaPage() {
 
     // レアリティで重み付けしてランダム選択（URは個別重み）
     const pickRandomUnit = (): UnitDefinition => {
-        // 基本レアリティ確率: N=51%, R=30%, SR=15%, SSR=1%, UR=1%(ベース)
+        // 基本レアリティ確率: N=51%, R=30%, SR=15%, SSR=2%, UR=1%(ベース)
         const rarityWeights = { N: 51, R: 30, SR: 15, SSR: 1, UR: 1 };
 
         // URユニットの合計重みを計算
