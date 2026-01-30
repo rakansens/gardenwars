@@ -6,6 +6,7 @@ import unitsData from "@/data/units";
 import type { UnitDefinition } from "@/data/types";
 import RarityFrame, { getRarityStars, getRarityGradientClass } from "@/components/ui/RarityFrame";
 import GachaReveal from "@/components/ui/GachaReveal";
+import UnitDetailModal from "@/components/ui/UnitDetailModal";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -24,6 +25,7 @@ export default function GachaPage() {
     const [isRolling, setIsRolling] = useState(false);
     const [showReveal, setShowReveal] = useState(false);
     const [showHistory, setShowHistory] = useState(false);
+    const [viewingUnit, setViewingUnit] = useState<UnitDefinition | null>(null);
 
     // ガチャを引く
     const rollGacha = (count: number) => {
@@ -234,7 +236,11 @@ export default function GachaPage() {
                                             {/* キャラアイコン */}
                                             <div className="flex gap-1 flex-wrap mb-3">
                                                 {units.map((unit, unitIndex) => (
-                                                    <div key={unitIndex} className="w-10 h-10">
+                                                    <div
+                                                        key={unitIndex}
+                                                        className="w-10 h-10 cursor-pointer hover:scale-110 transition-transform"
+                                                        onClick={() => setViewingUnit(unit)}
+                                                    >
                                                         <RarityFrame
                                                             unitId={unit.id}
                                                             unitName={unit.name}
@@ -284,36 +290,80 @@ export default function GachaPage() {
                 </div>
 
                 {/* 所持ユニット一覧 */}
-                <div className="card">
+                <div className="card mb-6">
                     <h3 className="text-xl font-bold mb-4 text-amber-950">
-                        {t("gacha_owned_units")}
+                        {t("gacha_owned_units")} ({gachaPool.filter(u => (unitInventory[u.id] || 0) > 0).length}/{gachaPool.length})
                     </h3>
-                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-                        {gachaPool.map((unit) => {
-                            const count = unitInventory[unit.id] || 0;
-                            return (
-                                <div
-                                    key={unit.id}
-                                    className={`relative p-2 rounded-lg`}
-                                >
-                                    <div className="flex justify-center">
-                                        <RarityFrame
-                                            unitId={unit.id}
-                                            unitName={unit.name}
-                                            rarity={unit.rarity}
-                                            size="md"
-                                            showLabel={true}
-                                            count={count}
-                                            grayscale={count === 0}
-                                        />
+                    {gachaPool.filter(u => (unitInventory[u.id] || 0) > 0).length === 0 ? (
+                        <p className="text-amber-900/50 text-center py-4">{t("no_units")}</p>
+                    ) : (
+                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                            {gachaPool
+                                .filter(unit => (unitInventory[unit.id] || 0) > 0)
+                                .map((unit) => {
+                                    const count = unitInventory[unit.id] || 0;
+                                    return (
+                                        <div
+                                            key={unit.id}
+                                            className="relative p-2 rounded-lg cursor-pointer hover:bg-amber-100 transition-colors"
+                                            onClick={() => setViewingUnit(unit)}
+                                        >
+                                            <div className="flex justify-center">
+                                                <RarityFrame
+                                                    unitId={unit.id}
+                                                    unitName={unit.name}
+                                                    rarity={unit.rarity}
+                                                    size="md"
+                                                    showLabel={true}
+                                                    count={count}
+                                                    baseUnitId={unit.baseUnitId}
+                                                />
+                                            </div>
+                                            <div className="text-xs text-center text-amber-950 truncate mt-1">
+                                                {unit.name}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                        </div>
+                    )}
+                </div>
+
+                {/* 未所持ユニット一覧 */}
+                <div className="card">
+                    <h3 className="text-xl font-bold mb-4 text-gray-600">
+                        {t("unowned_units")} ({gachaPool.filter(u => (unitInventory[u.id] || 0) === 0).length})
+                    </h3>
+                    {gachaPool.filter(u => (unitInventory[u.id] || 0) === 0).length === 0 ? (
+                        <p className="text-green-600 text-center py-4 font-bold">🎉 {t("all_owned_in_rarity")}</p>
+                    ) : (
+                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 opacity-60">
+                            {gachaPool
+                                .filter(unit => (unitInventory[unit.id] || 0) === 0)
+                                .map((unit) => (
+                                    <div
+                                        key={unit.id}
+                                        className="relative p-2 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                                        onClick={() => setViewingUnit(unit)}
+                                    >
+                                        <div className="flex justify-center">
+                                            <RarityFrame
+                                                unitId={unit.id}
+                                                unitName={unit.name}
+                                                rarity={unit.rarity}
+                                                size="md"
+                                                showLabel={true}
+                                                grayscale={true}
+                                                baseUnitId={unit.baseUnitId}
+                                            />
+                                        </div>
+                                        <div className="text-xs text-center text-gray-500 truncate mt-1">
+                                            {unit.name}
+                                        </div>
                                     </div>
-                                    <div className="text-xs text-center text-amber-950 truncate mt-1">
-                                        {unit.name}
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
+                                ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* 編成へ */}
@@ -329,6 +379,17 @@ export default function GachaPage() {
                 <GachaReveal
                     results={results}
                     onComplete={handleRevealComplete}
+                />
+            )}
+
+            {/* ユニット詳細モーダル */}
+            {viewingUnit && (
+                <UnitDetailModal
+                    unit={viewingUnit}
+                    isOwned={(unitInventory[viewingUnit.id] || 0) > 0}
+                    isInTeam={false}
+                    onClose={() => setViewingUnit(null)}
+                    onToggleTeam={() => {}}
                 />
             )}
         </main>
