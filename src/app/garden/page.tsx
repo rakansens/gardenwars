@@ -200,8 +200,8 @@ export default function GardenPage() {
 
             {/* Selection Modal */}
             {isSelectModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 animate-in fade-in zoom-in duration-200">
-                    <div className="bg-slate-900 border-4 border-green-500 rounded-3xl p-6 w-full max-w-4xl h-[90vh] flex flex-col shadow-2xl relative">
+                <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/80 p-2 sm:p-4 overflow-y-auto animate-in fade-in zoom-in duration-200">
+                    <div className="bg-slate-900 border-4 border-green-500 rounded-3xl p-4 sm:p-6 w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] flex flex-col shadow-2xl relative my-2 sm:my-4">
                         <h2 className="text-2xl font-bold text-white mb-2 text-center">{t("select_garden_friends")}</h2>
                         <p className="text-center text-gray-400 mb-4">
                             {t("select_hint").replace("20", `${editUnits.length}/20`)}

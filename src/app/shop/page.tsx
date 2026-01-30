@@ -169,8 +169,8 @@ export default function ShopPage() {
 
             {/* Purchase Modal */}
             {purchaseModalOpen && targetItem && targetUnit && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 animate-in fade-in zoom-in duration-200">
-                    <div className="bg-slate-900 border-4 border-amber-500 rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl relative overflow-hidden">
+                <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/80 p-2 sm:p-4 overflow-y-auto animate-in fade-in zoom-in duration-200">
+                    <div className="bg-slate-900 border-4 border-amber-500 rounded-3xl p-4 sm:p-6 max-w-sm w-full text-center shadow-2xl relative overflow-hidden my-auto sm:my-4">
                         {/* Background Glare */}
                         <div className="absolute -top-20 -left-20 w-60 h-60 bg-amber-500/20 blur-3xl rounded-full pointer-events-none"></div>
 

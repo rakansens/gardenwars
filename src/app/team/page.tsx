@@ -208,16 +208,16 @@ export default function TeamPage() {
                         <h2 className="text-xl font-bold">
                             📋 {t("team_members")} ({validTeamCount}/{MAX_TEAM_SIZE})
                         </h2>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 md:gap-3">
                             {[0, 1, 2].map((idx) => (
                                 <button
                                     key={idx}
                                     onClick={() => switchLoadout(idx)}
                                     className={`
-                                        px-4 py-2 rounded-lg font-bold text-sm transition-all
+                                        px-4 py-2.5 md:px-6 md:py-3 rounded-xl font-bold text-sm md:text-base transition-all min-h-[44px]
                                         ${activeLoadoutIndex === idx
                                             ? "bg-orange-500 text-white shadow-lg scale-105"
-                                            : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                                            : "bg-gray-200 text-gray-600 hover:bg-gray-300 active:scale-95"
                                         }
                                     `}
                                 >
@@ -268,21 +268,21 @@ export default function TeamPage() {
 
                 {/* レアリティフィルタータブ */}
                 <section className="mb-4">
-                    <div className="flex gap-2 flex-wrap">
+                    <div className="flex gap-2 md:gap-3 flex-wrap">
                         {rarityTabs.map(tab => (
                             <button
                                 key={tab.key}
                                 onClick={() => setRarityFilter(tab.key)}
                                 className={`
-                                    px-4 py-2 rounded-lg font-bold text-sm transition-all
+                                    px-4 py-2.5 md:px-5 md:py-3 rounded-xl font-bold text-sm md:text-base transition-all min-h-[44px]
                                     ${rarityFilter === tab.key
                                         ? `${tab.color} text-white shadow-lg scale-105`
-                                        : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                                        : "bg-gray-200 text-gray-600 hover:bg-gray-300 active:scale-95"
                                     }
                                 `}
                             >
                                 {tab.label}
-                                <span className="ml-1 text-xs opacity-75">
+                                <span className="ml-1.5 text-xs md:text-sm opacity-75">
                                     ({tab.key === "ALL"
                                         ? allyUnits.length
                                         : allyUnits.filter(u => u.rarity === tab.key).length})
@@ -294,17 +294,17 @@ export default function TeamPage() {
 
                 {/* ソートオプション */}
                 <section className="mb-6">
-                    <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-bold text-gray-600">{t("sort_by")}:</span>
+                    <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+                        <span className="text-sm md:text-base font-bold text-gray-600">{t("sort_by")}:</span>
                         {sortOptions.map(option => (
                             <button
                                 key={option.key}
                                 onClick={() => setSortBy(option.key)}
                                 className={`
-                                    px-3 py-1.5 rounded-lg text-sm transition-all flex items-center gap-1
+                                    px-3 py-2 md:px-4 md:py-2.5 rounded-xl text-sm md:text-base transition-all flex items-center gap-1.5 min-h-[40px] md:min-h-[44px]
                                     ${sortBy === option.key
                                         ? "bg-blue-500 text-white shadow-md scale-105"
-                                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                        : "bg-gray-100 text-gray-600 hover:bg-gray-200 active:scale-95"
                                     }
                                 `}
                             >
@@ -450,11 +450,11 @@ export default function TeamPage() {
                                                         }}
                                                         disabled={!isSelected && !canAdd}
                                                         className={`
-                                                            w-full mt-2 py-2 rounded-lg font-bold text-sm transition-all
+                                                            w-full mt-3 py-3 md:py-3.5 rounded-xl font-bold text-sm md:text-base transition-all min-h-[44px] active:scale-95
                                                             ${isSelected
-                                                                ? "bg-red-500 hover:bg-red-600 text-white"
+                                                                ? "bg-red-500 hover:bg-red-600 text-white shadow-md"
                                                                 : canAdd
-                                                                    ? "bg-green-500 hover:bg-green-600 text-white"
+                                                                    ? "bg-green-500 hover:bg-green-600 text-white shadow-md"
                                                                     : isInOtherDeck
                                                                         ? "bg-orange-300 text-orange-700 cursor-not-allowed"
                                                                         : "bg-gray-300 text-gray-500 cursor-not-allowed"
@@ -593,7 +593,7 @@ export default function TeamPage() {
                                                     </div>
 
                                                     {/* 未保有表示 */}
-                                                    <div className="w-full mt-2 py-2 rounded-lg font-bold text-sm bg-gray-200 text-gray-500 text-center">
+                                                    <div className="w-full mt-3 py-3 md:py-3.5 rounded-xl font-bold text-sm md:text-base bg-gray-200 text-gray-500 text-center min-h-[44px] flex items-center justify-center">
                                                         {t("not_owned")}
                                                     </div>
                                                 </div>

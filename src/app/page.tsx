@@ -203,8 +203,8 @@ export default function Home() {
 
       {/* PIN確認モーダル */}
       {showPinModal && player && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+        <div className="fixed inset-0 bg-black/50 flex items-start sm:items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl p-4 sm:p-6 max-w-sm w-full shadow-2xl my-auto sm:my-4">
             <h2 className="text-xl font-bold text-green-700 mb-4 text-center">
               {language === "ja" ? "アカウント情報" : "Account Info"}
             </h2>

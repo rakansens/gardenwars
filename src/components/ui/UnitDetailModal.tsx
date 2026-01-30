@@ -78,10 +78,10 @@ export default function UnitDetailModal({
     const unitName = translatedName !== unit.id ? translatedName : unit.name;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 transition-opacity animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-start md:items-center justify-center bg-black/70 p-2 sm:p-4 overflow-y-auto transition-opacity animate-in fade-in duration-200">
             <div
                 ref={modalRef}
-                className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl transform transition-transform animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto"
+                className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl transform transition-transform animate-in zoom-in-95 duration-200 my-auto sm:my-4"
             >
                 {/* Header / Background */}
                 <div className="relative h-32 bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
