@@ -189,10 +189,10 @@ export default function GachaReveal({ results, onComplete }: GachaRevealProps) {
                     >
                         {/* カード裏面 */}
                         <div className="flip-card-back">
-                            <div className={`w-52 h-72 bg-gradient-to-br ${rarityBackColors[unit.rarity]} rounded-xl border-4 flex items-center justify-center`}>
+                            <div className={`w-72 h-[26rem] bg-gradient-to-br ${rarityBackColors[unit.rarity]} rounded-2xl border-4 flex items-center justify-center`}>
                                 <div className="text-center">
-                                    <span className="text-5xl">❓</span>
-                                    <div className="mt-2 text-white/80 font-bold">{unit.rarity}</div>
+                                    <span className="text-7xl">❓</span>
+                                    <div className="mt-3 text-white/80 font-bold text-xl">{unit.rarity}</div>
                                 </div>
                             </div>
                         </div>
@@ -200,36 +200,36 @@ export default function GachaReveal({ results, onComplete }: GachaRevealProps) {
                         {/* カード表面 */}
                         <div className="flip-card-front">
                             <div className={`
-                                w-52 h-72 bg-gradient-to-br ${getRarityGradientClass(unit.rarity)}
-                                rounded-xl p-4 text-center
+                                w-72 h-[26rem] bg-gradient-to-br ${getRarityGradientClass(unit.rarity)}
+                                rounded-2xl p-5 text-center
                                 shadow-2xl ${effect.glowColor}
                                 border-4 border-white/50
                                 flex flex-col items-center justify-center
                                 ${isSSR ? "animate-ssr-shine" : ""}
                             `}>
                                 {/* レアリティ星 */}
-                                <div className={`text-xl mb-2 ${isSSR ? "animate-pulse" : ""}`}>
+                                <div className={`text-2xl mb-3 ${isSSR ? "animate-pulse" : ""}`}>
                                     {getRarityStars(unit.rarity)}
                                 </div>
 
                                 {/* キャラ画像 */}
-                                <div className="mb-3">
+                                <div className="mb-4">
                                     <RarityFrame
                                         unitId={unit.id}
                                         unitName={unit.name}
                                         rarity={unit.rarity}
-                                        size="xl"
+                                        size="2xl"
                                         showLabel={false}
                                     />
                                 </div>
 
                                 {/* 名前 */}
-                                <div className={`font-bold text-lg text-white drop-shadow-lg ${isSSR ? "animate-bounce" : ""}`}>
+                                <div className={`font-bold text-xl text-white drop-shadow-lg ${isSSR ? "animate-bounce" : ""}`}>
                                     {unit.name}
                                 </div>
 
                                 {/* レアリティラベル */}
-                                <div className={`mt-2 px-3 py-1 rounded-full text-sm font-bold text-white ${isSSR ? "bg-gradient-to-r from-yellow-400 to-orange-400 animate-pulse" : "bg-white/30"
+                                <div className={`mt-3 px-4 py-1.5 rounded-full text-base font-bold text-white ${isSSR ? "bg-gradient-to-r from-yellow-400 to-orange-400 animate-pulse" : "bg-white/30"
                                     }`}>
                                     {unit.rarity}
                                 </div>
@@ -261,8 +261,8 @@ export default function GachaReveal({ results, onComplete }: GachaRevealProps) {
                     }
                     .flip-card {
                         position: relative;
-                        width: 208px;
-                        height: 288px;
+                        width: 288px;
+                        height: 416px;
                         transform-style: preserve-3d;
                     }
                     .flip-card-front, .flip-card-back {
