@@ -303,6 +303,9 @@ export async function purchaseListing(
         return false;
     }
 
+    // 購入者の名前を取得
+    const buyerName = buyerData.name || "Unknown";
+
     // 出品者への通知を作成
     await createNotification(
         dbListing.seller_id,
@@ -311,7 +314,8 @@ export async function purchaseListing(
         `Your ${dbListing.unit_id} x${dbListing.quantity} was sold for ${dbListing.total_price} coins!`,
         dbListing.total_price,
         dbListing.unit_id,
-        dbListing.quantity
+        dbListing.quantity,
+        buyerName
     );
 
     return true;
@@ -390,7 +394,8 @@ async function createNotification(
     message: string,
     coinsEarned: number = 0,
     unitId: string | null = null,
-    quantity: number = 0
+    quantity: number = 0,
+    buyerName: string | null = null
 ): Promise<boolean> {
     const { error } = await (supabase as AnySupabase)
         .from("marketplace_notifications")
@@ -402,6 +407,7 @@ async function createNotification(
             coins_earned: coinsEarned,
             unit_id: unitId,
             quantity,
+            buyer_name: buyerName,
         });
 
     if (error) {

@@ -42,6 +42,7 @@ export interface DBMarketplaceNotification {
     quantity: number | null;
     is_read: boolean;
     created_at: string | null;
+    buyer_name: string | null;
 }
 
 // ============================================
@@ -79,6 +80,7 @@ export interface MarketplaceNotification {
     quantity: number;
     isRead: boolean;
     createdAt: Date;
+    buyerName: string | null;
 }
 
 // ============================================
@@ -167,6 +169,7 @@ export function toFrontendNotification(
         quantity: db.quantity || 0,
         isRead: db.is_read,
         createdAt: new Date(db.created_at || Date.now()),
+        buyerName: db.buyer_name || null,
     };
 }
 

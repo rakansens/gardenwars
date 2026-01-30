@@ -86,9 +86,10 @@ export default function ListingCard({
                 </h3>
 
                 {/* 出品者名 */}
-                <p className="text-xs text-gray-500 text-center truncate mb-2">
-                    {t("seller")}: {listing.sellerName}
-                </p>
+                <div className="text-center mb-2">
+                    <span className="text-xs text-gray-500">{t("seller")}: </span>
+                    <span className="text-sm font-bold text-blue-600">{listing.sellerName}</span>
+                </div>
 
                 {/* 価格 */}
                 <div className="flex items-center justify-center gap-1 mb-2">

@@ -137,6 +137,13 @@ function NotificationItem({ notification, onClaim, t }: NotificationItemProps) {
                         </div>
                     )}
 
+                    {/* 購入者名（売却の場合） */}
+                    {notification.notificationType === "item_sold" && notification.buyerName && (
+                        <div className="text-sm text-gray-600 mb-1">
+                            {t("buyer")}: <span className="font-bold text-blue-600">{notification.buyerName}</span>
+                        </div>
+                    )}
+
                     {/* 獲得コイン（売却の場合） */}
                     {notification.notificationType === "item_sold" && notification.coinsEarned > 0 && (
                         <div className="text-sm text-amber-600 font-bold mb-2">
