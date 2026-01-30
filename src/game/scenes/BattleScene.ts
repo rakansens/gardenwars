@@ -4,6 +4,8 @@ import { Castle } from '../entities/Castle';
 import { CombatSystem } from '../systems/CombatSystem';
 import { WaveSystem } from '../systems/WaveSystem';
 import { CostSystem } from '../systems/CostSystem';
+import { QuizSystem } from '../systems/QuizSystem';
+import { CannonSystem } from '../systems/CannonSystem';
 import { eventBus, GameEvents } from '../utils/EventBus';
 import type { StageDefinition, UnitDefinition, GameState, Rarity } from '@/data/types';
 
@@ -50,6 +52,8 @@ export class BattleScene extends Phaser.Scene {
     private combatSystem!: CombatSystem;
     private waveSystem!: WaveSystem;
     private costSystem!: CostSystem;
+    private quizSystem!: QuizSystem;
+    private cannonSystem!: CannonSystem;
 
     // ゲーム状態
     private gameState: GameState = 'LOADING';
@@ -71,13 +75,6 @@ export class BattleScene extends Phaser.Scene {
     private castleLevelText!: Phaser.GameObjects.Text;
     private currentCastleLevel: number = 1;
     private costUpPulse?: Phaser.Tweens.Tween;
-    private cannonCharge: number = 0;
-    private cannonChargeMax: number = 20000;
-    private cannonBtnBg!: Phaser.GameObjects.Arc;
-    private cannonBtnText!: Phaser.GameObjects.Text;
-    private cannonBarBg!: Phaser.GameObjects.Rectangle;
-    private cannonBarFill!: Phaser.GameObjects.Rectangle;
-    private cannonPulse?: Phaser.Tweens.Tween;
 
     // ボスHPゲージ
     private bossHpContainer!: Phaser.GameObjects.Container;
@@ -85,15 +82,7 @@ export class BattleScene extends Phaser.Scene {
     private bossHpText!: Phaser.GameObjects.Text;
 
     // 掛け算クイズ
-    private mathModeEnabled: boolean = false;  // 算数モード（デフォルトOFF）
     private mathModeBtn!: Phaser.GameObjects.Container;
-    private quizActive: boolean = false;
-    private quizContainer!: Phaser.GameObjects.Container;
-    private quizQuestion!: Phaser.GameObjects.Text;
-    private quizButtons: Phaser.GameObjects.Container[] = [];
-    private quizCorrectAnswer: number = 0;
-    private pendingUnitId: string | null = null;
-    private pendingUnitCost: number = 0;
 
     // ロードアウト（デッキ）切り替え
     private loadoutsData: [UnitDefinition[], UnitDefinition[], UnitDefinition[]] = [[], [], []];
@@ -109,6 +98,15 @@ export class BattleScene extends Phaser.Scene {
 
     constructor() {
         super({ key: 'BattleScene' });
+    }
+
+    shutdown() {
+        // システムのクリーンアップ
+        this.quizSystem?.destroy();
+        this.cannonSystem?.destroy();
+
+        // イベントリスナーをクリア
+        eventBus.removeAllListeners(GameEvents.SUMMON_UNIT);
     }
 
     init(data: BattleSceneData) {
@@ -452,6 +450,9 @@ export class BattleScene extends Phaser.Scene {
         const { width, height } = this.scale;
         this.groundY = height - 130; // ボタン用スペースを確保
 
+        // シーン終了時のクリーンアップを登録
+        this.events.once('shutdown', this.shutdown, this);
+
         // アニメーション作成
         this.createAnimations();
 
@@ -483,6 +484,27 @@ export class BattleScene extends Phaser.Scene {
             regenRates: [100, 150, 250, 400, 600, 900, 1500, 2500],
             upgradeCosts: [500, 1200, 2500, 4500, 8000, 12000, 20000],
         });
+
+        // クイズシステム
+        this.quizSystem = new QuizSystem(this, {
+            canStartQuiz: () => this.gameState === 'PLAYING',
+            canAffordCost: (cost) => this.costSystem.canAfford(cost),
+            isOnCooldown: (unitId) => {
+                const remaining = this.unitCooldowns.get(unitId);
+                return remaining !== undefined && remaining > 0;
+            },
+            onCorrectAnswer: (unitId, cost) => {
+                if (this.costSystem.spend(cost)) {
+                    this.spawnAllyUnitDirect(unitId);
+                }
+            },
+            onSkipQuiz: (unitId) => {
+                this.summonAllyUnit(unitId);
+            },
+        });
+
+        // キャノンシステム
+        this.cannonSystem = new CannonSystem(this);
 
         // UI作成
         this.createUI();
@@ -954,13 +976,15 @@ export class BattleScene extends Phaser.Scene {
         this.mathModeBtn.setScrollFactor(0);
         this.mathModeBtn.setDepth(100);
 
+        const isEnabled = this.quizSystem.isMathModeEnabled();
+
         // 背景
-        const bg = this.add.rectangle(0, 0, 80, 32, this.mathModeEnabled ? 0x4ade80 : 0x6b7280);
+        const bg = this.add.rectangle(0, 0, 80, 32, isEnabled ? 0x4ade80 : 0x6b7280);
         bg.setStrokeStyle(2, 0x3b2a1a);
         bg.setInteractive({ useHandCursor: true });
 
         // テキスト
-        const text = this.add.text(0, 0, this.mathModeEnabled ? '🧮 ON' : '🧮 OFF', {
+        const text = this.add.text(0, 0, isEnabled ? '🧮 ON' : '🧮 OFF', {
             fontSize: '12px',
             color: '#ffffff',
             fontStyle: 'bold',
@@ -971,9 +995,9 @@ export class BattleScene extends Phaser.Scene {
 
         // クリックでトグル
         bg.on('pointerdown', () => {
-            this.mathModeEnabled = !this.mathModeEnabled;
-            bg.setFillStyle(this.mathModeEnabled ? 0x4ade80 : 0x6b7280);
-            text.setText(this.mathModeEnabled ? '🧮 ON' : '🧮 OFF');
+            const newEnabled = this.quizSystem.toggleMathMode();
+            bg.setFillStyle(newEnabled ? 0x4ade80 : 0x6b7280);
+            text.setText(newEnabled ? '🧮 ON' : '🧮 OFF');
         });
 
         // ホバーエフェクト
@@ -1141,7 +1165,7 @@ export class BattleScene extends Phaser.Scene {
 
             // クリックでクイズ開始
             bg.on('pointerdown', () => {
-                this.startQuiz(unit.id, unit.cost);
+                this.quizSystem.startQuiz(unit.id, unit.cost);
             });
 
             bg.on('pointerover', () => bg.setFillStyle(0xfff3cf));
@@ -1166,37 +1190,17 @@ export class BattleScene extends Phaser.Scene {
         const startX = 225; // 城攻撃+デッキ切り替えボタン分右にずらす
         const gap = 8;
 
-        // 城攻撃ボタン（左端・丸アイコン）
+        // 城攻撃ボタン（左端・丸アイコン）- CannonSystemで管理
         const cannonX = 50;
-        const cannonY = buttonY;
-        const cannonRadius = 38;
-        this.cannonBtnBg = this.add.circle(cannonX, cannonY, cannonRadius, 0xf8e7b6);
-        this.cannonBtnBg.setScrollFactor(0);
-        this.cannonBtnBg.setDepth(100);
-        this.cannonBtnBg.setStrokeStyle(4, 0x3b2a1a);
-        this.cannonBtnBg.setInteractive({ useHandCursor: true });
-
-        // 砲台アイコン
-        this.cannonBtnText = this.add.text(cannonX, cannonY - 5, '💥', {
-            fontSize: '32px',
-        });
-        this.cannonBtnText.setOrigin(0.5, 0.5);
-        this.cannonBtnText.setScrollFactor(0);
-        this.cannonBtnText.setDepth(101);
-
-        // ゲージバー（円の下部に配置）
-        this.cannonBarBg = this.add.rectangle(cannonX, cannonY + 28, 50, 6, 0xd7bf8a);
-        this.cannonBarBg.setScrollFactor(0);
-        this.cannonBarBg.setDepth(101);
-        this.cannonBarBg.setStrokeStyle(1, 0x3b2a1a);
-
-        this.cannonBarFill = this.add.rectangle(cannonX - 25, cannonY + 28, 0, 6, 0xffd45a);
-        this.cannonBarFill.setOrigin(0, 0.5);
-        this.cannonBarFill.setScrollFactor(0);
-        this.cannonBarFill.setDepth(102);
-
-        this.cannonBtnBg.on('pointerdown', () => {
-            this.fireCastleAttack();
+        const cannonBtn = this.cannonSystem.createUI(cannonX, buttonY, buttonHeight);
+        cannonBtn.on('pointerdown', () => {
+            this.cannonSystem.fire(
+                this.allyCastle,
+                this.enemyUnits,
+                this.enemyCastle,
+                this.groundY,
+                this.stageData.length
+            );
         });
 
         // デッキ切り替えボタン（城攻撃の右）
@@ -1322,7 +1326,7 @@ export class BattleScene extends Phaser.Scene {
 
             // クリックでクイズ開始
             bg.on('pointerdown', () => {
-                this.startQuiz(unit.id, unit.cost);
+                this.quizSystem.startQuiz(unit.id, unit.cost);
             });
 
             // ホバーエフェクト
@@ -1401,7 +1405,7 @@ export class BattleScene extends Phaser.Scene {
         this.updateUnits(adjustedDelta);
 
         // 城攻撃ゲージ更新
-        this.updateCannonGauge(adjustedDelta);
+        this.cannonSystem.update(adjustedDelta);
 
         // 戦闘判定
         this.combatSystem.update(
@@ -1703,189 +1707,6 @@ export class BattleScene extends Phaser.Scene {
         graphics.strokeRoundedRect(x, y, width, height, radius);
     }
 
-    private updateCannonGauge(delta: number) {
-        this.cannonCharge = Math.min(this.cannonCharge + delta, this.cannonChargeMax);
-        const ratio = this.cannonCharge / this.cannonChargeMax;
-        const barWidth = Math.max(0, Math.min(1, ratio)) * 50;
-        this.cannonBarFill.width = barWidth;
-        this.cannonBarFill.height = 6;
-
-        if (this.cannonCharge >= this.cannonChargeMax) {
-            this.cannonBtnBg.setFillStyle(0xffe066);
-            // パルスアニメーション開始（まだ開始していない場合）
-            if (!this.cannonPulse || !this.cannonPulse.isPlaying()) {
-                this.cannonPulse = this.tweens.add({
-                    targets: [this.cannonBtnBg, this.cannonBtnText],
-                    scale: { from: 1, to: 1.15 },
-                    duration: 400,
-                    yoyo: true,
-                    repeat: -1,
-                    ease: 'Sine.easeInOut',
-                });
-            }
-        } else {
-            this.cannonBtnBg.setFillStyle(0xf8e7b6);
-            // パルスアニメーション停止
-            if (this.cannonPulse) {
-                this.cannonPulse.stop();
-                this.cannonBtnBg.setScale(1);
-                this.cannonBtnText.setScale(1);
-            }
-        }
-    }
-
-    private fireCastleAttack() {
-        if (this.cannonCharge < this.cannonChargeMax) return;
-
-        const damage = 200;
-        const knockback = 60;
-
-        // 攻撃範囲: フィールドの半分
-        const attackRange = this.stageData.length / 2;
-        const rangeEndX = this.allyCastle.x + attackRange;
-
-        // 範囲内の敵のみ対象
-        const livingEnemies = this.enemyUnits.filter(u => !u.isDead());
-        const enemiesInRange = livingEnemies.filter(e => e.x <= rangeEndX);
-
-        // 画面シェイク
-        this.cameras.main.shake(400, 0.015);
-
-        // 味方城から衝撃波（範囲表示付き）
-        this.createShockwave(this.allyCastle.x, this.groundY, attackRange);
-
-        if (enemiesInRange.length > 0) {
-            // 各敵に爆発エフェクト（少し遅延させて順番に）
-            enemiesInRange.forEach((enemy, index) => {
-                this.time.delayedCall(150 + index * 80, () => {
-                    this.createExplosion(enemy.x, enemy.y);
-                    enemy.takeDamage(damage, knockback);
-                });
-            });
-        } else {
-            // 範囲内に敵がいない場合、範囲の端で爆発
-            this.time.delayedCall(300, () => {
-                this.createExplosion(rangeEndX, this.groundY);
-            });
-        }
-
-        this.cannonCharge = 0;
-    }
-
-    private createShockwave(x: number, y: number, range: number) {
-        // 衝撃波（範囲まで広がる半円）
-        const wave = this.add.circle(x, y, 20, 0xffff00, 0.7);
-        wave.setStrokeStyle(6, 0xff6600);
-        wave.setDepth(50);
-
-        this.tweens.add({
-            targets: wave,
-            radius: range,
-            alpha: 0,
-            duration: 600,
-            ease: 'Power2',
-            onComplete: () => wave.destroy(),
-        });
-
-        // 範囲終端のライン表示
-        const rangeLine = this.add.rectangle(x + range, y - 100, 8, 200, 0xff4444, 0.8);
-        rangeLine.setDepth(49);
-        this.tweens.add({
-            targets: rangeLine,
-            alpha: 0,
-            duration: 800,
-            ease: 'Power1',
-            onComplete: () => rangeLine.destroy(),
-        });
-
-        // 範囲テキスト
-        const rangeText = this.add.text(x + range, y - 220, '⚡範囲⚡', {
-            fontSize: '20px',
-            color: '#ff4444',
-            fontStyle: 'bold',
-            stroke: '#000000',
-            strokeThickness: 3,
-        });
-        rangeText.setOrigin(0.5, 0.5);
-        rangeText.setDepth(49);
-        this.tweens.add({
-            targets: rangeText,
-            alpha: 0,
-            y: y - 250,
-            duration: 1000,
-            ease: 'Power1',
-            onComplete: () => rangeText.destroy(),
-        });
-    }
-
-    private createExplosion(x: number, y: number) {
-        // 爆発の中心フラッシュ（大きく）
-        const flash = this.add.circle(x, y, 50, 0xffffff, 1);
-        flash.setDepth(60);
-        this.tweens.add({
-            targets: flash,
-            scale: 3,
-            alpha: 0,
-            duration: 200,
-            onComplete: () => flash.destroy(),
-        });
-
-        // 爆発の炎（複数の円・大きく）
-        const colors = [0xff4400, 0xff8800, 0xffcc00, 0xff0000, 0xffff00];
-        for (let i = 0; i < 12; i++) {
-            const angle = (i / 12) * Math.PI * 2;
-            const dist = 40 + Math.random() * 60;
-            const size = 15 + Math.random() * 25;
-            const color = colors[Math.floor(Math.random() * colors.length)];
-
-            const particle = this.add.circle(x, y, size, color, 0.9);
-            particle.setDepth(55);
-
-            this.tweens.add({
-                targets: particle,
-                x: x + Math.cos(angle) * dist,
-                y: y + Math.sin(angle) * dist - 30,
-                scale: 0.1,
-                alpha: 0,
-                duration: 400 + Math.random() * 300,
-                ease: 'Power2',
-                onComplete: () => particle.destroy(),
-            });
-        }
-
-        // 爆発テキスト（大きく）
-        const boom = this.add.text(x, y - 40, '💥', { fontSize: '72px' });
-        boom.setOrigin(0.5, 0.5);
-        boom.setDepth(61);
-        this.tweens.add({
-            targets: boom,
-            y: y - 120,
-            scale: 2,
-            alpha: 0,
-            duration: 500,
-            ease: 'Power2',
-            onComplete: () => boom.destroy(),
-        });
-
-        // 追加の火花
-        for (let i = 0; i < 6; i++) {
-            const spark = this.add.text(x, y, '✨', { fontSize: '24px' });
-            spark.setOrigin(0.5, 0.5);
-            spark.setDepth(62);
-            const angle = Math.random() * Math.PI * 2;
-            const dist = 60 + Math.random() * 80;
-            this.tweens.add({
-                targets: spark,
-                x: x + Math.cos(angle) * dist,
-                y: y + Math.sin(angle) * dist - 50,
-                alpha: 0,
-                duration: 600,
-                ease: 'Power2',
-                onComplete: () => spark.destroy(),
-            });
-        }
-    }
-
     private updateStateUI() {
         const allyCount = this.allyUnits.filter(u => !u.isDead()).length;
         const enemyCount = this.enemyUnits.filter(u => !u.isDead()).length;
@@ -1921,6 +1742,21 @@ export class BattleScene extends Phaser.Scene {
         this.allyUnits.push(unit);
     }
 
+    // 味方ユニット直接召喚（クイズ正解時、コストは支払済み）
+    private spawnAllyUnitDirect(unitId: string) {
+        const unitDef = this.allUnitsData.find(u => u.id === unitId);
+        if (!unitDef) return;
+
+        // クールダウンを設定
+        const cooldownMs = getSpawnCooldown(unitDef);
+        this.unitCooldowns.set(unitId, cooldownMs);
+
+        // スポーン
+        const spawnX = this.allyCastle.getX() + 60;
+        const unit = new Unit(this, spawnX, this.groundY, unitDef, 'ally', this.stageData.length);
+        this.allyUnits.push(unit);
+    }
+
     // 敵ユニット召喚（WaveSystemから呼び出し）
     spawnEnemyUnit(unitId: string) {
         const unitDef = this.allUnitsData.find(u => u.id === unitId);
@@ -1932,223 +1768,4 @@ export class BattleScene extends Phaser.Scene {
         this.enemyUnits.push(unit);
     }
 
-    // ========================================
-    // クイズ機能（コスト別の難易度）
-    // ========================================
-
-    private startQuiz(unitId: string, cost: number) {
-        if (this.gameState !== 'PLAYING' || this.quizActive) return;
-
-        // クールダウンチェック
-        const remainingCooldown = this.unitCooldowns.get(unitId);
-        if (remainingCooldown && remainingCooldown > 0) {
-            return; // クールダウン中
-        }
-
-        // コストチェック
-        if (!this.costSystem.canAfford(cost)) {
-            return;
-        }
-
-        // 算数モードがOFFの場合、またはコスト100以下: クイズなし、即座に召喚
-        if (!this.mathModeEnabled || cost <= 100) {
-            this.summonAllyUnit(unitId);
-            return;
-        }
-
-        // クイズ開始
-        this.quizActive = true;
-        this.pendingUnitId = unitId;
-        this.pendingUnitCost = cost;
-
-        let a: number, b: number, questionText: string;
-
-        if (cost >= 1000) {
-            // コスト1000以上: 2桁の掛け算または割り算
-            const useDivision = Phaser.Math.Between(0, 1) === 0;
-            if (useDivision) {
-                // 割り算: 2桁 ÷ 1桁 = 整数の問題
-                b = Phaser.Math.Between(2, 9);
-                const result = Phaser.Math.Between(2, 12);
-                a = b * result;
-                this.quizCorrectAnswer = result;
-                questionText = `${a} ÷ ${b} = ?`;
-            } else {
-                // 掛け算: 2桁 × 1桁
-                a = Phaser.Math.Between(10, 25);
-                b = Phaser.Math.Between(2, 5);
-                this.quizCorrectAnswer = a * b;
-                questionText = `${a} × ${b} = ?`;
-            }
-        } else if (cost >= 200) {
-            // コスト200〜999: 掛け算（1桁×1桁）
-            a = Phaser.Math.Between(2, 9);
-            b = Phaser.Math.Between(2, 9);
-            this.quizCorrectAnswer = a * b;
-            questionText = `${a} × ${b} = ?`;
-        } else {
-            // コスト101〜199: 足し算（一桁＋一桁）
-            a = Phaser.Math.Between(1, 9);
-            b = Phaser.Math.Between(1, 9);
-            this.quizCorrectAnswer = a + b;
-            questionText = `${a} + ${b} = ?`;
-        }
-
-        // 選択肢を生成
-        const choices = this.generateChoices(this.quizCorrectAnswer, cost >= 200);
-
-        // クイズUIを表示
-        this.showQuizUI(questionText, choices);
-    }
-
-    private generateChoices(correct: number, isMultiplication: boolean): number[] {
-        const choices: Set<number> = new Set([correct]);
-        const range = isMultiplication ? 15 : 5;
-
-        while (choices.size < 4) {
-            let wrong = correct + Phaser.Math.Between(-range, range);
-            if (wrong <= 0) wrong = Phaser.Math.Between(1, correct + range);
-            if (wrong !== correct) {
-                choices.add(wrong);
-            }
-        }
-
-        return Phaser.Utils.Array.Shuffle(Array.from(choices));
-    }
-
-    private showQuizUI(questionText: string, choices: number[]) {
-        const { width, height } = this.scale;
-
-        // コンテナ作成
-        this.quizContainer = this.add.container(0, 0);
-        this.quizContainer.setScrollFactor(0);
-        this.quizContainer.setDepth(300);
-
-        // 背景オーバーレイ
-        const overlay = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.7);
-        this.quizContainer.add(overlay);
-
-        // パネル背景（サイズ調整）
-        const panelW = 260;
-        const panelH = 220;
-        const panelY = height / 2 - 80;
-        const panel = this.add.rectangle(width / 2, panelY, panelW, panelH, 0xfff8e7);
-        panel.setStrokeStyle(4, 0x3b2a1a);
-        this.quizContainer.add(panel);
-
-        // タイトル
-        const titleY = panelY - 80;
-        const title = this.add.text(width / 2, titleY, '🧮 Quiz!', {
-            fontSize: '20px',
-            color: '#3b2a1a',
-            fontStyle: 'bold',
-        });
-        title.setOrigin(0.5, 0.5);
-        this.quizContainer.add(title);
-
-        // 問題
-        const questionY = panelY - 50;
-        this.quizQuestion = this.add.text(width / 2, questionY, questionText, {
-            fontSize: '28px',
-            color: '#2d6a4f',
-            fontStyle: 'bold',
-        });
-        this.quizQuestion.setOrigin(0.5, 0.5);
-        this.quizContainer.add(this.quizQuestion);
-
-        // 選択肢ボタン（2x2）
-        this.quizButtons = [];
-        const btnSize = 50;
-        const btnGap = 10;
-        const startX = width / 2 - btnSize - btnGap / 2;
-        const startY = panelY - 10;
-
-        choices.forEach((choice, index) => {
-            const row = Math.floor(index / 2);
-            const col = index % 2;
-            const bx = startX + col * (btnSize + btnGap) + btnSize / 2;
-            const by = startY + row * (btnSize + btnGap) + btnSize / 2;
-
-            const btnContainer = this.add.container(bx, by);
-
-            const btnBg = this.add.rectangle(0, 0, btnSize, btnSize, 0xffe066);
-            btnBg.setStrokeStyle(3, 0x3b2a1a);
-            btnBg.setInteractive({ useHandCursor: true });
-            btnContainer.add(btnBg);
-
-            const btnText = this.add.text(0, 0, `${choice}`, {
-                fontSize: '20px',
-                color: '#3b2a1a',
-                fontStyle: 'bold',
-            });
-            btnText.setOrigin(0.5, 0.5);
-            btnContainer.add(btnText);
-
-            btnBg.on('pointerdown', () => {
-                this.answerQuiz(choice);
-            });
-
-            btnBg.on('pointerover', () => btnBg.setFillStyle(0xfff3cf));
-            btnBg.on('pointerout', () => btnBg.setFillStyle(0xffe066));
-
-            this.quizContainer.add(btnContainer);
-            this.quizButtons.push(btnContainer);
-        });
-    }
-
-    private answerQuiz(answer: number) {
-        const correct = answer === this.quizCorrectAnswer;
-        const { width, height } = this.scale;
-        const panelY = height / 2 - 80;
-
-        if (correct) {
-            const successText = this.add.text(width / 2, panelY + 85, '✅ OK!', {
-                fontSize: '24px',
-                color: '#2d6a4f',
-                fontStyle: 'bold',
-            });
-            successText.setOrigin(0.5, 0.5);
-            successText.setScrollFactor(0);
-            successText.setDepth(301);
-            this.quizContainer.add(successText);
-
-            // 召喚実行
-            if (this.pendingUnitId && this.costSystem.spend(this.pendingUnitCost)) {
-                const spawnX = this.allyCastle.getX() + 60;
-                const unitDef = this.allUnitsData.find(u => u.id === this.pendingUnitId);
-                if (unitDef) {
-                    // クールダウンを設定（残り時間として保存）
-                    const cooldownMs = getSpawnCooldown(unitDef);
-                    this.unitCooldowns.set(unitDef.id, cooldownMs);
-
-                    const unit = new Unit(this, spawnX, this.groundY, unitDef, 'ally', this.stageData.length);
-                    this.allyUnits.push(unit);
-                }
-            }
-        } else {
-            const failText = this.add.text(width / 2, panelY + 85, `❌ ${this.quizCorrectAnswer}`, {
-                fontSize: '24px',
-                color: '#c1121f',
-                fontStyle: 'bold',
-            });
-            failText.setOrigin(0.5, 0.5);
-            failText.setScrollFactor(0);
-            failText.setDepth(301);
-            this.quizContainer.add(failText);
-        }
-
-        this.time.delayedCall(correct ? 400 : 800, () => {
-            this.closeQuiz();
-        });
-    }
-
-    private closeQuiz() {
-        if (this.quizContainer) {
-            this.quizContainer.destroy();
-        }
-        this.quizActive = false;
-        this.pendingUnitId = null;
-        this.pendingUnitCost = 0;
-        this.quizButtons = [];
-    }
 }
