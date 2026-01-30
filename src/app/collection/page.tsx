@@ -29,19 +29,29 @@ function getSizeCategory(scale: number): string {
 // レアリティ順序
 const rarityOrder: Rarity[] = ["N", "R", "SR", "SSR", "UR"];
 
+// レアリティカラー設定
+const rarityConfig: Record<Rarity, { bg: string; border: string; text: string; gradient: string }> = {
+    N: { bg: "bg-gray-100", border: "border-gray-300", text: "text-gray-600", gradient: "from-gray-400 to-gray-500" },
+    R: { bg: "bg-blue-50", border: "border-blue-300", text: "text-blue-600", gradient: "from-blue-400 to-blue-600" },
+    SR: { bg: "bg-purple-50", border: "border-purple-300", text: "text-purple-600", gradient: "from-purple-400 to-purple-600" },
+    SSR: { bg: "bg-amber-50", border: "border-amber-300", text: "text-amber-600", gradient: "from-amber-400 to-yellow-500" },
+    UR: { bg: "bg-gradient-to-br from-pink-50 via-purple-50 to-cyan-50", border: "border-pink-300", text: "text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500", gradient: "from-pink-500 via-purple-500 to-cyan-500" },
+};
+
 export default function CollectionPage() {
     const { unitInventory, selectedTeam, setTeam, isLoaded } = usePlayerData();
     const { t } = useLanguage();
     const [rarityFilter, setRarityFilter] = useState<Rarity | "ALL">("ALL");
     const [viewingUnit, setViewingUnit] = useState<UnitDefinition | null>(null);
+    const [showOwnedOnly, setShowOwnedOnly] = useState(false);
 
-    const rarityTabs: { key: Rarity | "ALL"; label: string; color: string }[] = [
-        { key: "ALL", label: "ALL", color: "bg-gray-500" },
-        { key: "N", label: "N", color: "bg-gray-400" },
-        { key: "R", label: "R", color: "bg-blue-500" },
-        { key: "SR", label: "SR", color: "bg-purple-500" },
-        { key: "SSR", label: "SSR", color: "bg-amber-500" },
-        { key: "UR", label: "UR", color: "bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500" },
+    const rarityTabs: { key: Rarity | "ALL"; label: string; color: string; icon: string }[] = [
+        { key: "ALL", label: "ALL", color: "bg-gradient-to-r from-gray-500 to-gray-600", icon: "📋" },
+        { key: "N", label: "N", color: "bg-gradient-to-r from-gray-400 to-gray-500", icon: "⚪" },
+        { key: "R", label: "R", color: "bg-gradient-to-r from-blue-400 to-blue-600", icon: "🔵" },
+        { key: "SR", label: "SR", color: "bg-gradient-to-r from-purple-400 to-purple-600", icon: "🟣" },
+        { key: "SSR", label: "SSR", color: "bg-gradient-to-r from-amber-400 to-yellow-500", icon: "🟡" },
+        { key: "UR", label: "UR", color: "bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500", icon: "💎" },
     ];
 
     // コレクション統計
@@ -63,9 +73,17 @@ export default function CollectionPage() {
         return { total, collected, byRarity };
     }, [unitInventory]);
 
-    const filteredUnits = rarityFilter === "ALL"
-        ? collectableUnits
-        : collectableUnits.filter(u => u.rarity === rarityFilter);
+    const filteredUnits = useMemo(() => {
+        let units = rarityFilter === "ALL"
+            ? collectableUnits
+            : collectableUnits.filter(u => u.rarity === rarityFilter);
+
+        if (showOwnedOnly) {
+            units = units.filter(u => (unitInventory[u.id] || 0) > 0);
+        }
+
+        return units;
+    }, [rarityFilter, showOwnedOnly, unitInventory]);
 
     // レアリティ順にソート
     const sortedUnits = [...filteredUnits].sort((a, b) => {
@@ -83,7 +101,7 @@ export default function CollectionPage() {
         if (selectedTeam.includes(unitId)) {
             setTeam(selectedTeam.filter((id) => id !== unitId));
         } else {
-            if (selectedTeam.length < 8) {
+            if (selectedTeam.length < 7) {
                 setTeam([...selectedTeam, unitId]);
             }
         }
@@ -92,7 +110,7 @@ export default function CollectionPage() {
     if (!isLoaded) {
         return (
             <main className="min-h-screen flex items-center justify-center">
-                <div className="text-xl">{t("loading")}</div>
+                <div className="text-xl animate-pulse">📖 {t("loading")}</div>
             </main>
         );
     }
@@ -100,14 +118,16 @@ export default function CollectionPage() {
     const progressPercent = stats.total > 0 ? Math.round((stats.collected / stats.total) * 100) : 0;
 
     return (
-        <main className="min-h-screen p-4 md:p-8">
+        <main className="min-h-screen p-4 md:p-6 lg:p-8 bg-gradient-to-b from-amber-50 to-orange-50">
             {/* ヘッダー */}
             <div className="page-header mb-6">
                 <div className="flex items-center justify-between flex-wrap gap-3">
                     <Link href="/" className="btn btn-secondary">
                         ← {t("back_to_home")}
                     </Link>
-                    <h1 className="text-2xl md:text-3xl font-bold">{t("collection_title")}</h1>
+                    <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
+                        📖 {t("collection_title")}
+                    </h1>
                     <div className="flex items-center gap-2">
                         <LanguageSwitch />
                         <Link href="/team" className="btn btn-primary">
@@ -117,74 +137,60 @@ export default function CollectionPage() {
                 </div>
             </div>
 
-            <div className="container">
-                {/* コレクション進捗 */}
-                <section className="mb-8 bg-gradient-to-r from-amber-100 to-orange-100 rounded-xl p-6 shadow-lg">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-xl font-bold text-amber-800">
-                            📖 {t("collection_progress")}
-                        </h2>
-                        <div className="text-2xl font-bold text-amber-700">
-                            {stats.collected} / {stats.total}
+            <div className="max-w-7xl mx-auto">
+                {/* コレクション進捗カード */}
+                <section className="mb-6 bg-white rounded-2xl p-4 md:p-6 shadow-lg border-2 border-amber-200">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                        <div>
+                            <h2 className="text-xl font-bold text-amber-800 flex items-center gap-2">
+                                🏆 {t("collection_progress")}
+                            </h2>
+                            <p className="text-sm text-amber-600 mt-1">
+                                {stats.collected === stats.total ? "🎉 コンプリート！" : `あと ${stats.total - stats.collected} 体！`}
+                            </p>
+                        </div>
+                        <div className="text-3xl md:text-4xl font-bold text-amber-700">
+                            {stats.collected} <span className="text-xl text-amber-500">/ {stats.total}</span>
                         </div>
                     </div>
 
-                    {/* プログレスバー */}
-                    <div className="relative h-6 bg-amber-200 rounded-full overflow-hidden mb-4">
+                    {/* メインプログレスバー */}
+                    <div className="relative h-8 bg-amber-100 rounded-full overflow-hidden mb-6 shadow-inner">
                         <div
-                            className="absolute h-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-500"
+                            className="absolute h-full bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 transition-all duration-700 ease-out"
                             style={{ width: `${progressPercent}%` }}
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center text-sm font-bold text-amber-900">
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
+                        </div>
+                        <div className="absolute inset-0 flex items-center justify-center text-base font-bold text-amber-900">
                             {progressPercent}%
                         </div>
                     </div>
 
-                    {/* レアリティ別進捗バー */}
-                    <div className="space-y-2">
+                    {/* レアリティ別進捗 */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                         {stats.byRarity.map(({ rarity, total, collected }) => {
                             const percent = total > 0 ? Math.round((collected / total) * 100) : 0;
                             const isComplete = collected === total && total > 0;
-
-                            // レアリティ別カラー
-                            const barColors: Record<string, { bg: string; fill: string; text: string }> = {
-                                N: { bg: "bg-gray-200", fill: "bg-gray-500", text: "text-gray-700" },
-                                R: { bg: "bg-blue-100", fill: "bg-blue-500", text: "text-blue-700" },
-                                SR: { bg: "bg-purple-100", fill: "bg-purple-500", text: "text-purple-700" },
-                                SSR: { bg: "bg-amber-100", fill: "bg-gradient-to-r from-amber-400 to-yellow-500", text: "text-amber-700" },
-                                UR: { bg: "bg-pink-100", fill: "bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500", text: "text-purple-700" },
-                            };
-                            const colors = barColors[rarity] || barColors.N;
+                            const config = rarityConfig[rarity];
 
                             return (
-                                <div key={rarity} className="flex items-center gap-2">
-                                    {/* レアリティラベル */}
-                                    <div className={`w-10 text-sm font-bold text-center ${
-                                        rarity === "UR" ? "text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500" :
-                                        rarity === "SSR" ? "text-amber-600" :
-                                        rarity === "SR" ? "text-purple-600" :
-                                        rarity === "R" ? "text-blue-600" :
-                                        "text-gray-600"
-                                    }`}>
-                                        {rarity}
+                                <div
+                                    key={rarity}
+                                    className={`${config.bg} ${config.border} border-2 rounded-xl p-3 transition-all ${isComplete ? "ring-2 ring-green-400" : ""}`}
+                                >
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className={`font-bold text-lg ${config.text}`}>{rarity}</span>
+                                        <span className={`text-sm font-bold ${config.text}`}>
+                                            {collected}/{total}
+                                            {isComplete && " ✨"}
+                                        </span>
                                     </div>
-
-                                    {/* プログレスバー */}
-                                    <div className={`flex-1 h-5 ${colors.bg} rounded-full overflow-hidden relative`}>
+                                    <div className="h-3 bg-white/50 rounded-full overflow-hidden shadow-inner">
                                         <div
-                                            className={`h-full ${colors.fill} transition-all duration-500 ${isComplete ? "animate-pulse" : ""}`}
+                                            className={`h-full bg-gradient-to-r ${config.gradient} transition-all duration-500`}
                                             style={{ width: `${percent}%` }}
                                         />
-                                        {/* コンプリートエフェクト */}
-                                        {isComplete && (
-                                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
-                                        )}
-                                    </div>
-
-                                    {/* 数値 */}
-                                    <div className={`w-16 text-xs font-bold text-right ${colors.text}`}>
-                                        {collected}/{total}
-                                        {isComplete && " ✨"}
                                     </div>
                                 </div>
                             );
@@ -192,135 +198,158 @@ export default function CollectionPage() {
                     </div>
                 </section>
 
-                {/* レアリティフィルタータブ */}
-                <section className="mb-6">
-                    <div className="flex gap-2 flex-wrap">
-                        {rarityTabs.map(tab => {
-                            const tabUnits = tab.key === "ALL"
-                                ? collectableUnits
-                                : collectableUnits.filter(u => u.rarity === tab.key);
-                            const collectedCount = tabUnits.filter(u => (unitInventory[u.id] || 0) > 0).length;
-                            return (
-                                <button
-                                    key={tab.key}
-                                    onClick={() => setRarityFilter(tab.key)}
-                                    className={`
-                                        px-4 py-2 rounded-lg font-bold text-sm transition-all
-                                        ${rarityFilter === tab.key
-                                            ? `${tab.color} text-white shadow-lg scale-105`
-                                            : "bg-gray-200 text-gray-600 hover:bg-gray-300"
-                                        }
-                                    `}
-                                >
-                                    {tab.label}
-                                    <span className="ml-1 text-xs opacity-75">
-                                        ({collectedCount}/{tabUnits.length})
-                                    </span>
-                                </button>
-                            );
-                        })}
+                {/* フィルターセクション */}
+                <section className="mb-6 bg-white rounded-2xl p-4 shadow-md border border-amber-100">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        {/* レアリティタブ */}
+                        <div className="flex gap-2 md:gap-3 flex-wrap">
+                            {rarityTabs.map(tab => {
+                                const tabUnits = tab.key === "ALL"
+                                    ? collectableUnits
+                                    : collectableUnits.filter(u => u.rarity === tab.key);
+                                const collectedCount = tabUnits.filter(u => (unitInventory[u.id] || 0) > 0).length;
+                                const isSelected = rarityFilter === tab.key;
+
+                                return (
+                                    <button
+                                        key={tab.key}
+                                        onClick={() => setRarityFilter(tab.key)}
+                                        className={`
+                                            px-3 py-2 md:px-4 md:py-2.5 rounded-xl font-bold text-sm md:text-base transition-all min-h-[44px]
+                                            flex items-center gap-1.5 active:scale-95
+                                            ${isSelected
+                                                ? `${tab.color} text-white shadow-lg scale-105`
+                                                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                            }
+                                        `}
+                                    >
+                                        <span>{tab.icon}</span>
+                                        <span>{tab.label}</span>
+                                        <span className={`text-xs px-1.5 py-0.5 rounded-full ${isSelected ? "bg-white/30" : "bg-gray-200"}`}>
+                                            {collectedCount}/{tabUnits.length}
+                                        </span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {/* 所持のみ表示トグル */}
+                        <button
+                            onClick={() => setShowOwnedOnly(!showOwnedOnly)}
+                            className={`
+                                px-4 py-2.5 rounded-xl font-bold text-sm transition-all min-h-[44px]
+                                flex items-center gap-2 active:scale-95
+                                ${showOwnedOnly
+                                    ? "bg-green-500 text-white shadow-md"
+                                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                }
+                            `}
+                        >
+                            {showOwnedOnly ? "✅" : "👁️"} {t("owned_only") || "所持のみ"}
+                        </button>
                     </div>
                 </section>
 
                 {/* ユニットグリッド */}
-                <section>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                        {sortedUnits.map((unit) => {
-                            const isOwned = (unitInventory[unit.id] || 0) > 0;
-                            const count = unitInventory[unit.id] || 0;
-                            const unitHasAnimation = hasAnimation(unit.atlasKey || unit.id);
+                <section className="mb-8">
+                    {sortedUnits.length > 0 ? (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
+                            {sortedUnits.map((unit) => {
+                                const isOwned = (unitInventory[unit.id] || 0) > 0;
+                                const count = unitInventory[unit.id] || 0;
+                                const unitHasAnimation = hasAnimation(unit.atlasKey || unit.id);
+                                const config = rarityConfig[unit.rarity];
 
-                            return (
-                                <div
-                                    key={unit.id}
-                                    className={`
-                                        relative bg-white rounded-xl p-3 shadow-md
-                                        cursor-pointer hover:shadow-lg transition-all
-                                        ${!isOwned ? "opacity-50 grayscale" : "hover:scale-105"}
-                                    `}
-                                    onClick={() => handleUnitClick(unit)}
-                                >
-                                    {/* 所持数バッジ */}
-                                    {isOwned && (
-                                        <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-green-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10">
-                                            {count > 99 ? "99+" : count}
+                                return (
+                                    <div
+                                        key={unit.id}
+                                        className={`
+                                            relative rounded-2xl p-3 md:p-4 shadow-md
+                                            cursor-pointer transition-all duration-200
+                                            ${isOwned
+                                                ? `bg-white border-2 ${config.border} hover:scale-105 hover:shadow-xl`
+                                                : "bg-gray-100 border-2 border-gray-200 opacity-60 grayscale"
+                                            }
+                                        `}
+                                        onClick={() => handleUnitClick(unit)}
+                                    >
+                                        {/* 所持数バッジ */}
+                                        {isOwned && (
+                                            <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-green-500 text-white text-sm font-bold flex items-center justify-center border-2 border-white shadow-lg z-10">
+                                                {count > 99 ? "99+" : count}
+                                            </div>
+                                        )}
+
+                                        {/* 未所持マーク */}
+                                        {!isOwned && (
+                                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl z-10 opacity-60">
+                                                🔒
+                                            </div>
+                                        )}
+
+                                        {/* アニメーションバッジ */}
+                                        {unitHasAnimation && isOwned && (
+                                            <div className="absolute -top-2 -left-2 w-8 h-8 rounded-full bg-purple-500 text-white text-sm flex items-center justify-center border-2 border-white shadow-lg z-10">
+                                                🎬
+                                            </div>
+                                        )}
+
+                                        {/* 飛行バッジ */}
+                                        {unit.isFlying && isOwned && (
+                                            <div className={`absolute ${unitHasAnimation ? "top-6" : "-top-2"} -left-2 w-8 h-8 rounded-full bg-sky-500 text-white text-sm flex items-center justify-center border-2 border-white shadow-lg z-10`}>
+                                                🪽
+                                            </div>
+                                        )}
+
+                                        <div className="flex justify-center mb-2">
+                                            <RarityFrame
+                                                unitId={unit.id}
+                                                unitName={unit.name}
+                                                rarity={unit.rarity}
+                                                size="lg"
+                                                showLabel={true}
+                                                baseUnitId={unit.baseUnitId}
+                                                grayscale={!isOwned}
+                                            />
                                         </div>
-                                    )}
 
-                                    {/* 未所持マーク */}
-                                    {!isOwned && (
-                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl z-10 opacity-70">
-                                            🔒
+                                        <div className="text-center">
+                                            <div className={`text-sm font-bold leading-tight min-h-[2.5rem] flex items-center justify-center ${!isOwned ? "text-gray-400" : ""}`}>
+                                                {unit.name}
+                                            </div>
+                                            <div className="flex items-center justify-center gap-1 mt-1 text-xs flex-wrap">
+                                                <span className={`font-bold ${config.text}`}>
+                                                    {unit.rarity}
+                                                </span>
+                                                <span className="text-gray-400">|</span>
+                                                <span className={isOwned ? "text-gray-600" : "text-gray-400"}>
+                                                    {t(getSizeCategory(unit.scale ?? 1))}
+                                                </span>
+                                                {unit.isFlying && (
+                                                    <>
+                                                        <span className="text-gray-400">|</span>
+                                                        <span className={isOwned ? "text-sky-500" : "text-gray-400"}>
+                                                            {t("flying")}
+                                                        </span>
+                                                    </>
+                                                )}
+                                            </div>
                                         </div>
-                                    )}
-
-                                    {/* アニメーションバッジ */}
-                                    {unitHasAnimation && isOwned && (
-                                        <div className="absolute -top-2 -left-2 w-7 h-7 rounded-full bg-purple-500 text-white text-xs flex items-center justify-center border-2 border-white shadow z-10" title="Has Animation">
-                                            🎬
-                                        </div>
-                                    )}
-
-                                    {/* 飛行バッジ */}
-                                    {unit.isFlying && isOwned && (
-                                        <div className={`absolute ${unitHasAnimation ? "-bottom-2" : "-top-2"} -left-2 w-7 h-7 rounded-full bg-sky-500 text-white text-xs flex items-center justify-center border-2 border-white shadow z-10`} title="Flying Unit">
-                                            🪽
-                                        </div>
-                                    )}
-
-                                    <div className="flex justify-center">
-                                        <RarityFrame
-                                            unitId={unit.id}
-                                            unitName={unit.name}
-                                            rarity={unit.rarity}
-                                            size="md"
-                                            showLabel={true}
-                                            baseUnitId={unit.baseUnitId}
-                                            grayscale={!isOwned}
-                                        />
                                     </div>
-
-                                    <div className="mt-2 text-center">
-                                        <div className={`text-sm font-bold leading-tight min-h-[2.5rem] flex items-center justify-center ${!isOwned ? "text-gray-400" : ""}`}>
-                                            {unit.name}
-                                        </div>
-                                        <div className="flex items-center justify-center gap-1 mt-1 text-xs">
-                                            <span className={`font-bold ${
-                                                unit.rarity === "UR" ? "text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500" :
-                                                unit.rarity === "SSR" ? "text-amber-600" :
-                                                unit.rarity === "SR" ? "text-purple-600" :
-                                                unit.rarity === "R" ? "text-blue-600" :
-                                                "text-gray-500"
-                                            }`}>
-                                                {unit.rarity}
-                                            </span>
-                                            <span className="text-gray-400">|</span>
-                                            <span className="text-gray-600" title={`${(unit.scale ?? 1).toFixed(1)}x`}>
-                                                {t(getSizeCategory(unit.scale ?? 1))}
-                                            </span>
-                                            {unit.isFlying && (
-                                                <>
-                                                    <span className="text-gray-400">|</span>
-                                                    <span className="text-sky-500">{t("flying")}</span>
-                                                </>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-
-                    {sortedUnits.length === 0 && (
-                        <div className="text-center py-12 text-gray-500">
-                            {t("no_units_in_filter")}
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div className="text-center py-16 bg-white rounded-2xl shadow-md">
+                            <div className="text-5xl mb-4">🔍</div>
+                            <p className="text-gray-500 text-lg">{t("no_units_in_filter")}</p>
                         </div>
                     )}
                 </section>
 
                 {/* ヒント */}
-                <section className="mt-8 text-center text-gray-500 text-sm">
-                    <p>💡 {t("collection_hint")}</p>
+                <section className="text-center text-amber-700 text-sm bg-amber-100/50 rounded-xl p-4">
+                    💡 {t("collection_hint")}
                 </section>
             </div>
 

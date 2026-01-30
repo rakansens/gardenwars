@@ -4,14 +4,23 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import unitsData from "@/data/units";
-import type { UnitDefinition } from "@/data/types";
+import type { UnitDefinition, Rarity } from "@/data/types";
 import RarityFrame from "@/components/ui/RarityFrame";
 import UnitDetailModal from "@/components/ui/UnitDetailModal";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
 
 const allUnits = unitsData as UnitDefinition[];
 
 const REFRESH_COST = 100;
+
+// レアリティカラー
+const rarityColors: Record<Rarity, { border: string; bg: string; glow: string }> = {
+    N: { border: "border-gray-400", bg: "from-gray-700 to-gray-800", glow: "" },
+    R: { border: "border-blue-400", bg: "from-blue-900 to-blue-950", glow: "shadow-blue-500/20" },
+    SR: { border: "border-purple-400", bg: "from-purple-900 to-purple-950", glow: "shadow-purple-500/30" },
+    SSR: { border: "border-amber-400", bg: "from-amber-900 to-orange-950", glow: "shadow-amber-500/40" },
+    UR: { border: "border-pink-400", bg: "from-pink-900 via-purple-900 to-cyan-900", glow: "shadow-pink-500/50" },
+};
 
 export default function ShopPage() {
     const { coins, shopItems, buyShopItem, refreshShop, spendCoins, isLoaded } = usePlayerData();
@@ -20,9 +29,14 @@ export default function ShopPage() {
     const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
     const [targetIndex, setTargetIndex] = useState<number>(-1);
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const [purchaseSuccess, setPurchaseSuccess] = useState(false);
 
     if (!isLoaded) {
-        return <div className="min-h-screen flex items-center justify-center text-white">{t("loading")}</div>;
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-[#1a1a2e] text-white">
+                <div className="text-xl animate-pulse">🛒 {t("loading")}</div>
+            </div>
+        );
     }
 
     const handleItemClick = (index: number) => {
@@ -36,11 +50,11 @@ export default function ShopPage() {
         if (targetIndex === -1) return;
         const success = buyShopItem(targetIndex);
         if (success) {
-            // Success Effect?
-            alert("Purchased!");
-            setPurchaseModalOpen(false);
-        } else {
-            alert(t("not_enough_coins"));
+            setPurchaseSuccess(true);
+            setTimeout(() => {
+                setPurchaseSuccess(false);
+                setPurchaseModalOpen(false);
+            }, 1000);
         }
     };
 
@@ -51,7 +65,7 @@ export default function ShopPage() {
         setTimeout(() => {
             refreshShop();
             setIsRefreshing(false);
-        }, 300);
+        }, 500);
     };
 
     const targetItem = targetIndex !== -1 ? shopItems[targetIndex] : null;
@@ -63,159 +77,229 @@ export default function ShopPage() {
     };
 
     return (
-        <main className="min-h-screen p-4 pb-24 bg-[#1a1a2e] text-white">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6 sticky top-0 bg-[#1a1a2e]/90 z-20 p-2 backdrop-blur-sm border-b border-white/10">
-                <Link href="/" className="btn btn-secondary text-sm">
-                    {t("back_to_home")}
-                </Link>
-                <h1 className="text-2xl font-bold text-amber-400">{t("shop_title")}</h1>
-                <div className="btn btn-primary pointer-events-none">
-                    💰 {coins.toLocaleString()}
+        <main className="min-h-screen bg-gradient-to-b from-[#1a1a2e] via-[#16213e] to-[#0f0f23] text-white">
+            {/* ヘッダー */}
+            <div className="sticky top-0 z-20 bg-gradient-to-b from-[#1a1a2e] to-[#1a1a2e]/95 backdrop-blur-md border-b border-white/10">
+                <div className="max-w-6xl mx-auto px-4 py-3">
+                    <div className="flex items-center justify-between gap-3">
+                        <Link href="/" className="btn btn-secondary text-sm">
+                            ← {t("back_to_home")}
+                        </Link>
+                        <h1 className="text-xl md:text-2xl font-bold text-amber-400 flex items-center gap-2">
+                            🛒 {t("shop_title")}
+                        </h1>
+                        <div className="flex items-center gap-2">
+                            <LanguageSwitch />
+                            <div className="bg-gradient-to-r from-amber-600 to-orange-600 px-4 py-2 rounded-xl font-bold shadow-lg flex items-center gap-2">
+                                <span className="text-xl">💰</span>
+                                <span className="text-lg">{coins.toLocaleString()}</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* Hint + Refresh */}
-            <div className="text-center mb-6">
-                <p className="text-sm text-gray-400 mb-3 whitespace-pre-wrap">
-                    {t("shop_hint")}
-                </p>
-                <button
-                    onClick={handleRefresh}
-                    disabled={coins < REFRESH_COST || isRefreshing}
-                    className={`px-6 py-3 rounded-xl font-bold transition-all ${coins < REFRESH_COST || isRefreshing
-                        ? "bg-gray-700 text-gray-500 cursor-not-allowed"
-                        : "bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:scale-105 shadow-lg"
-                        }`}
-                >
-                    {isRefreshing ? "🔄..." : `🔄 ${t("refresh_shop")} (💰 ${REFRESH_COST})`}
-                </button>
-            </div>
-
-            {/* Grid */}
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 max-w-6xl mx-auto">
-                {shopItems.map((item, index) => {
-                    const unit = allUnits.find(u => u.id === item.unitId);
-                    if (!unit) return null;
-                    const unitName = getUnitName(unit);
-
-                    return (
-                        <div
-                            key={item.uid}
-                            className={`relative p-2 rounded-xl border-2 transition-transform duration-200 
-                                ${item.soldOut
-                                    ? "bg-gray-800 border-gray-700 opacity-50 grayscale"
-                                    : "bg-gradient-to-br from-indigo-900 to-slate-900 border-indigo-500 hover:scale-105 cursor-pointer shadow-lg"
+            <div className="max-w-6xl mx-auto px-4 py-6">
+                {/* リフレッシュセクション */}
+                <div className="bg-gradient-to-r from-slate-800/50 to-slate-900/50 rounded-2xl p-4 md:p-6 mb-6 border border-white/10">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div className="text-center sm:text-left">
+                            <h2 className="text-lg font-bold text-white mb-1">{t("shop_hint")}</h2>
+                            <p className="text-sm text-gray-400">
+                                {shopItems.filter(i => !i.soldOut).length} / {shopItems.length} {t("available")}
+                            </p>
+                        </div>
+                        <button
+                            onClick={handleRefresh}
+                            disabled={coins < REFRESH_COST || isRefreshing}
+                            className={`
+                                px-6 py-3 md:px-8 md:py-4 rounded-2xl font-bold text-base md:text-lg transition-all min-h-[52px]
+                                flex items-center gap-2 active:scale-95
+                                ${coins < REFRESH_COST || isRefreshing
+                                    ? "bg-gray-700 text-gray-500 cursor-not-allowed"
+                                    : "bg-gradient-to-r from-emerald-500 to-green-600 text-white hover:scale-105 shadow-lg shadow-emerald-500/30"
                                 }
                             `}
-                            onClick={() => handleItemClick(index)}
                         >
-                            {/* Discount Badge */}
-                            {item.discount && !item.soldOut && (
-                                <div className="absolute -top-3 -right-3 bg-red-600 text-white font-bold text-xs px-2 py-1 rounded-full z-10 animate-bounce">
-                                    {item.discount}% OFF
-                                </div>
-                            )}
+                            <span className={isRefreshing ? "animate-spin" : ""}>🔄</span>
+                            <span>{t("refresh_shop")}</span>
+                            <span className="bg-black/20 px-2 py-0.5 rounded-lg text-sm">💰 {REFRESH_COST}</span>
+                        </button>
+                    </div>
+                </div>
 
-                            {/* Rare Badge */}
-                            {item.isRare && !item.soldOut && !item.discount && (
-                                <div className="absolute -top-3 -right-3 bg-amber-500 text-white font-bold text-xs px-2 py-1 rounded-full z-10">
-                                    RARE!
-                                </div>
-                            )}
+                {/* 商品グリッド */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
+                    {shopItems.map((item, index) => {
+                        const unit = allUnits.find(u => u.id === item.unitId);
+                        if (!unit) return null;
+                        const unitName = getUnitName(unit);
+                        const colors = rarityColors[unit.rarity];
 
-                            {/* Unit Icon */}
-                            <div className="flex justify-center mb-1">
-                                <RarityFrame
-                                    unitId={unit.id}
-                                    unitName={unitName}
-                                    rarity={unit.rarity}
-                                    size="sm"
-                                    showLabel={false}
-                                    baseUnitId={unit.baseUnitId}
-                                />
-                            </div>
-
-                            {/* Stats */}
-                            <div className="flex justify-center gap-2 mb-1 text-[10px]">
-                                <span className="text-green-400">❤️{unit.maxHp}</span>
-                                <span className="text-red-400">⚔️{unit.attackDamage}</span>
-                            </div>
-
-                            {/* Info */}
-                            <div className="text-center">
-                                <div className="text-[10px] font-bold truncate mb-1 text-indigo-100">
-                                    {unitName}
-                                </div>
-                                <div className={`text-sm font-bold ${item.soldOut ? "text-gray-500" : "text-amber-300"}`}>
-                                    {item.soldOut ? t("sold_out") : `💰 ${item.price}`}
-                                </div>
-                            </div>
-
-                            {/* Detail Button (Small trigger area) */}
-                            <button
-                                className="absolute top-1 left-1 w-6 h-6 bg-white/10 rounded-full flex items-center justify-center text-xs hover:bg-white/30"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setViewingUnit(unit);
-                                }}
+                        return (
+                            <div
+                                key={item.uid}
+                                className={`
+                                    relative rounded-2xl border-2 transition-all duration-200 overflow-hidden
+                                    ${item.soldOut
+                                        ? "bg-gray-800/50 border-gray-700 opacity-60 grayscale"
+                                        : `bg-gradient-to-br ${colors.bg} ${colors.border} hover:scale-105 cursor-pointer shadow-xl ${colors.glow}`
+                                    }
+                                `}
+                                onClick={() => handleItemClick(index)}
                             >
-                                🔍
-                            </button>
-                        </div>
-                    );
-                })}
+                                {/* 割引バッジ */}
+                                {item.discount && !item.soldOut && (
+                                    <div className="absolute -top-1 -right-1 bg-red-500 text-white font-bold text-xs px-2.5 py-1.5 rounded-bl-xl rounded-tr-xl z-10 shadow-lg">
+                                        -{item.discount}%
+                                    </div>
+                                )}
+
+                                {/* レアバッジ */}
+                                {item.isRare && !item.soldOut && !item.discount && (
+                                    <div className="absolute -top-1 -right-1 bg-gradient-to-r from-amber-500 to-yellow-500 text-white font-bold text-xs px-2.5 py-1.5 rounded-bl-xl rounded-tr-xl z-10 shadow-lg animate-pulse">
+                                        RARE
+                                    </div>
+                                )}
+
+                                {/* 売り切れオーバーレイ */}
+                                {item.soldOut && (
+                                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-10">
+                                        <div className="bg-gray-900/90 px-4 py-2 rounded-xl text-gray-400 font-bold">
+                                            {t("sold_out")}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* コンテンツ */}
+                                <div className="p-3 md:p-4">
+                                    {/* ユニット画像 */}
+                                    <div className="flex justify-center mb-2">
+                                        <RarityFrame
+                                            unitId={unit.id}
+                                            unitName={unitName}
+                                            rarity={unit.rarity}
+                                            size="md"
+                                            showLabel={true}
+                                            baseUnitId={unit.baseUnitId}
+                                        />
+                                    </div>
+
+                                    {/* ステータス */}
+                                    <div className="flex justify-center gap-3 mb-2 text-xs">
+                                        <span className="bg-black/30 px-2 py-1 rounded-lg text-green-400">❤️ {unit.maxHp}</span>
+                                        <span className="bg-black/30 px-2 py-1 rounded-lg text-red-400">⚔️ {unit.attackDamage}</span>
+                                    </div>
+
+                                    {/* 名前 */}
+                                    <div className="text-center mb-2">
+                                        <div className="text-sm font-bold truncate text-white/90">
+                                            {unitName}
+                                        </div>
+                                    </div>
+
+                                    {/* 価格 */}
+                                    <div className={`
+                                        text-center py-2 rounded-xl font-bold text-lg
+                                        ${item.soldOut
+                                            ? "bg-gray-700/50 text-gray-500"
+                                            : "bg-gradient-to-r from-amber-600/80 to-orange-600/80 text-white"
+                                        }
+                                    `}>
+                                        💰 {item.price.toLocaleString()}
+                                    </div>
+                                </div>
+
+                                {/* 詳細ボタン */}
+                                <button
+                                    className="absolute top-2 left-2 w-8 h-8 bg-white/10 hover:bg-white/30 rounded-full flex items-center justify-center text-sm transition-colors"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setViewingUnit(unit);
+                                    }}
+                                >
+                                    🔍
+                                </button>
+                            </div>
+                        );
+                    })}
+                </div>
+
+                {/* ヒント */}
+                <div className="mt-8 text-center text-gray-500 text-sm">
+                    💡 ステージをクリアしてコインを集めよう！
+                </div>
             </div>
 
-            {/* Purchase Modal */}
+            {/* 購入確認モーダル */}
             {purchaseModalOpen && targetItem && targetUnit && (
-                <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/80 p-2 sm:p-4 overflow-y-auto animate-in fade-in zoom-in duration-200">
-                    <div className="bg-slate-900 border-4 border-amber-500 rounded-3xl p-4 sm:p-6 max-w-sm w-full text-center shadow-2xl relative overflow-hidden my-auto sm:my-4">
-                        {/* Background Glare */}
+                <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/80 p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
+                    <div className="bg-gradient-to-b from-slate-800 to-slate-900 border-4 border-amber-500 rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl relative overflow-hidden my-auto sm:my-4">
+                        {/* 背景エフェクト */}
                         <div className="absolute -top-20 -left-20 w-60 h-60 bg-amber-500/20 blur-3xl rounded-full pointer-events-none"></div>
+                        <div className="absolute -bottom-20 -right-20 w-60 h-60 bg-orange-500/20 blur-3xl rounded-full pointer-events-none"></div>
 
-                        <h2 className="text-2xl font-bold mb-4 text-white">{t("confirm_purchase")}</h2>
+                        {purchaseSuccess ? (
+                            <div className="py-12">
+                                <div className="text-6xl mb-4 animate-bounce">🎉</div>
+                                <div className="text-2xl font-bold text-green-400">{t("purchase_success") || "購入完了！"}</div>
+                            </div>
+                        ) : (
+                            <>
+                                <h2 className="text-2xl font-bold mb-4 text-white relative z-10">{t("confirm_purchase")}</h2>
 
-                        <div className="flex justify-center mb-6">
-                            <RarityFrame
-                                unitId={targetUnit.id}
-                                unitName={getUnitName(targetUnit)}
-                                rarity={targetUnit.rarity}
-                                size="xl"
-                                showLabel={true}
-                                baseUnitId={targetUnit.baseUnitId}
-                            />
-                        </div>
+                                <div className="flex justify-center mb-4 relative z-10">
+                                    <RarityFrame
+                                        unitId={targetUnit.id}
+                                        unitName={getUnitName(targetUnit)}
+                                        rarity={targetUnit.rarity}
+                                        size="xl"
+                                        showLabel={true}
+                                        baseUnitId={targetUnit.baseUnitId}
+                                    />
+                                </div>
 
-                        <div className="text-amber-300 text-3xl font-bold mb-6">
-                            💰 {targetItem.price}
-                        </div>
+                                <div className="text-xl font-bold text-white/80 mb-2 relative z-10">
+                                    {getUnitName(targetUnit)}
+                                </div>
 
-                        <div className="flex gap-4 justify-center">
-                            <button
-                                onClick={() => setPurchaseModalOpen(false)}
-                                className="px-6 py-3 rounded-xl bg-gray-600 font-bold hover:bg-gray-500 transition-colors"
-                            >
-                                {t("cancel")}
-                            </button>
-                            <button
-                                onClick={handleBuy}
-                                disabled={coins < targetItem.price}
-                                className={`px-8 py-3 rounded-xl font-bold text-lg shadow-lg transition-transform hover:scale-105 
-                                    ${coins < targetItem.price
-                                        ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                                        : "bg-gradient-to-r from-amber-500 to-orange-600 text-white"
-                                    }`
-                                }
-                            >
-                                {coins < targetItem.price ? t("not_enough_coins") : t("buy")}
-                            </button>
-                        </div>
+                                <div className="bg-black/30 rounded-2xl p-4 mb-6 relative z-10">
+                                    <div className="text-amber-300 text-3xl font-bold">
+                                        💰 {targetItem.price.toLocaleString()}
+                                    </div>
+                                    <div className="text-sm text-gray-400 mt-1">
+                                        {t("balance")}: 💰 {coins.toLocaleString()} → {(coins - targetItem.price).toLocaleString()}
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-3 justify-center relative z-10">
+                                    <button
+                                        onClick={() => setPurchaseModalOpen(false)}
+                                        className="px-6 py-3 rounded-xl bg-gray-600 hover:bg-gray-500 font-bold transition-all active:scale-95 min-h-[48px]"
+                                    >
+                                        {t("cancel")}
+                                    </button>
+                                    <button
+                                        onClick={handleBuy}
+                                        disabled={coins < targetItem.price}
+                                        className={`
+                                            px-8 py-3 rounded-xl font-bold text-lg shadow-lg transition-all active:scale-95 min-h-[48px]
+                                            ${coins < targetItem.price
+                                                ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+                                                : "bg-gradient-to-r from-amber-500 to-orange-600 text-white hover:scale-105"
+                                            }
+                                        `}
+                                    >
+                                        {coins < targetItem.price ? t("not_enough_coins") : t("buy")}
+                                    </button>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             )}
 
-            {/* Detail Modal */}
+            {/* 詳細モーダル */}
             {viewingUnit && (
                 <UnitDetailModal
                     unit={viewingUnit}
