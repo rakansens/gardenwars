@@ -33,7 +33,7 @@
       "skyColor": "0x87ceeb",
       "groundColor": "0x7cb342",
       "cloudColor": "0xffffff",
-      "image": "/assets/stages/tutorial_1.png"
+      "image": "/assets/stages/tutorial_1.webp"
     },
     "difficulty": "tutorial"
   },
@@ -81,7 +81,7 @@
       "skyColor": "0x98d8c8",
       "groundColor": "0x66bb6a",
       "cloudColor": "0xffffff",
-      "image": "/assets/stages/tutorial_2.png"
+      "image": "/assets/stages/tutorial_2.webp"
     },
     "difficulty": "tutorial"
   },
@@ -135,7 +135,7 @@
       "skyColor": "0xb3e5fc",
       "groundColor": "0x81c784",
       "cloudColor": "0xe1f5fe",
-      "image": "/assets/stages/tutorial_3.png"
+      "image": "/assets/stages/tutorial_3.webp"
     },
     "difficulty": "tutorial"
   },
@@ -189,7 +189,7 @@
       "skyColor": "0x87ceeb",
       "groundColor": "0x4a7c23",
       "cloudColor": "0xffffff",
-      "image": "/assets/stages/stage_1.png"
+      "image": "/assets/stages/stage_1.webp"
     },
     "difficulty": "easy"
   },
@@ -249,7 +249,7 @@
       "skyColor": "0x6eb56e",
       "groundColor": "0x2d5016",
       "cloudColor": "0xd4e8d4",
-      "image": "/assets/stages/stage_2.png"
+      "image": "/assets/stages/stage_2.webp"
     },
     "difficulty": "easy"
   },
@@ -315,7 +315,7 @@
       "skyColor": "0xf5d6a0",
       "groundColor": "0xc4a35a",
       "cloudColor": "0xffeebb",
-      "image": "/assets/stages/stage_3.png"
+      "image": "/assets/stages/stage_3.webp"
     },
     "difficulty": "easy"
   },
@@ -375,7 +375,7 @@
       "skyColor": "0xff7e47",
       "groundColor": "0x8b6914",
       "cloudColor": "0xffb347",
-      "image": "/assets/stages/stage_4.png"
+      "image": "/assets/stages/stage_4.webp"
     },
     "difficulty": "normal"
   },
@@ -441,7 +441,7 @@
       "skyColor": "0x2a2a3a",
       "groundColor": "0x1a1a2a",
       "cloudColor": "0x404050",
-      "image": "/assets/stages/stage_5.png"
+      "image": "/assets/stages/stage_5.webp"
     },
     "difficulty": "normal"
   },
@@ -507,7 +507,7 @@
       "skyColor": "0xc8e6ff",
       "groundColor": "0xf0f8ff",
       "cloudColor": "0xffffff",
-      "image": "/assets/stages/stage_6.png"
+      "image": "/assets/stages/stage_6.webp"
     },
     "difficulty": "normal"
   },
@@ -579,7 +579,7 @@
       "skyColor": "0x4a1010",
       "groundColor": "0x2a0808",
       "cloudColor": "0x6a3030",
-      "image": "/assets/stages/stage_7.png"
+      "image": "/assets/stages/stage_7.webp"
     },
     "difficulty": "normal"
   },
@@ -651,7 +651,7 @@
       "skyColor": "0x1a0a2e",
       "groundColor": "0x0a0515",
       "cloudColor": "0x3a1a4e",
-      "image": "/assets/stages/stage_8.png"
+      "image": "/assets/stages/stage_8.webp"
     },
     "difficulty": "normal"
   },
@@ -717,7 +717,7 @@
       "skyColor": "0x2a0a0a",
       "groundColor": "0x1a0505",
       "cloudColor": "0x4a1010",
-      "image": "/assets/stages/stage_9.png"
+      "image": "/assets/stages/stage_9.webp"
     },
     "difficulty": "hard"
   },
@@ -783,7 +783,7 @@
       "skyColor": "0x0a0a2a",
       "groundColor": "0x050515",
       "cloudColor": "0x1a1a4a",
-      "image": "/assets/stages/stage_10.png"
+      "image": "/assets/stages/stage_10.webp"
     },
     "difficulty": "hard"
   },
@@ -849,7 +849,7 @@
       "skyColor": "0x3a0a3a",
       "groundColor": "0x1a051a",
       "cloudColor": "0x5a1a5a",
-      "image": "/assets/stages/stage_11.png"
+      "image": "/assets/stages/stage_11.webp"
     },
     "difficulty": "hard"
   },
@@ -921,7 +921,7 @@
       "skyColor": "0x0a0000",
       "groundColor": "0x050000",
       "cloudColor": "0x300000",
-      "image": "/assets/stages/stage_12.png"
+      "image": "/assets/stages/stage_12.webp"
     },
     "difficulty": "hard"
   },
@@ -981,7 +981,7 @@
       "skyColor": "0x200020",
       "groundColor": "0x100010",
       "cloudColor": "0x400040",
-      "image": "/assets/stages/stage_13.png"
+      "image": "/assets/stages/stage_13.webp"
     },
     "difficulty": "hard"
   },
@@ -1035,7 +1035,7 @@
       "skyColor": "0x500000",
       "groundColor": "0x200000",
       "cloudColor": "0x800000",
-      "image": "/assets/stages/stage_14.png"
+      "image": "/assets/stages/stage_14.webp"
     },
     "difficulty": "hard"
   },
@@ -1095,7 +1095,7 @@
       "skyColor": "0x000000",
       "groundColor": "0x1a1a1a",
       "cloudColor": "0x333333",
-      "image": "/assets/stages/stage_15.png"
+      "image": "/assets/stages/stage_15.webp"
     },
     "difficulty": "hard"
   },
@@ -1167,7 +1167,7 @@
       "skyColor": "0x0a0000",
       "groundColor": "0x050000",
       "cloudColor": "0x200000",
-      "image": "/assets/stages/stage_16.png"
+      "image": "/assets/stages/stage_16.webp"
     },
     "difficulty": "extreme"
   },
@@ -1245,7 +1245,7 @@
       "skyColor": "0x100005",
       "groundColor": "0x080002",
       "cloudColor": "0x300010",
-      "image": "/assets/stages/stage_17.png"
+      "image": "/assets/stages/stage_17.webp"
     },
     "difficulty": "extreme"
   },
@@ -1323,7 +1323,7 @@
       "skyColor": "0x050010",
       "groundColor": "0x020008",
       "cloudColor": "0x100030",
-      "image": "/assets/stages/stage_18.png"
+      "image": "/assets/stages/stage_18.webp"
     },
     "difficulty": "extreme"
   },
@@ -1407,7 +1407,7 @@
       "skyColor": "0x000008",
       "groundColor": "0x000004",
       "cloudColor": "0x000020",
-      "image": "/assets/stages/stage_19.png"
+      "image": "/assets/stages/stage_19.webp"
     },
     "difficulty": "extreme"
   },
@@ -1501,7 +1501,7 @@
       "skyColor": "0x000000",
       "groundColor": "0x000000",
       "cloudColor": "0x0a0a0a",
-      "image": "/assets/stages/stage_20.png"
+      "image": "/assets/stages/stage_20.webp"
     },
     "difficulty": "extreme"
   }

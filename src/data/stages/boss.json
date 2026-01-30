@@ -32,7 +32,7 @@
       "skyColor": "0x2a1a1a",
       "groundColor": "0x1a0a0a",
       "cloudColor": "0x4a2a2a",
-      "image": "/assets/stages/boss_stage_1.png"
+      "image": "/assets/stages/boss_stage_1.webp"
     },
     "difficulty": "boss"
   },
@@ -69,7 +69,7 @@
       "skyColor": "0x1a2a1a",
       "groundColor": "0x0a1a0a",
       "cloudColor": "0x2a4a2a",
-      "image": "/assets/stages/boss_stage_2.png"
+      "image": "/assets/stages/boss_stage_2.webp"
     },
     "difficulty": "boss"
   },
@@ -110,7 +110,7 @@
       "skyColor": "0x0a0a1a",
       "groundColor": "0x050510",
       "cloudColor": "0x1a1a3a",
-      "image": "/assets/stages/boss_stage_3.png"
+      "image": "/assets/stages/boss_stage_3.webp"
     },
     "difficulty": "boss"
   },
@@ -151,7 +151,7 @@
       "skyColor": "0x1a0a2a",
       "groundColor": "0x100520",
       "cloudColor": "0x2a1a4a",
-      "image": "/assets/stages/boss_stage_4.png"
+      "image": "/assets/stages/boss_stage_4.webp"
     },
     "difficulty": "boss"
   },
@@ -192,7 +192,7 @@
       "skyColor": "0x2a0a1a",
       "groundColor": "0x150510",
       "cloudColor": "0x4a1a2a",
-      "image": "/assets/stages/boss_stage_5.png"
+      "image": "/assets/stages/boss_stage_5.webp"
     },
     "difficulty": "boss"
   }

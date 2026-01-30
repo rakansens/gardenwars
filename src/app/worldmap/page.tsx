@@ -28,7 +28,7 @@ const AREA_TABS: {
         subKey: "difficulty_tutorial_sub",
         icon: "🌱",
         gradient: "from-green-400 to-emerald-600",
-        banner: "/assets/stages/tutorial_banner.png",
+        banner: "/assets/stages/tutorial_banner.webp",
     },
     {
         key: "easy",
@@ -36,7 +36,7 @@ const AREA_TABS: {
         subKey: "difficulty_easy_sub",
         icon: "🌲",
         gradient: "from-green-500 to-teal-600",
-        banner: "/assets/stages/easy_banner.png",
+        banner: "/assets/stages/easy_banner.webp",
     },
     {
         key: "normal",
@@ -44,7 +44,7 @@ const AREA_TABS: {
         subKey: "difficulty_normal_sub",
         icon: "🌅",
         gradient: "from-orange-400 to-rose-500",
-        banner: "/assets/stages/normal_banner.png",
+        banner: "/assets/stages/normal_banner.webp",
     },
     {
         key: "hard",
@@ -52,7 +52,7 @@ const AREA_TABS: {
         subKey: "difficulty_hard_sub",
         icon: "🌑",
         gradient: "from-purple-600 to-indigo-900",
-        banner: "/assets/stages/hard_banner.png",
+        banner: "/assets/stages/hard_banner.webp",
     },
     {
         key: "extreme",
@@ -60,7 +60,7 @@ const AREA_TABS: {
         subKey: "difficulty_extreme_sub",
         icon: "🔥",
         gradient: "from-red-600 to-red-900",
-        banner: "/assets/stages/extreme_banner.png",
+        banner: "/assets/stages/extreme_banner.webp",
     },
     {
         key: "boss",
@@ -68,7 +68,7 @@ const AREA_TABS: {
         subKey: "difficulty_boss_sub",
         icon: "👑",
         gradient: "from-purple-700 to-black",
-        banner: "/assets/stages/boss_banner.png",
+        banner: "/assets/stages/boss_banner.webp",
     },
 ];
 
