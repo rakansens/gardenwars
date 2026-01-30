@@ -32,7 +32,8 @@
     "background": {
       "skyColor": "0x87ceeb",
       "groundColor": "0x7cb342",
-      "cloudColor": "0xffffff"
+      "cloudColor": "0xffffff",
+      "image": "/assets/stages/tutorial_banner.png"
     },
     "difficulty": "tutorial"
   },

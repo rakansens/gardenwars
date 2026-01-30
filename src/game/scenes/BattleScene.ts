@@ -139,6 +139,11 @@ export class BattleScene extends Phaser.Scene {
         this.load.image('castle_ally', '/assets/sprites/castle_ally.png');
         this.load.image('castle_enemy', '/assets/sprites/castle_enemy.png');
 
+        // 背景画像をロード（設定されている場合）
+        if (this.stageData.background?.image) {
+            this.load.image('stage_bg', this.stageData.background.image);
+        }
+
         // ユニットスプライトをロード（静止画フォールバック用）
         this.load.image('cat_warrior', '/assets/sprites/cat_warrior.png');
         this.load.image('cat_tank', '/assets/sprites/cat_tank.png');
@@ -788,25 +793,55 @@ export class BattleScene extends Phaser.Scene {
             cloudColor: '0xffffff'
         };
 
-        // 色文字列を数値に変換
-        const skyColor = parseInt(bg.skyColor.replace('0x', ''), 16);
-        const cloudColor = parseInt((bg.cloudColor || '0xffffff').replace('0x', ''), 16);
+        // 背景画像がある場合は画像を表示
+        if (bg.image && this.textures.exists('stage_bg')) {
+            const bgImage = this.add.image(0, 0, 'stage_bg');
+            bgImage.setOrigin(0, 0);
 
-        // 空のグラデーション
-        const sky = this.add.rectangle(width / 2, height / 2, width * 2, height, skyColor);
-        sky.setScrollFactor(0);
+            // 画面全体をカバーするようにスケール
+            const scaleX = (this.stageData.length + 100) / bgImage.width;
+            const scaleY = height / bgImage.height;
+            const scale = Math.max(scaleX, scaleY);
+            bgImage.setScale(scale);
 
-        // 雲（装飾）
-        for (let i = 0; i < 5; i++) {
-            const cloud = this.add.ellipse(
-                Math.random() * width * 2,
-                50 + Math.random() * 100,
-                80 + Math.random() * 60,
-                40 + Math.random() * 20,
-                cloudColor,
-                0.8
+            // 縦方向は画面下部に合わせる（地面を見せるため上部をカット）
+            bgImage.setY(height - bgImage.height * scale);
+
+            bgImage.setDepth(-10);
+            bgImage.setScrollFactor(0.3); // パララックス効果
+
+            // 軽いオーバーレイで統一感を出す
+            const overlay = this.add.rectangle(
+                (this.stageData.length + 100) / 2,
+                height / 2,
+                this.stageData.length + 100,
+                height,
+                parseInt(bg.skyColor.replace('0x', ''), 16),
+                0.2
             );
-            cloud.setScrollFactor(0.1);
+            overlay.setDepth(-9);
+            overlay.setScrollFactor(0);
+        } else {
+            // 従来の色ベース背景
+            const skyColor = parseInt(bg.skyColor.replace('0x', ''), 16);
+            const cloudColor = parseInt((bg.cloudColor || '0xffffff').replace('0x', ''), 16);
+
+            // 空のグラデーション
+            const sky = this.add.rectangle(width / 2, height / 2, width * 2, height, skyColor);
+            sky.setScrollFactor(0);
+
+            // 雲（装飾）
+            for (let i = 0; i < 5; i++) {
+                const cloud = this.add.ellipse(
+                    Math.random() * width * 2,
+                    50 + Math.random() * 100,
+                    80 + Math.random() * 60,
+                    40 + Math.random() * 20,
+                    cloudColor,
+                    0.8
+                );
+                cloud.setScrollFactor(0.1);
+            }
         }
     }
 

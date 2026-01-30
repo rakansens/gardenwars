@@ -79,6 +79,7 @@ export interface StageDefinition {
     skyColor: string;         // 空の色（16進数）
     groundColor: string;      // 地面の色（16進数）
     cloudColor?: string;      // 雲の色（オプション）
+    image?: string;           // 背景画像パス（オプション）
   };
   isBossStage?: boolean;      // ボスステージか
 }
