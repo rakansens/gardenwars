@@ -14,15 +14,23 @@ const stages = stagesData as StageDefinition[];
 const allUnits = unitsData as UnitDefinition[];
 
 // 難易度タブ設定
-const DIFFICULTY_TABS: { key: StageDifficulty | "all"; labelKey: string; icon: string; color: string }[] = [
-    { key: "all", labelKey: "difficulty_all", icon: "📋", color: "bg-gray-500" },
-    { key: "tutorial", labelKey: "difficulty_tutorial", icon: "🌱", color: "bg-green-400" },
-    { key: "easy", labelKey: "difficulty_easy", icon: "⭐", color: "bg-blue-400" },
-    { key: "normal", labelKey: "difficulty_normal", icon: "⭐⭐", color: "bg-yellow-500" },
-    { key: "hard", labelKey: "difficulty_hard", icon: "⭐⭐⭐", color: "bg-orange-500" },
-    { key: "extreme", labelKey: "difficulty_extreme", icon: "💀", color: "bg-red-600" },
-    { key: "boss", labelKey: "difficulty_boss", icon: "👑", color: "bg-purple-600" },
-    { key: "special", labelKey: "difficulty_special", icon: "✨", color: "bg-gradient-to-r from-pink-500 to-cyan-500" },
+const DIFFICULTY_TABS: {
+    key: StageDifficulty | "all";
+    labelKey: string;
+    subKey: string;
+    icon: string;
+    color: string;
+    banner?: string;
+    gradient: string;
+}[] = [
+    { key: "all", labelKey: "difficulty_all", subKey: "", icon: "📋", color: "bg-gray-500", gradient: "from-gray-600 to-gray-800" },
+    { key: "tutorial", labelKey: "difficulty_tutorial", subKey: "difficulty_tutorial_sub", icon: "🌱", color: "bg-green-400", banner: "/assets/stages/tutorial_banner.png", gradient: "from-green-400 to-emerald-600" },
+    { key: "easy", labelKey: "difficulty_easy", subKey: "difficulty_easy_sub", icon: "🌲", color: "bg-blue-400", banner: "/assets/stages/easy_banner.png", gradient: "from-green-500 to-teal-600" },
+    { key: "normal", labelKey: "difficulty_normal", subKey: "difficulty_normal_sub", icon: "🌅", color: "bg-yellow-500", banner: "/assets/stages/normal_banner.png", gradient: "from-orange-400 to-rose-500" },
+    { key: "hard", labelKey: "difficulty_hard", subKey: "difficulty_hard_sub", icon: "🌑", color: "bg-orange-500", banner: "/assets/stages/hard_banner.png", gradient: "from-purple-600 to-indigo-900" },
+    { key: "extreme", labelKey: "difficulty_extreme", subKey: "difficulty_extreme_sub", icon: "🔥", color: "bg-red-600", banner: "/assets/stages/extreme_banner.png", gradient: "from-red-600 to-red-900" },
+    { key: "boss", labelKey: "difficulty_boss", subKey: "difficulty_boss_sub", icon: "🏰", color: "bg-purple-600", banner: "/assets/stages/boss_banner.png", gradient: "from-purple-700 to-black" },
+    { key: "special", labelKey: "difficulty_special", subKey: "difficulty_special_sub", icon: "✨", color: "bg-gradient-to-r from-pink-500 to-cyan-500", banner: "/assets/stages/special_banner.png", gradient: "from-pink-400 via-purple-500 to-cyan-400" },
 ];
 
 // ステージのテーマアイコン
@@ -45,6 +53,11 @@ const stageIcons: { [key: string]: string } = {
     stage_13: "🥷",
     stage_14: "🛡️",
     stage_15: "👻",
+    stage_16: "🐕",
+    stage_17: "🦅",
+    stage_18: "🐺",
+    stage_19: "☠️",
+    stage_20: "🔥",
     boss_stage_1: "🧑",
     boss_stage_2: "🎸",
     boss_stage_3: "👩",
@@ -123,29 +136,61 @@ export default function StagesPage() {
                 </div>
             </div>
 
-            {/* 難易度タブ */}
-            <div className="mb-6 overflow-x-auto">
-                <div className="flex gap-2 min-w-max pb-2">
+            {/* 難易度タブ - ビジュアルカード */}
+            <div className="mb-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-3">
                     {DIFFICULTY_TABS.map(tab => {
                         const { cleared, total } = getClearCount(tab.key);
                         const isSelected = selectedDifficulty === tab.key;
+                        const isAllCleared = cleared === total && total > 0;
                         return (
                             <button
                                 key={tab.key}
                                 onClick={() => setSelectedDifficulty(tab.key)}
-                                className={`px-4 py-2 rounded-xl font-bold text-sm transition-all flex items-center gap-2 whitespace-nowrap ${
+                                className={`relative overflow-hidden rounded-xl transition-all duration-300 ${
                                     isSelected
-                                        ? `${tab.color} text-white shadow-lg scale-105`
-                                        : "bg-amber-100 text-amber-800 hover:bg-amber-200"
+                                        ? "ring-4 ring-yellow-400 scale-105 shadow-2xl z-10"
+                                        : "hover:scale-102 hover:shadow-lg opacity-80 hover:opacity-100"
                                 }`}
                             >
-                                <span>{tab.icon}</span>
-                                <span>{t(tab.labelKey)}</span>
-                                <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                                    isSelected ? "bg-white/30" : "bg-amber-200"
-                                }`}>
-                                    {cleared}/{total}
-                                </span>
+                                {/* バナー画像背景 */}
+                                <div className={`relative h-24 sm:h-28 bg-gradient-to-br ${tab.gradient}`}>
+                                    {tab.banner && (
+                                        <Image
+                                            src={tab.banner}
+                                            alt={t(tab.labelKey)}
+                                            fill
+                                            className="object-cover opacity-80"
+                                        />
+                                    )}
+                                    {/* オーバーレイ */}
+                                    <div className={`absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent`} />
+
+                                    {/* クリア済みバッジ */}
+                                    {isAllCleared && (
+                                        <div className="absolute top-1 right-1 bg-green-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                                            ✓
+                                        </div>
+                                    )}
+
+                                    {/* コンテンツ */}
+                                    <div className="absolute inset-0 flex flex-col justify-end p-2">
+                                        <div className="text-xl mb-0.5">{tab.icon}</div>
+                                        <div className="text-white font-bold text-xs sm:text-sm leading-tight drop-shadow-lg">
+                                            {t(tab.labelKey)}
+                                        </div>
+                                        {tab.subKey && (
+                                            <div className="text-white/70 text-[10px] drop-shadow">
+                                                {t(tab.subKey)}
+                                            </div>
+                                        )}
+                                        <div className={`text-[10px] font-bold mt-1 px-1.5 py-0.5 rounded-full inline-block w-fit ${
+                                            isAllCleared ? "bg-green-500/80" : "bg-white/30"
+                                        } text-white`}>
+                                            {cleared}/{total}
+                                        </div>
+                                    </div>
+                                </div>
                             </button>
                         );
                     })}
