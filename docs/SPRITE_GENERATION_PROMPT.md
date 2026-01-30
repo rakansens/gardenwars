@@ -185,3 +185,104 @@ for unit in ur_frost_giant ur_dragon ur_phoenix; do
   node remove_bg.js public/assets/sprites/${unit}_sheet.png
 done
 ```
+
+---
+
+## 📋 完全ワークフロー（新URユニット追加）
+
+### Step 1: スプライトシート生成
+```bash
+node generate_sprite.js public/assets/sprites/ur_xxx.png public/assets/sprites/ur_xxx_sheet.png
+```
+
+### Step 2: 背景除去
+```bash
+node remove_bg.js public/assets/sprites/ur_xxx_sheet.png
+```
+
+### Step 3: JSONメタデータ生成
+```bash
+node generate_sprite_json.js
+```
+※ `_sheet.json`がないユニットに自動生成
+
+### Step 4: allies.json更新
+```bash
+node update_units_atlas.js
+```
+または手動で`atlasKey`と`animKeys`を追加:
+```json
+{
+  "atlasKey": "ur_xxx",
+  "animKeys": {
+    "idle": "idle",
+    "walk": "walk",
+    "attack": "attack",
+    "die": "die"
+  }
+}
+```
+
+### Step 5: BattleScene.ts更新
+1. `preload()`に静止画とアトラスのロードを追加
+2. `createAnimations()`の`urUnits`配列にIDを追加
+
+### Step 6: UnitAnimationPreview.tsx更新
+1. `ANIMATED_UNITS`配列にIDを追加
+2. `smallSpriteUnits`配列にIDを追加（スケール調整用）
+
+---
+
+## ⚠️ トラブルシューティング
+
+### 背景除去がうまくいかない場合
+
+**症状**: チェッカーボード模様が残る
+
+**解決策**:
+1. まず`remove_bg.js`を複数回実行してみる
+2. それでも残る場合は、スプライトシートを再生成:
+   ```bash
+   node generate_sprite.js public/assets/sprites/ur_xxx.png public/assets/sprites/ur_xxx_sheet.png
+   node remove_bg.js public/assets/sprites/ur_xxx_sheet.png
+   ```
+
+### サイズが合っていない場合
+
+**症状**: 生成された画像が1376x768でない
+
+**解決策**: 再生成する。AIモデルが時々サイズを間違えることがある。
+
+### 確認コマンド
+```bash
+file public/assets/sprites/ur_xxx_sheet.png
+# 期待: PNG image data, 1376 x 768, 8-bit/color RGBA
+```
+
+---
+
+## 🎭 UR向け激しいアタックモーション（上級）
+
+URユニットはより派手なアタックモーションが望ましい。
+
+### プロンプト例（激しいアタック）
+```
+Using this exact character design, create a sprite sheet animation.
+
+IMPORTANT: Keep the SAME character design, colors, and style from the input image.
+
+Create a sprite sheet with:
+- 4 columns x 2 rows (8 frames total)
+- Size: 1376 x 768 pixels
+- Each frame: 344 x 384 pixels
+- Transparent background
+
+Row 1: idle, walk_1, walk_2, walk_3
+Row 2: POWERFUL attack sequence with dramatic effects
+  - attack_1: Wind up / preparation pose
+  - attack_2: Full power strike with energy/magic effects
+  - attack_3: Impact moment with particles/sparks
+  - attack_4: Follow through with lingering effects
+
+Character must face RIGHT. Make the attack animation DYNAMIC and POWERFUL for an Ultra Rare unit.
+```
