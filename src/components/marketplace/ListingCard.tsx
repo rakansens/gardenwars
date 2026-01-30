@@ -11,6 +11,7 @@ interface ListingCardProps {
     onBuy?: () => void;
     onCancel?: () => void;
     onDetail?: () => void;
+    onSellerClick?: (sellerId: string, sellerName: string) => void;
     currentCoins?: number;
     t: (key: string) => string;
 }
@@ -20,6 +21,7 @@ export default function ListingCard({
     onBuy,
     onCancel,
     onDetail,
+    onSellerClick,
     currentCoins = 0,
     t,
 }: ListingCardProps) {
@@ -88,7 +90,19 @@ export default function ListingCard({
                 {/* 出品者名 */}
                 <div className="text-center mb-2">
                     <span className="text-xs text-gray-500">{t("seller")}: </span>
-                    <span className="text-sm font-bold text-blue-600">{listing.sellerName}</span>
+                    {onSellerClick && !listing.isOwn ? (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onSellerClick(listing.sellerId, listing.sellerName);
+                            }}
+                            className="text-sm font-bold text-blue-600 hover:text-blue-400 hover:underline transition-colors"
+                        >
+                            {listing.sellerName}
+                        </button>
+                    ) : (
+                        <span className="text-sm font-bold text-blue-600">{listing.sellerName}</span>
+                    )}
                 </div>
 
                 {/* 価格 */}

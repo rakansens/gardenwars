@@ -20,7 +20,7 @@ import type { MarketplaceListing, ListingFilter } from "@/lib/supabase/marketpla
 
 const allUnits = unitsData as UnitDefinition[];
 
-type TabType = "browse" | "my_listings" | "notifications";
+type TabType = "browse" | "my_listings" | "history" | "notifications";
 type SortType = ListingFilter["sortBy"];
 
 export default function MarketplacePage() {
@@ -29,12 +29,14 @@ export default function MarketplacePage() {
     const {
         listings,
         myListings,
+        soldHistory,
         notifications,
         unreadCount,
         isLoading,
         isAuthenticated,
         refreshListings,
         refreshMyListings,
+        refreshSoldHistory,
         refreshNotifications,
         createNewListing,
         buyListing,
@@ -46,6 +48,7 @@ export default function MarketplacePage() {
     const [sortBy, setSortBy] = useState<SortType>("newest");
     const [filterRarity, setFilterRarity] = useState<Rarity | "all">("all");
     const [searchQuery, setSearchQuery] = useState("");
+    const [filterSeller, setFilterSeller] = useState<{ id: string; name: string } | null>(null);
 
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [viewingUnit, setViewingUnit] = useState<UnitDefinition | null>(null);
@@ -56,6 +59,11 @@ export default function MarketplacePage() {
     // フィルタリングとソート
     const filteredListings = useMemo(() => {
         let result = activeTab === "my_listings" ? myListings : listings;
+
+        // 販売者フィルター
+        if (filterSeller && activeTab === "browse") {
+            result = result.filter((listing) => listing.sellerId === filterSeller.id);
+        }
 
         // レアリティフィルター
         if (filterRarity !== "all") {
@@ -77,12 +85,23 @@ export default function MarketplacePage() {
         }
 
         return result;
-    }, [activeTab, listings, myListings, filterRarity, searchQuery, t]);
+    }, [activeTab, listings, myListings, filterSeller, filterRarity, searchQuery, t]);
 
     // ソートを適用してリフレッシュ
     const handleSortChange = (newSort: SortType) => {
         setSortBy(newSort);
         refreshListings({ sortBy: newSort });
+    };
+
+    // 販売者フィルターをセット
+    const handleSellerClick = (sellerId: string, sellerName: string) => {
+        setFilterSeller({ id: sellerId, name: sellerName });
+        setActiveTab("browse");
+    };
+
+    // 販売者フィルターをクリア
+    const clearSellerFilter = () => {
+        setFilterSeller(null);
     };
 
     // 購入処理
@@ -207,6 +226,21 @@ export default function MarketplacePage() {
                     </button>
                     <button
                         onClick={() => {
+                            setActiveTab("history");
+                            refreshSoldHistory();
+                        }}
+                        className={`
+                            px-4 py-2 rounded-xl font-bold transition-all whitespace-nowrap
+                            ${activeTab === "history"
+                                ? "bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg"
+                                : "bg-slate-800/50 text-gray-300 hover:bg-slate-700/50"
+                            }
+                        `}
+                    >
+                        📜 {t("sold_history")}
+                    </button>
+                    <button
+                        onClick={() => {
                             setActiveTab("notifications");
                             refreshNotifications();
                         }}
@@ -235,9 +269,77 @@ export default function MarketplacePage() {
                     />
                 )}
 
+                {/* 履歴タブ */}
+                {activeTab === "history" && (
+                    <div className="space-y-3">
+                        {soldHistory.length === 0 ? (
+                            <div className="text-center py-12">
+                                <div className="text-6xl mb-4">📜</div>
+                                <p className="text-gray-400">{t("no_sold_history")}</p>
+                            </div>
+                        ) : (
+                            soldHistory.map((listing) => {
+                                const unit = allUnits.find((u) => u.id === listing.unitId);
+                                if (!unit) return null;
+                                return (
+                                    <div
+                                        key={listing.id}
+                                        className="bg-gradient-to-r from-purple-900/30 to-pink-900/30 rounded-xl p-4 border border-purple-500/30"
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <RarityFrame
+                                                unitId={unit.id}
+                                                unitName={unit.name}
+                                                rarity={unit.rarity}
+                                                size="md"
+                                                count={listing.quantity}
+                                            />
+                                            <div className="flex-1">
+                                                <h3 className="font-bold text-white">{unit.name}</h3>
+                                                <p className="text-sm text-gray-400">
+                                                    x{listing.quantity} @ {listing.pricePerUnit.toLocaleString()} {t("coins_per_unit")}
+                                                </p>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <span className="text-xs text-gray-500">{t("buyer")}:</span>
+                                                    <span className="text-sm font-bold text-blue-400">{listing.buyerName || "Unknown"}</span>
+                                                </div>
+                                            </div>
+                                            <div className="text-right">
+                                                <div className="text-lg font-bold text-amber-400">
+                                                    +{listing.totalPrice.toLocaleString()} 💰
+                                                </div>
+                                                <div className="text-xs text-gray-500">
+                                                    {listing.soldAt ? new Date(listing.soldAt).toLocaleDateString() : ""}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        )}
+                    </div>
+                )}
+
                 {/* ブラウズ / マイリスティングタブ */}
                 {activeTab !== "notifications" && (
                     <>
+                        {/* 販売者フィルター表示 */}
+                        {filterSeller && activeTab === "browse" && (
+                            <div className="bg-gradient-to-r from-blue-900/50 to-cyan-900/50 rounded-xl p-3 mb-4 border border-blue-500/30 flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-2xl">👤</span>
+                                    <span className="text-gray-300">{t("seller_filter")}:</span>
+                                    <span className="font-bold text-blue-400">{filterSeller.name}</span>
+                                </div>
+                                <button
+                                    onClick={clearSellerFilter}
+                                    className="px-3 py-1 bg-slate-700/50 hover:bg-slate-600/50 text-gray-300 rounded-lg text-sm transition-colors"
+                                >
+                                    ✕ {t("clear_filter")}
+                                </button>
+                            </div>
+                        )}
+
                         {/* フィルター・検索 */}
                         <div className="bg-gradient-to-r from-slate-800/50 to-slate-900/50 rounded-2xl p-4 mb-6 border border-white/10">
                             <div className="flex flex-col sm:flex-row gap-4">
@@ -320,6 +422,7 @@ export default function MarketplacePage() {
                                             const unit = allUnits.find((u) => u.id === listing.unitId);
                                             if (unit) setViewingUnit(unit);
                                         }}
+                                        onSellerClick={handleSellerClick}
                                         currentCoins={coins}
                                         t={t}
                                     />

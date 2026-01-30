@@ -12,6 +12,7 @@ import {
     createListing,
     getActiveListings,
     getMyListings,
+    getSoldHistory,
     purchaseListing,
     cancelListing,
     getUnreadNotifications,
@@ -26,6 +27,7 @@ export interface UseMarketplaceReturn {
     // State
     listings: MarketplaceListing[];
     myListings: MarketplaceListing[];
+    soldHistory: MarketplaceListing[];
     notifications: MarketplaceNotification[];
     unreadCount: number;
     isLoading: boolean;
@@ -34,6 +36,7 @@ export interface UseMarketplaceReturn {
     // Actions
     refreshListings: (filter?: ListingFilter) => Promise<void>;
     refreshMyListings: () => Promise<void>;
+    refreshSoldHistory: () => Promise<void>;
     refreshNotifications: () => Promise<void>;
     createNewListing: (
         unitId: string,
@@ -59,6 +62,7 @@ export function useMarketplace(): UseMarketplaceReturn {
 
     const [listings, setListings] = useState<MarketplaceListing[]>([]);
     const [myListings, setMyListings] = useState<MarketplaceListing[]>([]);
+    const [soldHistory, setSoldHistory] = useState<MarketplaceListing[]>([]);
     const [notifications, setNotifications] = useState<MarketplaceNotification[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
@@ -91,15 +95,27 @@ export function useMarketplace(): UseMarketplaceReturn {
         [isAuthenticated, playerId]
     );
 
-    // 自分の出品一覧を取得
+    // 自分の出品一覧を取得（activeのみ）
     const refreshMyListings = useCallback(async () => {
         if (!isAuthenticated || !playerId) return;
 
         try {
-            const data = await getMyListings(playerId, true);
+            const data = await getMyListings(playerId, false);
             setMyListings(data);
         } catch (error) {
             console.error("Failed to refresh my listings:", error);
+        }
+    }, [isAuthenticated, playerId]);
+
+    // 売却履歴を取得
+    const refreshSoldHistory = useCallback(async () => {
+        if (!isAuthenticated || !playerId) return;
+
+        try {
+            const data = await getSoldHistory(playerId);
+            setSoldHistory(data);
+        } catch (error) {
+            console.error("Failed to refresh sold history:", error);
         }
     }, [isAuthenticated, playerId]);
 
@@ -331,6 +347,7 @@ export function useMarketplace(): UseMarketplaceReturn {
         // State
         listings,
         myListings,
+        soldHistory,
         notifications,
         unreadCount,
         isLoading,
@@ -339,6 +356,7 @@ export function useMarketplace(): UseMarketplaceReturn {
         // Actions
         refreshListings,
         refreshMyListings,
+        refreshSoldHistory,
         refreshNotifications,
         createNewListing,
         buyListing,

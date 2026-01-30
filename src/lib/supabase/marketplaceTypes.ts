@@ -64,6 +64,8 @@ export interface MarketplaceListing {
     createdAt: Date;
     expiresAt: Date;
     isOwn: boolean;  // Computed: is current player the seller
+    buyerName?: string;  // For sold listings
+    soldAt?: Date;  // When it was sold
 }
 
 /**
@@ -149,6 +151,7 @@ export function toFrontendListing(
         createdAt: new Date(db.created_at || Date.now()),
         expiresAt: new Date(db.expires_at || Date.now()),
         isOwn: currentPlayerId ? db.seller_id === currentPlayerId : false,
+        soldAt: db.sold_at ? new Date(db.sold_at) : undefined,
     };
 }
 

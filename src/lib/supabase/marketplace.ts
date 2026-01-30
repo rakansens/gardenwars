@@ -211,6 +211,50 @@ export async function getMyListings(
 }
 
 /**
+ * 売却履歴を取得
+ */
+export async function getSoldHistory(
+    playerId: string,
+    limit: number = 50
+): Promise<MarketplaceListing[]> {
+    const { data, error } = await (supabase as AnySupabase)
+        .from("marketplace_listings")
+        .select(`
+            *,
+            players!marketplace_listings_seller_id_fkey(name),
+            buyer:players!marketplace_listings_buyer_id_fkey(name)
+        `)
+        .eq("seller_id", playerId)
+        .eq("status", "sold")
+        .order("sold_at", { ascending: false })
+        .limit(limit);
+
+    if (error || !data) {
+        if (error?.code === "42P01" || error?.message?.includes("does not exist")) {
+            console.warn("Marketplace tables not yet created. Run the migration SQL.");
+        } else if (error) {
+            console.error("Failed to get sold history:", error.message || error);
+        }
+        return [];
+    }
+
+    return data.map((row: DBMarketplaceListing & { players?: { name: string } | null; buyer?: { name: string } | null }) => {
+        const listing = toFrontendListing(
+            {
+                ...row,
+                seller_name: row.players?.name,
+            },
+            playerId
+        );
+        // 購入者名を追加
+        return {
+            ...listing,
+            buyerName: row.buyer?.name || "Unknown",
+        };
+    });
+}
+
+/**
  * リスティングを購入
  */
 export async function purchaseListing(
