@@ -348,7 +348,12 @@ export async function purchaseListing(
     }
 
     // 購入者の名前を取得
-    const buyerName = buyerData.name || "Unknown";
+    const { data: buyerPlayer } = await (supabase as AnySupabase)
+        .from("players")
+        .select("name")
+        .eq("id", buyerId)
+        .single();
+    const buyerName = buyerPlayer?.name || "Unknown";
 
     // 出品者への通知を作成
     await createNotification(
