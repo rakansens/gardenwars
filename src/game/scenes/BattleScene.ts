@@ -330,6 +330,18 @@ export class BattleScene extends Phaser.Scene {
         this.load.image('sr_thorn_reaper_cat', '/assets/sprites/sr_thorn_reaper_cat.webp');
         this.load.image('sr_lucky_clover_cat', '/assets/sprites/sr_lucky_clover_cat.webp');
 
+        // New SR/R Units (Oni, Mecha, etc.)
+        this.load.image('sr_oni_bonsai', '/assets/sprites/sr_oni_bonsai.webp');
+        this.load.image('sr_vine_evangelion', '/assets/sprites/sr_vine_evangelion.webp');
+        this.load.image('sr_garden_guardian', '/assets/sprites/sr_garden_guardian.webp');
+        this.load.image('sr_green_cyborg', '/assets/sprites/sr_green_cyborg.webp');
+        this.load.image('sr_rose_paladin', '/assets/sprites/sr_rose_paladin.webp');
+        this.load.image('sr_bamboo_blaster', '/assets/sprites/sr_bamboo_blaster.webp');
+        this.load.image('sr_flora_captain', '/assets/sprites/sr_flora_captain.webp');
+        this.load.image('r_rake_rock_cat', '/assets/sprites/r_rake_rock_cat.webp');
+        this.load.image('r_diesel_farmer', '/assets/sprites/r_diesel_farmer.webp');
+        this.load.image('r_steam_gardener', '/assets/sprites/r_steam_gardener.webp');
+
         // SSR Units
         this.load.image('flame_knight', '/assets/sprites/flame_knight.webp');
         this.load.image('ice_samurai', '/assets/sprites/ice_samurai.webp');
