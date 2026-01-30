@@ -7,6 +7,7 @@ import { usePlayerData } from "@/hooks/usePlayerData";
 import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import Modal, { SuccessModal, ConfirmModal } from "@/components/ui/Modal";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import unitsData from "@/data/units";
 import type { UnitDefinition } from "@/data/types";
 
@@ -166,6 +167,7 @@ export default function Home() {
           <span>{isLoaded ? `${Object.keys(unitInventory).filter(id => unitInventory[id] > 0).length}/${collectableUnits.length}` : "---"}</span>
         </div>
         <LanguageSwitch />
+        <ThemeToggle />
       </div>
 
       {/* タイトル */}

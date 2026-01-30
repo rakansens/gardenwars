@@ -27,6 +27,7 @@
   animation: shimmer 2s ease-in-out infinite;
 }
 
+/* ライトモード (デフォルト) */
 :root {
   --background: #f6ead2;
   --foreground: #3b2a1a;
@@ -37,6 +38,25 @@
   --card-bg: #fff5de;
   --card-border: #3b2a1a;
   --shadow: #7a5a3a;
+  --text-primary: #3b2a1a;
+  --text-secondary: #6b4a2b;
+  --text-muted: #8b6a4b;
+}
+
+/* ダークモード */
+:root.dark {
+  --background: #1a1a2e;
+  --foreground: #e0e0e0;
+  --primary: #ffd166;
+  --primary-hover: #ffe28a;
+  --secondary: #ff8a65;
+  --accent: #ffe066;
+  --card-bg: #252542;
+  --card-border: #3d3d6b;
+  --shadow: #0a0a15;
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --text-muted: #808080;
 }
 
 body {
@@ -44,6 +64,7 @@ body {
   color: var(--foreground);
   font-family: "Hiragino Maru Gothic ProN", "Hiragino Sans", var(--font-noto-sans-jp), Arial, sans-serif;
   min-height: 100vh;
+  transition: background 0.3s ease, color 0.3s ease;
   /* モバイル最適化 */
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
@@ -56,6 +77,12 @@ body {
   padding-bottom: env(safe-area-inset-bottom);
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
+}
+
+/* ダークモードのbody */
+:root.dark body {
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  color: var(--foreground);
 }
 
 /* ボタン共通スタイル */
