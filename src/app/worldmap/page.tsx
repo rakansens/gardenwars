@@ -340,7 +340,7 @@ export default function WorldMapPage() {
                             const yOffset = index % 2 === 0 ? 0 : 50;
                             const isSelected = selectedStage?.id === stage.id;
                             const isBoss = stage.difficulty === "boss" || stage.isBossStage;
-                            const stars = difficultyStars[stage.difficulty] || 3;
+                            const stars = stage.difficulty ? difficultyStars[stage.difficulty] : 3;
 
                             return (
                                 <div
