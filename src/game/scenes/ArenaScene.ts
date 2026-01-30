@@ -71,6 +71,13 @@ export class ArenaScene extends Phaser.Scene {
     private unitCooldowns: Map<string, number> = new Map();
     private selectedLane: LaneIndex | null = null;
 
+    // コストアップボタン
+    private costUpBtn!: Phaser.GameObjects.Container;
+    private costUpBtnBg!: Phaser.GameObjects.Arc;
+    private costUpBtnCostText!: Phaser.GameObjects.Text;
+    private costLevelText!: Phaser.GameObjects.Text;
+    private currentCostLevel: number = 1;
+
     // 配置エリア
     private placementZone!: Phaser.GameObjects.Rectangle;
     private placementY: number = 0;
@@ -295,6 +302,9 @@ export class ArenaScene extends Phaser.Scene {
             fontStyle: 'bold',
         }).setOrigin(0.5).setDepth(100);
 
+        // コストアップボタン
+        this.createCostUpButton(width, barY);
+
         // 操作説明テキスト
         this.add.text(width / 2, height - 125, '① レーンを選択 → ② ユニットをタップ', {
             fontSize: '14px',
@@ -402,6 +412,55 @@ export class ArenaScene extends Phaser.Scene {
             const currentIndex = speeds.indexOf(this.gameSpeed);
             this.gameSpeed = speeds[(currentIndex + 1) % speeds.length];
             text.setText(`${this.gameSpeed}x`);
+        });
+    }
+
+    private createCostUpButton(width: number, barY: number) {
+        const btnX = width - 50;
+        const btnY = barY;
+        const radius = 28;
+
+        this.costUpBtn = this.add.container(btnX, btnY);
+        this.costUpBtn.setDepth(103);
+
+        // ボタン背景（円形）
+        this.costUpBtnBg = this.add.circle(0, 0, radius, 0xffe066);
+        this.costUpBtnBg.setStrokeStyle(3, 0x3b2a1a);
+        this.costUpBtn.add(this.costUpBtnBg);
+
+        // アップグレードアイコン
+        const iconText = this.add.text(0, -6, '⬆️', {
+            fontSize: '20px',
+        }).setOrigin(0.5);
+        this.costUpBtn.add(iconText);
+
+        // コスト表示
+        this.costUpBtnCostText = this.add.text(0, 14, '¥1000', {
+            fontSize: '10px',
+            color: '#3b2a1a',
+            fontStyle: 'bold',
+        }).setOrigin(0.5);
+        this.costUpBtn.add(this.costUpBtnCostText);
+
+        // レベル表示（ボタンの左側）
+        this.costLevelText = this.add.text(btnX - radius - 30, btnY, 'Lv.1', {
+            fontSize: '14px',
+            color: '#ffcc00',
+            fontStyle: 'bold',
+        }).setOrigin(0.5).setDepth(103);
+
+        // インタラクティブ設定
+        this.costUpBtnBg.setInteractive({ useHandCursor: true });
+        this.costUpBtnBg.on('pointerdown', () => {
+            if (this.costSystem.upgradeMax()) {
+                // アップグレード成功時のフィードバック
+                this.tweens.add({
+                    targets: this.costUpBtn,
+                    scale: 1.2,
+                    duration: 100,
+                    yoyo: true,
+                });
+            }
         });
     }
 
@@ -659,6 +718,9 @@ export class ArenaScene extends Phaser.Scene {
         this.costBarFill.setScale(ratio, 1);
         this.costText.setText(`${Math.floor(current)} / ${max}`);
 
+        // コストアップボタン更新
+        this.updateCostUpButton();
+
         // クールダウン更新
         for (const [unitId, cooldown] of this.unitCooldowns.entries()) {
             if (cooldown > 0) {
@@ -698,6 +760,44 @@ export class ArenaScene extends Phaser.Scene {
                 bg.setStrokeStyle(2, 0x00ff00); // 配置可能なら緑枠
             }
         });
+    }
+
+    private updateCostUpButton() {
+        const newLevel = this.costSystem.getLevel();
+
+        // レベルが変わったらテキスト更新
+        if (newLevel !== this.currentCostLevel) {
+            this.currentCostLevel = newLevel;
+            this.costLevelText.setText(`Lv.${newLevel}`);
+
+            // レベルアップエフェクト
+            this.tweens.add({
+                targets: this.costLevelText,
+                scale: 1.5,
+                duration: 150,
+                yoyo: true,
+            });
+        }
+
+        // アップグレードボタンの状態更新
+        if (!this.costSystem.canUpgrade()) {
+            // 最大レベル
+            this.costUpBtnCostText.setText('MAX');
+            this.costUpBtnBg.setFillStyle(0xaaaaaa);
+            this.costUpBtnBg.disableInteractive();
+        } else {
+            const upgradeCost = this.costSystem.getUpgradeCost();
+            const canAfford = this.costSystem.canAfford(upgradeCost || 0);
+
+            this.costUpBtnCostText.setText(`¥${upgradeCost}`);
+            this.costUpBtnBg.setFillStyle(canAfford ? 0xffe066 : 0xccccaa);
+
+            if (canAfford) {
+                this.costUpBtnBg.setInteractive({ useHandCursor: true });
+            } else {
+                this.costUpBtnBg.disableInteractive();
+            }
+        }
     }
 
     private cleanupDeadUnits() {

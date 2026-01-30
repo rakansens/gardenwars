@@ -105,7 +105,8 @@ export function RegisterScreen({ onRegister, onBack }: RegisterScreenProps) {
                         {pin.split("").map((digit, i) => (
                             <div
                                 key={i}
-                                className="w-12 h-14 bg-gradient-to-b from-amber-400 to-amber-500 rounded-xl flex items-center justify-center text-3xl font-bold text-white shadow-lg"
+                                className="w-12 h-14 bg-gradient-to-b from-amber-400 to-amber-500 rounded-xl flex items-center justify-center text-3xl font-bold shadow-lg"
+                                style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
                             >
                                 {digit}
                             </div>

@@ -32,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" style={{ colorScheme: 'light' }}>
+    <html lang="en">
       <body className={`${notoSansJP.variable} antialiased`}>
         <Providers>{children}</Providers>
       </body>
