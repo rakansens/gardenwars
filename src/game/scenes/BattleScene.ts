@@ -11,7 +11,8 @@ import type { StageDefinition, UnitDefinition, GameState, Rarity } from '@/data/
 // BattleScene - メインバトルシーン
 // ============================================
 
-// レアリティ別クールダウン時間（ミリ秒）
+// レアリティ別デフォルトクールダウン時間（ミリ秒）
+// ※ キャラクター個別のspawnCooldownMsが設定されている場合はそちらを優先
 const COOLDOWN_BY_RARITY: Record<Rarity, number> = {
     N: 2000,    // 2秒
     R: 4000,    // 4秒
@@ -19,6 +20,11 @@ const COOLDOWN_BY_RARITY: Record<Rarity, number> = {
     SSR: 12000, // 12秒
     UR: 15000,  // 15秒
 };
+
+// ユニットの召喚クールダウンを取得（個別設定優先、なければレアリティ別デフォルト）
+function getSpawnCooldown(unit: UnitDefinition): number {
+    return unit.spawnCooldownMs ?? COOLDOWN_BY_RARITY[unit.rarity];
+}
 
 export interface BattleSceneData {
     stage: StageDefinition;
@@ -953,7 +959,7 @@ export class BattleScene extends Phaser.Scene {
                 originalColor: 0xf8e7b6,
                 cooldownOverlay,
                 cooldownText,
-                cooldownDuration: COOLDOWN_BY_RARITY[unit.rarity],
+                cooldownDuration: getSpawnCooldown(unit),
                 buttonX: x,
                 buttonY: buttonY,
                 buttonHeight: buttonHeight,
@@ -1100,7 +1106,7 @@ export class BattleScene extends Phaser.Scene {
                 originalColor: 0xf8e7b6,
                 cooldownOverlay,
                 cooldownText,
-                cooldownDuration: COOLDOWN_BY_RARITY[unit.rarity],
+                cooldownDuration: getSpawnCooldown(unit),
                 buttonX: x,
                 buttonY: buttonY,
                 buttonHeight: buttonHeight,
@@ -1572,7 +1578,7 @@ export class BattleScene extends Phaser.Scene {
         }
 
         // クールダウンを設定
-        const cooldownMs = COOLDOWN_BY_RARITY[unitDef.rarity];
+        const cooldownMs = getSpawnCooldown(unitDef);
         this.unitCooldowns.set(unitId, this.time.now + cooldownMs);
 
         // 城の少し前からスポーン
@@ -1778,7 +1784,7 @@ export class BattleScene extends Phaser.Scene {
                 const unitDef = this.allUnitsData.find(u => u.id === this.pendingUnitId);
                 if (unitDef) {
                     // クールダウンを設定
-                    const cooldownMs = COOLDOWN_BY_RARITY[unitDef.rarity];
+                    const cooldownMs = getSpawnCooldown(unitDef);
                     this.unitCooldowns.set(unitDef.id, this.time.now + cooldownMs);
 
                     const unit = new Unit(this, spawnX, this.groundY, unitDef, 'ally', this.stageData.length);

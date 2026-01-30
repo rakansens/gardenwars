@@ -2,10 +2,23 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import type { UnitDefinition } from "@/data/types";
+import type { UnitDefinition, Rarity } from "@/data/types";
 import RarityFrame from "./RarityFrame";
 import { useLanguage } from "@/contexts/LanguageContext";
 import UnitAnimationPreview, { hasAnimation } from "./UnitAnimationPreview";
+
+// レアリティ別デフォルト召喚クールダウン
+const DEFAULT_SPAWN_COOLDOWN: Record<Rarity, number> = {
+    N: 2000,
+    R: 4000,
+    SR: 8000,
+    SSR: 12000,
+    UR: 15000,
+};
+
+function getSpawnCooldown(unit: UnitDefinition): number {
+    return unit.spawnCooldownMs ?? DEFAULT_SPAWN_COOLDOWN[unit.rarity];
+}
 
 interface UnitDetailModalProps {
     unit: UnitDefinition;
@@ -185,9 +198,13 @@ export default function UnitDetailModal({
                                 <div className="text-xs text-gray-500 mb-1">{t("move_speed")}</div>
                                 <div className="text-lg font-bold text-blue-500">🏃 {unit.speed}</div>
                             </div>
-                            <div className="col-span-2 bg-gray-50 rounded-lg p-3 border border-gray-100">
+                            <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
                                 <div className="text-xs text-gray-500 mb-1">{t("cost")}</div>
                                 <div className="text-lg font-bold text-amber-600">💰 ¥{unit.cost}</div>
+                            </div>
+                            <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                                <div className="text-xs text-gray-500 mb-1">{t("spawn_cooldown")}</div>
+                                <div className="text-lg font-bold text-purple-500">⏰ {(getSpawnCooldown(unit) / 1000).toFixed(1)}s</div>
                             </div>
                         </div>
                     )}

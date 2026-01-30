@@ -74,6 +74,7 @@
     "attackCooldownMs": 2200,
     "attackWindupMs": 700,
     "knockback": 40,
+    "spawnCooldownMs": 9000,
     "atlasKey": "cat_mage",
     "animKeys": {
       "idle": "idle",
@@ -242,6 +243,7 @@
     "attackCooldownMs": 1800,
     "attackWindupMs": 550,
     "knockback": 50,
+    "spawnCooldownMs": 11000,
     "scale": 1.45,
     "atlasKey": "ribbon_girl",
     "animKeys": {
@@ -263,6 +265,7 @@
     "attackCooldownMs": 2000,
     "attackWindupMs": 600,
     "knockback": 80,
+    "spawnCooldownMs": 14000,
     "scale": 1.5,
     "atlasKey": "penguin_boy",
     "animKeys": {
@@ -284,6 +287,7 @@
     "attackCooldownMs": 2000,
     "attackWindupMs": 650,
     "knockback": 45,
+    "spawnCooldownMs": 13000,
     "scale": 1.5,
     "atlasKey": "cinnamon_girl",
     "animKeys": {
@@ -305,6 +309,7 @@
     "attackCooldownMs": 1600,
     "attackWindupMs": 500,
     "knockback": 50,
+    "spawnCooldownMs": 11000,
     "scale": 1.6,
     "atlasKey": "nika",
     "animKeys": {
@@ -326,6 +331,7 @@
     "attackCooldownMs": 1800,
     "attackWindupMs": 550,
     "knockback": 55,
+    "spawnCooldownMs": 12000,
     "scale": 1.7,
     "atlasKey": "lennon",
     "animKeys": {
@@ -347,6 +353,7 @@
     "attackCooldownMs": 2000,
     "attackWindupMs": 600,
     "knockback": 75,
+    "spawnCooldownMs": 14000,
     "scale": 1.6,
     "atlasKey": "ur_knight",
     "animKeys": {
@@ -368,6 +375,7 @@
     "attackCooldownMs": 2200,
     "attackWindupMs": 700,
     "knockback": 60,
+    "spawnCooldownMs": 16000,
     "scale": 1.5,
     "atlasKey": "ur_mage",
     "animKeys": {
@@ -389,6 +397,7 @@
     "attackCooldownMs": 1800,
     "attackWindupMs": 500,
     "knockback": 55,
+    "spawnCooldownMs": 15000,
     "scale": 1.45,
     "atlasKey": "ur_archer",
     "animKeys": {
@@ -410,6 +419,7 @@
     "attackCooldownMs": 2500,
     "attackWindupMs": 800,
     "knockback": 100,
+    "spawnCooldownMs": 18000,
     "scale": 2,
     "atlasKey": "ur_tank",
     "animKeys": {
@@ -431,6 +441,7 @@
     "attackCooldownMs": 1400,
     "attackWindupMs": 300,
     "knockback": 40,
+    "spawnCooldownMs": 12000,
     "scale": 1.4,
     "atlasKey": "ur_ninja",
     "animKeys": {
@@ -452,6 +463,7 @@
     "attackCooldownMs": 2000,
     "attackWindupMs": 600,
     "knockback": 60,
+    "spawnCooldownMs": 14000,
     "scale": 1.6,
     "atlasKey": "ur_healer",
     "animKeys": {
@@ -473,6 +485,7 @@
     "attackCooldownMs": 2800,
     "attackWindupMs": 900,
     "knockback": 90,
+    "spawnCooldownMs": 20000,
     "scale": 2.2,
     "isFlying": true,
     "atlasKey": "ur_dragon",
@@ -495,6 +508,7 @@
     "attackCooldownMs": 1600,
     "attackWindupMs": 450,
     "knockback": 55,
+    "spawnCooldownMs": 13000,
     "scale": 1.5,
     "isFlying": true,
     "atlasKey": "ur_spirit",
@@ -517,6 +531,7 @@
     "attackCooldownMs": 2000,
     "attackWindupMs": 600,
     "knockback": 70,
+    "spawnCooldownMs": 15000,
     "scale": 1.8,
     "isFlying": true,
     "atlasKey": "ur_phoenix",
@@ -539,6 +554,7 @@
     "attackCooldownMs": 3000,
     "attackWindupMs": 1000,
     "knockback": 120,
+    "spawnCooldownMs": 22000,
     "scale": 2.5,
     "atlasKey": "ur_golem",
     "animKeys": {
@@ -560,6 +576,7 @@
     "attackCooldownMs": 1900,
     "attackWindupMs": 550,
     "knockback": 65,
+    "spawnCooldownMs": 14000,
     "scale": 1.9,
     "isFlying": true,
     "atlasKey": "ur_angel",
@@ -582,6 +599,7 @@
     "attackCooldownMs": 2500,
     "attackWindupMs": 800,
     "knockback": 100,
+    "spawnCooldownMs": 18000,
     "scale": 1.5,
     "atlasKey": "thunder_golem",
     "animKeys": {
@@ -603,6 +621,7 @@
     "attackCooldownMs": 1800,
     "attackWindupMs": 600,
     "knockback": 80,
+    "spawnCooldownMs": 14000,
     "scale": 1.6,
     "atlasKey": "flame_knight",
     "animKeys": {
@@ -624,6 +643,7 @@
     "attackCooldownMs": 1400,
     "attackWindupMs": 400,
     "knockback": 60,
+    "spawnCooldownMs": 12000,
     "scale": 1.5,
     "atlasKey": "ice_samurai",
     "animKeys": {
@@ -645,6 +665,7 @@
     "attackCooldownMs": 1000,
     "attackWindupMs": 250,
     "knockback": 40,
+    "spawnCooldownMs": 10000,
     "scale": 1.4,
     "atlasKey": "shadow_assassin",
     "animKeys": {
@@ -1171,6 +1192,7 @@
     "attackCooldownMs": 1500,
     "attackWindupMs": 500,
     "knockback": 50,
+    "spawnCooldownMs": 10000,
     "scale": 1.6,
     "atlasKey": "sr_corn_tank",
     "animKeys": {
@@ -1192,6 +1214,7 @@
     "attackCooldownMs": 1000,
     "attackWindupMs": 350,
     "knockback": 40,
+    "spawnCooldownMs": 7000,
     "scale": 1.5,
     "isFlying": true,
     "atlasKey": "sr_bamboo_mech",
@@ -1214,6 +1237,7 @@
     "attackCooldownMs": 850,
     "attackWindupMs": 300,
     "knockback": 35,
+    "spawnCooldownMs": 7500,
     "scale": 1.35,
     "atlasKey": "sr_sun_pirate",
     "animKeys": {
@@ -1235,6 +1259,7 @@
     "attackCooldownMs": 1300,
     "attackWindupMs": 450,
     "knockback": 20,
+    "spawnCooldownMs": 8500,
     "scale": 1.1,
     "isFlying": true,
     "atlasKey": "sr_tulip_idol",
@@ -1257,6 +1282,7 @@
     "attackCooldownMs": 900,
     "attackWindupMs": 320,
     "knockback": 45,
+    "spawnCooldownMs": 7000,
     "scale": 0.95,
     "atlasKey": "sr_rose_hero",
     "animKeys": {
@@ -1405,6 +1431,7 @@
     "attackCooldownMs": 800,
     "attackWindupMs": 250,
     "knockback": 35,
+    "spawnCooldownMs": 6000,
     "scale": 1,
     "atlasKey": "sr_capybara_ninja",
     "animKeys": {
@@ -1426,6 +1453,7 @@
     "attackCooldownMs": 2000,
     "attackWindupMs": 800,
     "knockback": 50,
+    "spawnCooldownMs": 9000,
     "scale": 1.15,
     "atlasKey": "sr_capybara_shaman",
     "animKeys": {
@@ -1560,6 +1588,7 @@
     "attackCooldownMs": 700,
     "attackWindupMs": 200,
     "knockback": 40,
+    "spawnCooldownMs": 5500,
     "scale": 1
   },
   {
@@ -1574,6 +1603,7 @@
     "attackCooldownMs": 750,
     "attackWindupMs": 220,
     "knockback": 38,
+    "spawnCooldownMs": 5500,
     "scale": 1,
     "atlasKey": "sr_cappuccino_assassin",
     "animKeys": {
@@ -1595,6 +1625,7 @@
     "attackCooldownMs": 1100,
     "attackWindupMs": 400,
     "knockback": 55,
+    "spawnCooldownMs": 8000,
     "scale": 1.4,
     "atlasKey": "sr_odindindun",
     "animKeys": {
@@ -1616,6 +1647,7 @@
     "attackCooldownMs": 850,
     "attackWindupMs": 280,
     "knockback": 42,
+    "spawnCooldownMs": 7500,
     "scale": 1.4,
     "atlasKey": "sr_traffarella",
     "animKeys": {

@@ -14,14 +14,37 @@ const allUnits = unitsData as UnitDefinition[];
 // 味方ユニットのみフィルタ
 const allyUnits = allUnits.filter((u) => !u.id.startsWith("enemy_") && !u.id.startsWith("boss_") && !u.isBoss);
 
-type SortKey = "none" | "hp" | "attack" | "range" | "speed" | "move" | "dps" | "cost";
+// レアリティ別デフォルト召喚クールダウン
+const DEFAULT_SPAWN_COOLDOWN: Record<Rarity, number> = {
+    N: 2000,
+    R: 4000,
+    SR: 8000,
+    SSR: 12000,
+    UR: 15000,
+};
+
+function getSpawnCooldown(unit: UnitDefinition): number {
+    return unit.spawnCooldownMs ?? DEFAULT_SPAWN_COOLDOWN[unit.rarity];
+}
+
+type SortKey = "none" | "hp" | "attack" | "range" | "speed" | "move" | "dps" | "cost" | "spawn";
 
 export default function TeamPage() {
-    const { selectedTeam, unitInventory, setTeam, isLoaded, activeLoadoutIndex, switchLoadout } = usePlayerData();
+    const { selectedTeam, unitInventory, setTeam, isLoaded, activeLoadoutIndex, switchLoadout, loadouts } = usePlayerData();
     const { t } = useLanguage();
     const [rarityFilter, setRarityFilter] = useState<Rarity | "ALL">("ALL");
     const [sortBy, setSortBy] = useState<SortKey>("none");
     const [viewingUnit, setViewingUnit] = useState<UnitDefinition | null>(null);
+
+    // 他のデッキにユニットが含まれているかチェック
+    const getOtherDeckIndex = (unitId: string): number | null => {
+        for (let i = 0; i < loadouts.length; i++) {
+            if (i !== activeLoadoutIndex && loadouts[i].includes(unitId)) {
+                return i + 1; // 1-indexed for display
+            }
+        }
+        return null;
+    };
 
     const sortOptions: { key: SortKey; label: string; icon: string }[] = [
         { key: "none", label: t("sort_none"), icon: "📋" },
@@ -32,6 +55,7 @@ export default function TeamPage() {
         { key: "speed", label: t("attack_speed"), icon: "⏱️" },
         { key: "move", label: t("move_speed"), icon: "🏃" },
         { key: "cost", label: t("cost"), icon: "💰" },
+        { key: "spawn", label: t("spawn_cooldown"), icon: "⏰" },
     ];
 
     const sortUnits = (units: UnitDefinition[]): UnitDefinition[] => {
@@ -58,6 +82,9 @@ export default function TeamPage() {
                     return dpsB - dpsA;
                 case "cost":
                     return b.cost - a.cost;
+                case "spawn":
+                    // 召喚クールダウン短い順（早く召喚できる順）
+                    return getSpawnCooldown(a) - getSpawnCooldown(b);
                 default:
                     return 0;
             }
@@ -275,7 +302,9 @@ export default function TeamPage() {
                                             const isSelected = selectedTeam.includes(unit.id);
                                             const count = unitInventory[unit.id] || 0;
                                             const unitHasAnimation = hasAnimation(unit.atlasKey || unit.id);
-                                            const canAdd = !isSelected && validTeamCount < MAX_TEAM_SIZE;
+                                            const otherDeckIndex = getOtherDeckIndex(unit.id);
+                                            const isInOtherDeck = otherDeckIndex !== null;
+                                            const canAdd = !isSelected && !isInOtherDeck && validTeamCount < MAX_TEAM_SIZE;
                                             return (
                                                 <div
                                                     key={unit.id}
@@ -338,6 +367,10 @@ export default function TeamPage() {
                                                                 <span>💰 {t("cost")}:</span>
                                                                 <span className="font-bold">¥{unit.cost}</span>
                                                             </div>
+                                                            <div className="flex justify-between text-purple-500">
+                                                                <span>⏰ {t("spawn_cooldown")}:</span>
+                                                                <span className="font-bold">{(getSpawnCooldown(unit) / 1000).toFixed(1)}s</span>
+                                                            </div>
                                                         </div>
                                                     </div>
 
@@ -354,11 +387,19 @@ export default function TeamPage() {
                                                                 ? "bg-red-500 hover:bg-red-600 text-white"
                                                                 : canAdd
                                                                     ? "bg-green-500 hover:bg-green-600 text-white"
-                                                                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                                                    : isInOtherDeck
+                                                                        ? "bg-orange-300 text-orange-700 cursor-not-allowed"
+                                                                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
                                                             }
                                                         `}
                                                     >
-                                                        {isSelected ? t("remove_quick") : canAdd ? t("add_quick") : t("team_full")}
+                                                        {isSelected
+                                                            ? t("remove_quick")
+                                                            : isInOtherDeck
+                                                                ? `📦 ${t("in_deck")} ${otherDeckIndex}`
+                                                                : canAdd
+                                                                    ? t("add_quick")
+                                                                    : t("team_full")}
                                                     </button>
 
                                                     {/* 選択マーク */}

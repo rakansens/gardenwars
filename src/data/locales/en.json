@@ -242,5 +242,7 @@
 
   "sort_by": "Sort by",
   "sort_none": "None",
-  "move_speed": "Move"
+  "move_speed": "Move",
+  "spawn_cooldown": "Summon CD",
+  "in_deck": "Deck"
 }
