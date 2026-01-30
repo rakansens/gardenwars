@@ -53,5 +53,9 @@ export {
     incrementGardenVisits,
     syncRankingStats,
     getRankings,
+    // Async battle
+    getAsyncOpponents,
+    saveAsyncBattleResult,
+    getAsyncBattleHistory,
 } from "./playerData";
-export type { RankingEntry, RankingSortBy, RankingUpdateData } from "./playerData";
+export type { RankingEntry, RankingSortBy, RankingUpdateData, AsyncBattleResult, AsyncOpponent } from "./playerData";

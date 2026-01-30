@@ -393,5 +393,23 @@
   "login_required": "ログインが必要です",
   "marketplace_login_message": "マーケットを利用するにはログインしてください。",
   "menu_marketplace": "🏪 マーケット",
-  "balance": "残高"
+  "balance": "残高",
+
+  "menu_async_battle": "⚔️ 対戦",
+  "async_battle_title": "プレイヤー対戦",
+  "async_my_team": "自分のチーム",
+  "async_no_team": "チームが未設定です。先にチームを編成してください。",
+  "async_select_opponent": "対戦相手を選択",
+  "async_no_opponents": "対戦相手がいません",
+  "async_challenge": "挑戦",
+  "async_info": "他プレイヤーのデッキと対戦！相手チームはAIが操作します。",
+  "async_login_message": "対戦するにはログインしてください。",
+  "refresh": "更新",
+  "async_result_title": "バトル結果",
+  "async_victory": "勝利！",
+  "async_defeat": "敗北...",
+  "async_castle_hp": "城HP",
+  "async_kills": "撃破数",
+  "async_duration": "時間",
+  "back": "戻る"
 }

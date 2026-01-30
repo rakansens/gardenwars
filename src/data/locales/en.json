@@ -393,5 +393,23 @@
   "login_required": "Login Required",
   "marketplace_login_message": "Please log in to use the marketplace.",
   "menu_marketplace": "🏪 Market",
-  "balance": "Balance"
+  "balance": "Balance",
+
+  "menu_async_battle": "⚔️ Battle",
+  "async_battle_title": "Player Battle",
+  "async_my_team": "My Team",
+  "async_no_team": "No team selected. Please set up your team first.",
+  "async_select_opponent": "Select Opponent",
+  "async_no_opponents": "No opponents available",
+  "async_challenge": "Challenge",
+  "async_info": "Battle against other players' decks! Their team is controlled by AI.",
+  "async_login_message": "Please log in to battle other players.",
+  "refresh": "Refresh",
+  "async_result_title": "Battle Result",
+  "async_victory": "Victory!",
+  "async_defeat": "Defeat...",
+  "async_castle_hp": "Castle HP",
+  "async_kills": "Kills",
+  "async_duration": "Duration",
+  "back": "Back"
 }

@@ -412,3 +412,165 @@ export async function getRankings(
         selected_team: playerDataMap.get(row.player_id || "") || [],
     }));
 }
+
+// ============================================
+// Async Battle functions
+// ============================================
+
+export interface AsyncBattleResult {
+    id?: string;
+    attacker_id: string;
+    defender_id: string;
+    attacker_name?: string;
+    defender_name?: string;
+    attacker_deck: string[];
+    defender_deck: string[];
+    winner: 'attacker' | 'defender';
+    attacker_castle_hp: number;
+    defender_castle_hp: number;
+    attacker_kills: number;
+    defender_kills: number;
+    battle_duration: number;
+    created_at?: string;
+}
+
+export interface AsyncOpponent {
+    player_id: string;
+    player_name: string;
+    max_stage: number;
+    selected_team: string[];
+}
+
+// Get list of potential opponents for async battle
+export async function getAsyncOpponents(
+    currentPlayerId: string,
+    limit: number = 20
+): Promise<AsyncOpponent[]> {
+    // Get rankings with player data
+    const { data, error } = await supabase
+        .from("rankings")
+        .select(`
+            player_id,
+            max_stage,
+            players!inner(name)
+        `)
+        .neq("player_id", currentPlayerId)
+        .order("max_stage", { ascending: false })
+        .limit(limit);
+
+    if (error || !data) {
+        console.error("getAsyncOpponents error:", error);
+        return [];
+    }
+
+    // Get player_data for selected_team
+    const playerIds = data.map(row => row.player_id).filter(Boolean);
+
+    const { data: playerDataList } = await supabase
+        .from("player_data")
+        .select("player_id, selected_team")
+        .in("player_id", playerIds);
+
+    const playerDataMap = new Map<string, string[]>();
+    if (playerDataList) {
+        playerDataList.forEach(pd => {
+            if (!pd.player_id) return;
+            const team = (pd.selected_team as unknown as string[]) || [];
+            playerDataMap.set(pd.player_id, team);
+        });
+    }
+
+    return data
+        .map((row) => ({
+            player_id: row.player_id || "",
+            player_name: (row.players as unknown as { name: string })?.name || "Unknown",
+            max_stage: row.max_stage ?? 0,
+            selected_team: playerDataMap.get(row.player_id || "") || [],
+        }))
+        .filter(opponent => opponent.selected_team.length > 0); // Only show opponents with a deck
+}
+
+// Save async battle result
+// Note: async_battles table needs to be created in Supabase first
+export async function saveAsyncBattleResult(
+    result: Omit<AsyncBattleResult, 'id' | 'created_at' | 'attacker_name' | 'defender_name'>
+): Promise<boolean> {
+    // Use type assertion since async_battles isn't in generated types yet
+    const { error } = await (supabase as any)
+        .from("async_battles")
+        .insert({
+            attacker_id: result.attacker_id,
+            defender_id: result.defender_id,
+            attacker_deck: result.attacker_deck,
+            defender_deck: result.defender_deck,
+            winner: result.winner,
+            attacker_castle_hp: result.attacker_castle_hp,
+            defender_castle_hp: result.defender_castle_hp,
+            attacker_kills: result.attacker_kills,
+            defender_kills: result.defender_kills,
+            battle_duration: result.battle_duration,
+        });
+
+    if (error) {
+        console.error("saveAsyncBattleResult error:", error);
+        return false;
+    }
+
+    return true;
+}
+
+// Get async battle history for a player
+// Note: async_battles table needs to be created in Supabase first
+export async function getAsyncBattleHistory(
+    playerId: string,
+    limit: number = 20
+): Promise<AsyncBattleResult[]> {
+    // Use type assertion since async_battles isn't in generated types yet
+    const { data, error } = await (supabase as any)
+        .from("async_battles")
+        .select("*")
+        .or(`attacker_id.eq.${playerId},defender_id.eq.${playerId}`)
+        .order("created_at", { ascending: false })
+        .limit(limit);
+
+    if (error || !data) {
+        console.error("getAsyncBattleHistory error:", error);
+        return [];
+    }
+
+    // Get player names
+    const playerIds = new Set<string>();
+    (data as any[]).forEach((row: any) => {
+        if (row.attacker_id) playerIds.add(row.attacker_id);
+        if (row.defender_id) playerIds.add(row.defender_id);
+    });
+
+    const { data: players } = await supabase
+        .from("players")
+        .select("id, name")
+        .in("id", Array.from(playerIds));
+
+    const playerNameMap = new Map<string, string>();
+    if (players) {
+        players.forEach(p => {
+            if (p.id) playerNameMap.set(p.id, p.name || "Unknown");
+        });
+    }
+
+    return (data as any[]).map((row: any) => ({
+        id: row.id,
+        attacker_id: row.attacker_id || "",
+        defender_id: row.defender_id || "",
+        attacker_name: playerNameMap.get(row.attacker_id || "") || "Unknown",
+        defender_name: playerNameMap.get(row.defender_id || "") || "Unknown",
+        attacker_deck: (row.attacker_deck as string[]) || [],
+        defender_deck: (row.defender_deck as string[]) || [],
+        winner: row.winner as 'attacker' | 'defender',
+        attacker_castle_hp: row.attacker_castle_hp ?? 0,
+        defender_castle_hp: row.defender_castle_hp ?? 0,
+        attacker_kills: row.attacker_kills ?? 0,
+        defender_kills: row.defender_kills ?? 0,
+        battle_duration: row.battle_duration ?? 0,
+        created_at: row.created_at,
+    }));
+}
