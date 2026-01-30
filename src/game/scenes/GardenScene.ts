@@ -26,7 +26,7 @@ export class GardenScene extends Phaser.Scene {
     preload() {
         // 背景
         this.load.image('bg_garden', '/assets/backgrounds/stage_forest.png'); // 代用
-        this.load.image('castle_ally', '/assets/sprites/castle_ally.png'); // 一応
+        this.load.image('castle_ally', '/assets/sprites/castle_ally.webp'); // 一応
 
         // ユニットアセット
         const assetList = [
@@ -81,7 +81,7 @@ export class GardenScene extends Phaser.Scene {
         ];
 
         assetList.forEach(asset => {
-            this.load.image(asset.key, `/assets/sprites/${asset.path}.png`);
+            this.load.image(asset.key, `/assets/sprites/${asset.path}.webp`);
         });
 
         // アトラス
@@ -91,7 +91,7 @@ export class GardenScene extends Phaser.Scene {
         ];
 
         atlases.forEach(key => {
-            this.load.atlas(`${key}_atlas`, `/assets/sprites/${key}_sheet.png`, `/assets/sprites/${key}_sheet.json`);
+            this.load.atlas(`${key}_atlas`, `/assets/sprites/${key}_sheet.webp`, `/assets/sprites/${key}_sheet.json`);
         });
     }
 

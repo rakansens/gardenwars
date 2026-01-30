@@ -77,7 +77,7 @@ function ResultContent() {
                                     >
                                         <div className="w-16 h-16 rounded-lg overflow-hidden bg-green-100 mb-2 flex items-center justify-center">
                                             <Image
-                                                src={`/assets/sprites/${drop.unit.id}.png`}
+                                                src={`/assets/sprites/${drop.unit.id}.webp`}
                                                 alt={drop.unit.name}
                                                 width={48}
                                                 height={48}

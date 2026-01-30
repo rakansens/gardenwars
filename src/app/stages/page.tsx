@@ -271,7 +271,7 @@ export default function StagesPage() {
                                                             <span className="text-purple-300 font-bold text-lg">?</span>
                                                         ) : (
                                                             <Image
-                                                                src={`/assets/sprites/${unit.baseUnitId || unit.id}.png`}
+                                                                src={`/assets/sprites/${unit.baseUnitId || unit.id}.webp`}
                                                                 alt={unit.name}
                                                                 width={36}
                                                                 height={36}
@@ -315,7 +315,7 @@ export default function StagesPage() {
                                                         >
                                                             <div className="w-8 h-8 rounded bg-white flex items-center justify-center overflow-hidden">
                                                                 <Image
-                                                                    src={`/assets/sprites/${unit.baseUnitId || unit.id}.png`}
+                                                                    src={`/assets/sprites/${unit.baseUnitId || unit.id}.webp`}
                                                                     alt={unit.name}
                                                                     width={28}
                                                                     height={28}

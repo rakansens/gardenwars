@@ -222,7 +222,7 @@ export default function Home() {
             }}
           >
             <Image
-              src={`/assets/sprites/${char.unitId}.png`}
+              src={`/assets/sprites/${char.unitId}.webp`}
               alt="parade character"
               width={48}
               height={48}

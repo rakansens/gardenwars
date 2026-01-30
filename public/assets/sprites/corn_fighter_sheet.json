@@ -84,7 +84,7 @@
     "meta": {
         "app": "manual",
         "version": "1.0",
-        "image": "corn_fighter_sheet.png",
+        "image": "corn_fighter_sheet.webp",
         "format": "RGBA8888",
         "size": {
             "w": 4096,

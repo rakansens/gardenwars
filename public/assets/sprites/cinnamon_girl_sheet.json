@@ -64,7 +64,7 @@
     "meta": {
         "app": "manual",
         "version": "1.0",
-        "image": "cinnamon_girl_sheet.png",
+        "image": "cinnamon_girl_sheet.webp",
         "format": "RGBA8888",
         "size": {
             "w": 3072,

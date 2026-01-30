@@ -516,7 +516,7 @@ export default function WorldMapPage() {
                                             title={unit.name}
                                         >
                                             <Image
-                                                src={`/assets/sprites/${unit.baseUnitId || unit.id}.png`}
+                                                src={`/assets/sprites/${unit.baseUnitId || unit.id}.webp`}
                                                 alt={unit.name}
                                                 width={40}
                                                 height={40}
@@ -547,7 +547,7 @@ export default function WorldMapPage() {
                                                 >
                                                     <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center overflow-hidden">
                                                         <Image
-                                                            src={`/assets/sprites/${unit.baseUnitId || unit.id}.png`}
+                                                            src={`/assets/sprites/${unit.baseUnitId || unit.id}.webp`}
                                                             alt={unit.name}
                                                             width={36}
                                                             height={36}

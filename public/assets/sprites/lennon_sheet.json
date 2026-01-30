@@ -64,7 +64,7 @@
     "meta": {
         "app": "manual",
         "version": "1.0",
-        "image": "lennon_sheet.png",
+        "image": "lennon_sheet.webp",
         "format": "RGBA8888",
         "size": {
             "w": 3072,

@@ -137,7 +137,7 @@ export default function UnitAnimationPreview({
                     // アトラスをロード
                     this.load.atlas(
                         `${unitId}_atlas`,
-                        `/assets/sprites/${unitId}_sheet.png`,
+                        `/assets/sprites/${unitId}_sheet.webp`,
                         `/assets/sprites/${unitId}_sheet.json`
                     );
                 }

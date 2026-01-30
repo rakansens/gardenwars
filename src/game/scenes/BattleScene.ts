@@ -136,8 +136,8 @@ export class BattleScene extends Phaser.Scene {
 
     preload() {
         // 城スプライトをロード
-        this.load.image('castle_ally', '/assets/sprites/castle_ally.png');
-        this.load.image('castle_enemy', '/assets/sprites/castle_enemy.png');
+        this.load.image('castle_ally', '/assets/sprites/castle_ally.webp');
+        this.load.image('castle_enemy', '/assets/sprites/castle_enemy.webp');
 
         // 背景画像をロード（設定されている場合）
         if (this.stageData.background?.image) {
@@ -145,253 +145,253 @@ export class BattleScene extends Phaser.Scene {
         }
 
         // ユニットスプライトをロード（静止画フォールバック用）
-        this.load.image('cat_warrior', '/assets/sprites/cat_warrior.png');
-        this.load.image('cat_tank', '/assets/sprites/cat_tank.png');
-        this.load.image('cat_archer', '/assets/sprites/cat_archer.png');
-        this.load.image('cat_mage', '/assets/sprites/cat_mage.png');
-        this.load.image('cat_ninja', '/assets/sprites/cat_ninja.png');
-        this.load.image('ice_flower', '/assets/sprites/ice_flower.png');
-        this.load.image('corn_fighter', '/assets/sprites/corn_fighter.png');
-        this.load.image('block_slime', '/assets/sprites/block_slime.png');
-        this.load.image('sunflower', '/assets/sprites/sunflower.png');
-        this.load.image('watermelon', '/assets/sprites/watermelon.png');
-        this.load.image('corn_kid', '/assets/sprites/corn_kid.png');
-        this.load.image('ribbon_girl', '/assets/sprites/ribbon_girl.png');
-        this.load.image('penguin_boy', '/assets/sprites/penguin_boy.png');
-        this.load.image('cinnamon_girl', '/assets/sprites/cinnamon_girl.png');
-        this.load.image('enemy_dog', '/assets/sprites/enemy_dog.png');
-        this.load.image('enemy_wolf', '/assets/sprites/enemy_wolf.png');
-        this.load.image('enemy_crow', '/assets/sprites/enemy_crow.png');
+        this.load.image('cat_warrior', '/assets/sprites/cat_warrior.webp');
+        this.load.image('cat_tank', '/assets/sprites/cat_tank.webp');
+        this.load.image('cat_archer', '/assets/sprites/cat_archer.webp');
+        this.load.image('cat_mage', '/assets/sprites/cat_mage.webp');
+        this.load.image('cat_ninja', '/assets/sprites/cat_ninja.webp');
+        this.load.image('ice_flower', '/assets/sprites/ice_flower.webp');
+        this.load.image('corn_fighter', '/assets/sprites/corn_fighter.webp');
+        this.load.image('block_slime', '/assets/sprites/block_slime.webp');
+        this.load.image('sunflower', '/assets/sprites/sunflower.webp');
+        this.load.image('watermelon', '/assets/sprites/watermelon.webp');
+        this.load.image('corn_kid', '/assets/sprites/corn_kid.webp');
+        this.load.image('ribbon_girl', '/assets/sprites/ribbon_girl.webp');
+        this.load.image('penguin_boy', '/assets/sprites/penguin_boy.webp');
+        this.load.image('cinnamon_girl', '/assets/sprites/cinnamon_girl.webp');
+        this.load.image('enemy_dog', '/assets/sprites/enemy_dog.webp');
+        this.load.image('enemy_wolf', '/assets/sprites/enemy_wolf.webp');
+        this.load.image('enemy_crow', '/assets/sprites/enemy_crow.webp');
 
         // スプライトシート（アトラス）をロード
         this.load.atlas(
             'cat_warrior_atlas',
-            '/assets/sprites/cat_warrior_sheet.png',
+            '/assets/sprites/cat_warrior_sheet.webp',
             '/assets/sprites/cat_warrior_sheet.json'
         );
         this.load.atlas(
             'corn_fighter_atlas',
-            '/assets/sprites/corn_fighter_sheet.png',
+            '/assets/sprites/corn_fighter_sheet.webp',
             '/assets/sprites/corn_fighter_sheet.json'
         );
         this.load.atlas(
             'penguin_boy_atlas',
-            '/assets/sprites/penguin_boy_sheet.png',
+            '/assets/sprites/penguin_boy_sheet.webp',
             '/assets/sprites/penguin_boy_sheet.json'
         );
         this.load.atlas(
             'cinnamon_girl_atlas',
-            '/assets/sprites/cinnamon_girl_sheet.png',
+            '/assets/sprites/cinnamon_girl_sheet.webp',
             '/assets/sprites/cinnamon_girl_sheet.json'
         );
-        this.load.image('nika', '/assets/sprites/nika.png');
+        this.load.image('nika', '/assets/sprites/nika.webp');
         this.load.atlas(
             'nika_atlas',
-            '/assets/sprites/nika_sheet.png',
+            '/assets/sprites/nika_sheet.webp',
             '/assets/sprites/nika_sheet.json'
         );
-        this.load.image('lennon', '/assets/sprites/lennon.png');
+        this.load.image('lennon', '/assets/sprites/lennon.webp');
         this.load.atlas(
             'lennon_atlas',
-            '/assets/sprites/lennon_sheet.png',
+            '/assets/sprites/lennon_sheet.webp',
             '/assets/sprites/lennon_sheet.json'
         );
         this.load.atlas(
             'n_bee_atlas',
-            '/assets/sprites/n_bee_sheet.png',
+            '/assets/sprites/n_bee_sheet.webp',
             '/assets/sprites/n_bee_sheet.json'
         );
 
         // UR Units
-        this.load.image('ur_knight', '/assets/sprites/ur_knight.png');
-        this.load.image('ur_mage', '/assets/sprites/ur_mage.png');
-        this.load.image('ur_archer', '/assets/sprites/ur_archer.png');
-        this.load.image('ur_tank', '/assets/sprites/ur_tank.png');
-        this.load.image('ur_ninja', '/assets/sprites/ur_ninja.png');
-        this.load.image('ur_healer', '/assets/sprites/ur_healer.png');
-        this.load.image('ur_dragon', '/assets/sprites/ur_dragon.png');
-        this.load.image('ur_spirit', '/assets/sprites/ur_spirit.png');
-        this.load.image('ur_phoenix', '/assets/sprites/ur_phoenix.png');
-        this.load.image('ur_golem', '/assets/sprites/ur_golem.png');
-        this.load.image('ur_angel', '/assets/sprites/ur_angel.png');
+        this.load.image('ur_knight', '/assets/sprites/ur_knight.webp');
+        this.load.image('ur_mage', '/assets/sprites/ur_mage.webp');
+        this.load.image('ur_archer', '/assets/sprites/ur_archer.webp');
+        this.load.image('ur_tank', '/assets/sprites/ur_tank.webp');
+        this.load.image('ur_ninja', '/assets/sprites/ur_ninja.webp');
+        this.load.image('ur_healer', '/assets/sprites/ur_healer.webp');
+        this.load.image('ur_dragon', '/assets/sprites/ur_dragon.webp');
+        this.load.image('ur_spirit', '/assets/sprites/ur_spirit.webp');
+        this.load.image('ur_phoenix', '/assets/sprites/ur_phoenix.webp');
+        this.load.image('ur_golem', '/assets/sprites/ur_golem.webp');
+        this.load.image('ur_angel', '/assets/sprites/ur_angel.webp');
 
         // New UR Units
-        this.load.image('ur_rose_queen', '/assets/sprites/ur_rose_queen.png');
-        this.load.image('ur_galaxy_butterfly', '/assets/sprites/ur_galaxy_butterfly.png');
-        this.load.image('ur_rose_capybara', '/assets/sprites/ur_rose_capybara.png');
-        this.load.image('ur_cosmic_dragon', '/assets/sprites/ur_cosmic_dragon.png');
-        this.load.image('ur_nature_spirit_cat', '/assets/sprites/ur_nature_spirit_cat.png');
-        this.load.image('ur_inferno_demon', '/assets/sprites/ur_inferno_demon.png');
-        this.load.image('ur_golden_lion', '/assets/sprites/ur_golden_lion.png');
-        this.load.image('ur_chrono_sage', '/assets/sprites/ur_chrono_sage.png');
-        this.load.image('ur_jade_dragon', '/assets/sprites/ur_jade_dragon.png');
-        this.load.image('ur_emerald_dragon', '/assets/sprites/ur_emerald_dragon.png');
-        this.load.image('ur_chronos_cat', '/assets/sprites/ur_chronos_cat.png');
-        this.load.image('ur_ancient_treant', '/assets/sprites/ur_ancient_treant.png');
-        this.load.image('ur_nature_titan', '/assets/sprites/ur_nature_titan.png');
-        this.load.image('ur_stone_golem_cat', '/assets/sprites/ur_stone_golem_cat.png');
-        this.load.image('ur_fire_lotus_cat', '/assets/sprites/ur_fire_lotus_cat.png');
-        this.load.image('ur_astral_wizard', '/assets/sprites/ur_astral_wizard.png');
-        this.load.image('ur_rune_golem', '/assets/sprites/ur_rune_golem.png');
-        this.load.image('ur_frost_giant', '/assets/sprites/ur_frost_giant.png');
-        this.load.image('ur_celestial_cat', '/assets/sprites/ur_celestial_cat.png');
-        this.load.image('ur_crystal_griffin', '/assets/sprites/ur_crystal_griffin.png');
-        this.load.image('ur_prismatic_cat', '/assets/sprites/ur_prismatic_cat.png');
-        this.load.image('ur_sea_leviathan', '/assets/sprites/ur_sea_leviathan.png');
-        this.load.image('ur_thunder_phoenix', '/assets/sprites/ur_thunder_phoenix.png');
+        this.load.image('ur_rose_queen', '/assets/sprites/ur_rose_queen.webp');
+        this.load.image('ur_galaxy_butterfly', '/assets/sprites/ur_galaxy_butterfly.webp');
+        this.load.image('ur_rose_capybara', '/assets/sprites/ur_rose_capybara.webp');
+        this.load.image('ur_cosmic_dragon', '/assets/sprites/ur_cosmic_dragon.webp');
+        this.load.image('ur_nature_spirit_cat', '/assets/sprites/ur_nature_spirit_cat.webp');
+        this.load.image('ur_inferno_demon', '/assets/sprites/ur_inferno_demon.webp');
+        this.load.image('ur_golden_lion', '/assets/sprites/ur_golden_lion.webp');
+        this.load.image('ur_chrono_sage', '/assets/sprites/ur_chrono_sage.webp');
+        this.load.image('ur_jade_dragon', '/assets/sprites/ur_jade_dragon.webp');
+        this.load.image('ur_emerald_dragon', '/assets/sprites/ur_emerald_dragon.webp');
+        this.load.image('ur_chronos_cat', '/assets/sprites/ur_chronos_cat.webp');
+        this.load.image('ur_ancient_treant', '/assets/sprites/ur_ancient_treant.webp');
+        this.load.image('ur_nature_titan', '/assets/sprites/ur_nature_titan.webp');
+        this.load.image('ur_stone_golem_cat', '/assets/sprites/ur_stone_golem_cat.webp');
+        this.load.image('ur_fire_lotus_cat', '/assets/sprites/ur_fire_lotus_cat.webp');
+        this.load.image('ur_astral_wizard', '/assets/sprites/ur_astral_wizard.webp');
+        this.load.image('ur_rune_golem', '/assets/sprites/ur_rune_golem.webp');
+        this.load.image('ur_frost_giant', '/assets/sprites/ur_frost_giant.webp');
+        this.load.image('ur_celestial_cat', '/assets/sprites/ur_celestial_cat.webp');
+        this.load.image('ur_crystal_griffin', '/assets/sprites/ur_crystal_griffin.webp');
+        this.load.image('ur_prismatic_cat', '/assets/sprites/ur_prismatic_cat.webp');
+        this.load.image('ur_sea_leviathan', '/assets/sprites/ur_sea_leviathan.webp');
+        this.load.image('ur_thunder_phoenix', '/assets/sprites/ur_thunder_phoenix.webp');
 
         // Normal Units
-        this.load.image('n_mushroom', '/assets/sprites/n_mushroom.png');
-        this.load.image('n_apple', '/assets/sprites/n_apple.png');
-        this.load.image('n_carrot', '/assets/sprites/n_carrot.png');
-        this.load.image('n_pumpkin', '/assets/sprites/n_pumpkin.png');
-        this.load.image('n_acorn', '/assets/sprites/n_acorn.png');
-        this.load.image('n_strawberry', '/assets/sprites/n_strawberry.png');
-        this.load.image('n_onion', '/assets/sprites/n_onion.png');
-        this.load.image('n_grape', '/assets/sprites/n_grape.png');
-        this.load.image('n_aloe_beast', '/assets/sprites/n_aloe_beast.png');
-        this.load.image('n_cherry_bomb', '/assets/sprites/n_cherry_bomb.png');
-        this.load.image('n_dust_bunny', '/assets/sprites/n_dust_bunny.png');
-        this.load.image('n_hibiscus', '/assets/sprites/n_hibiscus.png');
-        this.load.image('n_leaf_sprite', '/assets/sprites/n_leaf_sprite.png');
-        this.load.image('n_pebble', '/assets/sprites/n_pebble.png');
-        this.load.image('n_dew', '/assets/sprites/n_dew.png');
-        this.load.image('n_root', '/assets/sprites/n_root.png');
-        this.load.image('n_capybara', '/assets/sprites/n_capybara.png');
-        this.load.image('r_capybara_gardener', '/assets/sprites/r_capybara_gardener.png');
-        this.load.image('r_capybara_spa', '/assets/sprites/r_capybara_spa.png');
-        this.load.image('sr_capybara_ninja', '/assets/sprites/sr_capybara_ninja.png');
-        this.load.image('sr_capybara_shaman', '/assets/sprites/sr_capybara_shaman.png');
+        this.load.image('n_mushroom', '/assets/sprites/n_mushroom.webp');
+        this.load.image('n_apple', '/assets/sprites/n_apple.webp');
+        this.load.image('n_carrot', '/assets/sprites/n_carrot.webp');
+        this.load.image('n_pumpkin', '/assets/sprites/n_pumpkin.webp');
+        this.load.image('n_acorn', '/assets/sprites/n_acorn.webp');
+        this.load.image('n_strawberry', '/assets/sprites/n_strawberry.webp');
+        this.load.image('n_onion', '/assets/sprites/n_onion.webp');
+        this.load.image('n_grape', '/assets/sprites/n_grape.webp');
+        this.load.image('n_aloe_beast', '/assets/sprites/n_aloe_beast.webp');
+        this.load.image('n_cherry_bomb', '/assets/sprites/n_cherry_bomb.webp');
+        this.load.image('n_dust_bunny', '/assets/sprites/n_dust_bunny.webp');
+        this.load.image('n_hibiscus', '/assets/sprites/n_hibiscus.webp');
+        this.load.image('n_leaf_sprite', '/assets/sprites/n_leaf_sprite.webp');
+        this.load.image('n_pebble', '/assets/sprites/n_pebble.webp');
+        this.load.image('n_dew', '/assets/sprites/n_dew.webp');
+        this.load.image('n_root', '/assets/sprites/n_root.webp');
+        this.load.image('n_capybara', '/assets/sprites/n_capybara.webp');
+        this.load.image('r_capybara_gardener', '/assets/sprites/r_capybara_gardener.webp');
+        this.load.image('r_capybara_spa', '/assets/sprites/r_capybara_spa.webp');
+        this.load.image('sr_capybara_ninja', '/assets/sprites/sr_capybara_ninja.webp');
+        this.load.image('sr_capybara_shaman', '/assets/sprites/sr_capybara_shaman.webp');
 
         // New N Units
-        this.load.image('n_log', '/assets/sprites/n_log.png');
-        this.load.image('n_octopus', '/assets/sprites/n_octopus.png');
-        this.load.image('n_dolphin', '/assets/sprites/n_dolphin.png');
-        this.load.image('n_bean', '/assets/sprites/n_bean.png');
-        this.load.image('n_frog', '/assets/sprites/n_frog.png');
+        this.load.image('n_log', '/assets/sprites/n_log.webp');
+        this.load.image('n_octopus', '/assets/sprites/n_octopus.webp');
+        this.load.image('n_dolphin', '/assets/sprites/n_dolphin.webp');
+        this.load.image('n_bean', '/assets/sprites/n_bean.webp');
+        this.load.image('n_frog', '/assets/sprites/n_frog.webp');
 
         // New R Units
-        this.load.image('r_croc_pilot', '/assets/sprites/r_croc_pilot.png');
-        this.load.image('r_latte_ballerina', '/assets/sprites/r_latte_ballerina.png');
-        this.load.image('r_penguin_scholar', '/assets/sprites/r_penguin_scholar.png');
+        this.load.image('r_croc_pilot', '/assets/sprites/r_croc_pilot.webp');
+        this.load.image('r_latte_ballerina', '/assets/sprites/r_latte_ballerina.webp');
+        this.load.image('r_penguin_scholar', '/assets/sprites/r_penguin_scholar.webp');
 
         // New SR Units
-        this.load.image('sr_coffee_ninja', '/assets/sprites/sr_coffee_ninja.png');
-        this.load.image('sr_cappuccino_assassin', '/assets/sprites/sr_cappuccino_assassin.png');
-        this.load.image('sr_odindindun', '/assets/sprites/sr_odindindun.png');
-        this.load.image('sr_traffarella', '/assets/sprites/sr_traffarella.png');
+        this.load.image('sr_coffee_ninja', '/assets/sprites/sr_coffee_ninja.webp');
+        this.load.image('sr_cappuccino_assassin', '/assets/sprites/sr_cappuccino_assassin.webp');
+        this.load.image('sr_odindindun', '/assets/sprites/sr_odindindun.webp');
+        this.load.image('sr_traffarella', '/assets/sprites/sr_traffarella.webp');
 
         // Rare Units
-        this.load.image('r_tomato', '/assets/sprites/r_tomato.png');
-        this.load.image('r_pepper', '/assets/sprites/r_pepper.png');
-        this.load.image('r_broccoli', '/assets/sprites/r_broccoli.png');
-        this.load.image('r_eggplant', '/assets/sprites/r_eggplant.png');
-        this.load.image('r_cherry', '/assets/sprites/r_cherry.png');
-        this.load.image('r_lemon', '/assets/sprites/r_lemon.png');
-        this.load.image('r_radish', '/assets/sprites/r_radish.png');
-        this.load.image('r_pumpkin_brawler', '/assets/sprites/r_pumpkin_brawler.png');
-        this.load.image('r_solar_spike', '/assets/sprites/r_solar_spike.png');
-        this.load.image('r_fire_chili', '/assets/sprites/r_fire_chili.png');
-        this.load.image('r_leaf_ninja', '/assets/sprites/r_leaf_ninja.png');
+        this.load.image('r_tomato', '/assets/sprites/r_tomato.webp');
+        this.load.image('r_pepper', '/assets/sprites/r_pepper.webp');
+        this.load.image('r_broccoli', '/assets/sprites/r_broccoli.webp');
+        this.load.image('r_eggplant', '/assets/sprites/r_eggplant.webp');
+        this.load.image('r_cherry', '/assets/sprites/r_cherry.webp');
+        this.load.image('r_lemon', '/assets/sprites/r_lemon.webp');
+        this.load.image('r_radish', '/assets/sprites/r_radish.webp');
+        this.load.image('r_pumpkin_brawler', '/assets/sprites/r_pumpkin_brawler.webp');
+        this.load.image('r_solar_spike', '/assets/sprites/r_solar_spike.webp');
+        this.load.image('r_fire_chili', '/assets/sprites/r_fire_chili.webp');
+        this.load.image('r_leaf_ninja', '/assets/sprites/r_leaf_ninja.webp');
 
         // SR Units
-        this.load.image('sr_rose_hero', '/assets/sprites/sr_rose_hero.png');
-        this.load.image('sr_corn_tank', '/assets/sprites/sr_corn_tank.png');
-        this.load.image('sr_bamboo_mech', '/assets/sprites/sr_bamboo_mech.png');
-        this.load.image('sr_sun_pirate', '/assets/sprites/sr_sun_pirate.png');
-        this.load.image('sr_tulip_idol', '/assets/sprites/sr_tulip_idol.png');
-        this.load.image('sr_crystal_lotus_cat', '/assets/sprites/sr_crystal_lotus_cat.png');
-        this.load.image('sr_bonsai_cat', '/assets/sprites/sr_bonsai_cat.png');
+        this.load.image('sr_rose_hero', '/assets/sprites/sr_rose_hero.webp');
+        this.load.image('sr_corn_tank', '/assets/sprites/sr_corn_tank.webp');
+        this.load.image('sr_bamboo_mech', '/assets/sprites/sr_bamboo_mech.webp');
+        this.load.image('sr_sun_pirate', '/assets/sprites/sr_sun_pirate.webp');
+        this.load.image('sr_tulip_idol', '/assets/sprites/sr_tulip_idol.webp');
+        this.load.image('sr_crystal_lotus_cat', '/assets/sprites/sr_crystal_lotus_cat.webp');
+        this.load.image('sr_bonsai_cat', '/assets/sprites/sr_bonsai_cat.webp');
 
         // New N Units
-        this.load.image('n_ladybug_cat', '/assets/sprites/n_ladybug_cat.png');
-        this.load.image('n_autumn_leaf_cat', '/assets/sprites/n_autumn_leaf_cat.png');
-        this.load.image('n_frog_cat', '/assets/sprites/n_frog_cat.png');
-        this.load.image('n_succulent_cat', '/assets/sprites/n_succulent_cat.png');
-        this.load.image('n_farmer_cat', '/assets/sprites/n_farmer_cat.png');
-        this.load.image('n_cinnamon_cat', '/assets/sprites/n_cinnamon_cat.png');
-        this.load.image('n_potted_plant_cat', '/assets/sprites/n_potted_plant_cat.png');
-        this.load.image('n_ivy_harvest_cat', '/assets/sprites/n_ivy_harvest_cat.png');
-        this.load.image('n_sunflower_cat', '/assets/sprites/n_sunflower_cat.png');
-        this.load.image('n_sprout_cat', '/assets/sprites/n_sprout_cat.png');
+        this.load.image('n_ladybug_cat', '/assets/sprites/n_ladybug_cat.webp');
+        this.load.image('n_autumn_leaf_cat', '/assets/sprites/n_autumn_leaf_cat.webp');
+        this.load.image('n_frog_cat', '/assets/sprites/n_frog_cat.webp');
+        this.load.image('n_succulent_cat', '/assets/sprites/n_succulent_cat.webp');
+        this.load.image('n_farmer_cat', '/assets/sprites/n_farmer_cat.webp');
+        this.load.image('n_cinnamon_cat', '/assets/sprites/n_cinnamon_cat.webp');
+        this.load.image('n_potted_plant_cat', '/assets/sprites/n_potted_plant_cat.webp');
+        this.load.image('n_ivy_harvest_cat', '/assets/sprites/n_ivy_harvest_cat.webp');
+        this.load.image('n_sunflower_cat', '/assets/sprites/n_sunflower_cat.webp');
+        this.load.image('n_sprout_cat', '/assets/sprites/n_sprout_cat.webp');
 
         // New R Units
-        this.load.image('r_cactus_guardian', '/assets/sprites/r_cactus_guardian.png');
-        this.load.image('r_dandelion_cat', '/assets/sprites/r_dandelion_cat.png');
-        this.load.image('r_ivy_ninja_cat', '/assets/sprites/r_ivy_ninja_cat.png');
-        this.load.image('r_cherry_blossom_cat', '/assets/sprites/r_cherry_blossom_cat.png');
-        this.load.image('r_rose_bunny_cat', '/assets/sprites/r_rose_bunny_cat.png');
-        this.load.image('r_bamboo_samurai_cat', '/assets/sprites/r_bamboo_samurai_cat.png');
-        this.load.image('r_hydrangea_cat', '/assets/sprites/r_hydrangea_cat.png');
+        this.load.image('r_cactus_guardian', '/assets/sprites/r_cactus_guardian.webp');
+        this.load.image('r_dandelion_cat', '/assets/sprites/r_dandelion_cat.webp');
+        this.load.image('r_ivy_ninja_cat', '/assets/sprites/r_ivy_ninja_cat.webp');
+        this.load.image('r_cherry_blossom_cat', '/assets/sprites/r_cherry_blossom_cat.webp');
+        this.load.image('r_rose_bunny_cat', '/assets/sprites/r_rose_bunny_cat.webp');
+        this.load.image('r_bamboo_samurai_cat', '/assets/sprites/r_bamboo_samurai_cat.webp');
+        this.load.image('r_hydrangea_cat', '/assets/sprites/r_hydrangea_cat.webp');
 
         // New SR Units
-        this.load.image('sr_cloud_angel_cat', '/assets/sprites/sr_cloud_angel_cat.png');
-        this.load.image('sr_thorn_beast_cat', '/assets/sprites/sr_thorn_beast_cat.png');
-        this.load.image('sr_thorn_reaper_cat', '/assets/sprites/sr_thorn_reaper_cat.png');
-        this.load.image('sr_lucky_clover_cat', '/assets/sprites/sr_lucky_clover_cat.png');
+        this.load.image('sr_cloud_angel_cat', '/assets/sprites/sr_cloud_angel_cat.webp');
+        this.load.image('sr_thorn_beast_cat', '/assets/sprites/sr_thorn_beast_cat.webp');
+        this.load.image('sr_thorn_reaper_cat', '/assets/sprites/sr_thorn_reaper_cat.webp');
+        this.load.image('sr_lucky_clover_cat', '/assets/sprites/sr_lucky_clover_cat.webp');
 
         // SSR Units
-        this.load.image('flame_knight', '/assets/sprites/flame_knight.png');
-        this.load.image('ice_samurai', '/assets/sprites/ice_samurai.png');
-        this.load.image('shadow_assassin', '/assets/sprites/shadow_assassin.png');
-        this.load.image('thunder_golem', '/assets/sprites/thunder_golem.png');
+        this.load.image('flame_knight', '/assets/sprites/flame_knight.webp');
+        this.load.image('ice_samurai', '/assets/sprites/ice_samurai.webp');
+        this.load.image('shadow_assassin', '/assets/sprites/shadow_assassin.webp');
+        this.load.image('thunder_golem', '/assets/sprites/thunder_golem.webp');
 
         // SR Unit Atlases (animations)
-        this.load.atlas('sr_rose_hero_atlas', '/assets/sprites/sr_rose_hero_sheet.png', '/assets/sprites/sr_rose_hero_sheet.json');
-        this.load.atlas('sr_corn_tank_atlas', '/assets/sprites/sr_corn_tank_sheet.png', '/assets/sprites/sr_corn_tank_sheet.json');
-        this.load.atlas('sr_bamboo_mech_atlas', '/assets/sprites/sr_bamboo_mech_sheet.png', '/assets/sprites/sr_bamboo_mech_sheet.json');
-        this.load.atlas('sr_sun_pirate_atlas', '/assets/sprites/sr_sun_pirate_sheet.png', '/assets/sprites/sr_sun_pirate_sheet.json');
-        this.load.atlas('sr_tulip_idol_atlas', '/assets/sprites/sr_tulip_idol_sheet.png', '/assets/sprites/sr_tulip_idol_sheet.json');
-        this.load.atlas('sr_cappuccino_assassin_atlas', '/assets/sprites/sr_cappuccino_assassin_sheet.png', '/assets/sprites/sr_cappuccino_assassin_sheet.json');
-        this.load.atlas('sr_capybara_ninja_atlas', '/assets/sprites/sr_capybara_ninja_sheet.png', '/assets/sprites/sr_capybara_ninja_sheet.json');
-        this.load.atlas('sr_capybara_shaman_atlas', '/assets/sprites/sr_capybara_shaman_sheet.png', '/assets/sprites/sr_capybara_shaman_sheet.json');
+        this.load.atlas('sr_rose_hero_atlas', '/assets/sprites/sr_rose_hero_sheet.webp', '/assets/sprites/sr_rose_hero_sheet.json');
+        this.load.atlas('sr_corn_tank_atlas', '/assets/sprites/sr_corn_tank_sheet.webp', '/assets/sprites/sr_corn_tank_sheet.json');
+        this.load.atlas('sr_bamboo_mech_atlas', '/assets/sprites/sr_bamboo_mech_sheet.webp', '/assets/sprites/sr_bamboo_mech_sheet.json');
+        this.load.atlas('sr_sun_pirate_atlas', '/assets/sprites/sr_sun_pirate_sheet.webp', '/assets/sprites/sr_sun_pirate_sheet.json');
+        this.load.atlas('sr_tulip_idol_atlas', '/assets/sprites/sr_tulip_idol_sheet.webp', '/assets/sprites/sr_tulip_idol_sheet.json');
+        this.load.atlas('sr_cappuccino_assassin_atlas', '/assets/sprites/sr_cappuccino_assassin_sheet.webp', '/assets/sprites/sr_cappuccino_assassin_sheet.json');
+        this.load.atlas('sr_capybara_ninja_atlas', '/assets/sprites/sr_capybara_ninja_sheet.webp', '/assets/sprites/sr_capybara_ninja_sheet.json');
+        this.load.atlas('sr_capybara_shaman_atlas', '/assets/sprites/sr_capybara_shaman_sheet.webp', '/assets/sprites/sr_capybara_shaman_sheet.json');
         // sr_coffee_ninja uses static image (no sprite sheet)
-        this.load.atlas('sr_odindindun_atlas', '/assets/sprites/sr_odindindun_sheet.png', '/assets/sprites/sr_odindindun_sheet.json');
-        this.load.atlas('sr_traffarella_atlas', '/assets/sprites/sr_traffarella_sheet.png', '/assets/sprites/sr_traffarella_sheet.json');
+        this.load.atlas('sr_odindindun_atlas', '/assets/sprites/sr_odindindun_sheet.webp', '/assets/sprites/sr_odindindun_sheet.json');
+        this.load.atlas('sr_traffarella_atlas', '/assets/sprites/sr_traffarella_sheet.webp', '/assets/sprites/sr_traffarella_sheet.json');
 
         // SSR Unit Atlases (animations)
-        this.load.atlas('flame_knight_atlas', '/assets/sprites/flame_knight_sheet.png', '/assets/sprites/flame_knight_sheet.json');
-        this.load.atlas('ice_samurai_atlas', '/assets/sprites/ice_samurai_sheet.png', '/assets/sprites/ice_samurai_sheet.json');
-        this.load.atlas('shadow_assassin_atlas', '/assets/sprites/shadow_assassin_sheet.png', '/assets/sprites/shadow_assassin_sheet.json');
-        this.load.atlas('thunder_golem_atlas', '/assets/sprites/thunder_golem_sheet.png', '/assets/sprites/thunder_golem_sheet.json');
+        this.load.atlas('flame_knight_atlas', '/assets/sprites/flame_knight_sheet.webp', '/assets/sprites/flame_knight_sheet.json');
+        this.load.atlas('ice_samurai_atlas', '/assets/sprites/ice_samurai_sheet.webp', '/assets/sprites/ice_samurai_sheet.json');
+        this.load.atlas('shadow_assassin_atlas', '/assets/sprites/shadow_assassin_sheet.webp', '/assets/sprites/shadow_assassin_sheet.json');
+        this.load.atlas('thunder_golem_atlas', '/assets/sprites/thunder_golem_sheet.webp', '/assets/sprites/thunder_golem_sheet.json');
 
         // UR Unit Atlases (animations)
-        this.load.atlas('ur_knight_atlas', '/assets/sprites/ur_knight_sheet.png', '/assets/sprites/ur_knight_sheet.json');
-        this.load.atlas('ur_mage_atlas', '/assets/sprites/ur_mage_sheet.png', '/assets/sprites/ur_mage_sheet.json');
-        this.load.atlas('ur_archer_atlas', '/assets/sprites/ur_archer_sheet.png', '/assets/sprites/ur_archer_sheet.json');
-        this.load.atlas('ur_tank_atlas', '/assets/sprites/ur_tank_sheet.png', '/assets/sprites/ur_tank_sheet.json');
-        this.load.atlas('ur_ninja_atlas', '/assets/sprites/ur_ninja_sheet.png', '/assets/sprites/ur_ninja_sheet.json');
-        this.load.atlas('ur_healer_atlas', '/assets/sprites/ur_healer_sheet.png', '/assets/sprites/ur_healer_sheet.json');
-        this.load.atlas('ur_dragon_atlas', '/assets/sprites/ur_dragon_sheet.png', '/assets/sprites/ur_dragon_sheet.json');
-        this.load.atlas('ur_spirit_atlas', '/assets/sprites/ur_spirit_sheet.png', '/assets/sprites/ur_spirit_sheet.json');
-        this.load.atlas('ur_phoenix_atlas', '/assets/sprites/ur_phoenix_sheet.png', '/assets/sprites/ur_phoenix_sheet.json');
-        this.load.atlas('ur_golem_atlas', '/assets/sprites/ur_golem_sheet.png', '/assets/sprites/ur_golem_sheet.json');
-        this.load.atlas('ur_angel_atlas', '/assets/sprites/ur_angel_sheet.png', '/assets/sprites/ur_angel_sheet.json');
-        this.load.atlas('ur_ancient_treant_atlas', '/assets/sprites/ur_ancient_treant_sheet.png', '/assets/sprites/ur_ancient_treant_sheet.json');
+        this.load.atlas('ur_knight_atlas', '/assets/sprites/ur_knight_sheet.webp', '/assets/sprites/ur_knight_sheet.json');
+        this.load.atlas('ur_mage_atlas', '/assets/sprites/ur_mage_sheet.webp', '/assets/sprites/ur_mage_sheet.json');
+        this.load.atlas('ur_archer_atlas', '/assets/sprites/ur_archer_sheet.webp', '/assets/sprites/ur_archer_sheet.json');
+        this.load.atlas('ur_tank_atlas', '/assets/sprites/ur_tank_sheet.webp', '/assets/sprites/ur_tank_sheet.json');
+        this.load.atlas('ur_ninja_atlas', '/assets/sprites/ur_ninja_sheet.webp', '/assets/sprites/ur_ninja_sheet.json');
+        this.load.atlas('ur_healer_atlas', '/assets/sprites/ur_healer_sheet.webp', '/assets/sprites/ur_healer_sheet.json');
+        this.load.atlas('ur_dragon_atlas', '/assets/sprites/ur_dragon_sheet.webp', '/assets/sprites/ur_dragon_sheet.json');
+        this.load.atlas('ur_spirit_atlas', '/assets/sprites/ur_spirit_sheet.webp', '/assets/sprites/ur_spirit_sheet.json');
+        this.load.atlas('ur_phoenix_atlas', '/assets/sprites/ur_phoenix_sheet.webp', '/assets/sprites/ur_phoenix_sheet.json');
+        this.load.atlas('ur_golem_atlas', '/assets/sprites/ur_golem_sheet.webp', '/assets/sprites/ur_golem_sheet.json');
+        this.load.atlas('ur_angel_atlas', '/assets/sprites/ur_angel_sheet.webp', '/assets/sprites/ur_angel_sheet.json');
+        this.load.atlas('ur_ancient_treant_atlas', '/assets/sprites/ur_ancient_treant_sheet.webp', '/assets/sprites/ur_ancient_treant_sheet.json');
 
         // New UR Unit Atlases
-        this.load.atlas('ur_astral_wizard_atlas', '/assets/sprites/ur_astral_wizard_sheet.png', '/assets/sprites/ur_astral_wizard_sheet.json');
-        this.load.atlas('ur_celestial_cat_atlas', '/assets/sprites/ur_celestial_cat_sheet.png', '/assets/sprites/ur_celestial_cat_sheet.json');
-        this.load.atlas('ur_chrono_sage_atlas', '/assets/sprites/ur_chrono_sage_sheet.png', '/assets/sprites/ur_chrono_sage_sheet.json');
-        this.load.atlas('ur_chronos_cat_atlas', '/assets/sprites/ur_chronos_cat_sheet.png', '/assets/sprites/ur_chronos_cat_sheet.json');
-        this.load.atlas('ur_cosmic_dragon_atlas', '/assets/sprites/ur_cosmic_dragon_sheet.png', '/assets/sprites/ur_cosmic_dragon_sheet.json');
-        this.load.atlas('ur_crystal_griffin_atlas', '/assets/sprites/ur_crystal_griffin_sheet.png', '/assets/sprites/ur_crystal_griffin_sheet.json');
-        this.load.atlas('ur_emerald_dragon_atlas', '/assets/sprites/ur_emerald_dragon_sheet.png', '/assets/sprites/ur_emerald_dragon_sheet.json');
-        this.load.atlas('ur_fire_lotus_cat_atlas', '/assets/sprites/ur_fire_lotus_cat_sheet.png', '/assets/sprites/ur_fire_lotus_cat_sheet.json');
-        this.load.atlas('ur_frost_giant_atlas', '/assets/sprites/ur_frost_giant_sheet.png', '/assets/sprites/ur_frost_giant_sheet.json');
-        this.load.atlas('ur_galaxy_butterfly_atlas', '/assets/sprites/ur_galaxy_butterfly_sheet.png', '/assets/sprites/ur_galaxy_butterfly_sheet.json');
-        this.load.atlas('ur_golden_lion_atlas', '/assets/sprites/ur_golden_lion_sheet.png', '/assets/sprites/ur_golden_lion_sheet.json');
-        this.load.atlas('ur_inferno_demon_atlas', '/assets/sprites/ur_inferno_demon_sheet.png', '/assets/sprites/ur_inferno_demon_sheet.json');
-        this.load.atlas('ur_jade_dragon_atlas', '/assets/sprites/ur_jade_dragon_sheet.png', '/assets/sprites/ur_jade_dragon_sheet.json');
-        this.load.atlas('ur_nature_spirit_cat_atlas', '/assets/sprites/ur_nature_spirit_cat_sheet.png', '/assets/sprites/ur_nature_spirit_cat_sheet.json');
-        this.load.atlas('ur_nature_titan_atlas', '/assets/sprites/ur_nature_titan_sheet.png', '/assets/sprites/ur_nature_titan_sheet.json');
-        this.load.atlas('ur_prismatic_cat_atlas', '/assets/sprites/ur_prismatic_cat_sheet.png', '/assets/sprites/ur_prismatic_cat_sheet.json');
-        this.load.atlas('ur_rose_capybara_atlas', '/assets/sprites/ur_rose_capybara_sheet.png', '/assets/sprites/ur_rose_capybara_sheet.json');
-        this.load.atlas('ur_rose_queen_atlas', '/assets/sprites/ur_rose_queen_sheet.png', '/assets/sprites/ur_rose_queen_sheet.json');
-        this.load.atlas('ur_rune_golem_atlas', '/assets/sprites/ur_rune_golem_sheet.png', '/assets/sprites/ur_rune_golem_sheet.json');
-        this.load.atlas('ur_sea_leviathan_atlas', '/assets/sprites/ur_sea_leviathan_sheet.png', '/assets/sprites/ur_sea_leviathan_sheet.json');
-        this.load.atlas('ur_stone_golem_cat_atlas', '/assets/sprites/ur_stone_golem_cat_sheet.png', '/assets/sprites/ur_stone_golem_cat_sheet.json');
-        this.load.atlas('ur_thunder_phoenix_atlas', '/assets/sprites/ur_thunder_phoenix_sheet.png', '/assets/sprites/ur_thunder_phoenix_sheet.json');
+        this.load.atlas('ur_astral_wizard_atlas', '/assets/sprites/ur_astral_wizard_sheet.webp', '/assets/sprites/ur_astral_wizard_sheet.json');
+        this.load.atlas('ur_celestial_cat_atlas', '/assets/sprites/ur_celestial_cat_sheet.webp', '/assets/sprites/ur_celestial_cat_sheet.json');
+        this.load.atlas('ur_chrono_sage_atlas', '/assets/sprites/ur_chrono_sage_sheet.webp', '/assets/sprites/ur_chrono_sage_sheet.json');
+        this.load.atlas('ur_chronos_cat_atlas', '/assets/sprites/ur_chronos_cat_sheet.webp', '/assets/sprites/ur_chronos_cat_sheet.json');
+        this.load.atlas('ur_cosmic_dragon_atlas', '/assets/sprites/ur_cosmic_dragon_sheet.webp', '/assets/sprites/ur_cosmic_dragon_sheet.json');
+        this.load.atlas('ur_crystal_griffin_atlas', '/assets/sprites/ur_crystal_griffin_sheet.webp', '/assets/sprites/ur_crystal_griffin_sheet.json');
+        this.load.atlas('ur_emerald_dragon_atlas', '/assets/sprites/ur_emerald_dragon_sheet.webp', '/assets/sprites/ur_emerald_dragon_sheet.json');
+        this.load.atlas('ur_fire_lotus_cat_atlas', '/assets/sprites/ur_fire_lotus_cat_sheet.webp', '/assets/sprites/ur_fire_lotus_cat_sheet.json');
+        this.load.atlas('ur_frost_giant_atlas', '/assets/sprites/ur_frost_giant_sheet.webp', '/assets/sprites/ur_frost_giant_sheet.json');
+        this.load.atlas('ur_galaxy_butterfly_atlas', '/assets/sprites/ur_galaxy_butterfly_sheet.webp', '/assets/sprites/ur_galaxy_butterfly_sheet.json');
+        this.load.atlas('ur_golden_lion_atlas', '/assets/sprites/ur_golden_lion_sheet.webp', '/assets/sprites/ur_golden_lion_sheet.json');
+        this.load.atlas('ur_inferno_demon_atlas', '/assets/sprites/ur_inferno_demon_sheet.webp', '/assets/sprites/ur_inferno_demon_sheet.json');
+        this.load.atlas('ur_jade_dragon_atlas', '/assets/sprites/ur_jade_dragon_sheet.webp', '/assets/sprites/ur_jade_dragon_sheet.json');
+        this.load.atlas('ur_nature_spirit_cat_atlas', '/assets/sprites/ur_nature_spirit_cat_sheet.webp', '/assets/sprites/ur_nature_spirit_cat_sheet.json');
+        this.load.atlas('ur_nature_titan_atlas', '/assets/sprites/ur_nature_titan_sheet.webp', '/assets/sprites/ur_nature_titan_sheet.json');
+        this.load.atlas('ur_prismatic_cat_atlas', '/assets/sprites/ur_prismatic_cat_sheet.webp', '/assets/sprites/ur_prismatic_cat_sheet.json');
+        this.load.atlas('ur_rose_capybara_atlas', '/assets/sprites/ur_rose_capybara_sheet.webp', '/assets/sprites/ur_rose_capybara_sheet.json');
+        this.load.atlas('ur_rose_queen_atlas', '/assets/sprites/ur_rose_queen_sheet.webp', '/assets/sprites/ur_rose_queen_sheet.json');
+        this.load.atlas('ur_rune_golem_atlas', '/assets/sprites/ur_rune_golem_sheet.webp', '/assets/sprites/ur_rune_golem_sheet.json');
+        this.load.atlas('ur_sea_leviathan_atlas', '/assets/sprites/ur_sea_leviathan_sheet.webp', '/assets/sprites/ur_sea_leviathan_sheet.json');
+        this.load.atlas('ur_stone_golem_cat_atlas', '/assets/sprites/ur_stone_golem_cat_sheet.webp', '/assets/sprites/ur_stone_golem_cat_sheet.json');
+        this.load.atlas('ur_thunder_phoenix_atlas', '/assets/sprites/ur_thunder_phoenix_sheet.webp', '/assets/sprites/ur_thunder_phoenix_sheet.json');
     }
 
     private summonUIButtons: {

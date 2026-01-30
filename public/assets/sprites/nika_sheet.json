@@ -64,7 +64,7 @@
     "meta": {
         "app": "manual",
         "version": "1.0",
-        "image": "nika_sheet.png",
+        "image": "nika_sheet.webp",
         "format": "RGBA8888",
         "size": {
             "w": 3072,

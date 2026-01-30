@@ -130,7 +130,7 @@ export default function RarityFrame({
             >
                 {/* キャラ画像 */}
                 <Image
-                    src={`/assets/sprites/${imageId}.png`}
+                    src={`/assets/sprites/${imageId}.webp`}
                     alt={unitName}
                     width={sizeClass.image}
                     height={sizeClass.image}

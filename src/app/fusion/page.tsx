@@ -257,7 +257,7 @@ export default function FusionPage() {
                             {unitDef ? (
                                 <div className="relative">
                                     <Image
-                                        src={`/assets/sprites/${unitDef.atlasKey || unitDef.baseUnitId || unitDef.id}.png`}
+                                        src={`/assets/sprites/${unitDef.atlasKey || unitDef.baseUnitId || unitDef.id}.webp`}
                                         alt={unitDef.name}
                                         width={fusionMode === 10 ? 32 : 48}
                                         height={fusionMode === 10 ? 32 : 48}
@@ -323,7 +323,7 @@ export default function FusionPage() {
                                     }`}
                             >
                                 <Image
-                                    src={`/assets/sprites/${unit.atlasKey || unit.baseUnitId || unit.id}.png`}
+                                    src={`/assets/sprites/${unit.atlasKey || unit.baseUnitId || unit.id}.webp`}
                                     alt={unit.name}
                                     width={48}
                                     height={48}
