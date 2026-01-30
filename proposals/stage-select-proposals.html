@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Garden Wars - Stage Select UI/UX Proposals</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap');
+
+    * {
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+    }
+
+    :root {
+      --primary: #f0b429;
+      --secondary: #ff8a65;
+      --bg: #f6ead2;
+      --card: #fff5de;
+      --brown: #8B4513;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f6ead2 0%, #e8d4b0 100%);
+    }
+
+    /* Proposal Navigation */
+    .proposal-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(139, 69, 19, 0.95);
+      z-index: 1000;
+      padding: 12px 20px;
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+    }
+
+    .proposal-nav button {
+      background: var(--primary);
+      color: #5a3e1b;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 700;
+      white-space: nowrap;
+      border: 2px solid #d4a429;
+      transition: all 0.2s;
+    }
+
+    .proposal-nav button:hover,
+    .proposal-nav button.active {
+      background: #fff;
+      transform: scale(1.05);
+    }
+
+    .proposal-section {
+      display: none;
+      min-height: 100vh;
+      padding: 80px 20px 40px;
+    }
+
+    .proposal-section.active {
+      display: block;
+    }
+
+    /* ===== PROPOSAL 1: World Map Style ===== */
+    .world-map-container {
+      position: relative;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grass" patternUnits="userSpaceOnUse" width="20" height="20"><rect fill="%2390c56a" width="20" height="20"/><circle fill="%237ab356" cx="5" cy="10" r="3"/><circle fill="%237ab356" cx="15" cy="5" r="2"/></pattern></defs><rect fill="url(%23grass)" width="100" height="100"/></svg>');
+      border-radius: 20px;
+      padding: 40px;
+      min-height: 600px;
+      border: 4px solid #5a3e1b;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .map-path {
+      position: absolute;
+      background: #d4a029;
+      border: 3px solid #8B4513;
+      border-radius: 10px;
+    }
+
+    .map-node {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #fff5de, #ffe4a0);
+      border-radius: 50%;
+      border: 4px solid #8B4513;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .map-node:hover {
+      transform: scale(1.2);
+      z-index: 10;
+    }
+
+    .map-node.locked {
+      background: #aaa;
+      opacity: 0.6;
+    }
+
+    .map-node.cleared {
+      border-color: #4CAF50;
+      box-shadow: 0 0 15px #4CAF50;
+    }
+
+    .map-node.boss {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+      border-color: #c0392b;
+    }
+
+    .map-node .stage-num {
+      font-size: 24px;
+      font-weight: 800;
+      color: #5a3e1b;
+    }
+
+    .map-node .stage-icon {
+      font-size: 28px;
+    }
+
+    .map-tooltip {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fff;
+      padding: 10px 15px;
+      border-radius: 10px;
+      border: 2px solid #8B4513;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .map-node:hover .map-tooltip {
+      opacity: 1;
+    }
+
+    /* ===== PROPOSAL 2: Card Carousel ===== */
+    .carousel-container {
+      max-width: 100%;
+      overflow: hidden;
+      padding: 40px 0;
+    }
+
+    .carousel-track {
+      display: flex;
+      gap: 20px;
+      padding: 20px 40px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+    }
+
+    .carousel-track::-webkit-scrollbar {
+      display: none;
+    }
+
+    .carousel-card {
+      flex: 0 0 300px;
+      height: 450px;
+      background: linear-gradient(135deg, #fff5de, #ffe4a0);
+      border-radius: 20px;
+      border: 4px solid #8B4513;
+      overflow: hidden;
+      scroll-snap-align: center;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+    }
+
+    .carousel-card:hover {
+      transform: translateY(-20px) scale(1.05);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    .carousel-card .card-image {
+      height: 200px;
+      background: linear-gradient(135deg, #87CEEB, #90EE90);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .carousel-card .card-image::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: linear-gradient(transparent, rgba(139, 69, 19, 0.3));
+    }
+
+    .carousel-card .difficulty-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 5px 12px;
+      border-radius: 15px;
+      font-weight: 700;
+      font-size: 12px;
+      color: #fff;
+    }
+
+    .carousel-card .card-content {
+      padding: 20px;
+    }
+
+    .carousel-card .stage-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #5a3e1b;
+      margin-bottom: 10px;
+    }
+
+    .carousel-card .stage-desc {
+      font-size: 14px;
+      color: #7a5a2b;
+      margin-bottom: 15px;
+    }
+
+    .carousel-card .rewards {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .carousel-card .reward-item {
+      background: #f0b429;
+      padding: 5px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #5a3e1b;
+    }
+
+    .carousel-card .play-btn {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #4CAF50, #45a049);
+      color: #fff;
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: 700;
+      text-align: center;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .carousel-card .play-btn:hover {
+      transform: scale(1.05);
+    }
+
+    /* ===== PROPOSAL 3: Hexagonal Grid ===== */
+    .hex-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .hex-row {
+      display: flex;
+      justify-content: center;
+      margin-bottom: -25px;
+    }
+
+    .hex-row:nth-child(even) {
+      margin-left: 55px;
+    }
+
+    .hex-item {
+      width: 100px;
+      height: 115px;
+      margin: 5px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .hex-item:hover {
+      transform: scale(1.15);
+      z-index: 10;
+    }
+
+    .hex-shape {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #fff5de, #f0b429);
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      position: relative;
+    }
+
+    .hex-shape::before {
+      content: '';
+      position: absolute;
+      inset: 3px;
+      background: linear-gradient(135deg, #fff5de, #ffe4a0);
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    }
+
+    .hex-content {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    .hex-item.boss .hex-shape {
+      background: linear-gradient(135deg, #ff6b6b, #c0392b);
+    }
+
+    .hex-item.boss .hex-shape::before {
+      background: linear-gradient(135deg, #ff8a8a, #ee5a5a);
+    }
+
+    .hex-item.locked .hex-shape {
+      background: #888;
+    }
+
+    .hex-item.locked .hex-shape::before {
+      background: #aaa;
+    }
+
+    .hex-item .stage-icon {
+      font-size: 28px;
+    }
+
+    .hex-item .stage-num {
+      font-size: 14px;
+      font-weight: 800;
+      color: #5a3e1b;
+    }
+
+    /* ===== PROPOSAL 4: 3D Book Style ===== */
+    .book-container {
+      perspective: 1500px;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px;
+    }
+
+    .book {
+      display: flex;
+      transform-style: preserve-3d;
+      transform: rotateX(5deg);
+    }
+
+    .book-page {
+      width: 400px;
+      min-height: 500px;
+      background: linear-gradient(135deg, #fff5de, #f5e6c8);
+      border-radius: 0 15px 15px 0;
+      padding: 30px;
+      box-shadow: 5px 5px 20px rgba(0,0,0,0.2);
+      border-left: 8px solid #8B4513;
+      position: relative;
+    }
+
+    .book-page::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 20px;
+      background: linear-gradient(90deg, rgba(0,0,0,0.1), transparent);
+    }
+
+    .book-page.left {
+      border-radius: 15px 0 0 15px;
+      border-left: none;
+      border-right: 8px solid #8B4513;
+    }
+
+    .book-page.left::before {
+      left: auto;
+      right: 0;
+      background: linear-gradient(-90deg, rgba(0,0,0,0.1), transparent);
+    }
+
+    .chapter-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: #5a3e1b;
+      text-align: center;
+      margin-bottom: 20px;
+      border-bottom: 3px solid #8B4513;
+      padding-bottom: 10px;
+    }
+
+    .stage-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .stage-entry {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 15px;
+      background: rgba(240, 180, 41, 0.2);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: 2px solid transparent;
+    }
+
+    .stage-entry:hover {
+      background: rgba(240, 180, 41, 0.4);
+      border-color: #f0b429;
+      transform: translateX(10px);
+    }
+
+    .stage-entry .entry-icon {
+      font-size: 32px;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      border-radius: 10px;
+      border: 2px solid #8B4513;
+    }
+
+    .stage-entry .entry-info {
+      flex: 1;
+    }
+
+    .stage-entry .entry-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #5a3e1b;
+    }
+
+    .stage-entry .entry-desc {
+      font-size: 12px;
+      color: #7a5a2b;
+    }
+
+    .stage-entry .entry-stars {
+      font-size: 14px;
+    }
+
+    /* ===== PROPOSAL 5: Timeline Journey ===== */
+    .timeline-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      position: relative;
+    }
+
+    .timeline-line {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 8px;
+      background: linear-gradient(180deg, #90c56a, #f0b429, #ff6b6b);
+      border-radius: 4px;
+      transform: translateX(-50%);
+    }
+
+    .timeline-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 40px;
+      position: relative;
+    }
+
+    .timeline-item:nth-child(odd) {
+      flex-direction: row-reverse;
+    }
+
+    .timeline-item:nth-child(odd) .timeline-content {
+      text-align: right;
+      margin-right: 60px;
+      margin-left: 0;
+    }
+
+    .timeline-item:nth-child(even) .timeline-content {
+      margin-left: 60px;
+    }
+
+    .timeline-node {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #fff5de, #f0b429);
+      border-radius: 50%;
+      border: 4px solid #8B4513;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      cursor: pointer;
+      transition: all 0.3s;
+      z-index: 10;
+    }
+
+    .timeline-node:hover {
+      transform: translateX(-50%) scale(1.2);
+      box-shadow: 0 0 20px rgba(240, 180, 41, 0.6);
+    }
+
+    .timeline-node.boss {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #ff8a8a, #ff6b6b);
+      border-color: #c0392b;
+    }
+
+    .timeline-content {
+      width: 45%;
+      background: linear-gradient(135deg, #fff5de, #ffe4a0);
+      padding: 20px;
+      border-radius: 15px;
+      border: 3px solid #8B4513;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .timeline-content:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+
+    .timeline-content .area-badge {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 15px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .timeline-content .stage-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #5a3e1b;
+      margin-bottom: 5px;
+    }
+
+    .timeline-content .stage-desc {
+      font-size: 13px;
+      color: #7a5a2b;
+      margin-bottom: 10px;
+    }
+
+    .timeline-content .stage-rewards {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .timeline-content .reward-tag {
+      background: rgba(240, 180, 41, 0.5);
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #5a3e1b;
+    }
+
+    /* ===== PROPOSAL 6: Island Archipelago ===== */
+    .archipelago-container {
+      position: relative;
+      width: 100%;
+      max-width: 1200px;
+      min-height: 700px;
+      margin: 0 auto;
+      background: linear-gradient(180deg, #87CEEB 0%, #4a90c2 50%, #1a5276 100%);
+      border-radius: 20px;
+      border: 4px solid #5a3e1b;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .wave-animation {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 150px;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120"><path fill="%23ffffff20" d="M0,60 C300,120 600,0 900,60 C1050,90 1150,45 1200,60 L1200,120 L0,120 Z"/></svg>');
+      background-size: 100% 100%;
+      animation: wave 3s ease-in-out infinite;
+    }
+
+    @keyframes wave {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .island {
+      position: absolute;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .island:hover {
+      transform: scale(1.1) translateY(-10px);
+      z-index: 10;
+    }
+
+    .island-body {
+      width: 120px;
+      height: 80px;
+      background: linear-gradient(135deg, #90c56a 0%, #6b9b4a 50%, #8B4513 80%);
+      border-radius: 60% 60% 50% 50%;
+      position: relative;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    }
+
+    .island-body::before {
+      content: '';
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 40px solid #4a7a2a;
+    }
+
+    .island.boss .island-body {
+      background: linear-gradient(135deg, #ff6b6b 0%, #c0392b 50%, #8B4513 80%);
+      width: 150px;
+      height: 100px;
+    }
+
+    .island.boss .island-body::before {
+      border-bottom-color: #c0392b;
+      border-left-width: 30px;
+      border-right-width: 30px;
+      border-bottom-width: 60px;
+      top: -50px;
+    }
+
+    .island-icon {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 32px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .island-label {
+      position: absolute;
+      bottom: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.95);
+      padding: 5px 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #5a3e1b;
+      white-space: nowrap;
+      border: 2px solid #8B4513;
+    }
+
+    .bridge {
+      position: absolute;
+      height: 8px;
+      background: repeating-linear-gradient(90deg, #8B4513 0px, #8B4513 10px, #a0522d 10px, #a0522d 20px);
+      border-radius: 4px;
+      transform-origin: left center;
+    }
+
+    /* Navigation arrows for carousel */
+    .carousel-nav {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .carousel-nav button {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f0b429, #d4a029);
+      border: 3px solid #8B4513;
+      font-size: 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .carousel-nav button:hover {
+      transform: scale(1.1);
+    }
+
+    /* Area tabs for all proposals */
+    .area-tabs {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    .area-tab {
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 3px solid #8B4513;
+      transition: all 0.2s;
+    }
+
+    .area-tab:hover,
+    .area-tab.active {
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .area-tab.tutorial { background: #90EE90; color: #2e7d32; }
+    .area-tab.easy { background: #87CEEB; color: #1565c0; }
+    .area-tab.normal { background: #FFD700; color: #5a3e1b; }
+    .area-tab.hard { background: #FF8C00; color: #5a3e1b; }
+    .area-tab.extreme { background: #DC143C; color: #fff; }
+    .area-tab.boss { background: #4B0082; color: #fff; }
+
+    /* Section titles */
+    .section-title {
+      text-align: center;
+      font-size: 32px;
+      font-weight: 800;
+      color: #5a3e1b;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 0 #fff;
+    }
+
+    .section-subtitle {
+      text-align: center;
+      font-size: 16px;
+      color: #7a5a2b;
+      margin-bottom: 30px;
+    }
+
+    /* Clear badge */
+    .clear-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: linear-gradient(135deg, #4CAF50, #45a049);
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="proposal-nav">
+    <button class="active" onclick="showProposal('intro')">📋 概要</button>
+    <button onclick="showProposal('worldmap')">🗺️ ワールドマップ</button>
+    <button onclick="showProposal('carousel')">🎠 カルーセル</button>
+    <button onclick="showProposal('hexagon')">⬡ ヘックスグリッド</button>
+    <button onclick="showProposal('book')">📖 ブックスタイル</button>
+    <button onclick="showProposal('timeline')">📍 タイムライン</button>
+    <button onclick="showProposal('island')">🏝️ 島アーキペラゴ</button>
+  </nav>
+
+  <!-- INTRO -->
+  <section id="intro" class="proposal-section active">
+    <h1 class="section-title">🎮 Garden Wars ステージセレクト UI/UX 提案</h1>
+    <p class="section-subtitle">6つの異なるデザインコンセプトを用意しました</p>
+
+    <div style="max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+
+      <div style="background: #fff5de; border: 3px solid #8B4513; border-radius: 15px; padding: 20px; cursor: pointer;" onclick="showProposal('worldmap')">
+        <h3 style="font-size: 20px; color: #5a3e1b; margin-bottom: 10px;">🗺️ ワールドマップ</h3>
+        <p style="color: #7a5a2b; font-size: 14px;">スーパーマリオ風のマップ形式。ステージ間をパスで繋ぎ、進行状況を視覚的に表現。</p>
+        <div style="margin-top: 10px; font-size: 12px; color: #5a3e1b;">
+          <span style="background: #90EE90; padding: 2px 8px; border-radius: 10px;">直感的</span>
+          <span style="background: #87CEEB; padding: 2px 8px; border-radius: 10px; margin-left: 5px;">冒険感</span>
+        </div>
+      </div>
+
+      <div style="background: #fff5de; border: 3px solid #8B4513; border-radius: 15px; padding: 20px; cursor: pointer;" onclick="showProposal('carousel')">
+        <h3 style="font-size: 20px; color: #5a3e1b; margin-bottom: 10px;">🎠 カルーセル</h3>
+        <p style="color: #7a5a2b; font-size: 14px;">横スクロールのカード形式。各ステージの詳細情報をリッチに表示。</p>
+        <div style="margin-top: 10px; font-size: 12px; color: #5a3e1b;">
+          <span style="background: #FFD700; padding: 2px 8px; border-radius: 10px;">モダン</span>
+          <span style="background: #FF8C00; padding: 2px 8px; border-radius: 10px; margin-left: 5px;">情報豊富</span>
+        </div>
+      </div>
+
+      <div style="background: #fff5de; border: 3px solid #8B4513; border-radius: 15px; padding: 20px; cursor: pointer;" onclick="showProposal('hexagon')">
+        <h3 style="font-size: 20px; color: #5a3e1b; margin-bottom: 10px;">⬡ ヘックスグリッド</h3>
+        <p style="color: #7a5a2b; font-size: 14px;">六角形のハニカム配置。戦略ゲーム風のユニークなレイアウト。</p>
+        <div style="margin-top: 10px; font-size: 12px; color: #5a3e1b;">
+          <span style="background: #DC143C; padding: 2px 8px; border-radius: 10px; color: #fff;">戦略的</span>
+          <span style="background: #4B0082; padding: 2px 8px; border-radius: 10px; color: #fff; margin-left: 5px;">ユニーク</span>
+        </div>
+      </div>
+
+      <div style="background: #fff5de; border: 3px solid #8B4513; border-radius: 15px; padding: 20px; cursor: pointer;" onclick="showProposal('book')">
+        <h3 style="font-size: 20px; color: #5a3e1b; margin-bottom: 10px;">📖 ブックスタイル</h3>
+        <p style="color: #7a5a2b; font-size: 14px;">冒険日記風の本のページ形式。ストーリー性を重視したデザイン。</p>
+        <div style="margin-top: 10px; font-size: 12px; color: #5a3e1b;">
+          <span style="background: #DEB887; padding: 2px 8px; border-radius: 10px;">物語感</span>
+          <span style="background: #D2691E; padding: 2px 8px; border-radius: 10px; color: #fff; margin-left: 5px;">レトロ</span>
+        </div>
+      </div>
+
+      <div style="background: #fff5de; border: 3px solid #8B4513; border-radius: 15px; padding: 20px; cursor: pointer;" onclick="showProposal('timeline')">
+        <h3 style="font-size: 20px; color: #5a3e1b; margin-bottom: 10px;">📍 タイムライン</h3>
+        <p style="color: #7a5a2b; font-size: 14px;">縦スクロールの旅路形式。進行を時系列で視覚化。</p>
+        <div style="margin-top: 10px; font-size: 12px; color: #5a3e1b;">
+          <span style="background: #9370DB; padding: 2px 8px; border-radius: 10px; color: #fff;">進行感</span>
+          <span style="background: #20B2AA; padding: 2px 8px; border-radius: 10px; color: #fff; margin-left: 5px;">明確</span>
+        </div>
+      </div>
+
+      <div style="background: #fff5de; border: 3px solid #8B4513; border-radius: 15px; padding: 20px; cursor: pointer;" onclick="showProposal('island')">
+        <h3 style="font-size: 20px; color: #5a3e1b; margin-bottom: 10px;">🏝️ 島アーキペラゴ</h3>
+        <p style="color: #7a5a2b; font-size: 14px;">海に浮かぶ島々を巡る冒険形式。ファンタジー感のある世界観。</p>
+        <div style="margin-top: 10px; font-size: 12px; color: #5a3e1b;">
+          <span style="background: #00CED1; padding: 2px 8px; border-radius: 10px;">冒険</span>
+          <span style="background: #32CD32; padding: 2px 8px; border-radius: 10px; margin-left: 5px;">ファンタジー</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PROPOSAL 1: World Map -->
+  <section id="worldmap" class="proposal-section">
+    <h2 class="section-title">🗺️ ワールドマップスタイル</h2>
+    <p class="section-subtitle">スーパーマリオ風のマップで冒険の進行を表現</p>
+
+    <div class="area-tabs">
+      <div class="area-tab tutorial active">🌱 チュートリアル</div>
+      <div class="area-tab easy">🌲 初級エリア</div>
+      <div class="area-tab normal">🌅 中級エリア</div>
+      <div class="area-tab hard">🌑 上級エリア</div>
+      <div class="area-tab boss">🏰 ボスエリア</div>
+    </div>
+
+    <div class="world-map-container">
+      <!-- Paths -->
+      <div class="map-path" style="left: 130px; top: 85px; width: 100px; height: 10px; transform: rotate(15deg);"></div>
+      <div class="map-path" style="left: 260px; top: 130px; width: 120px; height: 10px; transform: rotate(-10deg);"></div>
+      <div class="map-path" style="left: 410px; top: 100px; width: 100px; height: 10px; transform: rotate(25deg);"></div>
+      <div class="map-path" style="left: 540px; top: 150px; width: 130px; height: 10px; transform: rotate(-5deg);"></div>
+      <div class="map-path" style="left: 700px; top: 130px; width: 100px; height: 10px; transform: rotate(30deg);"></div>
+      <div class="map-path" style="left: 830px; top: 200px; width: 80px; height: 10px; transform: rotate(45deg);"></div>
+
+      <!-- Stage Nodes -->
+      <div class="map-node cleared" style="left: 50px; top: 50px;">
+        <span class="stage-icon">🌱</span>
+        <span class="stage-num">1</span>
+        <div class="map-tooltip">はじまりの庭<br>⭐ クリア済み</div>
+      </div>
+
+      <div class="map-node cleared" style="left: 180px; top: 100px;">
+        <span class="stage-icon">🌿</span>
+        <span class="stage-num">2</span>
+        <div class="map-tooltip">静かな森<br>⭐ クリア済み</div>
+      </div>
+
+      <div class="map-node" style="left: 330px; top: 80px;">
+        <span class="stage-icon">🌲</span>
+        <span class="stage-num">3</span>
+        <div class="map-tooltip">深い森<br>💰 300コイン</div>
+      </div>
+
+      <div class="map-node" style="left: 470px; top: 130px;">
+        <span class="stage-icon">🌻</span>
+        <span class="stage-num">4</span>
+        <div class="map-tooltip">ひまわり畑<br>💰 400コイン</div>
+      </div>
+
+      <div class="map-node locked" style="left: 620px; top: 100px;">
+        <span class="stage-icon">🔒</span>
+        <span class="stage-num">5</span>
+        <div class="map-tooltip">未解放<br>ステージ4をクリアで解放</div>
+      </div>
+
+      <div class="map-node locked" style="left: 750px; top: 170px;">
+        <span class="stage-icon">🔒</span>
+        <span class="stage-num">6</span>
+      </div>
+
+      <div class="map-node boss locked" style="left: 870px; top: 250px;">
+        <span class="stage-icon">👑</span>
+        <span class="stage-num">BOSS</span>
+        <div class="map-tooltip">ボスステージ<br>全ステージクリアで解放</div>
+      </div>
+
+      <!-- Decorations -->
+      <div style="position: absolute; right: 30px; top: 30px; font-size: 48px;">🏰</div>
+      <div style="position: absolute; left: 200px; bottom: 50px; font-size: 32px;">🌳</div>
+      <div style="position: absolute; left: 400px; bottom: 30px; font-size: 28px;">🌸</div>
+      <div style="position: absolute; right: 200px; bottom: 60px; font-size: 36px;">🌲</div>
+    </div>
+  </section>
+
+  <!-- PROPOSAL 2: Carousel -->
+  <section id="carousel" class="proposal-section">
+    <h2 class="section-title">🎠 カルーセルスタイル</h2>
+    <p class="section-subtitle">横スクロールでステージを閲覧、詳細情報をリッチに表示</p>
+
+    <div class="area-tabs">
+      <div class="area-tab tutorial">🌱 チュートリアル</div>
+      <div class="area-tab easy active">🌲 初級</div>
+      <div class="area-tab normal">🌅 中級</div>
+      <div class="area-tab hard">🌑 上級</div>
+      <div class="area-tab extreme">🔥 超級</div>
+      <div class="area-tab boss">🏰 ボス</div>
+    </div>
+
+    <div class="carousel-container">
+      <div class="carousel-track">
+
+        <div class="carousel-card">
+          <div class="clear-badge">✓ CLEAR</div>
+          <div class="card-image" style="background: linear-gradient(135deg, #87CEEB, #90EE90);">
+            <div class="difficulty-badge" style="background: #4CAF50;">EASY</div>
+            <div style="position: absolute; bottom: 20px; left: 20px; font-size: 48px;">🌿</div>
+          </div>
+          <div class="card-content">
+            <div class="stage-title">静かな森</div>
+            <div class="stage-desc">穏やかな森で基本を学ぼう</div>
+            <div class="rewards">
+              <span class="reward-item">💰 200</span>
+              <span class="reward-item">🎁 ドロップ有</span>
+            </div>
+            <div style="margin-top: 10px;">
+              <span style="color: #f0b429;">⭐⭐⭐</span>
+            </div>
+          </div>
+          <button class="play-btn">▶ プレイ</button>
+        </div>
+
+        <div class="carousel-card">
+          <div class="card-image" style="background: linear-gradient(135deg, #98D8AA, #7BC043);">
+            <div class="difficulty-badge" style="background: #4CAF50;">EASY</div>
+            <div style="position: absolute; bottom: 20px; left: 20px; font-size: 48px;">🌲</div>
+          </div>
+          <div class="card-content">
+            <div class="stage-title">深い森</div>
+            <div class="stage-desc">森の奥へ進もう</div>
+            <div class="rewards">
+              <span class="reward-item">💰 300</span>
+              <span class="reward-item">🎁 レア有</span>
+            </div>
+            <div style="margin-top: 10px;">
+              <span style="color: #f0b429;">⭐⭐</span><span style="color: #ccc;">⭐</span>
+            </div>
+          </div>
+          <button class="play-btn">▶ プレイ</button>
+        </div>
+
+        <div class="carousel-card">
+          <div class="card-image" style="background: linear-gradient(135deg, #FFE066, #F0B429);">
+            <div class="difficulty-badge" style="background: #FF9800;">NORMAL</div>
+            <div style="position: absolute; bottom: 20px; left: 20px; font-size: 48px;">🌻</div>
+          </div>
+          <div class="card-content">
+            <div class="stage-title">ひまわり畑</div>
+            <div class="stage-desc">広大な畑を駆け抜けろ</div>
+            <div class="rewards">
+              <span class="reward-item">💰 400</span>
+              <span class="reward-item">🎁 SSR有</span>
+            </div>
+            <div style="margin-top: 10px;">
+              <span style="color: #f0b429;">⭐⭐⭐</span>
+            </div>
+          </div>
+          <button class="play-btn">▶ プレイ</button>
+        </div>
+
+        <div class="carousel-card">
+          <div class="card-image" style="background: linear-gradient(135deg, #FF8A65, #E64A19);">
+            <div class="difficulty-badge" style="background: #f44336;">HARD</div>
+            <div style="position: absolute; bottom: 20px; left: 20px; font-size: 48px;">🍂</div>
+          </div>
+          <div class="card-content">
+            <div class="stage-title">紅葉の谷</div>
+            <div class="stage-desc">強敵が待ち構える谷</div>
+            <div class="rewards">
+              <span class="reward-item">💰 600</span>
+              <span class="reward-item">🎁 限定有</span>
+            </div>
+            <div style="margin-top: 10px;">
+              <span style="color: #f0b429;">⭐⭐⭐⭐</span>
+            </div>
+          </div>
+          <button class="play-btn">▶ プレイ</button>
+        </div>
+
+        <div class="carousel-card">
+          <div class="card-image" style="background: linear-gradient(135deg, #9C27B0, #6A1B9A);">
+            <div class="difficulty-badge" style="background: #9C27B0;">BOSS</div>
+            <div style="position: absolute; bottom: 20px; left: 20px; font-size: 48px;">👑</div>
+          </div>
+          <div class="card-content">
+            <div class="stage-title">魔王の城</div>
+            <div class="stage-desc">最終決戦の時</div>
+            <div class="rewards">
+              <span class="reward-item">💰 1000</span>
+              <span class="reward-item">🎁 伝説有</span>
+            </div>
+            <div style="margin-top: 10px;">
+              <span style="color: #f0b429;">⭐⭐⭐⭐⭐</span>
+            </div>
+          </div>
+          <button class="play-btn" style="background: linear-gradient(135deg, #9C27B0, #6A1B9A);">⚔️ 挑戦</button>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="carousel-nav">
+      <button>←</button>
+      <button>→</button>
+    </div>
+  </section>
+
+  <!-- PROPOSAL 3: Hexagon -->
+  <section id="hexagon" class="proposal-section">
+    <h2 class="section-title">⬡ ヘックスグリッドスタイル</h2>
+    <p class="section-subtitle">戦略ゲーム風のハニカム配置</p>
+
+    <div class="area-tabs">
+      <div class="area-tab tutorial">🌱 Tutorial</div>
+      <div class="area-tab easy active">🌲 Easy</div>
+      <div class="area-tab normal">🌅 Normal</div>
+      <div class="area-tab hard">🌑 Hard</div>
+      <div class="area-tab boss">🏰 Boss</div>
+    </div>
+
+    <div class="hex-container">
+      <div class="hex-row">
+        <div class="hex-item">
+          <div class="hex-shape">
+            <div class="hex-content">
+              <span class="stage-icon">🌱</span>
+              <span class="stage-num">1-1</span>
+            </div>
+          </div>
+        </div>
+        <div class="hex-item">
+          <div class="hex-shape">
+            <div class="hex-content">
+              <span class="stage-icon">🌿</span>
+              <span class="stage-num">1-2</span>
+            </div>
+          </div>
+        </div>
+        <div class="hex-item">
+          <div class="hex-shape">
+            <div class="hex-content">
+              <span class="stage-icon">🌲</span>
+              <span class="stage-num">1-3</span>
+            </div>
+          </div>
+        </div>
+        <div class="hex-item">
+          <div class="hex-shape">
+            <div class="hex-content">
+              <span class="stage-icon">🍀</span>
+              <span class="stage-num">1-4</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hex-row">
+        <div class="hex-item">
+          <div class="hex-shape">
+            <div class="hex-content">
+              <span class="stage-icon">🌻</span>
+              <span class="stage-num">2-1</span>
+            </div>
+          </div>
+        </div>
+        <div class="hex-item">
+          <div class="hex-shape">
+            <div class="hex-content">
+              <span class="stage-icon">🌸</span>
+              <span class="stage-num">2-2</span>
+            </div>
+          </div>
+        </div>
+        <div class="hex-item">
+          <div class="hex-shape">
+            <div class="hex-content">
+              <span class="stage-icon">🌺</span>
+              <span class="stage-num">2-3</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hex-row">
+        <div class="hex-item locked">
+          <div class="hex-shape">
+            <div class="hex-content">
+              <span class="stage-icon">🔒</span>
+              <span class="stage-num">3-1</span>
+            </div>
+          </div>
+        </div>
+        <div class="hex-item locked">
+          <div class="hex-shape">
+            <div class="hex-content">
+              <span class="stage-icon">🔒</span>
+              <span class="stage-num">3-2</span>
+            </div>
+          </div>
+        </div>
+        <div class="hex-item locked">
+          <div class="hex-shape">
+            <div class="hex-content">
+              <span class="stage-icon">🔒</span>
+              <span class="stage-num">3-3</span>
+            </div>
+          </div>
+        </div>
+        <div class="hex-item locked">
+          <div class="hex-shape">
+            <div class="hex-content">
+              <span class="stage-icon">🔒</span>
+              <span class="stage-num">3-4</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hex-row">
+        <div class="hex-item boss locked">
+          <div class="hex-shape">
+            <div class="hex-content">
+              <span class="stage-icon">👑</span>
+              <span class="stage-num">BOSS</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROPOSAL 4: Book Style -->
+  <section id="book" class="proposal-section">
+    <h2 class="section-title">📖 ブックスタイル</h2>
+    <p class="section-subtitle">冒険日記風のページめくり形式</p>
+
+    <div class="book-container">
+      <div class="book">
+        <div class="book-page left">
+          <div class="chapter-title">🌱 第一章：はじまりの庭</div>
+          <div class="stage-list">
+            <div class="stage-entry">
+              <div class="entry-icon">🌱</div>
+              <div class="entry-info">
+                <div class="entry-title">チュートリアル</div>
+                <div class="entry-desc">基本操作を学ぼう</div>
+              </div>
+              <div class="entry-stars">⭐</div>
+            </div>
+            <div class="stage-entry">
+              <div class="entry-icon">🌿</div>
+              <div class="entry-info">
+                <div class="entry-title">静かな森</div>
+                <div class="entry-desc">穏やかな敵との戦い</div>
+              </div>
+              <div class="entry-stars">⭐⭐</div>
+            </div>
+            <div class="stage-entry">
+              <div class="entry-icon">🌲</div>
+              <div class="entry-info">
+                <div class="entry-title">深い森</div>
+                <div class="entry-desc">森の奥へ進もう</div>
+              </div>
+              <div class="entry-stars">⭐⭐⭐</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="book-page">
+          <div class="chapter-title">🌻 第二章：花の楽園</div>
+          <div class="stage-list">
+            <div class="stage-entry">
+              <div class="entry-icon">🌻</div>
+              <div class="entry-info">
+                <div class="entry-title">ひまわり畑</div>
+                <div class="entry-desc">広大な畑を駆け抜けろ</div>
+              </div>
+              <div class="entry-stars">⭐⭐⭐</div>
+            </div>
+            <div class="stage-entry">
+              <div class="entry-icon">🌸</div>
+              <div class="entry-info">
+                <div class="entry-title">桜の園</div>
+                <div class="entry-desc">美しき花園の戦い</div>
+              </div>
+              <div class="entry-stars">⭐⭐⭐⭐</div>
+            </div>
+            <div class="stage-entry" style="opacity: 0.5;">
+              <div class="entry-icon">🔒</div>
+              <div class="entry-info">
+                <div class="entry-title">???</div>
+                <div class="entry-desc">桜の園をクリアで解放</div>
+              </div>
+              <div class="entry-stars">-</div>
+            </div>
+          </div>
+          <div style="text-align: center; margin-top: 30px; font-style: italic; color: #7a5a2b;">
+            〜 続きは冒険の中で 〜
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: center; gap: 20px; margin-top: 30px;">
+        <button style="background: #f0b429; border: 3px solid #8B4513; padding: 10px 20px; border-radius: 10px; font-weight: 700; cursor: pointer;">← 前章</button>
+        <button style="background: #f0b429; border: 3px solid #8B4513; padding: 10px 20px; border-radius: 10px; font-weight: 700; cursor: pointer;">次章 →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROPOSAL 5: Timeline -->
+  <section id="timeline" class="proposal-section">
+    <h2 class="section-title">📍 タイムラインスタイル</h2>
+    <p class="section-subtitle">縦スクロールで旅路を辿る</p>
+
+    <div class="timeline-container">
+      <div class="timeline-line"></div>
+
+      <div class="timeline-item">
+        <div class="timeline-node">🌱</div>
+        <div class="timeline-content">
+          <span class="area-badge" style="background: #4CAF50;">チュートリアル</span>
+          <div class="stage-title">はじまりの庭</div>
+          <div class="stage-desc">冒険の始まり。基本操作を覚えよう</div>
+          <div class="stage-rewards">
+            <span class="reward-tag">💰 100</span>
+            <span class="reward-tag">✓ クリア済</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-node">🌿</div>
+        <div class="timeline-content">
+          <span class="area-badge" style="background: #8BC34A;">初級エリア</span>
+          <div class="stage-title">静かな森</div>
+          <div class="stage-desc">穏やかな森で実戦練習</div>
+          <div class="stage-rewards">
+            <span class="reward-tag">💰 200</span>
+            <span class="reward-tag">🎁 ドロップ有</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-node">🌲</div>
+        <div class="timeline-content">
+          <span class="area-badge" style="background: #4CAF50;">初級エリア</span>
+          <div class="stage-title">深い森</div>
+          <div class="stage-desc">森の奥へ。敵も強くなる</div>
+          <div class="stage-rewards">
+            <span class="reward-tag">💰 300</span>
+            <span class="reward-tag">🎁 レア有</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-node">🌻</div>
+        <div class="timeline-content">
+          <span class="area-badge" style="background: #FF9800;">中級エリア</span>
+          <div class="stage-title">ひまわり畑</div>
+          <div class="stage-desc">広大な畑での激戦</div>
+          <div class="stage-rewards">
+            <span class="reward-tag">💰 400</span>
+            <span class="reward-tag">🎁 SSR有</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-node boss">👑</div>
+        <div class="timeline-content">
+          <span class="area-badge" style="background: #9C27B0;">ボスエリア</span>
+          <div class="stage-title">魔王の城</div>
+          <div class="stage-desc">最終決戦。全ての力を結集せよ</div>
+          <div class="stage-rewards">
+            <span class="reward-tag">💰 1000</span>
+            <span class="reward-tag">🎁 伝説有</span>
+            <span class="reward-tag" style="background: #ff6b6b; color: #fff;">⚔️ BOSS</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROPOSAL 6: Island Archipelago -->
+  <section id="island" class="proposal-section">
+    <h2 class="section-title">🏝️ 島アーキペラゴスタイル</h2>
+    <p class="section-subtitle">海に浮かぶ島々を冒険</p>
+
+    <div class="area-tabs">
+      <div class="area-tab tutorial active">🌱 緑の島</div>
+      <div class="area-tab normal">🌻 花の島</div>
+      <div class="area-tab hard">🍂 紅葉の島</div>
+      <div class="area-tab boss">👑 王の島</div>
+    </div>
+
+    <div class="archipelago-container">
+      <div class="wave-animation"></div>
+
+      <!-- Bridges -->
+      <div class="bridge" style="left: 170px; top: 140px; width: 120px; transform: rotate(15deg);"></div>
+      <div class="bridge" style="left: 350px; top: 200px; width: 150px; transform: rotate(-10deg);"></div>
+      <div class="bridge" style="left: 560px; top: 250px; width: 130px; transform: rotate(5deg);"></div>
+      <div class="bridge" style="left: 750px; top: 320px; width: 100px; transform: rotate(25deg);"></div>
+
+      <!-- Islands -->
+      <div class="island" style="left: 50px; top: 100px;">
+        <div class="island-body"></div>
+        <span class="island-icon">🌱</span>
+        <span class="island-label">はじまりの島</span>
+      </div>
+
+      <div class="island" style="left: 230px; top: 150px;">
+        <div class="island-body"></div>
+        <span class="island-icon">🌿</span>
+        <span class="island-label">静寂の島</span>
+      </div>
+
+      <div class="island" style="left: 430px; top: 200px;">
+        <div class="island-body"></div>
+        <span class="island-icon">🌻</span>
+        <span class="island-label">ひまわり島</span>
+      </div>
+
+      <div class="island" style="left: 620px; top: 280px;">
+        <div class="island-body"></div>
+        <span class="island-icon">🌸</span>
+        <span class="island-label">桜の島</span>
+      </div>
+
+      <div class="island" style="left: 800px; top: 380px;">
+        <div class="island-body"></div>
+        <span class="island-icon">🍂</span>
+        <span class="island-label">紅葉の島</span>
+      </div>
+
+      <div class="island boss" style="left: 950px; top: 200px;">
+        <div class="island-body"></div>
+        <span class="island-icon" style="font-size: 40px;">👑</span>
+        <span class="island-label">王の城</span>
+      </div>
+
+      <!-- Decorative elements -->
+      <div style="position: absolute; left: 100px; top: 350px; font-size: 24px;">🚣</div>
+      <div style="position: absolute; left: 500px; top: 450px; font-size: 28px;">⛵</div>
+      <div style="position: absolute; right: 100px; top: 100px; font-size: 20px;">🦅</div>
+      <div style="position: absolute; left: 300px; top: 50px; font-size: 32px;">☁️</div>
+      <div style="position: absolute; right: 200px; top: 60px; font-size: 28px;">☁️</div>
+    </div>
+  </section>
+
+  <script>
+    function showProposal(id) {
+      // Hide all sections
+      document.querySelectorAll('.proposal-section').forEach(section => {
+        section.classList.remove('active');
+      });
+
+      // Remove active from all buttons
+      document.querySelectorAll('.proposal-nav button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+
+      // Show selected section
+      document.getElementById(id).classList.add('active');
+
+      // Mark button as active
+      event.target.classList.add('active');
+    }
+
+    // Add hover effects to map nodes
+    document.querySelectorAll('.map-node, .hex-item, .stage-entry, .carousel-card, .timeline-content, .island').forEach(el => {
+      el.addEventListener('click', () => {
+        if (!el.classList.contains('locked')) {
+          alert('ステージ選択！（デモ）');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

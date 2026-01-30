@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Garden Wars - Enhanced World Map Proposal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap');
+
+    * {
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+    }
+
+    :root {
+      --primary: #f0b429;
+      --secondary: #ff8a65;
+      --bg: #f6ead2;
+      --card: #fff5de;
+      --brown: #8B4513;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f6ead2 0%, #e8d4b0 100%);
+      min-height: 100vh;
+    }
+
+    /* 共通スタイル */
+    .card {
+      background: var(--card);
+      border: 3px solid var(--brown);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 3px solid;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #f0b429, #d4a029);
+      border-color: #8B4513;
+      color: #5a3e1b;
+    }
+
+    .btn-primary:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .btn-secondary {
+      background: #fff5de;
+      border-color: #d4a76a;
+      color: #8B4513;
+    }
+
+    /* エリアタブ */
+    .area-tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 10px 0;
+      scrollbar-width: none;
+    }
+
+    .area-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .area-tab {
+      flex-shrink: 0;
+      padding: 12px 20px;
+      border-radius: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 3px solid;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .area-tab.active {
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .area-tab.tutorial { background: linear-gradient(135deg, #a8e6cf, #88d8b0); border-color: #2e7d32; color: #1b5e20; }
+    .area-tab.easy { background: linear-gradient(135deg, #87CEEB, #5dade2); border-color: #1565c0; color: #0d47a1; }
+    .area-tab.normal { background: linear-gradient(135deg, #FFD700, #f0b429); border-color: #8B4513; color: #5a3e1b; }
+    .area-tab.hard { background: linear-gradient(135deg, #FF8C00, #e67e22); border-color: #a04000; color: #fff; }
+    .area-tab.extreme { background: linear-gradient(135deg, #DC143C, #c0392b); border-color: #8b0000; color: #fff; }
+    .area-tab.boss { background: linear-gradient(135deg, #9b59b6, #8e44ad); border-color: #4a235a; color: #fff; }
+
+    /* ===== メインマップコンテナ ===== */
+    .map-container {
+      position: relative;
+      background: linear-gradient(180deg, #87CEEB 0%, #a8d8ea 30%, #90c56a 60%, #6b9b4a 100%);
+      border-radius: 20px;
+      border: 4px solid #5a3e1b;
+      overflow: hidden;
+      min-height: 500px;
+      box-shadow: inset 0 0 50px rgba(0,0,0,0.1);
+    }
+
+    /* バナー背景 */
+    .area-banner {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 120px;
+      background-size: cover;
+      background-position: center;
+      opacity: 0.3;
+      mask-image: linear-gradient(to bottom, black 60%, transparent);
+      -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent);
+    }
+
+    /* マップスクロールエリア */
+    .map-scroll {
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 40px 30px 30px;
+      scrollbar-width: thin;
+      scrollbar-color: #d4a76a #f6ead2;
+    }
+
+    .map-scroll::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .map-scroll::-webkit-scrollbar-track {
+      background: #f6ead2;
+      border-radius: 4px;
+    }
+
+    .map-scroll::-webkit-scrollbar-thumb {
+      background: #d4a76a;
+      border-radius: 4px;
+    }
+
+    /* ステージノードコンテナ */
+    .stages-track {
+      display: flex;
+      gap: 20px;
+      position: relative;
+      padding: 20px 0;
+    }
+
+    /* パスライン（SVG背景） */
+    .path-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ===== ステージノード（画像付き） ===== */
+    .stage-node {
+      flex-shrink: 0;
+      width: 140px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      z-index: 1;
+    }
+
+    .stage-node:hover {
+      transform: translateY(-10px) scale(1.05);
+      z-index: 10;
+    }
+
+    .stage-node.locked {
+      opacity: 0.5;
+      filter: grayscale(0.7);
+      cursor: not-allowed;
+    }
+
+    .stage-node.locked:hover {
+      transform: none;
+    }
+
+    /* サムネイル画像 */
+    .stage-thumbnail {
+      width: 120px;
+      height: 80px;
+      border-radius: 12px;
+      border: 4px solid #8B4513;
+      overflow: hidden;
+      position: relative;
+      margin: 0 auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      background: linear-gradient(135deg, #90EE90, #4CAF50);
+    }
+
+    .stage-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .stage-thumbnail::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.4) 100%);
+      pointer-events: none;
+    }
+
+    .stage-node.cleared .stage-thumbnail {
+      border-color: #22c55e;
+      box-shadow: 0 0 15px rgba(34, 197, 94, 0.5), 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    /* ステージ番号バッジ */
+    .stage-number {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #f0b429, #d4a029);
+      color: #5a3e1b;
+      font-weight: 800;
+      font-size: 14px;
+      padding: 4px 12px;
+      border-radius: 12px;
+      border: 3px solid #8B4513;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      z-index: 2;
+    }
+
+    /* クリアバッジ */
+    .clear-badge {
+      position: absolute;
+      top: -8px;
+      right: 5px;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #fff;
+      font-weight: 800;
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 10px;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      z-index: 3;
+    }
+
+    /* ロックオーバーレイ */
+    .lock-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+    }
+
+    /* ステージ名 */
+    .stage-name {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #5a3e1b;
+      background: rgba(255,255,255,0.9);
+      padding: 4px 8px;
+      border-radius: 8px;
+      border: 2px solid #d4a76a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ステージアイコン */
+    .stage-icon {
+      position: absolute;
+      bottom: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 24px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      z-index: 2;
+    }
+
+    /* 難易度星 */
+    .difficulty-stars {
+      text-align: center;
+      font-size: 10px;
+      margin-top: 4px;
+      color: #f0b429;
+    }
+
+    /* ===== ボスステージ特別デザイン ===== */
+    .stage-node.boss .stage-thumbnail {
+      border-color: #9b59b6;
+      background: linear-gradient(135deg, #9b59b6, #6c3483);
+      box-shadow: 0 0 20px rgba(155, 89, 182, 0.5), 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .stage-node.boss .stage-number {
+      background: linear-gradient(135deg, #9b59b6, #8e44ad);
+      border-color: #4a235a;
+      color: #fff;
+    }
+
+    .stage-node.boss .stage-name {
+      background: linear-gradient(135deg, rgba(155, 89, 182, 0.9), rgba(142, 68, 173, 0.9));
+      border-color: #6c3483;
+      color: #fff;
+    }
+
+    /* ===== 選択ステージ詳細パネル ===== */
+    .stage-detail-panel {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, #fff5de 0%, rgba(255, 245, 222, 0.95) 100%);
+      border-top: 4px solid #8B4513;
+      padding: 20px;
+      transform: translateY(100%);
+      transition: transform 0.3s ease-out;
+      z-index: 100;
+      box-shadow: 0 -10px 30px rgba(0,0,0,0.2);
+    }
+
+    .stage-detail-panel.active {
+      transform: translateY(0);
+    }
+
+    .detail-content {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .detail-thumbnail {
+      width: 200px;
+      height: 130px;
+      border-radius: 12px;
+      border: 4px solid #8B4513;
+      overflow: hidden;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .detail-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .detail-info {
+      flex: 1;
+    }
+
+    .detail-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: #5a3e1b;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .detail-desc {
+      font-size: 14px;
+      color: #7a5a2b;
+      margin-bottom: 12px;
+    }
+
+    .detail-stats {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(240, 180, 41, 0.3);
+      padding: 6px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #5a3e1b;
+    }
+
+    .detail-enemies {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .enemy-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: #fee2e2;
+      border: 2px solid #dc2626;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .enemy-icon img {
+      width: 28px;
+      height: 28px;
+      object-fit: contain;
+    }
+
+    .detail-actions {
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .close-panel {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 24px;
+      cursor: pointer;
+      color: #8B4513;
+      transition: transform 0.2s;
+    }
+
+    .close-panel:hover {
+      transform: scale(1.2);
+    }
+
+    /* ===== プログレスバー ===== */
+    .progress-container {
+      background: rgba(255,255,255,0.9);
+      border-radius: 12px;
+      padding: 15px 20px;
+      margin-bottom: 15px;
+      border: 2px solid #d4a76a;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .progress-title {
+      font-weight: 700;
+      color: #5a3e1b;
+    }
+
+    .progress-count {
+      font-weight: 800;
+      color: #f0b429;
+    }
+
+    .progress-bar {
+      height: 12px;
+      background: #e8d4b0;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #22c55e, #4ade80);
+      border-radius: 6px;
+      transition: width 0.5s ease-out;
+    }
+
+    /* ===== デコレーション ===== */
+    .decoration {
+      position: absolute;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.6;
+    }
+
+    .cloud {
+      animation: float 10s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) translateX(0); }
+      50% { transform: translateY(-10px) translateX(10px); }
+    }
+
+    /* レスポンシブ */
+    @media (max-width: 768px) {
+      .detail-content {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .detail-thumbnail {
+        width: 160px;
+        height: 100px;
+      }
+
+      .detail-stats {
+        justify-content: center;
+      }
+
+      .detail-enemies {
+        justify-content: center;
+      }
+
+      .detail-actions {
+        justify-content: center;
+        width: 100%;
+      }
+    }
+
+    /* マップの高さ調整用 */
+    .map-height-normal { min-height: 320px; }
+    .map-height-boss { min-height: 400px; }
+  </style>
+</head>
+<body class="p-4 md:p-8">
+
+  <!-- ヘッダー -->
+  <header class="flex items-center justify-between flex-wrap gap-3 mb-6">
+    <button class="btn btn-secondary">← ホームへ</button>
+    <h1 class="text-2xl md:text-3xl font-bold text-amber-900">🗺️ ワールドマップ</h1>
+    <div class="flex gap-2">
+      <button class="btn btn-secondary">📋 リスト</button>
+      <button class="btn btn-primary">🎮 チーム編成</button>
+    </div>
+  </header>
+
+  <!-- プログレス表示 -->
+  <div class="progress-container">
+    <div class="progress-header">
+      <span class="progress-title">🏆 冒険の進行度</span>
+      <span class="progress-count">12 / 28 クリア</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: 42%;"></div>
+    </div>
+  </div>
+
+  <!-- エリアタブ -->
+  <div class="area-tabs mb-4">
+    <div class="area-tab tutorial active" onclick="showArea('tutorial')">
+      <span>🌱</span>
+      <span>チュートリアル</span>
+      <span class="text-xs opacity-70">(3)</span>
+    </div>
+    <div class="area-tab easy" onclick="showArea('easy')">
+      <span>🌲</span>
+      <span>森林エリア</span>
+      <span class="text-xs opacity-70">(3)</span>
+    </div>
+    <div class="area-tab normal" onclick="showArea('normal')">
+      <span>🌅</span>
+      <span>平原エリア</span>
+      <span class="text-xs opacity-70">(8)</span>
+    </div>
+    <div class="area-tab hard" onclick="showArea('hard')">
+      <span>🌑</span>
+      <span>闇の領域</span>
+      <span class="text-xs opacity-70">(8)</span>
+    </div>
+    <div class="area-tab extreme" onclick="showArea('extreme')">
+      <span>🔥</span>
+      <span>灼熱地獄</span>
+      <span class="text-xs opacity-70">(5)</span>
+    </div>
+    <div class="area-tab boss" onclick="showArea('boss')">
+      <span>👑</span>
+      <span>ボスの城</span>
+      <span class="text-xs opacity-70">(5)</span>
+    </div>
+  </div>
+
+  <!-- メインマップ -->
+  <div class="map-container" id="mapContainer">
+    <!-- エリアバナー背景（動的に変更） -->
+    <div class="area-banner" id="areaBanner" style="background-image: url('https://placehold.co/1200x200/90EE90/228B22?text=Tutorial+Area');"></div>
+
+    <!-- デコレーション -->
+    <div class="decoration cloud" style="top: 20px; left: 10%; font-size: 40px;">☁️</div>
+    <div class="decoration cloud" style="top: 40px; right: 15%; font-size: 32px; animation-delay: -3s;">☁️</div>
+    <div class="decoration" style="bottom: 20px; left: 5%; font-size: 28px;">🌳</div>
+    <div class="decoration" style="bottom: 30px; right: 8%; font-size: 24px;">🌲</div>
+
+    <!-- マップスクロールエリア -->
+    <div class="map-scroll">
+      <!-- SVGパス -->
+      <svg class="path-line" style="width: 1200px; height: 250px;" viewBox="0 0 1200 250">
+        <!-- パス（クリア済み部分は緑、未クリアは点線） -->
+        <path d="M 70 130 Q 150 80 230 130 Q 310 180 390 130 Q 470 80 550 130 Q 630 180 710 130 Q 790 80 870 130"
+              stroke="#22c55e" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M 870 130 Q 950 180 1030 130 Q 1110 80 1190 130"
+              stroke="#d4a76a" stroke-width="6" fill="none" stroke-dasharray="12,8" stroke-linecap="round" opacity="0.6"/>
+      </svg>
+
+      <!-- ステージノード -->
+      <div class="stages-track" id="stagesTrack">
+
+        <!-- Tutorial 1 (Cleared) -->
+        <div class="stage-node cleared" onclick="selectStage(this)" style="margin-top: 60px;" data-stage="tutorial_1">
+          <div class="stage-number">1</div>
+          <div class="clear-badge">✓ CLEAR</div>
+          <div class="stage-thumbnail">
+            <img src="https://placehold.co/200x150/90EE90/228B22?text=Tutorial+1" alt="Tutorial 1">
+            <span class="stage-icon">🌱</span>
+          </div>
+          <div class="stage-name">はじまりの庭</div>
+          <div class="difficulty-stars">⭐</div>
+        </div>
+
+        <!-- Tutorial 2 (Cleared) -->
+        <div class="stage-node cleared" onclick="selectStage(this)" style="margin-top: 110px;" data-stage="tutorial_2">
+          <div class="stage-number">2</div>
+          <div class="clear-badge">✓ CLEAR</div>
+          <div class="stage-thumbnail">
+            <img src="https://placehold.co/200x150/87CEEB/1E90FF?text=Tutorial+2" alt="Tutorial 2">
+            <span class="stage-icon">🌿</span>
+          </div>
+          <div class="stage-name">操作訓練場</div>
+          <div class="difficulty-stars">⭐</div>
+        </div>
+
+        <!-- Tutorial 3 (Cleared) -->
+        <div class="stage-node cleared" onclick="selectStage(this)" style="margin-top: 60px;" data-stage="tutorial_3">
+          <div class="stage-number">3</div>
+          <div class="clear-badge">✓ CLEAR</div>
+          <div class="stage-thumbnail">
+            <img src="https://placehold.co/200x150/FFD700/FF8C00?text=Tutorial+3" alt="Tutorial 3">
+            <span class="stage-icon">🌻</span>
+          </div>
+          <div class="stage-name">最終訓練</div>
+          <div class="difficulty-stars">⭐⭐</div>
+        </div>
+
+        <!-- Stage 1 (Cleared) -->
+        <div class="stage-node cleared" onclick="selectStage(this)" style="margin-top: 110px;" data-stage="stage_1">
+          <div class="stage-number">4</div>
+          <div class="clear-badge">✓ CLEAR</div>
+          <div class="stage-thumbnail">
+            <img src="https://placehold.co/200x150/228B22/90EE90?text=Stage+1" alt="Stage 1">
+            <span class="stage-icon">🌲</span>
+          </div>
+          <div class="stage-name">静かな森</div>
+          <div class="difficulty-stars">⭐⭐</div>
+        </div>
+
+        <!-- Stage 2 (Current) -->
+        <div class="stage-node" onclick="selectStage(this)" style="margin-top: 60px;" data-stage="stage_2">
+          <div class="stage-number">5</div>
+          <div class="stage-thumbnail">
+            <img src="https://placehold.co/200x150/8B4513/DEB887?text=Stage+2" alt="Stage 2">
+            <span class="stage-icon">🏜️</span>
+          </div>
+          <div class="stage-name">砂漠の入口</div>
+          <div class="difficulty-stars">⭐⭐⭐</div>
+        </div>
+
+        <!-- Stage 3 (Locked) -->
+        <div class="stage-node locked" onclick="selectStage(this)" style="margin-top: 110px;" data-stage="stage_3">
+          <div class="stage-number">6</div>
+          <div class="stage-thumbnail">
+            <img src="https://placehold.co/200x150/FF8C00/FFD700?text=Stage+3" alt="Stage 3">
+            <div class="lock-overlay">🔒</div>
+          </div>
+          <div class="stage-name">???</div>
+          <div class="difficulty-stars">⭐⭐⭐</div>
+        </div>
+
+        <!-- Stage 4 (Locked) -->
+        <div class="stage-node locked" onclick="selectStage(this)" style="margin-top: 60px;" data-stage="stage_4">
+          <div class="stage-number">7</div>
+          <div class="stage-thumbnail">
+            <img src="https://placehold.co/200x150/4B0082/9370DB?text=Stage+4" alt="Stage 4">
+            <div class="lock-overlay">🔒</div>
+          </div>
+          <div class="stage-name">???</div>
+          <div class="difficulty-stars">⭐⭐⭐⭐</div>
+        </div>
+
+        <!-- Boss Gate -->
+        <div class="stage-node boss locked" onclick="selectStage(this)" style="margin-top: 85px;" data-stage="boss_1">
+          <div class="stage-number">👑 BOSS</div>
+          <div class="stage-thumbnail" style="width: 140px; height: 100px;">
+            <img src="https://placehold.co/250x180/9b59b6/fff?text=BOSS" alt="Boss">
+            <div class="lock-overlay">🔒</div>
+          </div>
+          <div class="stage-name">魔王の城</div>
+          <div class="difficulty-stars">⭐⭐⭐⭐⭐</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- スクロールヒント -->
+    <div class="text-center text-amber-800 text-sm py-2 bg-gradient-to-t from-white/50 to-transparent">
+      ← スワイプでスクロール →
+    </div>
+  </div>
+
+  <!-- 選択ステージ詳細パネル -->
+  <div class="stage-detail-panel" id="detailPanel">
+    <span class="close-panel" onclick="closePanel()">✕</span>
+    <div class="detail-content">
+      <div class="detail-thumbnail">
+        <img src="https://placehold.co/300x200/228B22/90EE90?text=Stage" alt="Stage" id="detailImage">
+      </div>
+      <div class="detail-info">
+        <div class="detail-title">
+          <span id="detailIcon">🌲</span>
+          <span id="detailTitle">静かな森</span>
+        </div>
+        <p class="detail-desc" id="detailDesc">穏やかな森で基本を学ぼう。初めての実戦に最適なステージです。</p>
+        <div class="detail-stats">
+          <div class="stat-item"><span>👾</span> 敵: <strong>15体</strong></div>
+          <div class="stat-item"><span>🏰</span> 城HP: <strong>500</strong></div>
+          <div class="stat-item"><span>💰</span> 報酬: <strong class="text-yellow-600">200</strong></div>
+          <div class="stat-item"><span>🎁</span> ドロップ有</div>
+        </div>
+        <div class="detail-enemies">
+          <span class="text-sm text-red-700 font-bold">出現敵:</span>
+          <div class="enemy-icon"><img src="https://placehold.co/40x40/dc2626/fff?text=1" alt="Enemy"></div>
+          <div class="enemy-icon"><img src="https://placehold.co/40x40/dc2626/fff?text=2" alt="Enemy"></div>
+          <div class="enemy-icon"><img src="https://placehold.co/40x40/dc2626/fff?text=3" alt="Enemy"></div>
+        </div>
+      </div>
+      <div class="detail-actions">
+        <button class="btn btn-secondary" onclick="closePanel()">✕ 閉じる</button>
+        <button class="btn btn-primary text-lg">⚔️ バトル開始</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ステージ選択
+    function selectStage(element) {
+      if (element.classList.contains('locked')) {
+        alert('このステージはまだ解放されていません！\n前のステージをクリアしてください。');
+        return;
+      }
+
+      // 全ノードから選択状態を外す
+      document.querySelectorAll('.stage-node').forEach(node => {
+        node.style.outline = 'none';
+      });
+
+      // 選択状態を付与
+      element.style.outline = '4px solid #f0b429';
+      element.style.outlineOffset = '4px';
+
+      // パネルを表示
+      document.getElementById('detailPanel').classList.add('active');
+
+      // 情報を更新（実際はデータから取得）
+      const stageId = element.dataset.stage;
+      const title = element.querySelector('.stage-name').textContent;
+      const icon = element.querySelector('.stage-icon')?.textContent || '🎮';
+
+      document.getElementById('detailTitle').textContent = title;
+      document.getElementById('detailIcon').textContent = icon;
+    }
+
+    // パネルを閉じる
+    function closePanel() {
+      document.getElementById('detailPanel').classList.remove('active');
+      document.querySelectorAll('.stage-node').forEach(node => {
+        node.style.outline = 'none';
+      });
+    }
+
+    // エリア切り替え
+    function showArea(areaId) {
+      // タブのアクティブ状態
+      document.querySelectorAll('.area-tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      event.target.closest('.area-tab').classList.add('active');
+
+      // バナー背景を変更（実際は画像パスを変更）
+      const bannerColors = {
+        tutorial: '90EE90/228B22',
+        easy: '87CEEB/1E90FF',
+        normal: 'FFD700/FF8C00',
+        hard: '2F4F4F/708090',
+        extreme: 'DC143C/8B0000',
+        boss: '9b59b6/4a235a'
+      };
+      const color = bannerColors[areaId] || '90EE90/228B22';
+      document.getElementById('areaBanner').style.backgroundImage =
+        `url('https://placehold.co/1200x200/${color}?text=${areaId.toUpperCase()}+AREA')`;
+    }
+  </script>
+
+</body>
+</html>
