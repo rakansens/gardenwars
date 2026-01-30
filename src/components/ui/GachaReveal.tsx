@@ -361,8 +361,8 @@ export default function GachaReveal({ results, onComplete }: GachaRevealProps) {
 
     // カード一覧表示フェーズ
     return (
-        <div className="fixed inset-0 z-50 bg-gradient-to-b from-amber-100 to-amber-200 flex flex-col items-center justify-center p-4 pb-32 overflow-y-auto">
-            <h2 className="text-2xl font-bold text-amber-950 mb-4">
+        <div className="fixed inset-0 z-50 bg-gradient-to-b from-amber-100 to-amber-200 flex flex-col items-center p-4 pb-32 overflow-y-auto">
+            <h2 className="text-2xl font-bold text-amber-950 mb-4 mt-4 sticky top-0 bg-amber-100/90 backdrop-blur-sm px-4 py-2 rounded-lg z-10">
                 {allRevealed ? "🎉 ガチャ結果 🎉" : "🎁 タップしてカードを開こう！"}
             </h2>
 
