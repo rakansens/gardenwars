@@ -342,6 +342,30 @@ export class BattleScene extends Phaser.Scene {
         this.load.image('r_diesel_farmer', '/assets/sprites/r_diesel_farmer.webp');
         this.load.image('r_steam_gardener', '/assets/sprites/r_steam_gardener.webp');
 
+        // New SR Units (Batch 2)
+        this.load.image('sr_crystal_rose_knight', '/assets/sprites/sr_crystal_rose_knight.webp');
+        this.load.image('sr_elder_botanist', '/assets/sprites/sr_elder_botanist.webp');
+        this.load.image('sr_jade_emperor', '/assets/sprites/sr_jade_emperor.webp');
+        this.load.image('sr_bonsai_samurai', '/assets/sprites/sr_bonsai_samurai.webp');
+        this.load.image('sr_angelic_garden', '/assets/sprites/sr_angelic_garden.webp');
+        this.load.image('sr_frost_rose_queen', '/assets/sprites/sr_frost_rose_queen.webp');
+
+        // New R Units (Batch 2)
+        this.load.image('r_cactus_cowboy', '/assets/sprites/r_cactus_cowboy.webp');
+        this.load.image('r_grape_gladiator', '/assets/sprites/r_grape_gladiator.webp');
+        this.load.image('r_valkyrie_bloom', '/assets/sprites/r_valkyrie_bloom.webp');
+        this.load.image('r_space_botanist', '/assets/sprites/r_space_botanist.webp');
+        this.load.image('r_jungle_explorer', '/assets/sprites/r_jungle_explorer.webp');
+        this.load.image('r_herb_alchemist', '/assets/sprites/r_herb_alchemist.webp');
+        this.load.image('r_harvest_viking', '/assets/sprites/r_harvest_viking.webp');
+
+        // New N Units (Batch 2)
+        this.load.image('n_plant_detective', '/assets/sprites/n_plant_detective.webp');
+        this.load.image('n_leaf_punk', '/assets/sprites/n_leaf_punk.webp');
+        this.load.image('n_cactus_luchador', '/assets/sprites/n_cactus_luchador.webp');
+        this.load.image('n_marigold_mariachi', '/assets/sprites/n_marigold_mariachi.webp');
+        this.load.image('n_veggie_chef', '/assets/sprites/n_veggie_chef.webp');
+
         // SSR Units
         this.load.image('flame_knight', '/assets/sprites/flame_knight.webp');
         this.load.image('ice_samurai', '/assets/sprites/ice_samurai.webp');
