@@ -244,5 +244,6 @@
   "sort_none": "なし",
   "move_speed": "移動",
   "spawn_cooldown": "召喚CT",
-  "in_deck": "デッキ"
+  "in_deck": "デッキ",
+  "drop_rate": "排出率"
 }

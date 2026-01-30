@@ -354,6 +354,7 @@
     "attackWindupMs": 600,
     "knockback": 75,
     "spawnCooldownMs": 14000,
+    "gachaWeight": 0.5,
     "scale": 1.6,
     "atlasKey": "ur_knight",
     "animKeys": {
@@ -376,6 +377,7 @@
     "attackWindupMs": 700,
     "knockback": 60,
     "spawnCooldownMs": 16000,
+    "gachaWeight": 0.4,
     "scale": 1.5,
     "atlasKey": "ur_mage",
     "animKeys": {
@@ -398,6 +400,7 @@
     "attackWindupMs": 500,
     "knockback": 55,
     "spawnCooldownMs": 15000,
+    "gachaWeight": 0.35,
     "scale": 1.45,
     "atlasKey": "ur_archer",
     "animKeys": {
@@ -420,6 +423,7 @@
     "attackWindupMs": 800,
     "knockback": 100,
     "spawnCooldownMs": 18000,
+    "gachaWeight": 0.2,
     "scale": 2,
     "atlasKey": "ur_tank",
     "animKeys": {
@@ -442,6 +446,7 @@
     "attackWindupMs": 300,
     "knockback": 40,
     "spawnCooldownMs": 12000,
+    "gachaWeight": 0.3,
     "scale": 1.4,
     "atlasKey": "ur_ninja",
     "animKeys": {
@@ -464,6 +469,7 @@
     "attackWindupMs": 600,
     "knockback": 60,
     "spawnCooldownMs": 14000,
+    "gachaWeight": 0.6,
     "scale": 1.6,
     "atlasKey": "ur_healer",
     "animKeys": {
@@ -486,6 +492,7 @@
     "attackWindupMs": 900,
     "knockback": 90,
     "spawnCooldownMs": 20000,
+    "gachaWeight": 0.1,
     "scale": 2.2,
     "isFlying": true,
     "atlasKey": "ur_dragon",
@@ -509,6 +516,7 @@
     "attackWindupMs": 450,
     "knockback": 55,
     "spawnCooldownMs": 13000,
+    "gachaWeight": 0.5,
     "scale": 1.5,
     "isFlying": true,
     "atlasKey": "ur_spirit",
@@ -532,6 +540,7 @@
     "attackWindupMs": 600,
     "knockback": 70,
     "spawnCooldownMs": 15000,
+    "gachaWeight": 0.2,
     "scale": 1.8,
     "isFlying": true,
     "atlasKey": "ur_phoenix",
@@ -555,6 +564,7 @@
     "attackWindupMs": 1000,
     "knockback": 120,
     "spawnCooldownMs": 22000,
+    "gachaWeight": 0.15,
     "scale": 2.5,
     "atlasKey": "ur_golem",
     "animKeys": {
@@ -577,6 +587,7 @@
     "attackWindupMs": 550,
     "knockback": 65,
     "spawnCooldownMs": 14000,
+    "gachaWeight": 0.45,
     "scale": 1.9,
     "isFlying": true,
     "atlasKey": "ur_angel",
@@ -600,6 +611,7 @@
     "attackWindupMs": 800,
     "knockback": 100,
     "spawnCooldownMs": 18000,
+    "gachaWeight": 0.2,
     "scale": 1.5,
     "atlasKey": "thunder_golem",
     "animKeys": {
@@ -622,6 +634,7 @@
     "attackWindupMs": 600,
     "knockback": 80,
     "spawnCooldownMs": 14000,
+    "gachaWeight": 0.25,
     "scale": 1.6,
     "atlasKey": "flame_knight",
     "animKeys": {
@@ -644,6 +657,7 @@
     "attackWindupMs": 400,
     "knockback": 60,
     "spawnCooldownMs": 12000,
+    "gachaWeight": 0.4,
     "scale": 1.5,
     "atlasKey": "ice_samurai",
     "animKeys": {
@@ -666,6 +680,7 @@
     "attackWindupMs": 250,
     "knockback": 40,
     "spawnCooldownMs": 10000,
+    "gachaWeight": 0.2,
     "scale": 1.4,
     "atlasKey": "shadow_assassin",
     "animKeys": {

@@ -244,5 +244,6 @@
   "sort_none": "None",
   "move_speed": "Move",
   "spawn_cooldown": "Summon CD",
-  "in_deck": "Deck"
+  "in_deck": "Deck",
+  "drop_rate": "Drop Rate"
 }

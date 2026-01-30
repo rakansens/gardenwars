@@ -27,6 +27,7 @@ export interface UnitDefinition {
   attackCooldownMs: number;   // 攻撃後のクールダウン時間
   attackWindupMs: number;     // ダメージ発生までのモーション時間
   spawnCooldownMs?: number;   // 召喚クールダウン時間（省略時はレアリティ別デフォルト）
+  gachaWeight?: number;       // ガチャ排出重み（URのみ、0.1〜1.0、省略時は1.0）
   knockback: number;          // 与えるノックバック距離
   scale?: number;             // スプライトのスケール倍率（オプション）
   atlasKey: string;

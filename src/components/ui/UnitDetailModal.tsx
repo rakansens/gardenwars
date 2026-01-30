@@ -26,6 +26,7 @@ interface UnitDetailModalProps {
     isInTeam: boolean;
     onClose: () => void;
     onToggleTeam: () => void;
+    dropRate?: number; // ガチャ排出率（%）
 }
 
 export default function UnitDetailModal({
@@ -34,6 +35,7 @@ export default function UnitDetailModal({
     isInTeam,
     onClose,
     onToggleTeam,
+    dropRate,
 }: UnitDetailModalProps) {
     const modalRef = useRef<HTMLDivElement>(null);
     const { t } = useLanguage();
@@ -206,6 +208,18 @@ export default function UnitDetailModal({
                                 <div className="text-xs text-gray-500 mb-1">{t("spawn_cooldown")}</div>
                                 <div className="text-lg font-bold text-purple-500">⏰ {(getSpawnCooldown(unit) / 1000).toFixed(1)}s</div>
                             </div>
+                            {dropRate !== undefined && (
+                                <div className="bg-gradient-to-br from-pink-50 to-purple-50 rounded-lg p-3 border border-pink-200">
+                                    <div className="text-xs text-pink-600 mb-1">{t("drop_rate")}</div>
+                                    <div className={`text-lg font-bold ${
+                                        dropRate < 0.1 ? "text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500" :
+                                        dropRate < 0.3 ? "text-pink-500" :
+                                        "text-purple-500"
+                                    }`}>
+                                        🎰 {dropRate < 0.1 ? dropRate.toFixed(3) : dropRate.toFixed(2)}%
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
 

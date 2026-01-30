@@ -72,17 +72,48 @@ export default function GachaPage() {
         }, 100);
     };
 
-    // レアリティで重み付けしてランダム選択
+    // レアリティで重み付けしてランダム選択（URは個別重み）
     const pickRandomUnit = (): UnitDefinition => {
-        const weights = { N: 50, R: 30, SR: 15, SSR: 3, UR: 2 };
-        const totalWeight = gachaPool.reduce((sum, u) => sum + weights[u.rarity], 0);
+        // 基本レアリティ確率: N=50%, R=30%, SR=15%, SSR=3%, UR=1%(ベース)
+        const rarityWeights = { N: 50, R: 30, SR: 15, SSR: 3, UR: 1 };
+
+        // URユニットの合計重みを計算
+        const urUnits = gachaPool.filter(u => u.rarity === "UR");
+        const totalUrWeight = urUnits.reduce((sum, u) => sum + (u.gachaWeight ?? 1), 0);
+
+        // 各ユニットの実効重みを計算
+        const getUnitWeight = (unit: UnitDefinition): number => {
+            if (unit.rarity === "UR") {
+                // URの個別重み: (個別weight / 合計URweight) * URベース確率
+                return ((unit.gachaWeight ?? 1) / totalUrWeight) * rarityWeights.UR;
+            }
+            // 他のレアリティは均等配分
+            const unitsInRarity = gachaPool.filter(u => u.rarity === unit.rarity).length;
+            return rarityWeights[unit.rarity] / unitsInRarity;
+        };
+
+        const totalWeight = gachaPool.reduce((sum, u) => sum + getUnitWeight(u), 0);
         let random = Math.random() * totalWeight;
 
         for (const unit of gachaPool) {
-            random -= weights[unit.rarity];
+            random -= getUnitWeight(unit);
             if (random <= 0) return unit;
         }
         return gachaPool[0];
+    };
+
+    // ユニットの排出率を計算（%表示用）
+    const getDropRate = (unit: UnitDefinition): number => {
+        const rarityWeights = { N: 50, R: 30, SR: 15, SSR: 3, UR: 1 };
+
+        if (unit.rarity === "UR") {
+            const urUnits = gachaPool.filter(u => u.rarity === "UR");
+            const totalUrWeight = urUnits.reduce((sum, u) => sum + (u.gachaWeight ?? 1), 0);
+            return ((unit.gachaWeight ?? 1) / totalUrWeight) * rarityWeights.UR;
+        }
+
+        const unitsInRarity = gachaPool.filter(u => u.rarity === unit.rarity).length;
+        return rarityWeights[unit.rarity] / unitsInRarity;
     };
 
     // カード演出完了時
@@ -146,7 +177,7 @@ export default function GachaPage() {
                         <span className="px-2 py-1 rounded bg-blue-200 text-blue-700">R: 30%</span>
                         <span className="px-2 py-1 rounded bg-purple-200 text-purple-700">SR: 15%</span>
                         <span className="px-2 py-1 rounded bg-amber-200 text-amber-700">SSR: 3%</span>
-                        <span className="px-2 py-1 rounded bg-gradient-to-r from-pink-200 to-cyan-200 text-purple-700 font-bold">UR: 2%</span>
+                        <span className="px-2 py-1 rounded bg-gradient-to-r from-pink-200 to-cyan-200 text-purple-700 font-bold">UR: 1%</span>
                     </div>
 
                     {/* ガチャボタン */}
@@ -476,6 +507,7 @@ export default function GachaPage() {
                     isInTeam={false}
                     onClose={() => setViewingUnit(null)}
                     onToggleTeam={() => {}}
+                    dropRate={getDropRate(viewingUnit)}
                 />
             )}
         </main>
