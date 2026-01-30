@@ -344,7 +344,7 @@
   {
     "id": "ur_knight",
     "name": "Rainbow Treant",
-    "rarity": "UR",
+    "rarity": "SSR",
     "cost": 4000,
     "maxHp": 8000,
     "speed": 65,
@@ -354,7 +354,6 @@
     "attackWindupMs": 600,
     "knockback": 75,
     "spawnCooldownMs": 14000,
-    "gachaWeight": 0.5,
     "scale": 1.6,
     "atlasKey": "ur_knight",
     "animKeys": {
@@ -459,7 +458,7 @@
   {
     "id": "ur_healer",
     "name": "Crystal Knight",
-    "rarity": "UR",
+    "rarity": "SSR",
     "cost": 3600,
     "maxHp": 6500,
     "speed": 50,
@@ -469,7 +468,6 @@
     "attackWindupMs": 600,
     "knockback": 60,
     "spawnCooldownMs": 14000,
-    "gachaWeight": 0.6,
     "scale": 1.6,
     "atlasKey": "ur_healer",
     "animKeys": {
@@ -506,7 +504,7 @@
   {
     "id": "ur_spirit",
     "name": "Lotus Fairy",
-    "rarity": "UR",
+    "rarity": "SSR",
     "cost": 3400,
     "maxHp": 5500,
     "speed": 85,
@@ -516,7 +514,6 @@
     "attackWindupMs": 450,
     "knockback": 55,
     "spawnCooldownMs": 13000,
-    "gachaWeight": 0.5,
     "scale": 1.5,
     "isFlying": true,
     "atlasKey": "ur_spirit",
@@ -577,7 +574,7 @@
   {
     "id": "ur_angel",
     "name": "Crystal Berry",
-    "rarity": "UR",
+    "rarity": "SSR",
     "cost": 4000,
     "maxHp": 7000,
     "speed": 70,
@@ -587,7 +584,6 @@
     "attackWindupMs": 550,
     "knockback": 65,
     "spawnCooldownMs": 14000,
-    "gachaWeight": 0.45,
     "scale": 1.9,
     "isFlying": true,
     "atlasKey": "ur_angel",
@@ -647,7 +643,7 @@
   {
     "id": "ice_samurai",
     "name": "Ice Samurai",
-    "rarity": "UR",
+    "rarity": "SSR",
     "cost": 3800,
     "maxHp": 7500,
     "speed": 80,
@@ -657,7 +653,6 @@
     "attackWindupMs": 400,
     "knockback": 60,
     "spawnCooldownMs": 12000,
-    "gachaWeight": 0.4,
     "scale": 1.5,
     "atlasKey": "ice_samurai",
     "animKeys": {
