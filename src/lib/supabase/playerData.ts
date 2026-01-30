@@ -184,6 +184,8 @@ export interface RankingEntry {
     stages_cleared: number;
     win_streak: number;
     max_win_streak: number;
+    // ロードアウト（デッキ）
+    selected_team: string[];
 }
 
 // Update rankings
@@ -322,8 +324,10 @@ export type RankingSortBy =
 
 export async function getRankings(
     sortBy: RankingSortBy = "max_stage",
-    limit: number = 50
+    limit: number = 50,
+    includeLoadout: boolean = false
 ): Promise<RankingEntry[]> {
+    // ランキングデータを取得
     const { data, error } = await supabase
         .from("rankings")
         .select(`
@@ -345,7 +349,50 @@ export async function getRankings(
         .order(sortBy, { ascending: false })
         .limit(limit);
 
-    if (error || !data) return [];
+    if (error || !data) {
+        console.error("getRankings error:", error);
+        return [];
+    }
+
+    // ロードアウト取得が不要な場合は早期リターン
+    if (!includeLoadout) {
+        return data.map((row) => ({
+            player_id: row.player_id || "",
+            player_name: (row.players as unknown as { name: string })?.name || "Unknown",
+            max_stage: row.max_stage ?? 0,
+            total_wins: row.total_wins ?? 0,
+            total_battles: row.total_battles ?? 0,
+            total_coins: row.total_coins ?? 0,
+            collection_count: row.collection_count ?? 0,
+            total_units: row.total_units ?? 0,
+            ur_unit_count: row.ur_unit_count ?? 0,
+            gacha_count: row.gacha_count ?? 0,
+            garden_visits: row.garden_visits ?? 0,
+            stages_cleared: row.stages_cleared ?? 0,
+            win_streak: row.win_streak ?? 0,
+            max_win_streak: row.max_win_streak ?? 0,
+            selected_team: [],
+        }));
+    }
+
+    // プレイヤーIDリストを取得
+    const playerIds = data.map(row => row.player_id).filter(Boolean);
+
+    // player_dataからselected_teamを別途取得
+    const { data: playerDataList } = await supabase
+        .from("player_data")
+        .select("player_id, selected_team")
+        .in("player_id", playerIds);
+
+    // player_idをキーにしたマップを作成
+    const playerDataMap = new Map<string, string[]>();
+    if (playerDataList) {
+        playerDataList.forEach(pd => {
+            if (!pd.player_id) return;
+            const team = (pd.selected_team as unknown as string[]) || [];
+            playerDataMap.set(pd.player_id, team);
+        });
+    }
 
     return data.map((row) => ({
         player_id: row.player_id || "",
@@ -362,5 +409,6 @@ export async function getRankings(
         stages_cleared: row.stages_cleared ?? 0,
         win_streak: row.win_streak ?? 0,
         max_win_streak: row.max_win_streak ?? 0,
+        selected_team: playerDataMap.get(row.player_id || "") || [],
     }));
 }

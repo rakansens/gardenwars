@@ -2,11 +2,19 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { getRankings, type RankingEntry, type RankingSortBy } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import unitsData from "@/data/units";
+import type { UnitDefinition } from "@/data/types";
 
-const SORT_OPTIONS: { key: RankingSortBy; labelKey: string; icon: string }[] = [
+const allUnits = unitsData as UnitDefinition[];
+
+type SortOption = RankingSortBy | "all";
+
+const SORT_OPTIONS: { key: SortOption; labelKey: string; icon: string }[] = [
+    { key: "all", labelKey: "ranking_all", icon: "🎴" },
     { key: "max_stage", labelKey: "ranking_max_stage", icon: "🏆" },
     { key: "total_wins", labelKey: "ranking_wins", icon: "⚔️" },
     { key: "max_win_streak", labelKey: "ranking_win_streak", icon: "🔥" },
@@ -24,14 +32,17 @@ export default function RankingPage() {
     const { playerId } = useAuth();
     const { t } = useLanguage();
     const [rankings, setRankings] = useState<RankingEntry[]>([]);
-    const [sortBy, setSortBy] = useState<RankingSortBy>("max_stage");
+    const [sortBy, setSortBy] = useState<SortOption>("all");
     const [isLoading, setIsLoading] = useState(true);
+
+    const isAllTab = sortBy === "all";
+    const actualSortBy: RankingSortBy = isAllTab ? "max_stage" : sortBy;
 
     useEffect(() => {
         const fetchRankings = async () => {
             setIsLoading(true);
             try {
-                const data = await getRankings(sortBy, 100);
+                const data = await getRankings(actualSortBy, 100, isAllTab);
                 setRankings(data);
             } catch (err) {
                 console.error("Failed to fetch rankings:", err);
@@ -40,13 +51,14 @@ export default function RankingPage() {
         };
 
         fetchRankings();
-    }, [sortBy]);
+    }, [sortBy, actualSortBy, isAllTab]);
 
     const currentSortOption = SORT_OPTIONS.find(opt => opt.key === sortBy);
 
-    const formatValue = (entry: RankingEntry, key: RankingSortBy): string => {
-        const value = entry[key];
-        if (key === "total_coins") {
+    const formatValue = (entry: RankingEntry, key: SortOption): string => {
+        const actualKey: RankingSortBy = key === "all" ? "max_stage" : key;
+        const value = entry[actualKey];
+        if (actualKey === "total_coins") {
             return value.toLocaleString();
         }
         return String(value);
@@ -111,15 +123,19 @@ export default function RankingPage() {
                         </div>
                     ) : (
                         <div className="space-y-2">
-                            {/* ヘッダー */}
+                            {/* ヘッダー - デッキタブでは簡略化 */}
                             <div className="hidden md:grid grid-cols-12 gap-2 px-4 py-2 text-gray-400 text-sm font-bold border-b border-slate-700">
                                 <div className="col-span-1 text-center">#</div>
-                                <div className="col-span-4">{t("ranking_player")}</div>
-                                <div className="col-span-2 text-center">{currentSortOption?.icon} {currentSortOption && t(currentSortOption.labelKey)}</div>
-                                <div className="col-span-1 text-center">🏆</div>
-                                <div className="col-span-1 text-center">⚔️</div>
-                                <div className="col-span-1 text-center">📖</div>
-                                <div className="col-span-2 text-center">💰</div>
+                                <div className={isAllTab ? "col-span-11" : "col-span-4"}>{t("ranking_player")}{isAllTab && " / 🎴 Deck"}</div>
+                                {!isAllTab && (
+                                    <>
+                                        <div className="col-span-2 text-center">{currentSortOption?.icon} {currentSortOption && t(currentSortOption.labelKey)}</div>
+                                        <div className="col-span-1 text-center">🏆</div>
+                                        <div className="col-span-1 text-center">⚔️</div>
+                                        <div className="col-span-1 text-center">📖</div>
+                                        <div className="col-span-2 text-center">💰</div>
+                                    </>
+                                )}
                             </div>
 
                             {/* ランキング行 */}
@@ -143,43 +159,76 @@ export default function RankingPage() {
                                             </span>
                                         </div>
 
-                                        {/* プレイヤー名 */}
-                                        <div className="col-span-6 md:col-span-4 flex items-center">
+                                        {/* プレイヤー名 & ロードアウト */}
+                                        <div className={`${isAllTab ? "col-span-10" : "col-span-6"} ${isAllTab ? "md:col-span-11" : "md:col-span-4"} flex flex-col justify-center`}>
                                             <span className="text-white font-bold truncate">
                                                 {entry.player_name}
                                                 {isCurrentPlayer && (
                                                     <span className="ml-2 text-xs text-blue-400">(You)</span>
                                                 )}
                                             </span>
+                                            {/* ロードアウトアイコン（Allタブのみ） */}
+                                            {isAllTab && entry.selected_team && entry.selected_team.length > 0 && (
+                                                <div className="flex gap-2 mt-2 flex-wrap">
+                                                    {entry.selected_team.slice(0, 7).map((unitId, idx) => {
+                                                        const unit = allUnits.find(u => u.id === unitId);
+                                                        if (!unit) return null;
+                                                        const baseId = unit.baseUnitId || unit.id;
+                                                        return (
+                                                            <div
+                                                                key={idx}
+                                                                className="w-12 h-12 md:w-14 md:h-14 rounded-lg border-2 border-slate-500 overflow-hidden bg-slate-800 shadow-md"
+                                                                title={unit.name}
+                                                            >
+                                                                <Image
+                                                                    src={`/assets/sprites/${baseId}.webp`}
+                                                                    alt={unit.name}
+                                                                    width={56}
+                                                                    height={56}
+                                                                    className="w-full h-full object-cover"
+                                                                />
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
                                         </div>
 
-                                        {/* メイン値（PC） */}
-                                        <div className="hidden md:flex col-span-2 items-center justify-center">
-                                            <span className="text-amber-400 font-bold text-lg">
-                                                {formatValue(entry, sortBy)}
-                                            </span>
-                                        </div>
+                                        {/* メイン値（PC）- デッキタブでは非表示 */}
+                                        {!isAllTab && (
+                                            <div className="hidden md:flex col-span-2 items-center justify-center">
+                                                <span className="text-amber-400 font-bold text-lg">
+                                                    {formatValue(entry, sortBy)}
+                                                </span>
+                                            </div>
+                                        )}
 
-                                        {/* サブ統計（PC） */}
-                                        <div className="hidden md:flex col-span-1 items-center justify-center text-gray-300 text-sm">
-                                            {entry.max_stage}
-                                        </div>
-                                        <div className="hidden md:flex col-span-1 items-center justify-center text-gray-300 text-sm">
-                                            {entry.total_wins}
-                                        </div>
-                                        <div className="hidden md:flex col-span-1 items-center justify-center text-gray-300 text-sm">
-                                            {entry.collection_count}
-                                        </div>
-                                        <div className="hidden md:flex col-span-2 items-center justify-center text-gray-300 text-sm">
-                                            {entry.total_coins.toLocaleString()}
-                                        </div>
+                                        {/* サブ統計（PC）- デッキタブでは非表示 */}
+                                        {!isAllTab && (
+                                            <>
+                                                <div className="hidden md:flex col-span-1 items-center justify-center text-gray-300 text-sm">
+                                                    {entry.max_stage}
+                                                </div>
+                                                <div className="hidden md:flex col-span-1 items-center justify-center text-gray-300 text-sm">
+                                                    {entry.total_wins}
+                                                </div>
+                                                <div className="hidden md:flex col-span-1 items-center justify-center text-gray-300 text-sm">
+                                                    {entry.collection_count}
+                                                </div>
+                                                <div className="hidden md:flex col-span-2 items-center justify-center text-gray-300 text-sm">
+                                                    {entry.total_coins.toLocaleString()}
+                                                </div>
+                                            </>
+                                        )}
 
-                                        {/* モバイル: メイン値 */}
-                                        <div className="col-span-4 md:hidden flex items-center justify-end">
-                                            <span className="text-amber-400 font-bold">
-                                                {currentSortOption?.icon} {formatValue(entry, sortBy)}
-                                            </span>
-                                        </div>
+                                        {/* モバイル: メイン値 - デッキタブでは非表示 */}
+                                        {!isAllTab && (
+                                            <div className="col-span-4 md:hidden flex items-center justify-end">
+                                                <span className="text-amber-400 font-bold">
+                                                    {currentSortOption?.icon} {formatValue(entry, sortBy)}
+                                                </span>
+                                            </div>
+                                        )}
                                     </div>
                                 );
                             })}
