@@ -1048,7 +1048,7 @@ export class BattleScene extends Phaser.Scene {
         const buttonY = this.scale.height - 85;
         const buttonWidth = 90;
         const buttonHeight = 100;
-        const startX = 155; // デッキ切り替えボタン分右にずらす
+        const startX = 225; // 城攻撃+デッキ切り替えボタン分右にずらす
         const gap = 8;
 
         this.teamData.forEach((unit, index) => {
@@ -1159,11 +1159,44 @@ export class BattleScene extends Phaser.Scene {
         const buttonY = height - 85;
         const buttonWidth = 90;
         const buttonHeight = 100;
-        const startX = 155; // 65 -> 155 (デッキ切り替えボタン分右にずらす)
+        const startX = 225; // 城攻撃+デッキ切り替えボタン分右にずらす
         const gap = 8;
 
-        // デッキ切り替えボタン（キャラカードの左端）
-        const deckBtnX = 55;
+        // 城攻撃ボタン（左端）
+        const cannonX = 55;
+        const cannonY = buttonY;
+        this.cannonBtnBg = this.add.rectangle(cannonX, cannonY, 70, buttonHeight, 0xf8e7b6);
+        this.cannonBtnBg.setScrollFactor(0);
+        this.cannonBtnBg.setDepth(100);
+        this.cannonBtnBg.setStrokeStyle(3, 0x3b2a1a);
+        this.cannonBtnBg.setInteractive({ useHandCursor: true });
+
+        this.cannonBtnText = this.add.text(cannonX, cannonY - 20, '城攻撃', {
+            fontSize: '11px',
+            color: '#3b2a1a',
+            fontStyle: 'bold',
+        });
+        this.cannonBtnText.setOrigin(0.5, 0.5);
+        this.cannonBtnText.setScrollFactor(0);
+        this.cannonBtnText.setDepth(101);
+
+        this.cannonBarBg = this.add.rectangle(cannonX - 25, cannonY + 5, 50, 8, 0xd7bf8a);
+        this.cannonBarBg.setOrigin(0, 0.5);
+        this.cannonBarBg.setScrollFactor(0);
+        this.cannonBarBg.setDepth(101);
+        this.cannonBarBg.setStrokeStyle(2, 0x3b2a1a);
+
+        this.cannonBarFill = this.add.rectangle(cannonX - 25, cannonY + 5, 0, 8, 0xffd45a);
+        this.cannonBarFill.setOrigin(0, 0.5);
+        this.cannonBarFill.setScrollFactor(0);
+        this.cannonBarFill.setDepth(102);
+
+        this.cannonBtnBg.on('pointerdown', () => {
+            this.fireCastleAttack();
+        });
+
+        // デッキ切り替えボタン（城攻撃の右）
+        const deckBtnX = 135;
         const deckBtnBg = this.add.rectangle(deckBtnX, buttonY, 80, buttonHeight, 0xf97316);
         deckBtnBg.setScrollFactor(0);
         deckBtnBg.setDepth(100);
@@ -1291,39 +1324,6 @@ export class BattleScene extends Phaser.Scene {
             // ホバーエフェクト
             bg.on('pointerover', () => bg.setFillStyle(0xfff3cf));
             bg.on('pointerout', () => bg.setFillStyle(0xf8e7b6));
-        });
-
-        // 城攻撃ボタン（右端）
-        const cannonX = width - 80;
-        const cannonY = buttonY - 5;
-        this.cannonBtnBg = this.add.rectangle(cannonX, cannonY, 110, 80, 0xf8e7b6);
-        this.cannonBtnBg.setScrollFactor(0);
-        this.cannonBtnBg.setDepth(100);
-        this.cannonBtnBg.setStrokeStyle(3, 0x3b2a1a);
-        this.cannonBtnBg.setInteractive({ useHandCursor: true });
-
-        this.cannonBtnText = this.add.text(cannonX, cannonY - 10, '城攻撃', {
-            fontSize: '12px',
-            color: '#3b2a1a',
-            fontStyle: 'bold',
-        });
-        this.cannonBtnText.setOrigin(0.5, 0.5);
-        this.cannonBtnText.setScrollFactor(0);
-        this.cannonBtnText.setDepth(101);
-
-        this.cannonBarBg = this.add.rectangle(cannonX - 40, cannonY + 20, 80, 10, 0xd7bf8a);
-        this.cannonBarBg.setOrigin(0, 0.5);
-        this.cannonBarBg.setScrollFactor(0);
-        this.cannonBarBg.setDepth(101);
-        this.cannonBarBg.setStrokeStyle(2, 0x3b2a1a);
-
-        this.cannonBarFill = this.add.rectangle(cannonX - 40, cannonY + 20, 0, 10, 0xffd45a);
-        this.cannonBarFill.setOrigin(0, 0.5);
-        this.cannonBarFill.setScrollFactor(0);
-        this.cannonBarFill.setDepth(102);
-
-        this.cannonBtnBg.on('pointerdown', () => {
-            this.fireCastleAttack();
         });
 
         // ボス詳細表示（画面上部）- 80 -> 110 に下げてTop UIとの衝突回避
@@ -1698,9 +1698,9 @@ export class BattleScene extends Phaser.Scene {
     private updateCannonGauge(delta: number) {
         this.cannonCharge = Math.min(this.cannonCharge + delta, this.cannonChargeMax);
         const ratio = this.cannonCharge / this.cannonChargeMax;
-        const barWidth = Math.max(0, Math.min(1, ratio)) * 80;
+        const barWidth = Math.max(0, Math.min(1, ratio)) * 50;
         this.cannonBarFill.width = barWidth;
-        this.cannonBarFill.height = 10;
+        this.cannonBarFill.height = 8;
 
         if (this.cannonCharge >= this.cannonChargeMax) {
             this.cannonBtnBg.setFillStyle(0xffe066);
