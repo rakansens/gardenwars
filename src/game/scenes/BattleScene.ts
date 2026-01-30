@@ -795,29 +795,41 @@ export class BattleScene extends Phaser.Scene {
 
         // 背景画像がある場合は画像を表示
         if (bg.image && this.textures.exists('stage_bg')) {
-            const bgImage = this.add.image(0, 0, 'stage_bg');
-            bgImage.setOrigin(0, 0);
+            const texture = this.textures.get('stage_bg');
+            const frame = texture.getSourceImage();
+            const imgWidth = frame.width;
+            const imgHeight = frame.height;
 
-            // 画面全体をカバーするようにスケール
-            const scaleX = (this.stageData.length + 100) / bgImage.width;
-            const scaleY = height / bgImage.height;
-            const scale = Math.max(scaleX, scaleY);
-            bgImage.setScale(scale);
+            // 画像を画面高さにフィットするスケールを計算
+            const fitScale = height / imgHeight;
+            const scaledWidth = imgWidth * fitScale;
+            const scaledHeight = height;
 
-            // 縦方向は画面下部に合わせる（地面を見せるため上部をカット）
-            bgImage.setY(height - bgImage.height * scale);
+            // ステージ全体をカバーするために必要な幅（パララックス考慮）
+            const worldWidth = this.stageData.length + 100;
+            const parallaxFactor = 0.5; // 背景の移動速度（カメラの50%）
+            const neededWidth = width + (worldWidth - width) * parallaxFactor;
 
-            bgImage.setDepth(-10);
-            bgImage.setScrollFactor(0.3); // パララックス効果
+            // TileSpriteで背景を作成（繰り返し表示）
+            const bgTile = this.add.tileSprite(
+                0, 0,
+                neededWidth / fitScale, // スケール前のサイズで指定
+                imgHeight,
+                'stage_bg'
+            );
+            bgTile.setOrigin(0, 0);
+            bgTile.setScale(fitScale);
+            bgTile.setDepth(-10);
+            bgTile.setScrollFactor(parallaxFactor);
 
             // 軽いオーバーレイで統一感を出す
             const overlay = this.add.rectangle(
-                (this.stageData.length + 100) / 2,
+                worldWidth / 2,
                 height / 2,
-                this.stageData.length + 100,
+                worldWidth,
                 height,
                 parseInt(bg.skyColor.replace('0x', ''), 16),
-                0.2
+                0.15
             );
             overlay.setDepth(-9);
             overlay.setScrollFactor(0);
