@@ -2351,5 +2351,19 @@
     "knockback": 20,
     "spawnCooldownMs": 8000,
     "scale": 1.0
+  },
+  {
+    "id": "n_sprout_cat",
+    "name": "Sprout Cat",
+    "rarity": "N",
+    "cost": 40,
+    "maxHp": 150,
+    "speed": 65,
+    "attackDamage": 20,
+    "attackRange": 30,
+    "attackCooldownMs": 900,
+    "attackWindupMs": 300,
+    "knockback": 5,
+    "scale": 0.75
   }
 ]

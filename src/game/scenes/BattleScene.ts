@@ -305,6 +305,7 @@ export class BattleScene extends Phaser.Scene {
         this.load.image('n_potted_plant_cat', '/assets/sprites/n_potted_plant_cat.png');
         this.load.image('n_ivy_harvest_cat', '/assets/sprites/n_ivy_harvest_cat.png');
         this.load.image('n_sunflower_cat', '/assets/sprites/n_sunflower_cat.png');
+        this.load.image('n_sprout_cat', '/assets/sprites/n_sprout_cat.png');
 
         // New R Units
         this.load.image('r_cactus_guardian', '/assets/sprites/r_cactus_guardian.png');
