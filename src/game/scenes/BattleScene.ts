@@ -73,10 +73,11 @@ export class BattleScene extends Phaser.Scene {
     private costUpPulse?: Phaser.Tweens.Tween;
     private cannonCharge: number = 0;
     private cannonChargeMax: number = 20000;
-    private cannonBtnBg!: Phaser.GameObjects.Rectangle;
+    private cannonBtnBg!: Phaser.GameObjects.Arc;
     private cannonBtnText!: Phaser.GameObjects.Text;
     private cannonBarBg!: Phaser.GameObjects.Rectangle;
     private cannonBarFill!: Phaser.GameObjects.Rectangle;
+    private cannonPulse?: Phaser.Tweens.Tween;
 
     // ボスHPゲージ
     private bossHpContainer!: Phaser.GameObjects.Container;
@@ -1162,31 +1163,31 @@ export class BattleScene extends Phaser.Scene {
         const startX = 225; // 城攻撃+デッキ切り替えボタン分右にずらす
         const gap = 8;
 
-        // 城攻撃ボタン（左端）
-        const cannonX = 55;
+        // 城攻撃ボタン（左端・丸アイコン）
+        const cannonX = 50;
         const cannonY = buttonY;
-        this.cannonBtnBg = this.add.rectangle(cannonX, cannonY, 70, buttonHeight, 0xf8e7b6);
+        const cannonRadius = 38;
+        this.cannonBtnBg = this.add.circle(cannonX, cannonY, cannonRadius, 0xf8e7b6);
         this.cannonBtnBg.setScrollFactor(0);
         this.cannonBtnBg.setDepth(100);
-        this.cannonBtnBg.setStrokeStyle(3, 0x3b2a1a);
+        this.cannonBtnBg.setStrokeStyle(4, 0x3b2a1a);
         this.cannonBtnBg.setInteractive({ useHandCursor: true });
 
-        this.cannonBtnText = this.add.text(cannonX, cannonY - 20, '城攻撃', {
-            fontSize: '11px',
-            color: '#3b2a1a',
-            fontStyle: 'bold',
+        // 砲台アイコン
+        this.cannonBtnText = this.add.text(cannonX, cannonY - 5, '💥', {
+            fontSize: '32px',
         });
         this.cannonBtnText.setOrigin(0.5, 0.5);
         this.cannonBtnText.setScrollFactor(0);
         this.cannonBtnText.setDepth(101);
 
-        this.cannonBarBg = this.add.rectangle(cannonX - 25, cannonY + 5, 50, 8, 0xd7bf8a);
-        this.cannonBarBg.setOrigin(0, 0.5);
+        // ゲージバー（円の下部に配置）
+        this.cannonBarBg = this.add.rectangle(cannonX, cannonY + 28, 50, 6, 0xd7bf8a);
         this.cannonBarBg.setScrollFactor(0);
         this.cannonBarBg.setDepth(101);
-        this.cannonBarBg.setStrokeStyle(2, 0x3b2a1a);
+        this.cannonBarBg.setStrokeStyle(1, 0x3b2a1a);
 
-        this.cannonBarFill = this.add.rectangle(cannonX - 25, cannonY + 5, 0, 8, 0xffd45a);
+        this.cannonBarFill = this.add.rectangle(cannonX - 25, cannonY + 28, 0, 6, 0xffd45a);
         this.cannonBarFill.setOrigin(0, 0.5);
         this.cannonBarFill.setScrollFactor(0);
         this.cannonBarFill.setDepth(102);
@@ -1700,12 +1701,29 @@ export class BattleScene extends Phaser.Scene {
         const ratio = this.cannonCharge / this.cannonChargeMax;
         const barWidth = Math.max(0, Math.min(1, ratio)) * 50;
         this.cannonBarFill.width = barWidth;
-        this.cannonBarFill.height = 8;
+        this.cannonBarFill.height = 6;
 
         if (this.cannonCharge >= this.cannonChargeMax) {
             this.cannonBtnBg.setFillStyle(0xffe066);
+            // パルスアニメーション開始（まだ開始していない場合）
+            if (!this.cannonPulse || !this.cannonPulse.isPlaying()) {
+                this.cannonPulse = this.tweens.add({
+                    targets: [this.cannonBtnBg, this.cannonBtnText],
+                    scale: { from: 1, to: 1.15 },
+                    duration: 400,
+                    yoyo: true,
+                    repeat: -1,
+                    ease: 'Sine.easeInOut',
+                });
+            }
         } else {
             this.cannonBtnBg.setFillStyle(0xf8e7b6);
+            // パルスアニメーション停止
+            if (this.cannonPulse) {
+                this.cannonPulse.stop();
+                this.cannonBtnBg.setScale(1);
+                this.cannonBtnText.setScale(1);
+            }
         }
     }
 
