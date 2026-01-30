@@ -33,14 +33,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <meta name="color-scheme" content="light" />
-        <meta name="supported-color-schemes" content="light" />
-        <style dangerouslySetInnerHTML={{ __html: `
-          :root { color-scheme: light only !important; }
-          * { -webkit-text-fill-color: inherit !important; }
-        `}} />
-      </head>
       <body className={`${notoSansJP.variable} antialiased`}>
         <Providers>{children}</Providers>
       </body>

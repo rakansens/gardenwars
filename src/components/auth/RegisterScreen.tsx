@@ -67,7 +67,7 @@ export function RegisterScreen({ onRegister, onBack }: RegisterScreenProps) {
                         onChange={(e) => setName(e.target.value)}
                         placeholder={language === "ja" ? "なまえ" : "Name"}
                         maxLength={20}
-                        className="w-full p-4 text-xl border-2 border-green-300 rounded-xl focus:border-green-500 focus:outline-none text-center mb-4 text-gray-900 bg-white placeholder-gray-400"
+                        className="w-full p-4 text-xl border-2 border-green-300 rounded-xl focus:border-green-500 focus:outline-none text-center mb-4"
                         autoFocus
                     />
 
@@ -105,8 +105,7 @@ export function RegisterScreen({ onRegister, onBack }: RegisterScreenProps) {
                         {pin.split("").map((digit, i) => (
                             <div
                                 key={i}
-                                className="w-12 h-14 bg-gradient-to-b from-amber-400 to-amber-500 rounded-xl flex items-center justify-center text-3xl font-bold shadow-lg"
-                                style={{ color: '#ffffff', WebkitTextFillColor: '#ffffff' }}
+                                className="w-12 h-14 bg-gradient-to-b from-amber-400 to-amber-500 rounded-xl flex items-center justify-center text-3xl font-bold text-white shadow-lg"
                             >
                                 {digit}
                             </div>

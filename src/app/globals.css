@@ -58,47 +58,6 @@ body {
   padding-right: env(safe-area-inset-right);
 }
 
-/* iOS Safari ダークモード対策 - テキスト色の強制リセット */
-:root {
-  color-scheme: light only !important;
-}
-
-* {
-  -webkit-text-fill-color: inherit !important;
-}
-
-/* フォーム要素の明示的な色指定（ライト背景用） */
-input[type="text"],
-input[type="number"],
-input[type="email"],
-input[type="password"],
-textarea,
-select {
-  color: #1f2937;
-  background-color: #ffffff;
-  -webkit-text-fill-color: #1f2937;
-}
-
-input::placeholder,
-textarea::placeholder {
-  color: #9ca3af;
-  -webkit-text-fill-color: #9ca3af;
-}
-
-/* ダーク背景用のフォーム要素 */
-.dark input[type="text"],
-.dark input[type="number"],
-.dark textarea,
-.dark select,
-[data-theme="dark"] input[type="text"],
-[data-theme="dark"] input[type="number"],
-[data-theme="dark"] textarea,
-[data-theme="dark"] select {
-  color: #ffffff;
-  background-color: rgba(51, 65, 85, 0.5);
-  -webkit-text-fill-color: #ffffff;
-}
-
 /* ボタン共通スタイル */
 .btn {
   padding: 12px 24px;
