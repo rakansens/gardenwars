@@ -15,6 +15,7 @@ export const ANIMATED_UNITS = [
     "flame_knight",
     "ice_samurai",
     "shadow_assassin",
+    // Existing UR units
     "ur_dragon",
     "ur_golem",
     "ur_mage",
@@ -26,6 +27,31 @@ export const ANIMATED_UNITS = [
     "ur_spirit",
     "ur_phoenix",
     "ur_angel",
+    "ur_ancient_treant",
+    // New UR units (22種)
+    "ur_astral_wizard",
+    "ur_celestial_cat",
+    "ur_chrono_sage",
+    "ur_chronos_cat",
+    "ur_cosmic_dragon",
+    "ur_crystal_griffin",
+    "ur_emerald_dragon",
+    "ur_fire_lotus_cat",
+    "ur_frost_giant",
+    "ur_galaxy_butterfly",
+    "ur_golden_lion",
+    "ur_inferno_demon",
+    "ur_jade_dragon",
+    "ur_nature_spirit_cat",
+    "ur_nature_titan",
+    "ur_prismatic_cat",
+    "ur_rose_capybara",
+    "ur_rose_queen",
+    "ur_rune_golem",
+    "ur_sea_leviathan",
+    "ur_stone_golem_cat",
+    "ur_thunder_phoenix",
+    // SR units
     "sr_bamboo_mech",
     "sr_corn_tank",
     "sr_rose_hero",
@@ -120,8 +146,23 @@ export default function UnitAnimationPreview({
                     // スプライトを作成
                     this.sprite = this.add.sprite(width / 2, height / 2, `${unitId}_atlas`);
 
-                    // スケールを調整（新URキャラはスプライトが小さいので倍率UP）
-                    const smallSpriteUnits = ["thunder_golem", "flame_knight", "ice_samurai", "shadow_assassin", "ur_dragon", "ur_golem", "ur_mage", "ur_ninja", "ur_tank", "ur_knight", "ur_archer", "ur_healer", "ur_spirit", "ur_phoenix", "ur_angel", "sr_bamboo_mech", "sr_corn_tank", "sr_rose_hero", "sr_sun_pirate", "sr_tulip_idol", "sr_cappuccino_assassin", "sr_capybara_ninja", "sr_capybara_shaman", "sr_odindindun", "sr_traffarella"];
+                    // スケールを調整（URキャラはスプライトが小さいので倍率UP）
+                    const smallSpriteUnits = [
+                        "thunder_golem", "flame_knight", "ice_samurai", "shadow_assassin",
+                        // Existing UR units
+                        "ur_dragon", "ur_golem", "ur_mage", "ur_ninja", "ur_tank", "ur_knight",
+                        "ur_archer", "ur_healer", "ur_spirit", "ur_phoenix", "ur_angel", "ur_ancient_treant",
+                        // New UR units
+                        "ur_astral_wizard", "ur_celestial_cat", "ur_chrono_sage", "ur_chronos_cat",
+                        "ur_cosmic_dragon", "ur_crystal_griffin", "ur_emerald_dragon", "ur_fire_lotus_cat",
+                        "ur_frost_giant", "ur_galaxy_butterfly", "ur_golden_lion", "ur_inferno_demon",
+                        "ur_jade_dragon", "ur_nature_spirit_cat", "ur_nature_titan", "ur_prismatic_cat",
+                        "ur_rose_capybara", "ur_rose_queen", "ur_rune_golem", "ur_sea_leviathan",
+                        "ur_stone_golem_cat", "ur_thunder_phoenix",
+                        // SR units
+                        "sr_bamboo_mech", "sr_corn_tank", "sr_rose_hero", "sr_sun_pirate", "sr_tulip_idol",
+                        "sr_cappuccino_assassin", "sr_capybara_ninja", "sr_capybara_shaman", "sr_odindindun", "sr_traffarella"
+                    ];
                     const isSmallSprite = smallSpriteUnits.includes(unitId);
                     const baseScale = isSmallSprite ? (compact ? 0.35 : 0.55) : (compact ? 0.15 : 0.25);
                     this.sprite.setScale(baseScale);
