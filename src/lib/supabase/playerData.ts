@@ -30,6 +30,18 @@ export async function savePlayerData(
     return !error;
 }
 
+// Get player name from players table
+export async function getPlayerName(playerId: string): Promise<string | null> {
+    const { data, error } = await supabase
+        .from("players")
+        .select("name")
+        .eq("id", playerId)
+        .single();
+
+    if (error || !data) return null;
+    return data.name || null;
+}
+
 // Get player data
 export async function getPlayerData(playerId: string): Promise<PlayerData | null> {
     const { data, error } = await supabase

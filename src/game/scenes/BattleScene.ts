@@ -6,6 +6,7 @@ import { WaveSystem } from '../systems/WaveSystem';
 import { CostSystem } from '../systems/CostSystem';
 import { QuizSystem } from '../systems/QuizSystem';
 import { CannonSystem } from '../systems/CannonSystem';
+import { AIController } from '../systems/AIController';
 import { eventBus, GameEvents } from '../utils/EventBus';
 import type { StageDefinition, UnitDefinition, GameState, Rarity } from '@/data/types';
 
@@ -54,6 +55,7 @@ export class BattleScene extends Phaser.Scene {
     private costSystem!: CostSystem;
     private quizSystem!: QuizSystem;
     private cannonSystem!: CannonSystem;
+    private aiController?: AIController;  // AI対戦モード用
 
     // ゲーム状態
     private gameState: GameState = 'LOADING';
@@ -517,14 +519,31 @@ export class BattleScene extends Phaser.Scene {
         // システム初期化
         this.combatSystem = new CombatSystem(this);
         this.waveSystem = new WaveSystem(this, this.stageData, this.allUnitsData);
-        this.costSystem = new CostSystem({
+
+        // プレイヤーのコスト設定
+        const playerCostConfig = {
             current: 200,
             max: 1000,
             regenRate: 100,
             maxLevels: [1000, 2500, 4500, 7000, 10000, 15000, 25000, 99999],
             regenRates: [100, 150, 250, 400, 600, 900, 1500, 2500],
             upgradeCosts: [500, 1200, 2500, 4500, 8000, 12000, 20000],
-        });
+        };
+        this.costSystem = new CostSystem(playerCostConfig);
+
+        // AI対戦モードの場合、AIControllerを初期化
+        if (this.stageData.aiDeck && this.stageData.aiDeck.length > 0) {
+            this.aiController = new AIController(this, this.allUnitsData, {
+                deck: this.stageData.aiDeck,
+                costConfig: {
+                    current: 200,  // プレイヤーと同じ初期コスト
+                    max: 1000,     // プレイヤーと同じ最大コスト
+                    regenRate: 100, // プレイヤーと同じ回復速度
+                },
+                spawnDelay: 2000,  // 2秒間隔で出撃判断
+                strategy: this.stageData.aiStrategy ?? 'balanced',
+            });
+        }
 
         // クイズシステム
         this.quizSystem = new QuizSystem(this, {
@@ -1463,7 +1482,12 @@ export class BattleScene extends Phaser.Scene {
 
     private startBattle() {
         this.gameState = 'PLAYING';
-        this.waveSystem.start();
+        // AI対戦モードの場合はAIを開始、それ以外はWaveシステムを開始
+        if (this.aiController) {
+            this.aiController.start();
+        } else {
+            this.waveSystem.start();
+        }
         eventBus.emit(GameEvents.BATTLE_STARTED);
     }
 
@@ -1481,8 +1505,12 @@ export class BattleScene extends Phaser.Scene {
 
         this.updateCostUI();
 
-        // Wave処理（敵出現）
-        this.waveSystem.update();
+        // 敵出現処理（AI対戦モードまたはWaveシステム）
+        if (this.aiController) {
+            this.aiController.update(adjustedDelta);
+        } else {
+            this.waveSystem.update();
+        }
 
         // ユニット更新
         this.updateUnits(adjustedDelta);

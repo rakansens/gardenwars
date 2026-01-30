@@ -50,6 +50,10 @@ export class Unit extends Phaser.GameObjects.Container {
     // 蓄積ダメージ（ノックバック計算用）
     private damageAccumulated: number = 0;
 
+    // アリーナモード（縦移動）
+    public verticalMode: boolean = false;
+    private screenHeight: number = 600;
+
     constructor(
         scene: Phaser.Scene,
         x: number,
@@ -293,13 +297,27 @@ export class Unit extends Phaser.GameObjects.Container {
 
         // 前進
         const speed = this.definition.speed * (delta / 1000);
-        this.x += speed * this.direction;
 
-        // 城との衝突判定
-        if (this.side === 'ally') {
-            this.x = Math.min(this.x, this.stageLength - 30);
+        if (this.verticalMode) {
+            // アリーナモード: 縦移動
+            this.y += speed * this.direction;
+
+            // 画面端クランプ
+            if (this.side === 'ally') {
+                this.y = Math.max(this.y, 100);
+            } else {
+                this.y = Math.min(this.y, this.screenHeight - 80);
+            }
         } else {
-            this.x = Math.max(this.x, 80);
+            // 通常モード: 横移動
+            this.x += speed * this.direction;
+
+            // 城との衝突判定
+            if (this.side === 'ally') {
+                this.x = Math.min(this.x, this.stageLength - 30);
+            } else {
+                this.x = Math.max(this.x, 80);
+            }
         }
     }
 
@@ -368,13 +386,27 @@ export class Unit extends Phaser.GameObjects.Container {
             this.damageAccumulated = 0;
 
             const knockbackDir = this.side === 'ally' ? -1 : 1;
-            this.x += knockback * knockbackDir;
 
-            // 位置クランプ
-            if (this.side === 'ally') {
-                this.x = Math.max(this.x, 80);
+            if (this.verticalMode) {
+                // アリーナモード: 縦方向ノックバック
+                this.y += knockback * knockbackDir;
+
+                // 位置クランプ
+                if (this.side === 'ally') {
+                    this.y = Math.min(this.y, this.screenHeight - 80);
+                } else {
+                    this.y = Math.max(this.y, 100);
+                }
             } else {
-                this.x = Math.min(this.x, this.stageLength - 30);
+                // 通常モード: 横方向ノックバック
+                this.x += knockback * knockbackDir;
+
+                // 位置クランプ
+                if (this.side === 'ally') {
+                    this.x = Math.max(this.x, 80);
+                } else {
+                    this.x = Math.min(this.x, this.stageLength - 30);
+                }
             }
 
             // ヒットストップ
@@ -439,7 +471,9 @@ export class Unit extends Phaser.GameObjects.Container {
         // ターゲットの幅も考慮したいが、ターゲットはUnit型で詳細不明な場合もあるため、自身の幅を主に使用
         // 「射程」＝「自身の体表からの距離」と解釈
 
-        const distance = Math.abs(this.x - target.x);
+        const distance = this.verticalMode
+            ? Math.abs(this.y - target.y)
+            : Math.abs(this.x - target.x);
         // 距離が (射程 + 自身の半径) 以内であれば攻撃可能
         return distance <= (this.definition.attackRange + myHalfWidth);
     }
@@ -456,9 +490,23 @@ export class Unit extends Phaser.GameObjects.Container {
         if (!this.castleTarget) return false;
 
         const myHalfWidth = (this.sprite.displayWidth || (this.sprite.width * this.baseScale)) / 2;
-        const distance = Math.abs(this.x - this.castleTarget.getX());
+        const distance = this.verticalMode
+            ? Math.abs(this.y - this.castleTarget.y)
+            : Math.abs(this.x - this.castleTarget.getX());
 
         // 城に対しても同様に自身の半径を考慮
         return distance <= (this.definition.attackRange + myHalfWidth);
+    }
+
+    /**
+     * 縦移動モード設定（アリーナ用）
+     */
+    public setVerticalMode(enabled: boolean, screenHeight: number = 600): void {
+        this.verticalMode = enabled;
+        this.screenHeight = screenHeight;
+        // 縦モードでは味方が上方向(-1)、敵が下方向(1)に移動
+        if (enabled) {
+            this.direction = this.side === 'ally' ? -1 : 1;
+        }
     }
 }

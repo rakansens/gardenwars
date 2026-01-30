@@ -134,6 +134,11 @@ export class Castle extends Phaser.GameObjects.Container {
         return this.hp <= 0;
     }
 
+    // Alias for compatibility
+    public isDead(): boolean {
+        return this.isDestroyed();
+    }
+
     public getX(): number {
         return this.x;
     }

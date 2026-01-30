@@ -35,6 +35,7 @@ export {
 export {
     savePlayerData,
     getPlayerData,
+    getPlayerName,
     updateCoins,
     addCoins,
     spendCoins,

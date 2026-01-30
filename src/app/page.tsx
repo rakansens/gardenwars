@@ -121,6 +121,7 @@ export default function Home() {
   const menuItems = [
     { href: "/stages", icon: "⚔️", label: t("menu_stages"), type: "primary" },
     { href: "/worldmap", icon: "🗺️", label: t("world_map"), type: "primary" },
+    { href: "/arena/arena_1", icon: "🏟️", label: t("menu_arena"), type: "primary" },
     { href: "/async-battle", icon: "🆚", label: t("menu_async_battle"), type: "primary" },
     { href: "/team", icon: "🎖️", label: t("menu_team"), type: "secondary" },
     { href: "/collection", icon: "📖", label: t("menu_collection"), type: "secondary" },

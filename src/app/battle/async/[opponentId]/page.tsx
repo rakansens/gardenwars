@@ -5,11 +5,11 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import unitsData from "@/data/units";
-import type { StageDefinition, UnitDefinition, WaveConfig } from "@/data/types";
+import type { StageDefinition, UnitDefinition } from "@/data/types";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { useAuth } from "@/contexts/AuthContext";
-import { getPlayerData, saveAsyncBattleResult } from "@/lib/supabase";
+import { getPlayerData, getPlayerName, saveAsyncBattleResult } from "@/lib/supabase";
 
 // Phaserコンポーネントを動的インポート（SSR無効）
 const PhaserGame = dynamic(
@@ -19,46 +19,20 @@ const PhaserGame = dynamic(
 
 const allUnits = unitsData as UnitDefinition[];
 
-// 相手のデッキからステージデータを生成
+// 相手のデッキからステージデータを生成（AI対戦モード）
 function createAsyncStage(opponentDeck: string[], opponentName: string): StageDefinition {
-    // 相手のユニットをWave形式に変換
-    // AIのように間隔を空けてユニットを出す
-    const enemyWaves: WaveConfig[] = [];
-
-    opponentDeck.forEach((unitId, index) => {
-        const unit = allUnits.find(u => u.id === unitId);
-        if (!unit) return;
-
-        // 各ユニットを複数回出す（AIが繰り返し出撃するイメージ）
-        const spawnTimes = [
-            2000 + index * 1500,      // 最初の出撃
-            15000 + index * 2000,     // 2回目
-            30000 + index * 2500,     // 3回目
-            50000 + index * 3000,     // 4回目
-        ];
-
-        spawnTimes.forEach(time => {
-            enemyWaves.push({
-                unitId: unitId,
-                count: 1,
-                timeMs: time,
-                intervalMs: 0,
-            });
-        });
-    });
-
-    // 時間順にソート
-    enemyWaves.sort((a, b) => a.timeMs - b.timeMs);
-
     return {
         id: "async_battle",
         name: `VS ${opponentName}`,
         description: "Player vs Player Battle",
         difficulty: "normal",
-        length: 800,
+        length: 1200,
         baseCastleHp: 5000,
         enemyCastleHp: 5000,
-        enemyWaves,
+        enemyWaves: [],  // AI対戦モードではWaveは使わない
+        // AI対戦モード: 相手のデッキをAIが操作
+        aiDeck: opponentDeck,
+        aiStrategy: 'balanced',
         reward: {
             coins: 100,
         },
@@ -98,12 +72,15 @@ export default function AsyncBattlePage() {
             if (!opponentId) return;
 
             try {
-                const playerData = await getPlayerData(opponentId);
+                // プレイヤーデータとプレイヤー名を並行取得
+                const [playerData, playerName] = await Promise.all([
+                    getPlayerData(opponentId),
+                    getPlayerName(opponentId),
+                ]);
+
                 if (playerData && playerData.selected_team && playerData.selected_team.length > 0) {
-                    // プレイヤー名を取得するために別途クエリが必要だが、
-                    // シンプルにするためIDの一部を使う
                     setOpponent({
-                        name: `Player`,
+                        name: playerName || "Unknown",
                         deck: playerData.selected_team,
                     });
                 } else {

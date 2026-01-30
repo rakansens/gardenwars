@@ -26,8 +26,8 @@ function AsyncBattleResultContent() {
 
                 <p className="text-xl text-gray-400 mb-8">
                     {win
-                        ? "You defeated your opponent!"
-                        : "Better luck next time!"
+                        ? t("async_victory_message")
+                        : t("async_defeat_message")
                     }
                 </p>
 

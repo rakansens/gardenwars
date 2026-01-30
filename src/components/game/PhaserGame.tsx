@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import type { StageDefinition, UnitDefinition } from "@/data/types";
+import type { StageDefinition, UnitDefinition, ArenaStageDefinition } from "@/data/types";
 
 // グローバルなゲームインスタンス参照（重複防止）
 let globalPhaserGame: Phaser.Game | null = null;
 
 interface PhaserGameProps {
-    mode?: 'battle' | 'garden';
+    mode?: 'battle' | 'garden' | 'arena';
     // Battle props
     stage?: StageDefinition;
     team?: UnitDefinition[];
@@ -17,6 +17,8 @@ interface PhaserGameProps {
     onBattleEnd?: (win: boolean, coinsGained: number) => void;
     // Garden props
     gardenUnits?: UnitDefinition[]; // unitsだとallUnitsと混同するので明示的に
+    // Arena props
+    arenaStage?: ArenaStageDefinition;
 }
 
 export default function PhaserGame({
@@ -28,6 +30,7 @@ export default function PhaserGame({
     activeLoadoutIndex,
     onBattleEnd,
     gardenUnits,
+    arenaStage,
 }: PhaserGameProps) {
     const gameRef = useRef<HTMLDivElement>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -91,6 +94,26 @@ export default function PhaserGame({
                 SceneClass = GardenScene;
                 startKey = "GardenScene";
                 startData = { units: gardenUnits || [] };
+            } else if (mode === 'arena') {
+                const { ArenaScene } = await import("@/game/scenes/ArenaScene");
+                SceneClass = ArenaScene;
+                startKey = "ArenaScene";
+                startData = { stage: arenaStage, team, allUnits };
+
+                // Arena用イベントリスナー
+                const { eventBus, GameEvents } = await import("@/game/utils/EventBus");
+                eventBus.removeAllListeners(GameEvents.BATTLE_WIN);
+                eventBus.removeAllListeners(GameEvents.BATTLE_LOSE);
+
+                const handleWin = (...args: unknown[]) => {
+                    const result = args[0] as { reward?: { coins?: number } } | undefined;
+                    handleBattleEnd(true, result?.reward?.coins || 0);
+                };
+                const handleLose = () => {
+                    handleBattleEnd(false, 0);
+                };
+                eventBus.on(GameEvents.BATTLE_WIN, handleWin);
+                eventBus.on(GameEvents.BATTLE_LOSE, handleLose);
             } else {
                 const { BattleScene } = await import("@/game/scenes/BattleScene");
                 SceneClass = BattleScene;
@@ -113,11 +136,16 @@ export default function PhaserGame({
                 eventBus.on(GameEvents.BATTLE_LOSE, handleLose);
             }
 
+            // アリーナは縦長、それ以外は横長
+            const isArena = mode === 'arena';
+            const gameWidth = isArena ? 675 : 1200;
+            const gameHeight = isArena ? 1200 : 675;
+
             const config: Phaser.Types.Core.GameConfig = {
                 type: isMobile ? Phaser.CANVAS : Phaser.AUTO,
                 parent: gameRef.current!,
-                width: 1200,
-                height: 675,
+                width: gameWidth,
+                height: gameHeight,
                 backgroundColor: mode === 'garden' ? "#87CEEB" : "#1a1a2e",
                 scene: [SceneClass],
                 scale: {
@@ -170,7 +198,7 @@ export default function PhaserGame({
                 globalPhaserGame = null;
             }
         };
-    }, [mode, stage, team, allUnits, gardenUnits, handleBattleEnd]);
+    }, [mode, stage, team, allUnits, gardenUnits, arenaStage, handleBattleEnd]);
 
     return (
         <div className="relative w-full h-full">

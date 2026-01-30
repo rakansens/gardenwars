@@ -82,6 +82,9 @@ export interface StageDefinition {
     image?: string;           // 背景画像パス（オプション）
   };
   isBossStage?: boolean;      // ボスステージか
+  // AI対戦モード（aiDeckが設定されている場合、WaveではなくAIがユニットを出撃）
+  aiDeck?: string[];          // AIのデッキ（ユニットID配列）
+  aiStrategy?: 'aggressive' | 'balanced' | 'defensive';  // AI戦略
 }
 
 /**
@@ -158,4 +161,47 @@ export interface RuntimeUnitData {
   state: UnitState;
   stateTimer: number;
   target: string | null;      // ターゲットのinstanceId
+}
+
+// ============================================
+// Arena Mode Types (5レーン制タワーディフェンス)
+// ============================================
+
+/**
+ * アリーナのレーン番号 (0-4)
+ */
+export type LaneIndex = 0 | 1 | 2 | 3 | 4;
+
+/**
+ * アリーナ用Wave設定
+ */
+export interface ArenaWaveConfig {
+  timeMs: number;             // ステージ開始からの出現時間
+  unitId: string;
+  lane: LaneIndex | 'random'; // 出現レーン（0-4またはランダム）
+  count: number;              // 出現数
+  intervalMs: number;         // 複数体の出現間隔
+}
+
+/**
+ * アリーナステージ定義
+ */
+export interface ArenaStageDefinition {
+  id: string;
+  name: string;
+  description: string;
+  difficulty?: StageDifficulty;
+  laneCount: 5;               // 常に5レーン
+  arenaHeight: number;        // 縦の長さ（pixels）
+  baseCastleHp: number;       // 味方城HP
+  enemyCastleHp: number;      // 敵城HP
+  enemyWaves: ArenaWaveConfig[];
+  reward: {
+    coins: number;
+    drops?: UnitDrop[];
+  };
+  background?: {
+    color: string;            // 背景色
+    image?: string;           // 背景画像パス（オプション）
+  };
 }

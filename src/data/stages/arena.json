@@ -1,0 +1,93 @@
+[
+  {
+    "id": "arena_1",
+    "name": "arena_1_name",
+    "description": "arena_1_desc",
+    "laneCount": 5,
+    "arenaHeight": 600,
+    "baseCastleHp": 2000,
+    "enemyCastleHp": 1500,
+    "enemyWaves": [
+      {
+        "timeMs": 3000,
+        "unitId": "enemy_sunflower",
+        "lane": 2,
+        "count": 2,
+        "intervalMs": 3000
+      },
+      {
+        "timeMs": 8000,
+        "unitId": "enemy_sunflower",
+        "lane": 0,
+        "count": 2,
+        "intervalMs": 2500
+      },
+      {
+        "timeMs": 8000,
+        "unitId": "enemy_sunflower",
+        "lane": 4,
+        "count": 2,
+        "intervalMs": 2500
+      },
+      {
+        "timeMs": 15000,
+        "unitId": "enemy_corn_kid",
+        "lane": "random",
+        "count": 3,
+        "intervalMs": 2000
+      },
+      {
+        "timeMs": 25000,
+        "unitId": "enemy_dog",
+        "lane": 1,
+        "count": 2,
+        "intervalMs": 2000
+      },
+      {
+        "timeMs": 25000,
+        "unitId": "enemy_dog",
+        "lane": 3,
+        "count": 2,
+        "intervalMs": 2000
+      },
+      {
+        "timeMs": 35000,
+        "unitId": "enemy_corn_kid",
+        "lane": "random",
+        "count": 5,
+        "intervalMs": 1500
+      },
+      {
+        "timeMs": 45000,
+        "unitId": "enemy_wolf",
+        "lane": 2,
+        "count": 3,
+        "intervalMs": 2000
+      },
+      {
+        "timeMs": 55000,
+        "unitId": "enemy_dog",
+        "lane": "random",
+        "count": 6,
+        "intervalMs": 1000
+      }
+    ],
+    "reward": {
+      "coins": 150,
+      "drops": [
+        {
+          "unitId": "cat_warrior",
+          "rate": 50
+        },
+        {
+          "unitId": "sunflower",
+          "rate": 40
+        }
+      ]
+    },
+    "background": {
+      "color": "0x2d5a27"
+    },
+    "difficulty": "normal"
+  }
+]
