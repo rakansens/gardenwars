@@ -11,6 +11,8 @@ import unitsData from "@/data/units";
 import type { UnitDefinition } from "@/data/types";
 
 const allUnits = unitsData as UnitDefinition[];
+// ガチャ対象ユニット（コレクション対象）
+const collectableUnits = allUnits.filter(u => !u.id.startsWith("enemy_") && !u.id.startsWith("boss_") && !u.isBoss);
 
 // パレード用のキャラ
 interface ParadeChar {
@@ -155,6 +157,10 @@ export default function Home() {
         <div className="bg-amber-500/90 text-white px-4 py-2 rounded-full font-bold shadow-lg flex items-center gap-2">
           <span className="text-lg">💰</span>
           <span>{isLoaded ? coins.toLocaleString() : "---"}</span>
+        </div>
+        <div className="bg-purple-500/90 text-white px-4 py-2 rounded-full font-bold shadow-lg flex items-center gap-2">
+          <span className="text-lg">📖</span>
+          <span>{isLoaded ? `${Object.keys(unitInventory).filter(id => unitInventory[id] > 0).length}/${collectableUnits.length}` : "---"}</span>
         </div>
         <LanguageSwitch />
       </div>
