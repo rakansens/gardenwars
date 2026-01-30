@@ -339,7 +339,7 @@ export function usePlayerData() {
         const newItems: ShopItem[] = [];
 
         const pickRandom = () => {
-            const weights = { N: 50, R: 30, SR: 15, SSR: 4, UR: 1 };
+            const weights = { N: 50, R: 30, SR: 15, SSR: 4, UR: 0 };
 
             let totalWeight = 0;
             for (const u of allUnits) totalWeight += weights[u.rarity] || 1;
@@ -359,7 +359,7 @@ export function usePlayerData() {
             switch (unit.rarity) {
                 case 'N': basePrice = 20; break;
                 case 'R': basePrice = 100; break;
-                case 'SR': basePrice = 500; break;
+                case 'SR': basePrice = 1200; break;
                 case 'SSR': basePrice = 3000; break;
                 case 'UR': basePrice = 10000; break;
             }
