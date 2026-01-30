@@ -1,65 +1,78 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import playerDataInitial from "@/data/player.json";
 import unitsData from "@/data/units";
 import type { UnitDefinition } from "@/data/types";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+    savePlayerData as saveToSupabase,
+    getPlayerData as getFromSupabase,
+    toFrontendPlayerData,
+    toSupabaseSaveData,
+    syncRankingStats,
+    INITIAL_COINS,
+} from "@/lib/supabase";
+import type {
+    FrontendPlayerData,
+    ShopItem,
+    GachaHistoryEntry,
+} from "@/lib/supabase";
 
 const STORAGE_KEY = "gardenwars_player";
+const CLEARED_STAGES_KEY = "clearedStages";
+const GARDEN_SELECTION_KEY = "garden_selection";
 
-export interface ShopItem {
-    uid: string; // 一意なID (配列インデックスでもいいが、念のため)
-    unitId: string;
-    price: number;
-    soldOut: boolean;
-    isRare: boolean;
-    discount?: number;
-}
+// Re-export types for backward compatibility
+export type { ShopItem, GachaHistoryEntry };
 
-// ガチャ履歴エントリ
-export interface GachaHistoryEntry {
-    timestamp: number;
-    unitIds: string[];
-    count: number; // 1, 10, or 100
-}
+// Alias for backward compatibility
+export type PlayerData = FrontendPlayerData;
 
-// プレイヤーデータの型
-export interface PlayerData {
-    coins: number;
-    unitInventory: { [unitId: string]: number };
-    selectedTeam: string[]; // 現在アクティブなチーム (後方互換用)
-    loadouts: [string[], string[], string[]]; // 3種類のロードアウト
-    activeLoadoutIndex: number; // 0, 1, 2
-    shopItems: ShopItem[];
-    gachaHistory: GachaHistoryEntry[];
-}
+// Nレアリティのユニット一覧（味方のみ）
+const allUnits = unitsData as UnitDefinition[];
+const nRarityUnits = allUnits.filter(u =>
+    u.rarity === "N" && !u.id.startsWith("enemy_") && !u.id.startsWith("boss_")
+);
 
-// 初期データ
-const getInitialData = (): PlayerData => ({
-    coins: 10000,
-    unitInventory: playerDataInitial.unitInventory || {},
-    selectedTeam: playerDataInitial.selectedTeam || [],
-    loadouts: [
-        playerDataInitial.selectedTeam || [],
-        [],
-        []
-    ],
-    activeLoadoutIndex: 0,
-    shopItems: [], // 初期は空。初回ロード時に生成するか、空なら生成するロジックが必要
-    gachaHistory: [],
-});
+// 初期データ（Nユニットをランダムに3体付与）
+const getInitialData = (): FrontendPlayerData => {
+    // ランダムに3体選ぶ
+    const shuffled = [...nRarityUnits].sort(() => Math.random() - 0.5);
+    const starterUnits = shuffled.slice(0, 3);
 
-// ローカルストレージから読み込み
-const loadFromStorage = (): PlayerData => {
+    const unitInventory: Record<string, number> = {};
+    const selectedTeam: string[] = [];
+
+    starterUnits.forEach(unit => {
+        unitInventory[unit.id] = 1;
+        selectedTeam.push(unit.id);
+    });
+
+    return {
+        coins: INITIAL_COINS,
+        unitInventory,
+        selectedTeam,
+        loadouts: [selectedTeam, [], []],
+        activeLoadoutIndex: 0,
+        shopItems: [],
+        gachaHistory: [],
+        clearedStages: [],
+        gardenUnits: [],
+    };
+};
+
+// ローカルストレージから読み込み（複数キーから統合）
+const loadFromStorage = (): FrontendPlayerData => {
     if (typeof window === "undefined") return getInitialData();
+
+    const initial = getInitialData();
 
     try {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
             const parsed = JSON.parse(saved);
-            const initial = getInitialData();
 
-            // 後方互換: loadoutsがなければselectedTeamから生成
             let loadouts: [string[], string[], string[]] = parsed.loadouts ?? [
                 parsed.selectedTeam ?? initial.selectedTeam,
                 [],
@@ -68,28 +81,56 @@ const loadFromStorage = (): PlayerData => {
 
             const activeLoadoutIndex = parsed.activeLoadoutIndex ?? 0;
 
-            return {
-                coins: parsed.coins ?? 10000,
+            // メインデータを読み込み
+            Object.assign(initial, {
+                coins: parsed.coins ?? INITIAL_COINS,
                 unitInventory: parsed.unitInventory ?? initial.unitInventory,
                 selectedTeam: loadouts[activeLoadoutIndex] ?? [],
                 loadouts: loadouts,
                 activeLoadoutIndex: activeLoadoutIndex,
                 shopItems: parsed.shopItems ?? [],
                 gachaHistory: parsed.gachaHistory ?? [],
-            };
+                clearedStages: parsed.clearedStages ?? [],
+                gardenUnits: parsed.gardenUnits ?? [],
+            });
         }
     } catch (e) {
         console.error("Failed to load player data:", e);
     }
-    return getInitialData();
+
+    // 別キーからも読み込み（後方互換性）
+    try {
+        const clearedStagesRaw = localStorage.getItem(CLEARED_STAGES_KEY);
+        if (clearedStagesRaw && initial.clearedStages.length === 0) {
+            const parsed = JSON.parse(clearedStagesRaw);
+            if (Array.isArray(parsed)) {
+                initial.clearedStages = parsed;
+            }
+        }
+    } catch {}
+
+    try {
+        const gardenRaw = localStorage.getItem(GARDEN_SELECTION_KEY);
+        if (gardenRaw && initial.gardenUnits.length === 0) {
+            const parsed = JSON.parse(gardenRaw);
+            if (Array.isArray(parsed)) {
+                initial.gardenUnits = parsed;
+            }
+        }
+    } catch {}
+
+    return initial;
 };
 
-// ローカルストレージに保存
-const saveToStorage = (data: PlayerData) => {
+// ローカルストレージに保存（統合キーに保存 + 後方互換用に別キーにも保存）
+const saveToStorage = (data: FrontendPlayerData) => {
     if (typeof window === "undefined") return;
 
     try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        // 後方互換性のため別キーにも保存
+        localStorage.setItem(CLEARED_STAGES_KEY, JSON.stringify(data.clearedStages));
+        localStorage.setItem(GARDEN_SELECTION_KEY, JSON.stringify(data.gardenUnits));
     } catch (e) {
         console.error("Failed to save player data:", e);
     }
@@ -97,24 +138,94 @@ const saveToStorage = (data: PlayerData) => {
 
 /**
  * プレイヤーデータ管理フック
+ * - 認証済み: Supabase + localStorage (ローカルキャッシュ)
+ * - 未認証: localStorage のみ
  */
 export function usePlayerData() {
+    const { status, playerId, player } = useAuth();
     const [data, setData] = useState<PlayerData>(getInitialData);
     const [isLoaded, setIsLoaded] = useState(false);
+    const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const isAuthenticated = status === "authenticated" && playerId;
 
     // 初回読み込み
     useEffect(() => {
-        const loaded = loadFromStorage();
-        setData(loaded);
-        setIsLoaded(true);
-    }, []);
+        const loadData = async () => {
+            // まずローカルから読み込み
+            const localData = loadFromStorage();
 
-    // データ変更時に保存
+            if (isAuthenticated && player) {
+                // 認証済みの場合、Supabaseからデータを取得
+                try {
+                    const remoteData = await getFromSupabase(playerId);
+                    if (remoteData) {
+                        // リモートデータをローカル形式に変換（型安全な変換関数を使用）
+                        const mergedData = toFrontendPlayerData(
+                            remoteData,
+                            localData.gachaHistory // ガチャ履歴はローカルのみ
+                        );
+
+                        // shopItemsがリモートにない場合はローカルを使用
+                        if (mergedData.shopItems.length === 0 && localData.shopItems.length > 0) {
+                            mergedData.shopItems = localData.shopItems;
+                        }
+
+                        // selectedTeam を activeLoadoutIndex から設定
+                        mergedData.selectedTeam = mergedData.loadouts[mergedData.activeLoadoutIndex] || [];
+
+                        setData(mergedData);
+                        saveToStorage(mergedData);
+                    } else {
+                        // リモートにデータがない場合はローカルデータを使用
+                        setData(localData);
+                    }
+                } catch (err) {
+                    console.error("Failed to load from Supabase:", err);
+                    setData(localData);
+                }
+            } else {
+                setData(localData);
+            }
+
+            setIsLoaded(true);
+        };
+
+        loadData();
+    }, [isAuthenticated, playerId, player]);
+
+    // データ変更時に保存（デバウンス付き）
     useEffect(() => {
-        if (isLoaded) {
-            saveToStorage(data);
+        if (!isLoaded) return;
+
+        // ローカルに即座に保存
+        saveToStorage(data);
+
+        // Supabaseへは遅延保存（デバウンス）
+        if (isAuthenticated && playerId) {
+            if (saveTimeoutRef.current) {
+                clearTimeout(saveTimeoutRef.current);
+            }
+
+            saveTimeoutRef.current = setTimeout(async () => {
+                try {
+                    // 型安全な変換関数を使用してSupabase形式に変換
+                    const saveData = toSupabaseSaveData(data);
+                    await saveToSupabase(playerId, saveData);
+
+                    // ランキング統計も同期（コイン数、コレクション数）
+                    await syncRankingStats(playerId, data.coins, data.unitInventory);
+                } catch (err) {
+                    console.error("Failed to save to Supabase:", err);
+                }
+            }, 1000); // 1秒後に保存
         }
-    }, [data, isLoaded]);
+
+        return () => {
+            if (saveTimeoutRef.current) {
+                clearTimeout(saveTimeoutRef.current);
+            }
+        };
+    }, [data, isLoaded, isAuthenticated, playerId]);
 
     // コインを増やす
     const addCoins = useCallback((amount: number) => {
@@ -224,13 +335,11 @@ export function usePlayerData() {
 
     // ショップを更新
     const refreshShop = useCallback(() => {
-        const allUnits = (unitsData as UnitDefinition[]).filter(u => !u.id.startsWith("enemy_"));
+        const allUnits = (unitsData as UnitDefinition[]).filter(u => !u.id.startsWith("enemy_") && !u.id.startsWith("boss_") && !u.isBoss);
         const newItems: ShopItem[] = [];
 
-        // 重み付け抽選関数
         const pickRandom = () => {
             const weights = { N: 50, R: 30, SR: 15, SSR: 4, UR: 1 };
-            // ※SSR/URを少し出やすく調整 (ストアなので)
 
             let totalWeight = 0;
             for (const u of allUnits) totalWeight += weights[u.rarity] || 1;
@@ -246,7 +355,6 @@ export function usePlayerData() {
         for (let i = 0; i < 30; i++) {
             const unit = pickRandom();
 
-            // 価格決定
             let basePrice = 20;
             switch (unit.rarity) {
                 case 'N': basePrice = 20; break;
@@ -256,8 +364,7 @@ export function usePlayerData() {
                 case 'UR': basePrice = 10000; break;
             }
 
-            // フラッシュセール割引 (0% - 50%)
-            const isDiscount = Math.random() < 0.3; // 30%で割引
+            const isDiscount = Math.random() < 0.3;
             const discount = isDiscount ? Math.floor(Math.random() * 5 + 1) * 10 : 0;
             const price = Math.floor(basePrice * (100 - discount) / 100);
 
@@ -282,7 +389,6 @@ export function usePlayerData() {
             const item = items[index];
             if (!item || item.soldOut || prev.coins < item.price) return prev;
 
-            // 購入処理
             success = true;
             items[index] = { ...item, soldOut: true };
 
@@ -307,7 +413,6 @@ export function usePlayerData() {
                 unitIds: unitIds,
                 count: unitIds.length,
             };
-            // 最新100件まで保持
             const newHistory = [entry, ...prev.gachaHistory].slice(0, 100);
             return {
                 ...prev,
@@ -321,6 +426,27 @@ export function usePlayerData() {
         setData((prev) => ({
             ...prev,
             gachaHistory: [],
+        }));
+    }, []);
+
+    // ステージクリアを追加
+    const addClearedStage = useCallback((stageId: string) => {
+        setData((prev) => {
+            if (prev.clearedStages.includes(stageId)) {
+                return prev; // 既にクリア済み
+            }
+            return {
+                ...prev,
+                clearedStages: [...prev.clearedStages, stageId],
+            };
+        });
+    }, []);
+
+    // ガーデンユニットを更新
+    const setGardenUnits = useCallback((unitIds: string[]) => {
+        setData((prev) => ({
+            ...prev,
+            gardenUnits: unitIds,
         }));
     }, []);
 
@@ -340,6 +466,8 @@ export function usePlayerData() {
         activeLoadoutIndex: data.activeLoadoutIndex,
         shopItems: data.shopItems,
         gachaHistory: data.gachaHistory,
+        clearedStages: data.clearedStages,
+        gardenUnits: data.gardenUnits,
         isLoaded,
 
         // アクション
@@ -356,5 +484,7 @@ export function usePlayerData() {
         buyShopItem,
         addGachaHistory,
         clearGachaHistory,
+        addClearedStage,
+        setGardenUnits,
     };
 }

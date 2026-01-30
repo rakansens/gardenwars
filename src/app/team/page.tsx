@@ -12,13 +12,57 @@ import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
 
 const allUnits = unitsData as UnitDefinition[];
 // 味方ユニットのみフィルタ
-const allyUnits = allUnits.filter((u) => !u.id.startsWith("enemy_"));
+const allyUnits = allUnits.filter((u) => !u.id.startsWith("enemy_") && !u.id.startsWith("boss_") && !u.isBoss);
+
+type SortKey = "none" | "hp" | "attack" | "range" | "speed" | "move" | "dps" | "cost";
 
 export default function TeamPage() {
     const { selectedTeam, unitInventory, setTeam, isLoaded, activeLoadoutIndex, switchLoadout } = usePlayerData();
     const { t } = useLanguage();
     const [rarityFilter, setRarityFilter] = useState<Rarity | "ALL">("ALL");
+    const [sortBy, setSortBy] = useState<SortKey>("none");
     const [viewingUnit, setViewingUnit] = useState<UnitDefinition | null>(null);
+
+    const sortOptions: { key: SortKey; label: string; icon: string }[] = [
+        { key: "none", label: t("sort_none"), icon: "📋" },
+        { key: "hp", label: t("hp"), icon: "❤️" },
+        { key: "attack", label: t("attack"), icon: "⚔️" },
+        { key: "dps", label: "DPS", icon: "💥" },
+        { key: "range", label: t("range"), icon: "📏" },
+        { key: "speed", label: t("attack_speed"), icon: "⏱️" },
+        { key: "move", label: t("move_speed"), icon: "🏃" },
+        { key: "cost", label: t("cost"), icon: "💰" },
+    ];
+
+    const sortUnits = (units: UnitDefinition[]): UnitDefinition[] => {
+        if (sortBy === "none") return units;
+
+        return [...units].sort((a, b) => {
+            switch (sortBy) {
+                case "hp":
+                    return b.maxHp - a.maxHp;
+                case "attack":
+                    return b.attackDamage - a.attackDamage;
+                case "range":
+                    return b.attackRange - a.attackRange;
+                case "speed":
+                    // Sort by attacks per second (higher = faster, should be first)
+                    const atkSpeedA = 1000 / a.attackCooldownMs;
+                    const atkSpeedB = 1000 / b.attackCooldownMs;
+                    return atkSpeedB - atkSpeedA;
+                case "move":
+                    return b.speed - a.speed;
+                case "dps":
+                    const dpsA = a.attackDamage * (1000 / a.attackCooldownMs);
+                    const dpsB = b.attackDamage * (1000 / b.attackCooldownMs);
+                    return dpsB - dpsA;
+                case "cost":
+                    return b.cost - a.cost;
+                default:
+                    return 0;
+            }
+        });
+    };
 
     const rarityTabs: { key: Rarity | "ALL"; label: string; color: string }[] = [
         { key: "ALL", label: "ALL", color: "bg-gray-500" },
@@ -160,7 +204,7 @@ export default function TeamPage() {
                 </section>
 
                 {/* レアリティフィルタータブ */}
-                <section className="mb-6">
+                <section className="mb-4">
                     <div className="flex gap-2 flex-wrap">
                         {rarityTabs.map(tab => (
                             <button
@@ -185,10 +229,36 @@ export default function TeamPage() {
                     </div>
                 </section>
 
+                {/* ソートオプション */}
+                <section className="mb-6">
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-bold text-gray-600">{t("sort_by")}:</span>
+                        {sortOptions.map(option => (
+                            <button
+                                key={option.key}
+                                onClick={() => setSortBy(option.key)}
+                                className={`
+                                    px-3 py-1.5 rounded-lg text-sm transition-all flex items-center gap-1
+                                    ${sortBy === option.key
+                                        ? "bg-blue-500 text-white shadow-md scale-105"
+                                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                    }
+                                `}
+                            >
+                                <span>{option.icon}</span>
+                                <span>{option.label}</span>
+                                {sortBy === option.key && option.key !== "none" && (
+                                    <span className="text-xs">↓</span>
+                                )}
+                            </button>
+                        ))}
+                    </div>
+                </section>
+
                 {/* 保有ユニット */}
                 {(() => {
-                    const ownedUnits = filteredUnits.filter(u => (unitInventory[u.id] || 0) > 0);
-                    const unownedUnits = filteredUnits.filter(u => (unitInventory[u.id] || 0) === 0);
+                    const ownedUnits = sortUnits(filteredUnits.filter(u => (unitInventory[u.id] || 0) > 0));
+                    const unownedUnits = sortUnits(filteredUnits.filter(u => (unitInventory[u.id] || 0) === 0));
 
                     return (
                         <>
@@ -248,6 +318,10 @@ export default function TeamPage() {
                                                                 <span>⚔️ {t("attack")}:</span>
                                                                 <span className="font-bold">{unit.attackDamage}</span>
                                                             </div>
+                                                            <div className="flex justify-between text-red-500">
+                                                                <span>💥 DPS:</span>
+                                                                <span className="font-bold">{(unit.attackDamage * (1000 / unit.attackCooldownMs)).toFixed(1)}</span>
+                                                            </div>
                                                             <div className="flex justify-between">
                                                                 <span>📏 {t("range")}:</span>
                                                                 <span className="font-bold">{unit.attackRange}</span>
@@ -255,6 +329,10 @@ export default function TeamPage() {
                                                             <div className="flex justify-between text-orange-500">
                                                                 <span>⏱️ {t("attack_speed")}:</span>
                                                                 <span className="font-bold">{(1000 / unit.attackCooldownMs).toFixed(1)}/s</span>
+                                                            </div>
+                                                            <div className="flex justify-between text-blue-500">
+                                                                <span>🏃 {t("move_speed")}:</span>
+                                                                <span className="font-bold">{unit.speed}</span>
                                                             </div>
                                                             <div className="flex justify-between text-amber-600">
                                                                 <span>💰 {t("cost")}:</span>
@@ -351,12 +429,20 @@ export default function TeamPage() {
                                                                 <span className="font-bold">{unit.attackDamage}</span>
                                                             </div>
                                                             <div className="flex justify-between">
+                                                                <span>💥 DPS:</span>
+                                                                <span className="font-bold">{(unit.attackDamage * (1000 / unit.attackCooldownMs)).toFixed(1)}</span>
+                                                            </div>
+                                                            <div className="flex justify-between">
                                                                 <span>📏 {t("range")}:</span>
                                                                 <span className="font-bold">{unit.attackRange}</span>
                                                             </div>
-                                                            <div className="flex justify-between text-orange-500">
+                                                            <div className="flex justify-between">
                                                                 <span>⏱️ {t("attack_speed")}:</span>
                                                                 <span className="font-bold">{(1000 / unit.attackCooldownMs).toFixed(1)}/s</span>
+                                                            </div>
+                                                            <div className="flex justify-between">
+                                                                <span>🏃 {t("move_speed")}:</span>
+                                                                <span className="font-bold">{unit.speed}</span>
                                                             </div>
                                                             <div className="flex justify-between">
                                                                 <span>💰 {t("cost")}:</span>

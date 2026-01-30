@@ -7,10 +7,11 @@ import type { UnitDefinition } from "@/data/types";
 import RarityFrame, { getRarityStars, getRarityGradientClass } from "@/components/ui/RarityFrame";
 import GachaReveal from "@/components/ui/GachaReveal";
 import { usePlayerData } from "@/hooks/usePlayerData";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const allUnits = unitsData as UnitDefinition[];
 // ガチャ対象はallyユニットのみ
-const gachaPool = allUnits.filter((u) => !u.id.startsWith("enemy_"));
+const gachaPool = allUnits.filter((u) => !u.id.startsWith("enemy_") && !u.id.startsWith("boss_") && !u.isBoss);
 
 const SINGLE_COST = 10;
 const MULTI_COST = 90; // 10回で少しお得
@@ -18,6 +19,7 @@ const SUPER_MULTI_COST = 900; // 100回 (SSR大盛り⁉️)
 
 export default function GachaPage() {
     const { coins, unitInventory, spendCoins, addUnits, addGachaHistory, gachaHistory, isLoaded } = usePlayerData();
+    const { t } = useLanguage();
     const [results, setResults] = useState<UnitDefinition[]>([]);
     const [isRolling, setIsRolling] = useState(false);
     const [showReveal, setShowReveal] = useState(false);
@@ -94,7 +96,7 @@ export default function GachaPage() {
     if (!isLoaded) {
         return (
             <main className="min-h-screen flex items-center justify-center">
-                <div className="text-xl">読み込み中...</div>
+                <div className="text-xl">{t("loading")}</div>
             </main>
         );
     }
@@ -105,9 +107,9 @@ export default function GachaPage() {
             <div className="page-header mb-6">
                 <div className="flex items-center justify-between flex-wrap gap-3">
                     <Link href="/" className="btn btn-secondary">
-                        ← ホーム
+                        {t("back_to_home")}
                     </Link>
-                    <h1 className="text-2xl md:text-3xl font-bold">🎰 ガチャ</h1>
+                    <h1 className="text-2xl md:text-3xl font-bold">{t("gacha_title")}</h1>
                     <div className="btn btn-primary pointer-events-none">
                         💰 {coins.toLocaleString()}
                     </div>
@@ -118,12 +120,10 @@ export default function GachaPage() {
                 {/* ガチャマシン */}
                 <div className="card text-center mb-8">
                     <h2 className="text-2xl font-bold mb-4 text-amber-950">
-                        🌟 ユニットガチャ 🌟
+                        {t("gacha_machine_title")}
                     </h2>
-                    <p className="text-amber-900/70 mb-6">
-                        コインを使って新しいユニットをゲット！
-                        <br />
-                        同じユニットは複数所持でき、今後フュージョンに使用できます。
+                    <p className="text-amber-900/70 mb-6 whitespace-pre-line">
+                        {t("gacha_machine_desc")}
                     </p>
 
                     {/* 排出率 */}
@@ -148,10 +148,10 @@ export default function GachaPage() {
                         >
                             <img
                                 src="/assets/ui/gacha_1pull.png"
-                                alt="1回ガチャ"
+                                alt={t("gacha_1pull")}
                                 className="w-24 h-24 object-contain mb-2"
                             />
-                            <div className="text-white font-bold text-lg">1回ガチャ</div>
+                            <div className="text-white font-bold text-lg">{t("gacha_1pull")}</div>
                             <div className="text-green-300 font-bold">💰 {SINGLE_COST}</div>
                         </button>
 
@@ -166,10 +166,10 @@ export default function GachaPage() {
                         >
                             <img
                                 src="/assets/ui/gacha_10pull.png"
-                                alt="10連ガチャ"
+                                alt={t("gacha_10pull")}
                                 className="w-28 h-28 object-contain mb-2"
                             />
-                            <div className="text-white font-bold text-lg">10連ガチャ</div>
+                            <div className="text-white font-bold text-lg">{t("gacha_10pull")}</div>
                             <div className="text-yellow-300 font-bold">💰 {MULTI_COST}</div>
                         </button>
 
@@ -184,10 +184,10 @@ export default function GachaPage() {
                         >
                             <img
                                 src="/assets/ui/gacha_100pull.png"
-                                alt="100連ガチャ"
+                                alt={t("gacha_100pull")}
                                 className="w-32 h-32 object-contain mb-2"
                             />
-                            <div className="text-white font-bold text-xl">✨ 100連ガチャ ✨</div>
+                            <div className="text-white font-bold text-xl">{t("gacha_100pull")}</div>
                             <div className="text-yellow-200 font-bold text-lg">💰 {SUPER_MULTI_COST}</div>
                         </button>
                     </div>
@@ -200,7 +200,7 @@ export default function GachaPage() {
                         onClick={() => setShowHistory(!showHistory)}
                     >
                         <h3 className="text-xl font-bold text-amber-950">
-                            📜 ガチャ履歴 ({gachaHistory.length})
+                            {t("gacha_history")} ({gachaHistory.length})
                         </h3>
                         <span className="text-2xl">{showHistory ? '▲' : '▼'}</span>
                     </div>
@@ -208,7 +208,7 @@ export default function GachaPage() {
                     {showHistory && (
                         <div className="mt-4 space-y-4 max-h-[500px] overflow-y-auto">
                             {gachaHistory.length === 0 ? (
-                                <p className="text-amber-900/50 text-center py-4">まだ履歴がありません</p>
+                                <p className="text-amber-900/50 text-center py-4">{t("gacha_history_empty")}</p>
                             ) : (
                                 gachaHistory.map((entry, index) => {
                                     const counts = countRarityInHistory(entry.unitIds);
@@ -227,7 +227,7 @@ export default function GachaPage() {
                                                     {formatDate(entry.timestamp)}
                                                 </span>
                                                 <span className="text-sm font-bold text-amber-900">
-                                                    {entry.count === 1 ? '1回' : entry.count === 10 ? '10連' : '100連'}
+                                                    {entry.count === 1 ? t("gacha_count_1") : entry.count === 10 ? t("gacha_count_10") : t("gacha_count_100")}
                                                 </span>
                                             </div>
 
@@ -286,7 +286,7 @@ export default function GachaPage() {
                 {/* 所持ユニット一覧 */}
                 <div className="card">
                     <h3 className="text-xl font-bold mb-4 text-amber-950">
-                        📦 所持ユニット
+                        {t("gacha_owned_units")}
                     </h3>
                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
                         {gachaPool.map((unit) => {
@@ -319,7 +319,7 @@ export default function GachaPage() {
                 {/* 編成へ */}
                 <div className="mt-8 text-center">
                     <Link href="/team" className="btn btn-primary">
-                        📋 編成へ
+                        {t("gacha_to_team")}
                     </Link>
                 </div>
             </div>

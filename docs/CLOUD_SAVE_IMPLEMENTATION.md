@@ -262,57 +262,70 @@ async function generateUniquePIN(): Promise<string> {
 
 ## 実装フェーズ
 
-### Phase 1: ローカル環境セットアップ
-- [ ] Supabase Local (Docker) 起動
-- [ ] データベーススキーマ作成
-- [ ] マイグレーションファイル作成
+### Phase 1: ローカル環境セットアップ ✅
+- [x] Supabase Local (Docker) 起動
+- [x] データベーススキーマ作成
+- [x] マイグレーションファイル作成
 
-### Phase 2: 認証UI実装
-- [ ] 初回起動判定ロジック
-- [ ] 選択画面 (はじめて / つづきから)
-- [ ] 新規登録画面 (名前入力 → PIN表示)
-- [ ] ログイン画面 (PIN入力パッド)
-- [ ] 自動ログイン画面 (おかえり)
+### Phase 2: 認証UI実装 ✅
+- [x] 初回起動判定ロジック (`src/contexts/AuthContext.tsx`)
+- [x] 選択画面 (はじめて / つづきから) (`src/components/auth/WelcomeScreen.tsx`)
+- [x] 新規登録画面 (名前入力 → PIN表示) (`src/components/auth/RegisterScreen.tsx`)
+- [x] ログイン画面 (PIN入力パッド) (`src/components/auth/LoginScreen.tsx`, `PinPad.tsx`)
+- [x] 自動ログイン画面 (おかえり) (`src/components/auth/WelcomeBackScreen.tsx`)
+- [x] 認証ページ (`src/app/auth/page.tsx`)
 
-### Phase 3: データ同期
-- [ ] Supabase Client セットアップ
-- [ ] 登録API実装
-- [ ] ログインAPI実装
-- [ ] データ保存API実装
-- [ ] usePlayerData フック改修
+### Phase 3: データ同期 ✅
+- [x] Supabase Client セットアップ (`src/lib/supabase/client.ts`)
+- [x] 登録API実装 (`src/lib/supabase/auth.ts`)
+- [x] ログインAPI実装 (`src/lib/supabase/auth.ts`)
+- [x] データ保存API実装 (`src/lib/supabase/playerData.ts`)
+- [x] usePlayerData フック改修 (Supabase連携 + デバウンス保存)
 
-### Phase 4: 既存データ移行
-- [ ] localStorage → Supabase 移行ロジック
-- [ ] 初回ログイン時に既存データをアップロード
+### Phase 4: 既存データ移行 ✅
+- [x] localStorage → Supabase 移行ロジック (`migrateLocalData` in auth.ts)
+- [x] 初回ログイン時に既存データをアップロード (usePlayerData内で自動処理)
 
-### Phase 5: 将来機能の準備
-- [ ] rankings テーブル作成
+### Phase 5: 将来機能の準備 ✅
+- [x] rankings テーブル作成
+- [x] ランキング更新API (`updateRankings`, `incrementBattleStats`)
 - [ ] ランキング取得API
 - [ ] ランキング画面UI
 
 ---
 
-## ファイル構成（予定）
+## ファイル構成
 
 ```
 src/
 ├── lib/
 │   └── supabase/
-│       ├── client.ts          # Supabase クライアント
-│       ├── auth.ts            # PIN認証ロジック
-│       └── playerData.ts      # データ操作
+│       ├── client.ts          # ✅ Supabase クライアント
+│       ├── auth.ts            # ✅ PIN認証ロジック
+│       ├── playerData.ts      # ✅ データ操作
+│       └── index.ts           # ✅ エクスポート
+├── contexts/
+│   └── AuthContext.tsx        # ✅ 認証状態管理
 ├── hooks/
-│   ├── usePlayerData.ts       # 既存（改修）
-│   └── useAuth.ts             # 新規：認証状態管理
+│   ├── usePlayerData.ts       # ✅ プレイヤーデータ管理（Supabase連携済み）
+│   └── useAuth.ts             # ✅ 認証フック
 ├── app/
+│   ├── providers.tsx          # ✅ AuthProvider追加
 │   └── auth/
-│       └── page.tsx           # 認証画面
+│       └── page.tsx           # ✅ 認証画面
 ├── components/
 │   └── auth/
-│       ├── WelcomeScreen.tsx  # 選択画面
-│       ├── RegisterScreen.tsx # 新規登録
-│       ├── LoginScreen.tsx    # PIN入力
-│       └── PinPad.tsx         # 数字パッド
+│       ├── index.ts           # ✅ エクスポート
+│       ├── WelcomeScreen.tsx  # ✅ 選択画面
+│       ├── RegisterScreen.tsx # ✅ 新規登録
+│       ├── LoginScreen.tsx    # ✅ PIN入力
+│       ├── PinPad.tsx         # ✅ 数字パッド
+│       └── WelcomeBackScreen.tsx # ✅ おかえり画面
+supabase/
+├── config.toml                # ✅ Supabase Local 設定
+└── migrations/
+    └── 20260129133002_create_players_tables.sql  # ✅ DBスキーマ
+.env.local                     # ✅ 環境変数（ローカル用）
 ```
 
 ---

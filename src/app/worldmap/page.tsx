@@ -8,6 +8,7 @@ import stagesData from "@/data/stages";
 import unitsData from "@/data/units";
 import type { StageDefinition, UnitDefinition } from "@/data/types";
 import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
+import { usePlayerData } from "@/hooks/usePlayerData";
 
 const stages = stagesData as StageDefinition[];
 const allUnits = unitsData as UnitDefinition[];
@@ -54,17 +55,8 @@ const getBossUnit = (stage: StageDefinition): UnitDefinition | undefined => {
 export default function WorldMapPage() {
     const router = useRouter();
     const { t } = useLanguage();
-    const [clearedStages, setClearedStages] = useState<string[]>([]);
+    const { clearedStages } = usePlayerData();
     const [selectedStage, setSelectedStage] = useState<StageDefinition | null>(null);
-
-    useEffect(() => {
-        try {
-            const cleared = JSON.parse(localStorage.getItem("clearedStages") || "[]");
-            setClearedStages(cleared);
-        } catch {
-            setClearedStages([]);
-        }
-    }, []);
 
     const handleSelectStage = (stageId: string) => {
         router.push(`/battle/${stageId}`);

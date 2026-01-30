@@ -9,6 +9,25 @@ import unitsData from "@/data/units";
 import type { StageDefinition, UnitDefinition } from "@/data/types";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePlayerData } from "@/hooks/usePlayerData";
+import { useAuth } from "@/contexts/AuthContext";
+import { incrementBattleStats } from "@/lib/supabase";
+
+// ドロップ処理用のユーティリティ
+function processDrops(stage: StageDefinition, allUnits: UnitDefinition[]): string[] {
+    if (!stage.reward.drops) return [];
+
+    const droppedIds: string[] = [];
+    stage.reward.drops.forEach(drop => {
+        const roll = Math.random() * 100;
+        if (roll < drop.rate) {
+            const unit = allUnits.find(u => u.id === drop.unitId);
+            if (unit) {
+                droppedIds.push(unit.id);
+            }
+        }
+    });
+    return droppedIds;
+}
 
 // Phaserコンポーネントを動的インポート（SSR無効）
 const PhaserGame = dynamic(
@@ -24,7 +43,8 @@ export default function BattlePage() {
     const params = useParams();
     const stageId = params.stageId as string;
     const { t } = useLanguage();
-    const { selectedTeam, isLoaded, refreshShop, loadouts, activeLoadoutIndex, addCoins } = usePlayerData();
+    const { playerId } = useAuth();
+    const { selectedTeam, isLoaded, refreshShop, loadouts, activeLoadoutIndex, addCoins, addClearedStage, addUnit } = usePlayerData();
 
     const [stage, setStage] = useState<StageDefinition | null>(null);
     const [team, setTeam] = useState<UnitDefinition[]>([]);
@@ -59,19 +79,43 @@ export default function BattlePage() {
         setLoadoutDefs(convertedLoadouts);
     }, [stageId, router, selectedTeam, loadouts, isLoaded]);
 
-    const handleBattleEnd = (win: boolean, coinsGained: number) => {
+    const handleBattleEnd = async (win: boolean, coinsGained: number) => {
         setBattleEnded(true);
         setResult({ win, coins: coinsGained });
 
-        if (win) {
+        let droppedUnitIds: string[] = [];
+
+        // ステージ番号を抽出 (stage_5 -> 5)
+        const stageNumMatch = stageId.match(/stage_(\d+)/);
+        const stageNum = stageNumMatch ? parseInt(stageNumMatch[1], 10) : undefined;
+
+        // バトル統計を記録（認証済みの場合のみ）
+        if (playerId) {
+            incrementBattleStats(playerId, win, stageNum).catch(err => {
+                console.error("Failed to update battle stats:", err);
+            });
+        }
+
+        if (win && stage) {
             // コイン加算（usePlayerData経由で状態管理）
             addCoins(coinsGained);
+
+            // ステージクリア保存（バトル終了時に即保存）
+            addClearedStage(stageId);
+
+            // ドロップ処理（バトル終了時に即処理）
+            droppedUnitIds = processDrops(stage, allUnits);
+            droppedUnitIds.forEach(unitId => {
+                addUnit(unitId, 1);
+            });
+
             refreshShop();
         }
 
-        // 3秒後にリザルト画面へ
+        // 3秒後にリザルト画面へ（ドロップ情報を渡す）
         setTimeout(() => {
-            router.push(`/result?win=${win}&coins=${coinsGained}&stage=${stageId}`);
+            const dropsParam = droppedUnitIds.length > 0 ? `&drops=${droppedUnitIds.join(',')}` : '';
+            router.push(`/result?win=${win}&coins=${coinsGained}&stage=${stageId}${dropsParam}`);
         }, 3000);
     };
 

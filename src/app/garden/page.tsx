@@ -17,19 +17,15 @@ const PhaserGame = dynamic(() => import('@/components/game/PhaserGame'), {
 
 const allUnits = unitsData as UnitDefinition[];
 // 敵以外
-const allyUnits = allUnits.filter(u => !u.id.startsWith("enemy_"));
+const allyUnits = allUnits.filter(u => !u.id.startsWith("enemy_") && !u.id.startsWith("boss_") && !u.isBoss);
 
 export default function GardenPage() {
-    const { unitInventory, selectedTeam, isLoaded } = usePlayerData();
+    const { unitInventory, selectedTeam, gardenUnits: savedGardenUnitIds, setGardenUnits: saveGardenUnits, isLoaded } = usePlayerData();
     const { t } = useLanguage();
-    const [gardenUnits, setGardenUnits] = useState<UnitDefinition[]>([]);
+    const [displayUnits, setDisplayUnits] = useState<UnitDefinition[]>([]);
     const [ready, setReady] = useState(false);
     const [isSelectModalOpen, setIsSelectModalOpen] = useState(false);
     const [editUnits, setEditUnits] = useState<string[]>([]);
-
-    // ... (logic from line 29-132 is unchanged so I won't repeat it all, but I need to substitute the whole function body or just the parts I touch. Since I am using replace_file_content, I need to match the block. I will replace the component body.)
-    // Wait, replacing the whole body is risky if I miss something.
-    // I will replace specific blocks.
 
     // Helper
     const getUnitName = (unit: UnitDefinition) => {
@@ -37,32 +33,26 @@ export default function GardenPage() {
         return translated !== unit.id ? translated : unit.name;
     };
 
-    // Load initial units
+    // Load initial units from usePlayerData
     useEffect(() => {
         if (!isLoaded) return;
 
-        // Try to load from localStorage
-        const saved = localStorage.getItem('garden_selection');
-        if (saved) {
-            try {
-                const savedIds = JSON.parse(saved) as string[];
-                const validUnits = savedIds
-                    .map(id => allUnits.find(u => u.id === id))
-                    .filter((u): u is UnitDefinition => !!u);
+        // Try to load from saved data (usePlayerData)
+        if (savedGardenUnitIds && savedGardenUnitIds.length > 0) {
+            const validUnits = savedGardenUnitIds
+                .map(id => allUnits.find(u => u.id === id))
+                .filter((u): u is UnitDefinition => !!u);
 
-                if (validUnits.length > 0) {
-                    setGardenUnits(validUnits);
-                    setReady(true);
-                    return; // Loaded from save
-                }
-            } catch (e) {
-                console.error("Failed to parse saved garden selection", e);
+            if (validUnits.length > 0) {
+                setDisplayUnits(validUnits);
+                setReady(true);
+                return; // Loaded from save
             }
         }
 
         // Auto-selection if no save
         autoPickUnits();
-    }, [isLoaded, selectedTeam, unitInventory]);
+    }, [isLoaded, selectedTeam, unitInventory, savedGardenUnitIds]);
 
     const autoPickUnits = () => {
         const pickedIds = new Set<string>();
@@ -100,12 +90,14 @@ export default function GardenPage() {
             if (pickedUnits.length < 20) addUnit(id);
         });
 
-        setGardenUnits(pickedUnits);
+        setDisplayUnits(pickedUnits);
+        // Also save to hook
+        saveGardenUnits(pickedUnits.map(u => u.id));
         setReady(true);
     };
 
     const openEditModal = () => {
-        setEditUnits(gardenUnits.map(u => u.id));
+        setEditUnits(displayUnits.map(u => u.id));
         setIsSelectModalOpen(true);
     };
 
@@ -123,13 +115,15 @@ export default function GardenPage() {
             .map(id => allUnits.find(u => u.id === id))
             .filter((u): u is UnitDefinition => !!u);
 
-        setGardenUnits(selectedDefs);
-        localStorage.setItem('garden_selection', JSON.stringify(editUnits));
+        setDisplayUnits(selectedDefs);
+        // Save via usePlayerData hook (syncs to localStorage and Supabase)
+        saveGardenUnits(editUnits);
         setIsSelectModalOpen(false);
     };
 
     const handleAutoPickInModal = () => {
-        localStorage.removeItem('garden_selection');
+        // Clear saved selection and auto-pick
+        saveGardenUnits([]);
         autoPickUnits();
         setIsSelectModalOpen(false);
     };
@@ -163,7 +157,7 @@ export default function GardenPage() {
                 </div>
                 <div className="bg-white/60 p-4 rounded-xl backdrop-blur-sm border-2 border-white/80 shadow-lg text-center">
                     <h1 className="text-2xl font-bold text-green-800">{t("garden_title")}</h1>
-                    <p className="text-sm text-green-700 font-bold">{gardenUnits.length} {t("garden_hint")}</p>
+                    <p className="text-sm text-green-700 font-bold">{displayUnits.length} {t("garden_hint")}</p>
                 </div>
                 <div className="pointer-events-auto">
                     <button
@@ -179,7 +173,7 @@ export default function GardenPage() {
             <div className="absolute inset-0 z-0">
                 <PhaserGame
                     mode="garden"
-                    gardenUnits={gardenUnits}
+                    gardenUnits={displayUnits}
                 />
             </div>
 

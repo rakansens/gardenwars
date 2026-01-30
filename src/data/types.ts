@@ -8,6 +8,11 @@
 export type Rarity = 'N' | 'R' | 'SR' | 'SSR' | 'UR';
 
 /**
+ * ステージ難易度
+ */
+export type StageDifficulty = 'tutorial' | 'easy' | 'normal' | 'hard' | 'extreme' | 'boss' | 'special';
+
+/**
  * ユニット定義（マスターデータ）
  */
 export interface UnitDefinition {
@@ -59,6 +64,7 @@ export interface StageDefinition {
   id: string;
   name: string;
   description: string;
+  difficulty?: StageDifficulty; // 難易度カテゴリ
   length: number;             // 敵城までの距離（pixels）
   baseCastleHp: number;       // 味方城HP
   enemyCastleHp: number;      // 敵城HP

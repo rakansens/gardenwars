@@ -160,7 +160,7 @@ export default function UnitDetailModal({
 
                     {/* Stats Tab */}
                     {activeTab === "stats" && (
-                        <div className="grid grid-cols-2 gap-4 w-full mb-6">
+                        <div className="grid grid-cols-2 gap-3 w-full mb-6">
                             <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
                                 <div className="text-xs text-gray-500 mb-1">{t("hp")}</div>
                                 <div className="text-lg font-bold text-gray-800">❤️ {unit.maxHp}</div>
@@ -170,20 +170,24 @@ export default function UnitDetailModal({
                                 <div className="text-lg font-bold text-gray-800">⚔️ {unit.attackDamage}</div>
                             </div>
                             <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                                <div className="text-xs text-gray-500 mb-1">{t("cost")}</div>
-                                <div className="text-lg font-bold text-amber-600">💰 {unit.cost}</div>
+                                <div className="text-xs text-gray-500 mb-1">DPS</div>
+                                <div className="text-lg font-bold text-red-500">💥 {(unit.attackDamage * (1000 / unit.attackCooldownMs)).toFixed(1)}</div>
                             </div>
                             <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
                                 <div className="text-xs text-gray-500 mb-1">{t("range")}</div>
                                 <div className="text-lg font-bold text-indigo-600">📏 {unit.attackRange}</div>
                             </div>
                             <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                                <div className="text-xs text-gray-500 mb-1">{t("speed")}</div>
-                                <div className="text-lg font-bold text-blue-500">💨 {unit.speed}</div>
+                                <div className="text-xs text-gray-500 mb-1">{t("attack_speed")}</div>
+                                <div className="text-lg font-bold text-orange-500">⏱️ {(1000 / unit.attackCooldownMs).toFixed(1)}/s</div>
                             </div>
                             <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                                <div className="text-xs text-gray-500 mb-1">{t("cooldown")}</div>
-                                <div className="text-lg font-bold text-orange-500">⏱️ {(unit.attackCooldownMs / 1000).toFixed(1)}s</div>
+                                <div className="text-xs text-gray-500 mb-1">{t("move_speed")}</div>
+                                <div className="text-lg font-bold text-blue-500">🏃 {unit.speed}</div>
+                            </div>
+                            <div className="col-span-2 bg-gray-50 rounded-lg p-3 border border-gray-100">
+                                <div className="text-xs text-gray-500 mb-1">{t("cost")}</div>
+                                <div className="text-lg font-bold text-amber-600">💰 ¥{unit.cost}</div>
                             </div>
                         </div>
                     )}

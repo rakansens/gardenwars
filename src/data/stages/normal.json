@@ -1,47 +1,184 @@
 [
   {
-    "id": "stage_1",
-    "name": "stage_1_name",
-    "description": "stage_1_desc",
-    "length": 1200,
+    "id": "tutorial_1",
+    "name": "tutorial_1_name",
+    "description": "tutorial_1_desc",
+    "length": 800,
+    "baseCastleHp": 800,
+    "enemyCastleHp": 200,
+    "enemyWaves": [
+      {
+        "timeMs": 3000,
+        "unitId": "enemy_sunflower",
+        "count": 2,
+        "intervalMs": 3000
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_sunflower",
+        "count": 2,
+        "intervalMs": 2500
+      }
+    ],
+    "reward": {
+      "coins": 50,
+      "drops": [
+        {
+          "unitId": "cat_warrior",
+          "rate": 60
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x87ceeb",
+      "groundColor": "0x7cb342",
+      "cloudColor": "0xffffff"
+    },
+    "difficulty": "tutorial"
+  },
+  {
+    "id": "tutorial_2",
+    "name": "tutorial_2_name",
+    "description": "tutorial_2_desc",
+    "length": 900,
     "baseCastleHp": 1000,
-    "enemyCastleHp": 800,
+    "enemyCastleHp": 300,
+    "enemyWaves": [
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_sunflower",
+        "count": 2,
+        "intervalMs": 2000
+      },
+      {
+        "timeMs": 10000,
+        "unitId": "enemy_corn_kid",
+        "count": 2,
+        "intervalMs": 2000
+      },
+      {
+        "timeMs": 18000,
+        "unitId": "enemy_dog",
+        "count": 2,
+        "intervalMs": 2000
+      }
+    ],
+    "reward": {
+      "coins": 80,
+      "drops": [
+        {
+          "unitId": "sunflower",
+          "rate": 50
+        },
+        {
+          "unitId": "corn_kid",
+          "rate": 40
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x98d8c8",
+      "groundColor": "0x66bb6a",
+      "cloudColor": "0xffffff"
+    },
+    "difficulty": "tutorial"
+  },
+  {
+    "id": "tutorial_3",
+    "name": "tutorial_3_name",
+    "description": "tutorial_3_desc",
+    "length": 1000,
+    "baseCastleHp": 1200,
+    "enemyCastleHp": 400,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_dog",
+        "count": 2,
+        "intervalMs": 1500
+      },
+      {
+        "timeMs": 10000,
+        "unitId": "enemy_corn_kid",
         "count": 3,
         "intervalMs": 1500
       },
       {
-        "timeMs": 8000,
+        "timeMs": 18000,
         "unitId": "enemy_sunflower",
-        "count": 2,
+        "count": 3,
         "intervalMs": 1200
       },
       {
-        "timeMs": 14000,
-        "unitId": "enemy_dog",
-        "count": 4,
+        "timeMs": 26000,
+        "unitId": "enemy_cat_warrior",
+        "count": 2,
+        "intervalMs": 2000
+      }
+    ],
+    "reward": {
+      "coins": 120,
+      "drops": [
+        {
+          "unitId": "cat_archer",
+          "rate": 40
+        },
+        {
+          "unitId": "block_slime",
+          "rate": 30
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0xb3e5fc",
+      "groundColor": "0x81c784",
+      "cloudColor": "0xe1f5fe"
+    },
+    "difficulty": "tutorial"
+  },
+  {
+    "id": "stage_1",
+    "name": "stage_1_name",
+    "description": "stage_1_desc",
+    "length": 1200,
+    "baseCastleHp": 1200,
+    "enemyCastleHp": 800,
+    "enemyWaves": [
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_acorn",
+        "count": 3,
+        "intervalMs": 1500
+      },
+      {
+        "timeMs": 10000,
+        "unitId": "enemy_sunflower",
+        "count": 3,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 18000,
+        "unitId": "enemy_mushroom",
+        "count": 3,
         "intervalMs": 1000
       },
       {
-        "timeMs": 20000,
+        "timeMs": 26000,
         "unitId": "enemy_corn_kid",
         "count": 3,
         "intervalMs": 1200
       }
     ],
     "reward": {
-      "coins": 100,
+      "coins": 150,
       "drops": [
         {
           "unitId": "cat_warrior",
-          "rate": 30
+          "rate": 35
         },
         {
           "unitId": "sunflower",
-          "rate": 15
+          "rate": 25
         }
       ]
     },
@@ -49,14 +186,15 @@
       "skyColor": "0x87ceeb",
       "groundColor": "0x4a7c23",
       "cloudColor": "0xffffff"
-    }
+    },
+    "difficulty": "easy"
   },
   {
     "id": "stage_2",
     "name": "stage_2_name",
     "description": "stage_2_desc",
     "length": 1400,
-    "baseCastleHp": 1200,
+    "baseCastleHp": 1400,
     "enemyCastleHp": 1000,
     "enemyWaves": [
       {
@@ -66,28 +204,28 @@
         "intervalMs": 1200
       },
       {
-        "timeMs": 8000,
-        "unitId": "enemy_wolf",
-        "count": 1,
-        "intervalMs": 0
-      },
-      {
-        "timeMs": 12000,
-        "unitId": "enemy_crow",
+        "timeMs": 10000,
+        "unitId": "enemy_frog",
         "count": 3,
-        "intervalMs": 1500
+        "intervalMs": 1000
       },
       {
         "timeMs": 18000,
-        "unitId": "enemy_cat_warrior",
-        "count": 4,
-        "intervalMs": 800
+        "unitId": "enemy_root",
+        "count": 2,
+        "intervalMs": 1500
       },
       {
-        "timeMs": 25000,
-        "unitId": "enemy_block",
+        "timeMs": 26000,
+        "unitId": "enemy_bean",
         "count": 2,
-        "intervalMs": 3000
+        "intervalMs": 2000
+      },
+      {
+        "timeMs": 34000,
+        "unitId": "enemy_capybara",
+        "count": 2,
+        "intervalMs": 2000
       }
     ],
     "reward": {
@@ -95,11 +233,11 @@
       "drops": [
         {
           "unitId": "cat_archer",
-          "rate": 25
+          "rate": 30
         },
         {
           "unitId": "corn_kid",
-          "rate": 20
+          "rate": 25
         }
       ]
     },
@@ -107,51 +245,52 @@
       "skyColor": "0x6eb56e",
       "groundColor": "0x2d5016",
       "cloudColor": "0xd4e8d4"
-    }
+    },
+    "difficulty": "easy"
   },
   {
     "id": "stage_3",
     "name": "stage_3_name",
     "description": "stage_3_desc",
     "length": 1600,
-    "baseCastleHp": 1500,
+    "baseCastleHp": 1600,
     "enemyCastleHp": 1500,
     "enemyWaves": [
       {
         "timeMs": 1000,
-        "unitId": "enemy_corn",
-        "count": 4,
-        "intervalMs": 800
+        "unitId": "enemy_tomato",
+        "count": 3,
+        "intervalMs": 1000
       },
       {
-        "timeMs": 6000,
+        "timeMs": 10000,
         "unitId": "enemy_archer",
         "count": 3,
         "intervalMs": 1200
       },
       {
-        "timeMs": 12000,
-        "unitId": "enemy_wolf",
+        "timeMs": 18000,
+        "unitId": "enemy_pepper",
+        "count": 3,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 26000,
+        "unitId": "enemy_pebble",
         "count": 2,
         "intervalMs": 2000
       },
       {
-        "timeMs": 18000,
-        "unitId": "enemy_sunflower",
-        "count": 5,
-        "intervalMs": 600
+        "timeMs": 34000,
+        "unitId": "enemy_dew",
+        "count": 3,
+        "intervalMs": 1500
       },
       {
-        "timeMs": 25000,
+        "timeMs": 42000,
         "unitId": "enemy_block",
         "count": 2,
-        "intervalMs": 2500
-      },
-      {
-        "timeMs": 32000,
-        "unitId": "enemy_crow",
-        "count": 4,
-        "intervalMs": 500
+        "intervalMs": 2000
       }
     ],
     "reward": {
@@ -159,11 +298,11 @@
       "drops": [
         {
           "unitId": "cat_tank",
-          "rate": 20
+          "rate": 25
         },
         {
           "unitId": "ice_flower",
-          "rate": 15
+          "rate": 20
         }
       ]
     },
@@ -171,45 +310,46 @@
       "skyColor": "0xf5d6a0",
       "groundColor": "0xc4a35a",
       "cloudColor": "0xffeebb"
-    }
+    },
+    "difficulty": "easy"
   },
   {
     "id": "stage_4",
     "name": "stage_4_name",
     "description": "stage_4_desc",
     "length": 1500,
-    "baseCastleHp": 1800,
+    "baseCastleHp": 2000,
     "enemyCastleHp": 1800,
     "enemyWaves": [
       {
         "timeMs": 1500,
-        "unitId": "enemy_ninja",
-        "count": 3,
-        "intervalMs": 1000
+        "unitId": "enemy_leaf_ninja",
+        "count": 2,
+        "intervalMs": 1500
       },
       {
-        "timeMs": 7000,
+        "timeMs": 10000,
         "unitId": "enemy_ice_flower",
         "count": 3,
         "intervalMs": 1500
       },
       {
-        "timeMs": 14000,
-        "unitId": "enemy_watermelon",
-        "count": 2,
-        "intervalMs": 2000
-      },
-      {
-        "timeMs": 22000,
-        "unitId": "enemy_dog",
-        "count": 8,
-        "intervalMs": 500
-      },
-      {
-        "timeMs": 30000,
-        "unitId": "enemy_cat_tank",
+        "timeMs": 18000,
+        "unitId": "enemy_fire_chili",
         "count": 3,
-        "intervalMs": 2000
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 26000,
+        "unitId": "enemy_corn",
+        "count": 3,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 34000,
+        "unitId": "enemy_cat_tank",
+        "count": 2,
+        "intervalMs": 2500
       }
     ],
     "reward": {
@@ -217,11 +357,11 @@
       "drops": [
         {
           "unitId": "cat_ninja",
-          "rate": 15
+          "rate": 20
         },
         {
           "unitId": "corn_fighter",
-          "rate": 20
+          "rate": 25
         }
       ]
     },
@@ -229,51 +369,52 @@
       "skyColor": "0xff7e47",
       "groundColor": "0x8b6914",
       "cloudColor": "0xffb347"
-    }
+    },
+    "difficulty": "normal"
   },
   {
     "id": "stage_5",
     "name": "stage_5_name",
     "description": "stage_5_desc",
     "length": 1700,
-    "baseCastleHp": 2000,
+    "baseCastleHp": 2200,
     "enemyCastleHp": 2000,
     "enemyWaves": [
       {
         "timeMs": 1000,
-        "unitId": "enemy_crow",
-        "count": 5,
-        "intervalMs": 800
+        "unitId": "enemy_dew",
+        "count": 3,
+        "intervalMs": 1200
       },
       {
-        "timeMs": 8000,
+        "timeMs": 10000,
         "unitId": "enemy_corn_kid",
-        "count": 6,
-        "intervalMs": 700
+        "count": 4,
+        "intervalMs": 1000
       },
       {
-        "timeMs": 15000,
-        "unitId": "enemy_mage",
-        "count": 2,
-        "intervalMs": 2000
+        "timeMs": 18000,
+        "unitId": "enemy_ninja",
+        "count": 3,
+        "intervalMs": 1200
       },
       {
-        "timeMs": 23000,
-        "unitId": "enemy_block",
+        "timeMs": 26000,
+        "unitId": "enemy_pebble",
         "count": 3,
         "intervalMs": 1500
       },
       {
-        "timeMs": 32000,
-        "unitId": "enemy_wolf",
-        "count": 4,
-        "intervalMs": 1200
+        "timeMs": 34000,
+        "unitId": "enemy_watermelon",
+        "count": 2,
+        "intervalMs": 2000
       },
       {
-        "timeMs": 40000,
-        "unitId": "enemy_ninja",
-        "count": 5,
-        "intervalMs": 800
+        "timeMs": 42000,
+        "unitId": "enemy_leaf_ninja",
+        "count": 3,
+        "intervalMs": 1000
       }
     ],
     "reward": {
@@ -281,11 +422,11 @@
       "drops": [
         {
           "unitId": "cat_mage",
-          "rate": 15
+          "rate": 20
         },
         {
           "unitId": "block_slime",
-          "rate": 20
+          "rate": 25
         }
       ]
     },
@@ -293,51 +434,52 @@
       "skyColor": "0x2a2a3a",
       "groundColor": "0x1a1a2a",
       "cloudColor": "0x404050"
-    }
+    },
+    "difficulty": "normal"
   },
   {
     "id": "stage_6",
     "name": "stage_6_name",
     "description": "stage_6_desc",
     "length": 1800,
-    "baseCastleHp": 2200,
+    "baseCastleHp": 2500,
     "enemyCastleHp": 2500,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_ice_flower",
-        "count": 4,
-        "intervalMs": 1200
-      },
-      {
-        "timeMs": 10000,
-        "unitId": "enemy_cat_warrior",
-        "count": 6,
-        "intervalMs": 600
-      },
-      {
-        "timeMs": 18000,
-        "unitId": "enemy_watermelon",
         "count": 3,
         "intervalMs": 1500
       },
       {
+        "timeMs": 10000,
+        "unitId": "enemy_fire_chili",
+        "count": 4,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 18000,
+        "unitId": "enemy_tomato",
+        "count": 4,
+        "intervalMs": 1000
+      },
+      {
         "timeMs": 26000,
         "unitId": "enemy_archer",
-        "count": 5,
-        "intervalMs": 800
-      },
-      {
-        "timeMs": 35000,
-        "unitId": "enemy_cat_tank",
-        "count": 3,
-        "intervalMs": 2000
-      },
-      {
-        "timeMs": 45000,
-        "unitId": "enemy_mage",
         "count": 4,
-        "intervalMs": 1200
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 34000,
+        "unitId": "enemy_capybara",
+        "count": 3,
+        "intervalMs": 1500
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_cat_tank",
+        "count": 2,
+        "intervalMs": 2500
       }
     ],
     "reward": {
@@ -345,11 +487,11 @@
       "drops": [
         {
           "unitId": "ice_flower",
-          "rate": 25
+          "rate": 30
         },
         {
           "unitId": "watermelon",
-          "rate": 10
+          "rate": 15
         }
       ]
     },
@@ -357,57 +499,58 @@
       "skyColor": "0xc8e6ff",
       "groundColor": "0xf0f8ff",
       "cloudColor": "0xffffff"
-    }
+    },
+    "difficulty": "normal"
   },
   {
     "id": "stage_7",
     "name": "stage_7_name",
     "description": "stage_7_desc",
     "length": 2000,
-    "baseCastleHp": 2500,
+    "baseCastleHp": 3000,
     "enemyCastleHp": 3000,
     "enemyWaves": [
       {
         "timeMs": 1000,
-        "unitId": "enemy_wolf",
+        "unitId": "enemy_sr_rose",
+        "count": 2,
+        "intervalMs": 2000
+      },
+      {
+        "timeMs": 10000,
+        "unitId": "enemy_corn",
         "count": 4,
         "intervalMs": 1000
       },
       {
-        "timeMs": 8000,
-        "unitId": "enemy_corn",
-        "count": 5,
+        "timeMs": 18000,
+        "unitId": "enemy_fire_chili",
+        "count": 4,
         "intervalMs": 800
       },
       {
-        "timeMs": 16000,
-        "unitId": "enemy_penguin",
-        "count": 1,
-        "intervalMs": 0
-      },
-      {
-        "timeMs": 20000,
-        "unitId": "enemy_ninja",
-        "count": 6,
-        "intervalMs": 600
-      },
-      {
-        "timeMs": 28000,
-        "unitId": "enemy_sunflower",
-        "count": 8,
-        "intervalMs": 400
-      },
-      {
-        "timeMs": 36000,
-        "unitId": "enemy_block",
+        "timeMs": 26000,
+        "unitId": "enemy_leaf_ninja",
         "count": 4,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 34000,
+        "unitId": "enemy_pebble",
+        "count": 3,
         "intervalMs": 1500
       },
       {
-        "timeMs": 46000,
+        "timeMs": 42000,
         "unitId": "enemy_watermelon",
-        "count": 5,
-        "intervalMs": 1200
+        "count": 3,
+        "intervalMs": 1500
+      },
+      {
+        "timeMs": 50000,
+        "unitId": "enemy_sr_pirate",
+        "count": 2,
+        "intervalMs": 2000
       }
     ],
     "reward": {
@@ -415,11 +558,11 @@
       "drops": [
         {
           "unitId": "watermelon",
-          "rate": 15
+          "rate": 20
         },
         {
           "unitId": "penguin_boy",
-          "rate": 8
+          "rate": 10
         }
       ]
     },
@@ -427,63 +570,58 @@
       "skyColor": "0x4a1010",
       "groundColor": "0x2a0808",
       "cloudColor": "0x6a3030"
-    }
+    },
+    "difficulty": "hard"
   },
   {
     "id": "stage_8",
     "name": "stage_8_name",
     "description": "stage_8_desc",
     "length": 2200,
-    "baseCastleHp": 3000,
+    "baseCastleHp": 3500,
     "enemyCastleHp": 4000,
     "enemyWaves": [
       {
         "timeMs": 1000,
-        "unitId": "enemy_cat_tank",
-        "count": 2,
-        "intervalMs": 2000
-      },
-      {
-        "timeMs": 8000,
-        "unitId": "enemy_crow",
-        "count": 8,
-        "intervalMs": 500
-      },
-      {
-        "timeMs": 16000,
-        "unitId": "enemy_mage",
-        "count": 4,
-        "intervalMs": 1200
-      },
-      {
-        "timeMs": 24000,
-        "unitId": "enemy_yumemi",
+        "unitId": "enemy_sr_corn_tank",
         "count": 1,
         "intervalMs": 0
       },
       {
-        "timeMs": 28000,
-        "unitId": "enemy_dog",
-        "count": 12,
-        "intervalMs": 300
-      },
-      {
-        "timeMs": 38000,
-        "unitId": "enemy_ice_flower",
-        "count": 6,
-        "intervalMs": 800
-      },
-      {
-        "timeMs": 48000,
-        "unitId": "enemy_penguin",
+        "timeMs": 10000,
+        "unitId": "enemy_sr_bamboo",
         "count": 2,
-        "intervalMs": 3000
+        "intervalMs": 2000
       },
       {
-        "timeMs": 56000,
-        "unitId": "enemy_cat_tank",
-        "count": 5,
+        "timeMs": 20000,
+        "unitId": "enemy_mage",
+        "count": 3,
         "intervalMs": 1500
+      },
+      {
+        "timeMs": 30000,
+        "unitId": "enemy_sr_tulip",
+        "count": 2,
+        "intervalMs": 2000
+      },
+      {
+        "timeMs": 40000,
+        "unitId": "enemy_nika",
+        "count": 1,
+        "intervalMs": 0
+      },
+      {
+        "timeMs": 50000,
+        "unitId": "enemy_ice_flower",
+        "count": 4,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 60000,
+        "unitId": "enemy_ribbon",
+        "count": 1,
+        "intervalMs": 0
       }
     ],
     "reward": {
@@ -491,11 +629,11 @@
       "drops": [
         {
           "unitId": "ribbon_girl",
-          "rate": 5
+          "rate": 8
         },
         {
           "unitId": "cinnamon_girl",
-          "rate": 3
+          "rate": 5
         }
       ]
     },
@@ -503,51 +641,52 @@
       "skyColor": "0x1a0a2e",
       "groundColor": "0x0a0515",
       "cloudColor": "0x3a1a4e"
-    }
+    },
+    "difficulty": "hard"
   },
   {
     "id": "stage_9",
     "name": "stage_9_name",
     "description": "stage_9_desc",
-    "length": 1800,
-    "baseCastleHp": 2000,
-    "enemyCastleHp": 5000,
+    "length": 2000,
+    "baseCastleHp": 4000,
+    "enemyCastleHp": 4500,
     "enemyWaves": [
       {
         "timeMs": 1000,
-        "unitId": "enemy_dog",
-        "count": 20,
-        "intervalMs": 200
+        "unitId": "enemy_frog",
+        "count": 5,
+        "intervalMs": 600
       },
       {
-        "timeMs": 8000,
-        "unitId": "enemy_cat_warrior",
-        "count": 15,
-        "intervalMs": 250
+        "timeMs": 10000,
+        "unitId": "enemy_tomato",
+        "count": 4,
+        "intervalMs": 800
       },
       {
-        "timeMs": 15000,
-        "unitId": "enemy_crow",
-        "count": 20,
-        "intervalMs": 150
+        "timeMs": 20000,
+        "unitId": "enemy_pepper",
+        "count": 4,
+        "intervalMs": 800
       },
       {
-        "timeMs": 22000,
-        "unitId": "enemy_dog",
-        "count": 30,
-        "intervalMs": 150
+        "timeMs": 30000,
+        "unitId": "enemy_sr_rose",
+        "count": 3,
+        "intervalMs": 1500
       },
       {
-        "timeMs": 32000,
-        "unitId": "enemy_sunflower",
-        "count": 25,
-        "intervalMs": 180
+        "timeMs": 40000,
+        "unitId": "enemy_bean",
+        "count": 5,
+        "intervalMs": 800
       },
       {
-        "timeMs": 42000,
-        "unitId": "enemy_corn_kid",
-        "count": 30,
-        "intervalMs": 120
+        "timeMs": 50000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 2,
+        "intervalMs": 2000
       }
     ],
     "reward": {
@@ -567,57 +706,52 @@
       "skyColor": "0x2a0a0a",
       "groundColor": "0x1a0505",
       "cloudColor": "0x4a1010"
-    }
+    },
+    "difficulty": "extreme"
   },
   {
     "id": "stage_10",
     "name": "stage_10_name",
     "description": "stage_10_desc",
-    "length": 2500,
-    "baseCastleHp": 2500,
-    "enemyCastleHp": 8000,
+    "length": 2200,
+    "baseCastleHp": 4000,
+    "enemyCastleHp": 5500,
     "enemyWaves": [
       {
         "timeMs": 1000,
         "unitId": "enemy_wolf",
-        "count": 5,
-        "intervalMs": 800
+        "count": 3,
+        "intervalMs": 1200
       },
       {
-        "timeMs": 10000,
+        "timeMs": 12000,
         "unitId": "enemy_cat_tank",
-        "count": 5,
-        "intervalMs": 1000
-      },
-      {
-        "timeMs": 20000,
-        "unitId": "enemy_ribbon",
         "count": 3,
         "intervalMs": 1500
       },
       {
-        "timeMs": 35000,
-        "unitId": "enemy_ur_knight",
+        "timeMs": 24000,
+        "unitId": "enemy_mage",
         "count": 2,
-        "intervalMs": 3000
+        "intervalMs": 2000
       },
       {
-        "timeMs": 50000,
+        "timeMs": 36000,
+        "unitId": "enemy_ribbon",
+        "count": 1,
+        "intervalMs": 0
+      },
+      {
+        "timeMs": 48000,
         "unitId": "enemy_block",
-        "count": 10,
-        "intervalMs": 500
+        "count": 5,
+        "intervalMs": 800
       },
       {
         "timeMs": 60000,
-        "unitId": "enemy_mage",
-        "count": 8,
+        "unitId": "enemy_ninja",
+        "count": 6,
         "intervalMs": 600
-      },
-      {
-        "timeMs": 75000,
-        "unitId": "enemy_penguin",
-        "count": 5,
-        "intervalMs": 1200
       }
     ],
     "reward": {
@@ -637,57 +771,52 @@
       "skyColor": "0x0a0a2a",
       "groundColor": "0x050515",
       "cloudColor": "0x1a1a4a"
-    }
+    },
+    "difficulty": "extreme"
   },
   {
     "id": "stage_11",
     "name": "stage_11_name",
     "description": "stage_11_desc",
-    "length": 2000,
-    "baseCastleHp": 1500,
-    "enemyCastleHp": 10000,
+    "length": 2300,
+    "baseCastleHp": 4500,
+    "enemyCastleHp": 7000,
     "enemyWaves": [
       {
         "timeMs": 1000,
         "unitId": "enemy_cat_tank",
-        "count": 8,
-        "intervalMs": 600
-      },
-      {
-        "timeMs": 8000,
-        "unitId": "enemy_ribbon",
         "count": 4,
         "intervalMs": 1000
       },
       {
-        "timeMs": 16000,
-        "unitId": "enemy_ur_mage",
-        "count": 3,
-        "intervalMs": 1500
-      },
-      {
-        "timeMs": 28000,
-        "unitId": "enemy_watermelon",
-        "count": 10,
-        "intervalMs": 500
-      },
-      {
-        "timeMs": 38000,
-        "unitId": "enemy_mage",
-        "count": 8,
-        "intervalMs": 600
-      },
-      {
-        "timeMs": 50000,
+        "timeMs": 12000,
         "unitId": "enemy_ribbon",
-        "count": 6,
+        "count": 1,
+        "intervalMs": 0
+      },
+      {
+        "timeMs": 24000,
+        "unitId": "enemy_mage",
+        "count": 4,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 36000,
+        "unitId": "enemy_watermelon",
+        "count": 5,
         "intervalMs": 800
       },
       {
+        "timeMs": 48000,
+        "unitId": "enemy_penguin",
+        "count": 2,
+        "intervalMs": 2000
+      },
+      {
         "timeMs": 60000,
-        "unitId": "enemy_ur_angel",
-        "count": 5,
-        "intervalMs": 1000
+        "unitId": "enemy_ur_knight",
+        "count": 1,
+        "intervalMs": 0
       }
     ],
     "reward": {
@@ -707,7 +836,8 @@
       "skyColor": "0x3a0a3a",
       "groundColor": "0x1a051a",
       "cloudColor": "0x5a1a5a"
-    }
+    },
+    "difficulty": "extreme"
   },
   {
     "id": "stage_12",
@@ -715,53 +845,53 @@
     "description": "stage_12_desc",
     "length": 2500,
     "baseCastleHp": 5000,
-    "enemyCastleHp": 20000,
+    "enemyCastleHp": 10000,
     "enemyWaves": [
       {
         "timeMs": 1000,
         "unitId": "enemy_dog",
-        "count": 50,
-        "intervalMs": 100
+        "count": 15,
+        "intervalMs": 300
       },
       {
-        "timeMs": 8000,
+        "timeMs": 12000,
         "unitId": "enemy_cat_tank",
-        "count": 10,
-        "intervalMs": 400
-      },
-      {
-        "timeMs": 15000,
-        "unitId": "enemy_ribbon",
         "count": 5,
-        "intervalMs": 1500
+        "intervalMs": 800
       },
       {
-        "timeMs": 25000,
-        "unitId": "enemy_ur_tank",
-        "count": 3,
+        "timeMs": 24000,
+        "unitId": "enemy_ribbon",
+        "count": 2,
         "intervalMs": 2000
       },
       {
-        "timeMs": 40000,
-        "unitId": "enemy_wolf",
-        "count": 30,
-        "intervalMs": 150
-      },
-      {
-        "timeMs": 55000,
-        "unitId": "enemy_penguin",
-        "count": 4,
-        "intervalMs": 1500
-      },
-      {
-        "timeMs": 70000,
-        "unitId": "enemy_ur_dragon",
+        "timeMs": 38000,
+        "unitId": "enemy_ur_knight",
         "count": 2,
-        "intervalMs": 5000
+        "intervalMs": 3000
+      },
+      {
+        "timeMs": 52000,
+        "unitId": "enemy_wolf",
+        "count": 8,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 66000,
+        "unitId": "enemy_penguin",
+        "count": 2,
+        "intervalMs": 2000
+      },
+      {
+        "timeMs": 80000,
+        "unitId": "enemy_yumemi",
+        "count": 1,
+        "intervalMs": 0
       }
     ],
     "reward": {
-      "coins": 10000,
+      "coins": 8000,
       "drops": [
         {
           "unitId": "nika",
@@ -777,7 +907,8 @@
       "skyColor": "0x0a0000",
       "groundColor": "0x050000",
       "cloudColor": "0x300000"
-    }
+    },
+    "difficulty": "extreme"
   },
   {
     "id": "stage_13",
@@ -835,7 +966,8 @@
       "skyColor": "0x200020",
       "groundColor": "0x100010",
       "cloudColor": "0x400040"
-    }
+    },
+    "difficulty": "extreme"
   },
   {
     "id": "stage_14",
@@ -887,7 +1019,8 @@
       "skyColor": "0x500000",
       "groundColor": "0x200000",
       "cloudColor": "0x800000"
-    }
+    },
+    "difficulty": "extreme"
   },
   {
     "id": "stage_15",
@@ -945,6 +1078,7 @@
       "skyColor": "0x000000",
       "groundColor": "0x1a1a1a",
       "cloudColor": "0x333333"
-    }
+    },
+    "difficulty": "extreme"
   }
 ]

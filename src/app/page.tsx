@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import unitsData from "@/data/units";
 import type { UnitDefinition } from "@/data/types";
 
@@ -22,8 +23,10 @@ interface ParadeChar {
 
 export default function Home() {
   const { coins, unitInventory, isLoaded } = usePlayerData();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const { status, playerName, player, logout } = useAuth();
   const [paradeChars, setParadeChars] = useState<ParadeChar[]>([]);
+  const [showPinModal, setShowPinModal] = useState(false);
 
   // 所持ユニットからパレードキャラを生成
   useEffect(() => {
@@ -85,14 +88,33 @@ export default function Home() {
     { href: "/shop", icon: "🛒", label: t("menu_shop"), type: "secondary" },
     { href: "/fusion", icon: "🔮", label: t("fusion"), type: "secondary" },
     { href: "/garden", icon: "🌱", label: t("menu_garden"), type: "primary" },
+    { href: "/ranking", icon: "🏅", label: t("menu_ranking"), type: "secondary" },
   ];
 
   return (
     <main className="min-h-screen flex flex-col items-center p-4 relative overflow-hidden">
       {/* 背景（グローバルCSSと同じ） */}
 
-      {/* 言語切り替え & コイン */}
-      <div className="absolute top-4 right-4 flex items-center gap-3 z-20">
+      {/* 言語切り替え & コイン & アカウント */}
+      <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
+        {/* アカウントボタン */}
+        {status === "authenticated" && playerName ? (
+          <button
+            onClick={() => setShowPinModal(true)}
+            className="bg-green-500/90 text-white px-3 py-2 rounded-full font-bold shadow-lg flex items-center gap-1 text-sm hover:bg-green-600 transition-colors"
+          >
+            <span>👤</span>
+            <span className="max-w-[60px] truncate">{playerName}</span>
+          </button>
+        ) : (
+          <Link
+            href="/auth"
+            className="bg-blue-500/90 text-white px-3 py-2 rounded-full font-bold shadow-lg flex items-center gap-1 text-sm hover:bg-blue-600 transition-colors"
+          >
+            <span>🔑</span>
+            <span>{language === "ja" ? "ログイン" : "Login"}</span>
+          </Link>
+        )}
         <div className="bg-amber-500/90 text-white px-4 py-2 rounded-full font-bold shadow-lg flex items-center gap-2">
           <span className="text-lg">💰</span>
           <span>{isLoaded ? coins.toLocaleString() : "---"}</span>
@@ -178,6 +200,63 @@ export default function Home() {
       <footer className="text-amber-900/40 text-xs py-2">
         Garden Wars MVP - Next.js + Phaser 3
       </footer>
+
+      {/* PIN確認モーダル */}
+      {showPinModal && player && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+            <h2 className="text-xl font-bold text-green-700 mb-4 text-center">
+              {language === "ja" ? "アカウント情報" : "Account Info"}
+            </h2>
+
+            <div className="bg-gray-50 rounded-xl p-4 mb-4">
+              <p className="text-gray-600 text-sm mb-1">
+                {language === "ja" ? "なまえ" : "Name"}
+              </p>
+              <p className="text-lg font-bold text-gray-800">{playerName}</p>
+            </div>
+
+            <div className="bg-amber-50 rounded-xl p-4 mb-4">
+              <p className="text-amber-700 text-sm mb-2">
+                {language === "ja" ? "あなたの ばんごう" : "Your Number"}
+              </p>
+              <div className="flex justify-center gap-1">
+                {player.pin.split("").map((digit, i) => (
+                  <div
+                    key={i}
+                    className="w-10 h-12 bg-gradient-to-b from-amber-400 to-amber-500 rounded-lg flex items-center justify-center text-2xl font-bold text-white shadow"
+                  >
+                    {digit}
+                  </div>
+                ))}
+              </div>
+              <p className="text-amber-600 text-xs mt-2 text-center">
+                {language === "ja"
+                  ? "べつの たんまつで この ばんごうを いれてね"
+                  : "Enter this number on other devices"}
+              </p>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowPinModal(false)}
+                className="flex-1 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-xl transition-colors"
+              >
+                {language === "ja" ? "とじる" : "Close"}
+              </button>
+              <button
+                onClick={() => {
+                  logout();
+                  setShowPinModal(false);
+                }}
+                className="flex-1 py-3 bg-red-100 hover:bg-red-200 text-red-700 font-bold rounded-xl transition-colors"
+              >
+                {language === "ja" ? "ログアウト" : "Logout"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

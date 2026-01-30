@@ -252,7 +252,7 @@ export default function FusionPage() {
                                 ? `${rarityColors[unitDef.rarity]} cursor-pointer hover:opacity-70 hover:scale-95 active:scale-90`
                                 : fusionMode === 10 ? "bg-purple-200 border-purple-700" : "bg-amber-200 border-amber-700"
                                 }`}
-                            title={unitDef ? "タップで解除" : ""}
+                            title={unitDef ? t("fusion_tap_remove") : ""}
                         >
                             {unitDef ? (
                                 <div className="relative">
@@ -298,7 +298,7 @@ export default function FusionPage() {
                         : "bg-gray-300 text-gray-500 cursor-not-allowed"
                         }`}
                 >
-                    {fusionMode === 10 ? "✨ 超合成実行！ ✨" : `🔮 ${t("fusion_execute")}`}
+                    {fusionMode === 10 ? t("fusion_10_execute") : `🔮 ${t("fusion_execute")}`}
                 </button>
             </div>
 
@@ -373,7 +373,7 @@ export default function FusionPage() {
                 <div className="fixed inset-0 bg-black bg-opacity-80 z-40 flex items-center justify-center">
                     <div className={`rounded-xl p-8 text-center max-w-sm ${fusionResult.rarity === "UR" ? "bg-gradient-to-br from-pink-100 via-purple-100 to-cyan-100" : "bg-amber-50"}`}>
                         <h2 className="text-2xl font-bold mb-4">
-                            {fusionResult.rarity === "UR" ? "🌟✨ 大当たり！ ✨🌟" : `🎉 ${t("fusion_result")}`}
+                            {fusionResult.rarity === "UR" ? t("fusion_jackpot") : `🎉 ${t("fusion_result")}`}
                         </h2>
                         <RarityFrame
                             unitId={fusionResult.id}
