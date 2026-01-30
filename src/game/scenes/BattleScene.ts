@@ -100,10 +100,10 @@ export class BattleScene extends Phaser.Scene {
     private activeLoadoutIndex: number = 0;
     private deckSwitchBtn!: Phaser.GameObjects.Container;
 
-    // クールダウンシステム
-    private unitCooldowns: Map<string, number> = new Map(); // unitId -> クールダウン終了時刻
+    // クールダウンシステム（残り時間を保存、ゲーム速度対応）
+    private unitCooldowns: Map<string, number> = new Map(); // unitId -> 残りクールダウン時間(ms)
 
-    // ゲーム速度（1x, 2x, 3x）
+    // ゲーム速度（1x, 2x, 3x, 5x）
     private gameSpeed: number = 1;
     private speedBtn!: Phaser.GameObjects.Container;
 
@@ -1006,13 +1006,16 @@ export class BattleScene extends Phaser.Scene {
 
         this.speedBtn.add([bg, text]);
 
-        // クリックで速度切り替え（1x → 2x → 3x → 1x）
+        // クリックで速度切り替え（1x → 2x → 3x → 5x → 1x）
+        const speeds = [1, 2, 3, 5];
+        const speedTexts = ['▶ 1x', '▶▶ 2x', '▶▶▶ 3x', '⚡ 5x'];
+        const colors = [0x3b82f6, 0xf59e0b, 0xef4444, 0x9333ea]; // blue, amber, red, purple
         bg.on('pointerdown', () => {
-            this.gameSpeed = this.gameSpeed >= 3 ? 1 : this.gameSpeed + 1;
-            const speedTexts = ['▶ 1x', '▶▶ 2x', '▶▶▶ 3x'];
-            const colors = [0x3b82f6, 0xf59e0b, 0xef4444]; // blue, amber, red
-            text.setText(speedTexts[this.gameSpeed - 1]);
-            bg.setFillStyle(colors[this.gameSpeed - 1]);
+            const currentIndex = speeds.indexOf(this.gameSpeed);
+            const nextIndex = (currentIndex + 1) % speeds.length;
+            this.gameSpeed = speeds[nextIndex];
+            text.setText(speedTexts[nextIndex]);
+            bg.setFillStyle(colors[nextIndex]);
         });
 
         // ホバーエフェクト
@@ -1385,6 +1388,10 @@ export class BattleScene extends Phaser.Scene {
 
         // コスト回復
         this.costSystem.update(adjustedDelta);
+
+        // クールダウン更新（ゲーム速度適用）
+        this.updateCooldowns(adjustedDelta);
+
         this.updateCostUI();
 
         // Wave処理（敵出現）
@@ -1446,6 +1453,18 @@ export class BattleScene extends Phaser.Scene {
                 unit.update(delta);
             }
         }
+    }
+
+    private updateCooldowns(delta: number) {
+        // 各ユニットの残りクールダウンを減少
+        this.unitCooldowns.forEach((remaining, unitId) => {
+            const newRemaining = remaining - delta;
+            if (newRemaining <= 0) {
+                this.unitCooldowns.delete(unitId);
+            } else {
+                this.unitCooldowns.set(unitId, newRemaining);
+            }
+        });
     }
 
     private cleanupDeadUnits() {
@@ -1526,14 +1545,14 @@ export class BattleScene extends Phaser.Scene {
         // ユニット召喚ボタンの有効/無効状態を更新（クールダウン含む）
         const now = this.time.now;
         this.summonUIButtons.forEach(btn => {
-            const cooldownEnd = this.unitCooldowns.get(btn.unitId);
-            const isOnCooldown = cooldownEnd && now < cooldownEnd;
+            const remainingCooldown = this.unitCooldowns.get(btn.unitId);
+            const isOnCooldown = remainingCooldown !== undefined && remainingCooldown > 0;
             const canAffordCost = current >= btn.cost;
             const canSummon = canAffordCost && !isOnCooldown;
 
             // クールダウン表示更新
-            if (isOnCooldown && cooldownEnd && btn.cooldownDuration > 0) {
-                const remainingMs = cooldownEnd - now;
+            if (isOnCooldown && remainingCooldown && btn.cooldownDuration > 0) {
+                const remainingMs = remainingCooldown;
                 const remainingSec = Math.ceil(remainingMs / 1000);
                 const progress = remainingMs / btn.cooldownDuration; // 1.0 → 0.0
                 const maxHeight = btn.buttonHeight - 4;
@@ -1559,18 +1578,6 @@ export class BattleScene extends Phaser.Scene {
             } else {
                 btn.cooldownOverlay.setVisible(false);
                 btn.cooldownText.setVisible(false);
-
-                // クールダウン終了時のフラッシュエフェクト（既存のTweenがなければ）
-                if (cooldownEnd && now >= cooldownEnd && now < cooldownEnd + 100) {
-                    this.tweens.add({
-                        targets: btn.bg,
-                        scaleX: 1.1,
-                        scaleY: 1.1,
-                        duration: 100,
-                        yoyo: true,
-                        onComplete: () => btn.bg.setScale(1),
-                    });
-                }
             }
 
             // ボタンの見た目更新
@@ -1732,16 +1739,151 @@ export class BattleScene extends Phaser.Scene {
 
         const damage = 200;
         const knockback = 60;
+
+        // 攻撃範囲: フィールドの半分
+        const attackRange = this.stageData.length / 2;
+        const rangeEndX = this.allyCastle.x + attackRange;
+
+        // 範囲内の敵のみ対象
         const livingEnemies = this.enemyUnits.filter(u => !u.isDead());
-        if (livingEnemies.length > 0) {
-            for (const enemy of livingEnemies) {
-                enemy.takeDamage(damage, knockback);
-            }
+        const enemiesInRange = livingEnemies.filter(e => e.x <= rangeEndX);
+
+        // 画面シェイク
+        this.cameras.main.shake(400, 0.015);
+
+        // 味方城から衝撃波（範囲表示付き）
+        this.createShockwave(this.allyCastle.x, this.groundY, attackRange);
+
+        if (enemiesInRange.length > 0) {
+            // 各敵に爆発エフェクト（少し遅延させて順番に）
+            enemiesInRange.forEach((enemy, index) => {
+                this.time.delayedCall(150 + index * 80, () => {
+                    this.createExplosion(enemy.x, enemy.y);
+                    enemy.takeDamage(damage, knockback);
+                });
+            });
         } else {
-            this.enemyCastle.takeDamage(damage);
+            // 範囲内に敵がいない場合、範囲の端で爆発
+            this.time.delayedCall(300, () => {
+                this.createExplosion(rangeEndX, this.groundY);
+            });
         }
 
         this.cannonCharge = 0;
+    }
+
+    private createShockwave(x: number, y: number, range: number) {
+        // 衝撃波（範囲まで広がる半円）
+        const wave = this.add.circle(x, y, 20, 0xffff00, 0.7);
+        wave.setStrokeStyle(6, 0xff6600);
+        wave.setDepth(50);
+
+        this.tweens.add({
+            targets: wave,
+            radius: range,
+            alpha: 0,
+            duration: 600,
+            ease: 'Power2',
+            onComplete: () => wave.destroy(),
+        });
+
+        // 範囲終端のライン表示
+        const rangeLine = this.add.rectangle(x + range, y - 100, 8, 200, 0xff4444, 0.8);
+        rangeLine.setDepth(49);
+        this.tweens.add({
+            targets: rangeLine,
+            alpha: 0,
+            duration: 800,
+            ease: 'Power1',
+            onComplete: () => rangeLine.destroy(),
+        });
+
+        // 範囲テキスト
+        const rangeText = this.add.text(x + range, y - 220, '⚡範囲⚡', {
+            fontSize: '20px',
+            color: '#ff4444',
+            fontStyle: 'bold',
+            stroke: '#000000',
+            strokeThickness: 3,
+        });
+        rangeText.setOrigin(0.5, 0.5);
+        rangeText.setDepth(49);
+        this.tweens.add({
+            targets: rangeText,
+            alpha: 0,
+            y: y - 250,
+            duration: 1000,
+            ease: 'Power1',
+            onComplete: () => rangeText.destroy(),
+        });
+    }
+
+    private createExplosion(x: number, y: number) {
+        // 爆発の中心フラッシュ（大きく）
+        const flash = this.add.circle(x, y, 50, 0xffffff, 1);
+        flash.setDepth(60);
+        this.tweens.add({
+            targets: flash,
+            scale: 3,
+            alpha: 0,
+            duration: 200,
+            onComplete: () => flash.destroy(),
+        });
+
+        // 爆発の炎（複数の円・大きく）
+        const colors = [0xff4400, 0xff8800, 0xffcc00, 0xff0000, 0xffff00];
+        for (let i = 0; i < 12; i++) {
+            const angle = (i / 12) * Math.PI * 2;
+            const dist = 40 + Math.random() * 60;
+            const size = 15 + Math.random() * 25;
+            const color = colors[Math.floor(Math.random() * colors.length)];
+
+            const particle = this.add.circle(x, y, size, color, 0.9);
+            particle.setDepth(55);
+
+            this.tweens.add({
+                targets: particle,
+                x: x + Math.cos(angle) * dist,
+                y: y + Math.sin(angle) * dist - 30,
+                scale: 0.1,
+                alpha: 0,
+                duration: 400 + Math.random() * 300,
+                ease: 'Power2',
+                onComplete: () => particle.destroy(),
+            });
+        }
+
+        // 爆発テキスト（大きく）
+        const boom = this.add.text(x, y - 40, '💥', { fontSize: '72px' });
+        boom.setOrigin(0.5, 0.5);
+        boom.setDepth(61);
+        this.tweens.add({
+            targets: boom,
+            y: y - 120,
+            scale: 2,
+            alpha: 0,
+            duration: 500,
+            ease: 'Power2',
+            onComplete: () => boom.destroy(),
+        });
+
+        // 追加の火花
+        for (let i = 0; i < 6; i++) {
+            const spark = this.add.text(x, y, '✨', { fontSize: '24px' });
+            spark.setOrigin(0.5, 0.5);
+            spark.setDepth(62);
+            const angle = Math.random() * Math.PI * 2;
+            const dist = 60 + Math.random() * 80;
+            this.tweens.add({
+                targets: spark,
+                x: x + Math.cos(angle) * dist,
+                y: y + Math.sin(angle) * dist - 50,
+                alpha: 0,
+                duration: 600,
+                ease: 'Power2',
+                onComplete: () => spark.destroy(),
+            });
+        }
     }
 
     private updateStateUI() {
@@ -1758,8 +1900,8 @@ export class BattleScene extends Phaser.Scene {
         if (!unitDef) return;
 
         // クールダウンチェック
-        const cooldownEnd = this.unitCooldowns.get(unitId);
-        if (cooldownEnd && this.time.now < cooldownEnd) {
+        const remainingCooldown = this.unitCooldowns.get(unitId);
+        if (remainingCooldown && remainingCooldown > 0) {
             return; // クールダウン中
         }
 
@@ -1769,9 +1911,9 @@ export class BattleScene extends Phaser.Scene {
             return;
         }
 
-        // クールダウンを設定
+        // クールダウンを設定（残り時間として保存）
         const cooldownMs = getSpawnCooldown(unitDef);
-        this.unitCooldowns.set(unitId, this.time.now + cooldownMs);
+        this.unitCooldowns.set(unitId, cooldownMs);
 
         // 城の少し前からスポーン
         const spawnX = this.allyCastle.getX() + 60;
@@ -1798,8 +1940,8 @@ export class BattleScene extends Phaser.Scene {
         if (this.gameState !== 'PLAYING' || this.quizActive) return;
 
         // クールダウンチェック
-        const cooldownEnd = this.unitCooldowns.get(unitId);
-        if (cooldownEnd && this.time.now < cooldownEnd) {
+        const remainingCooldown = this.unitCooldowns.get(unitId);
+        if (remainingCooldown && remainingCooldown > 0) {
             return; // クールダウン中
         }
 
@@ -1975,9 +2117,9 @@ export class BattleScene extends Phaser.Scene {
                 const spawnX = this.allyCastle.getX() + 60;
                 const unitDef = this.allUnitsData.find(u => u.id === this.pendingUnitId);
                 if (unitDef) {
-                    // クールダウンを設定
+                    // クールダウンを設定（残り時間として保存）
                     const cooldownMs = getSpawnCooldown(unitDef);
-                    this.unitCooldowns.set(unitDef.id, this.time.now + cooldownMs);
+                    this.unitCooldowns.set(unitDef.id, cooldownMs);
 
                     const unit = new Unit(this, spawnX, this.groundY, unitDef, 'ally', this.stageData.length);
                     this.allyUnits.push(unit);
