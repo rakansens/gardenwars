@@ -531,7 +531,7 @@ export class BattleScene extends Phaser.Scene {
         };
         this.costSystem = new CostSystem(playerCostConfig);
 
-        // AI対戦モードの場合、AIControllerを初期化
+        // AI対戦モードの場合、AIControllerを初期化（プレイヤーと完全に同じコスト設定）
         if (this.stageData.aiDeck && this.stageData.aiDeck.length > 0) {
             this.aiController = new AIController(this, this.allUnitsData, {
                 deck: this.stageData.aiDeck,
@@ -539,6 +539,10 @@ export class BattleScene extends Phaser.Scene {
                     current: 200,  // プレイヤーと同じ初期コスト
                     max: 1000,     // プレイヤーと同じ最大コスト
                     regenRate: 100, // プレイヤーと同じ回復速度
+                    // アップグレードもプレイヤーと同じ設定
+                    maxLevels: [1000, 2500, 4500, 7000, 10000, 15000, 25000, 99999],
+                    regenRates: [100, 150, 250, 400, 600, 900, 1500, 2500],
+                    upgradeCosts: [500, 1200, 2500, 4500, 8000, 12000, 20000],
                 },
                 spawnDelay: 2000,  // 2秒間隔で出撃判断
                 strategy: this.stageData.aiStrategy ?? 'balanced',

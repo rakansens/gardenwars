@@ -28,6 +28,7 @@
 }
 
 :root {
+  color-scheme: light only;
   --background: #f6ead2;
   --foreground: #3b2a1a;
   --primary: #f0b429;
@@ -42,6 +43,7 @@
 body {
   background: linear-gradient(180deg, #f9efd9 0%, #f1dfbd 100%);
   color: var(--foreground);
+  -webkit-text-fill-color: inherit;
   font-family: "Hiragino Maru Gothic ProN", "Hiragino Sans", var(--font-noto-sans-jp), Arial, sans-serif;
   min-height: 100vh;
   /* モバイル最適化 */
@@ -56,6 +58,18 @@ body {
   padding-bottom: env(safe-area-inset-bottom);
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
+}
+
+/* フォーム要素のダークモード対策 */
+input, textarea, select {
+  color: #1f2937;
+  background-color: #ffffff;
+  -webkit-text-fill-color: #1f2937;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #9ca3af;
+  -webkit-text-fill-color: #9ca3af;
 }
 
 /* ボタン共通スタイル */

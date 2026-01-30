@@ -67,7 +67,7 @@ export function RegisterScreen({ onRegister, onBack }: RegisterScreenProps) {
                         onChange={(e) => setName(e.target.value)}
                         placeholder={language === "ja" ? "なまえ" : "Name"}
                         maxLength={20}
-                        className="w-full p-4 text-xl border-2 border-green-300 rounded-xl focus:border-green-500 focus:outline-none text-center mb-4"
+                        className="w-full p-4 text-xl border-2 border-green-300 rounded-xl focus:border-green-500 focus:outline-none text-center mb-4 text-gray-900 bg-white placeholder-gray-400"
                         autoFocus
                     />
 

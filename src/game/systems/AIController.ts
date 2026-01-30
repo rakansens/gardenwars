@@ -1,6 +1,6 @@
 import type { UnitDefinition, CostGaugeState } from '@/data/types';
 import type { BattleScene } from '../scenes/BattleScene';
-import { CostSystem } from './CostSystem';
+import { CostSystem, CostSystemOptions } from './CostSystem';
 
 // ============================================
 // AIController - AI敵管理（コストベース）
@@ -8,7 +8,7 @@ import { CostSystem } from './CostSystem';
 
 export interface AIControllerOptions {
     deck: string[];           // AIのデッキ（ユニットID配列）
-    costConfig: CostGaugeState;  // コスト設定（プレイヤーと同じ）
+    costConfig: CostSystemOptions;  // コスト設定（プレイヤーと同じフル設定）
     spawnDelay?: number;      // 出撃判断の間隔（ms）
     strategy?: 'aggressive' | 'balanced' | 'defensive';
 }
@@ -39,12 +39,8 @@ export class AIController {
             .map(id => allUnits.find(u => u.id === id))
             .filter((u): u is UnitDefinition => u !== undefined);
 
-        // AIのコストシステム（プレイヤーと同じ設定）
-        this.costSystem = new CostSystem({
-            current: options.costConfig.current,
-            max: options.costConfig.max,
-            regenRate: options.costConfig.regenRate,
-        });
+        // AIのコストシステム（プレイヤーと同じフル設定）
+        this.costSystem = new CostSystem(options.costConfig);
 
         // 各ユニットのクールダウンを初期化
         this.units.forEach(unit => {
@@ -85,7 +81,7 @@ export class AIController {
     }
 
     /**
-     * 出撃判断
+     * 出撃判断（アップグレードも含む）
      */
     private makeDecision(): void {
         const currentCost = this.costSystem.getCurrent();
@@ -96,6 +92,35 @@ export class AIController {
             return unit.cost <= currentCost && cooldown <= 0;
         });
 
+        // デッキ内の最高コストユニット
+        const maxUnitCost = Math.max(...this.units.map(u => u.cost));
+
+        // アップグレード判断
+        // 条件：
+        // 1. アップグレード可能
+        // 2. アップグレードコストを払える
+        // 3. 以下のいずれか:
+        //    - 出撃可能なユニットがない（コストを貯めている状態）
+        //    - 現在のコスト上限が最高コストユニットより低い
+        //    - コストがほぼ満タン（90%以上）でアップグレードした方が効率的
+        const upgradeCost = this.costSystem.getUpgradeCost();
+        const canUpgrade = this.costSystem.canUpgrade();
+        const maxCost = this.costSystem.getMax();
+        const costRatio = currentCost / maxCost;
+
+        if (canUpgrade && upgradeCost !== null && currentCost >= upgradeCost) {
+            const shouldUpgrade =
+                affordableUnits.length === 0 ||  // 出せるユニットがない
+                maxCost < maxUnitCost ||          // 上限が最高コストユニットより低い
+                costRatio >= 0.9;                 // コストがほぼ満タン
+
+            if (shouldUpgrade) {
+                this.costSystem.upgradeMax();
+                return; // アップグレードしたらこのターンは終了
+            }
+        }
+
+        // ユニット出撃判断
         if (affordableUnits.length === 0) return;
 
         // 戦略に基づいてユニットを選択
@@ -156,6 +181,13 @@ export class AIController {
      */
     getCost(): number {
         return this.costSystem.getCurrent();
+    }
+
+    /**
+     * 現在のコストレベルを取得（デバッグ用）
+     */
+    getCostLevel(): number {
+        return this.costSystem.getLevel();
     }
 
     /**
