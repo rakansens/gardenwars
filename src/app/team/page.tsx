@@ -14,6 +14,9 @@ const allUnits = unitsData as UnitDefinition[];
 // 味方ユニットのみフィルタ
 const allyUnits = allUnits.filter((u) => !u.id.startsWith("enemy_") && !u.id.startsWith("boss_") && !u.isBoss);
 
+// ガチャプール（味方ユニットのみ）
+const gachaPool = allyUnits;
+
 // レアリティ別デフォルト召喚クールダウン
 const DEFAULT_SPAWN_COOLDOWN: Record<Rarity, number> = {
     N: 2000,
@@ -27,7 +30,32 @@ function getSpawnCooldown(unit: UnitDefinition): number {
     return unit.spawnCooldownMs ?? DEFAULT_SPAWN_COOLDOWN[unit.rarity];
 }
 
-type SortKey = "none" | "hp" | "attack" | "range" | "speed" | "move" | "dps" | "cost" | "spawn";
+// サイズカテゴリを取得
+function getSizeCategory(scale: number): string {
+    if (scale <= 0.85) return "size_tiny";
+    if (scale <= 1.1) return "size_small";
+    if (scale <= 1.4) return "size_medium";
+    if (scale <= 1.8) return "size_large";
+    if (scale <= 2.5) return "size_huge";
+    return "size_giant";
+}
+
+// ガチャ排出率の計算
+const rarityWeights: Record<Rarity, number> = { N: 50, R: 30, SR: 15, SSR: 3, UR: 1 };
+const urUnits = gachaPool.filter(u => u.rarity === "UR");
+const totalUrWeight = urUnits.reduce((sum, u) => sum + (u.gachaWeight ?? 1), 0);
+
+function getDropRate(unit: UnitDefinition): number {
+    const baseRate = rarityWeights[unit.rarity];
+    if (unit.rarity === "UR") {
+        const unitWeight = unit.gachaWeight ?? 1;
+        return (unitWeight / totalUrWeight) * baseRate;
+    }
+    const unitsInRarity = gachaPool.filter(u => u.rarity === unit.rarity).length;
+    return baseRate / unitsInRarity;
+}
+
+type SortKey = "none" | "hp" | "attack" | "range" | "speed" | "move" | "dps" | "cost" | "spawn" | "droprate";
 
 export default function TeamPage() {
     const { selectedTeam, unitInventory, setTeam, isLoaded, activeLoadoutIndex, switchLoadout, loadouts } = usePlayerData();
@@ -56,6 +84,7 @@ export default function TeamPage() {
         { key: "move", label: t("move_speed"), icon: "🏃" },
         { key: "cost", label: t("cost"), icon: "💰" },
         { key: "spawn", label: t("spawn_cooldown"), icon: "⏰" },
+        { key: "droprate", label: t("drop_rate"), icon: "🎰" },
     ];
 
     const sortUnits = (units: UnitDefinition[]): UnitDefinition[] => {
@@ -85,6 +114,9 @@ export default function TeamPage() {
                 case "spawn":
                     // 召喚クールダウン短い順（早く召喚できる順）
                     return getSpawnCooldown(a) - getSpawnCooldown(b);
+                case "droprate":
+                    // ドロップレート低い順（レア順）
+                    return getDropRate(a) - getDropRate(b);
                 default:
                     return 0;
             }
@@ -322,6 +354,13 @@ export default function TeamPage() {
                                                         </div>
                                                     )}
 
+                                                    {/* 飛行バッジ */}
+                                                    {unit.isFlying && (
+                                                        <div className={`absolute ${unitHasAnimation ? "-bottom-2" : "-top-2"} -left-2 w-7 h-7 rounded-full bg-sky-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10`} title="Flying Unit">
+                                                            🪽
+                                                        </div>
+                                                    )}
+
                                                     {/* クリックで詳細表示エリア */}
                                                     <div
                                                         className="cursor-pointer"
@@ -337,6 +376,27 @@ export default function TeamPage() {
                                                         />
                                                         <div className="mt-2 text-center">
                                                             <div className="font-medium text-sm">{unit.name}</div>
+                                                            <div className="flex items-center justify-center gap-1 mt-1 text-xs">
+                                                                <span className={`font-bold ${
+                                                                    unit.rarity === "UR" ? "text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500" :
+                                                                    unit.rarity === "SSR" ? "text-amber-600" :
+                                                                    unit.rarity === "SR" ? "text-purple-600" :
+                                                                    unit.rarity === "R" ? "text-blue-600" :
+                                                                    "text-gray-500"
+                                                                }`}>
+                                                                    {unit.rarity}
+                                                                </span>
+                                                                <span className="text-gray-400">|</span>
+                                                                <span className="text-gray-600" title={`${(unit.scale ?? 1).toFixed(1)}x`}>
+                                                                    {t(getSizeCategory(unit.scale ?? 1))}
+                                                                </span>
+                                                                {unit.isFlying && (
+                                                                    <>
+                                                                        <span className="text-gray-400">|</span>
+                                                                        <span className="text-sky-500">{t("flying")}</span>
+                                                                    </>
+                                                                )}
+                                                            </div>
                                                         </div>
                                                         <div className="mt-1 text-xs text-gray-600 space-y-0.5">
                                                             <div className="flex justify-between">
@@ -370,6 +430,10 @@ export default function TeamPage() {
                                                             <div className="flex justify-between text-purple-500">
                                                                 <span>⏰ {t("spawn_cooldown")}:</span>
                                                                 <span className="font-bold">{(getSpawnCooldown(unit) / 1000).toFixed(1)}s</span>
+                                                            </div>
+                                                            <div className={`flex justify-between ${getDropRate(unit) < 0.1 ? "text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500" : "text-pink-500"}`}>
+                                                                <span className={getDropRate(unit) < 0.1 ? "text-pink-500" : ""}>🎰 {t("drop_rate")}:</span>
+                                                                <span className="font-bold">{getDropRate(unit) < 0.1 ? getDropRate(unit).toFixed(3) : getDropRate(unit).toFixed(2)}%</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -443,6 +507,13 @@ export default function TeamPage() {
                                                         </div>
                                                     )}
 
+                                                    {/* 飛行バッジ */}
+                                                    {unit.isFlying && (
+                                                        <div className={`absolute ${unitHasAnimation ? "-bottom-2" : "-top-2"} -left-2 w-7 h-7 rounded-full bg-sky-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10`} title="Flying Unit">
+                                                            🪽
+                                                        </div>
+                                                    )}
+
                                                     {/* クリックで詳細表示エリア */}
                                                     <div
                                                         className="cursor-pointer"
@@ -459,6 +530,27 @@ export default function TeamPage() {
                                                         />
                                                         <div className="mt-2 text-center">
                                                             <div className="font-medium text-sm text-gray-500">{unit.name}</div>
+                                                            <div className="flex items-center justify-center gap-1 mt-1 text-xs">
+                                                                <span className={`font-bold ${
+                                                                    unit.rarity === "UR" ? "text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500" :
+                                                                    unit.rarity === "SSR" ? "text-amber-600" :
+                                                                    unit.rarity === "SR" ? "text-purple-600" :
+                                                                    unit.rarity === "R" ? "text-blue-600" :
+                                                                    "text-gray-500"
+                                                                }`}>
+                                                                    {unit.rarity}
+                                                                </span>
+                                                                <span className="text-gray-300">|</span>
+                                                                <span className="text-gray-400" title={`${(unit.scale ?? 1).toFixed(1)}x`}>
+                                                                    {t(getSizeCategory(unit.scale ?? 1))}
+                                                                </span>
+                                                                {unit.isFlying && (
+                                                                    <>
+                                                                        <span className="text-gray-300">|</span>
+                                                                        <span className="text-gray-400">{t("flying")}</span>
+                                                                    </>
+                                                                )}
+                                                            </div>
                                                         </div>
                                                         <div className="mt-1 text-xs text-gray-400 space-y-0.5">
                                                             <div className="flex justify-between">
@@ -488,6 +580,10 @@ export default function TeamPage() {
                                                             <div className="flex justify-between">
                                                                 <span>💰 {t("cost")}:</span>
                                                                 <span className="font-bold">¥{unit.cost}</span>
+                                                            </div>
+                                                            <div className={`flex justify-between ${getDropRate(unit) < 0.1 ? "text-pink-400" : "text-pink-400"}`}>
+                                                                <span>🎰 {t("drop_rate")}:</span>
+                                                                <span className="font-bold">{getDropRate(unit) < 0.1 ? getDropRate(unit).toFixed(3) : getDropRate(unit).toFixed(2)}%</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -519,6 +615,7 @@ export default function TeamPage() {
                     isInTeam={selectedTeam.includes(viewingUnit.id)}
                     onClose={() => setViewingUnit(null)}
                     onToggleTeam={() => handleToggleUnit(viewingUnit.id)}
+                    dropRate={getDropRate(viewingUnit)}
                 />
             )}
         </main>

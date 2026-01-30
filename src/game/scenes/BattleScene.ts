@@ -207,6 +207,31 @@ export class BattleScene extends Phaser.Scene {
         this.load.image('ur_golem', '/assets/sprites/ur_golem.png');
         this.load.image('ur_angel', '/assets/sprites/ur_angel.png');
 
+        // New UR Units
+        this.load.image('ur_rose_queen', '/assets/sprites/ur_rose_queen.png');
+        this.load.image('ur_galaxy_butterfly', '/assets/sprites/ur_galaxy_butterfly.png');
+        this.load.image('ur_rose_capybara', '/assets/sprites/ur_rose_capybara.png');
+        this.load.image('ur_cosmic_dragon', '/assets/sprites/ur_cosmic_dragon.png');
+        this.load.image('ur_nature_spirit_cat', '/assets/sprites/ur_nature_spirit_cat.png');
+        this.load.image('ur_inferno_demon', '/assets/sprites/ur_inferno_demon.png');
+        this.load.image('ur_golden_lion', '/assets/sprites/ur_golden_lion.png');
+        this.load.image('ur_chrono_sage', '/assets/sprites/ur_chrono_sage.png');
+        this.load.image('ur_jade_dragon', '/assets/sprites/ur_jade_dragon.png');
+        this.load.image('ur_emerald_dragon', '/assets/sprites/ur_emerald_dragon.png');
+        this.load.image('ur_chronos_cat', '/assets/sprites/ur_chronos_cat.png');
+        this.load.image('ur_ancient_treant', '/assets/sprites/ur_ancient_treant.png');
+        this.load.image('ur_nature_titan', '/assets/sprites/ur_nature_titan.png');
+        this.load.image('ur_stone_golem_cat', '/assets/sprites/ur_stone_golem_cat.png');
+        this.load.image('ur_fire_lotus_cat', '/assets/sprites/ur_fire_lotus_cat.png');
+        this.load.image('ur_astral_wizard', '/assets/sprites/ur_astral_wizard.png');
+        this.load.image('ur_rune_golem', '/assets/sprites/ur_rune_golem.png');
+        this.load.image('ur_frost_giant', '/assets/sprites/ur_frost_giant.png');
+        this.load.image('ur_celestial_cat', '/assets/sprites/ur_celestial_cat.png');
+        this.load.image('ur_crystal_griffin', '/assets/sprites/ur_crystal_griffin.png');
+        this.load.image('ur_prismatic_cat', '/assets/sprites/ur_prismatic_cat.png');
+        this.load.image('ur_sea_leviathan', '/assets/sprites/ur_sea_leviathan.png');
+        this.load.image('ur_thunder_phoenix', '/assets/sprites/ur_thunder_phoenix.png');
+
         // Normal Units
         this.load.image('n_mushroom', '/assets/sprites/n_mushroom.png');
         this.load.image('n_apple', '/assets/sprites/n_apple.png');
@@ -267,6 +292,8 @@ export class BattleScene extends Phaser.Scene {
         this.load.image('sr_bamboo_mech', '/assets/sprites/sr_bamboo_mech.png');
         this.load.image('sr_sun_pirate', '/assets/sprites/sr_sun_pirate.png');
         this.load.image('sr_tulip_idol', '/assets/sprites/sr_tulip_idol.png');
+        this.load.image('sr_crystal_lotus_cat', '/assets/sprites/sr_crystal_lotus_cat.png');
+        this.load.image('sr_bonsai_cat', '/assets/sprites/sr_bonsai_cat.png');
 
         // SSR Units
         this.load.image('flame_knight', '/assets/sprites/flame_knight.png');

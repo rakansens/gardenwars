@@ -16,6 +16,16 @@ const collectableUnits = allUnits.filter(
     (u) => !u.id.startsWith("enemy_") && !u.id.startsWith("boss_")
 );
 
+// サイズカテゴリを取得
+function getSizeCategory(scale: number): string {
+    if (scale <= 0.85) return "size_tiny";
+    if (scale <= 1.1) return "size_small";
+    if (scale <= 1.4) return "size_medium";
+    if (scale <= 1.8) return "size_large";
+    if (scale <= 2.5) return "size_huge";
+    return "size_giant";
+}
+
 // レアリティ順序
 const rarityOrder: Rarity[] = ["N", "R", "SR", "SSR", "UR"];
 
@@ -251,6 +261,13 @@ export default function CollectionPage() {
                                         </div>
                                     )}
 
+                                    {/* 飛行バッジ */}
+                                    {unit.isFlying && isOwned && (
+                                        <div className={`absolute ${unitHasAnimation ? "-bottom-2" : "-top-2"} -left-2 w-7 h-7 rounded-full bg-sky-500 text-white text-xs flex items-center justify-center border-2 border-white shadow z-10`} title="Flying Unit">
+                                            🪽
+                                        </div>
+                                    )}
+
                                     <div className="flex justify-center">
                                         <RarityFrame
                                             unitId={unit.id}
@@ -267,14 +284,26 @@ export default function CollectionPage() {
                                         <div className={`text-sm font-bold leading-tight min-h-[2.5rem] flex items-center justify-center ${!isOwned ? "text-gray-400" : ""}`}>
                                             {unit.name}
                                         </div>
-                                        <div className={`text-xs font-bold mt-1 ${
-                                            unit.rarity === "UR" ? "text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500" :
-                                            unit.rarity === "SSR" ? "text-amber-600" :
-                                            unit.rarity === "SR" ? "text-purple-600" :
-                                            unit.rarity === "R" ? "text-blue-600" :
-                                            "text-gray-500"
-                                        }`}>
-                                            {unit.rarity}
+                                        <div className="flex items-center justify-center gap-1 mt-1 text-xs">
+                                            <span className={`font-bold ${
+                                                unit.rarity === "UR" ? "text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500" :
+                                                unit.rarity === "SSR" ? "text-amber-600" :
+                                                unit.rarity === "SR" ? "text-purple-600" :
+                                                unit.rarity === "R" ? "text-blue-600" :
+                                                "text-gray-500"
+                                            }`}>
+                                                {unit.rarity}
+                                            </span>
+                                            <span className="text-gray-400">|</span>
+                                            <span className="text-gray-600" title={`${(unit.scale ?? 1).toFixed(1)}x`}>
+                                                {t(getSizeCategory(unit.scale ?? 1))}
+                                            </span>
+                                            {unit.isFlying && (
+                                                <>
+                                                    <span className="text-gray-400">|</span>
+                                                    <span className="text-sky-500">{t("flying")}</span>
+                                                </>
+                                            )}
                                         </div>
                                     </div>
                                 </div>

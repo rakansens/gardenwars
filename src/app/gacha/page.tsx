@@ -74,8 +74,8 @@ export default function GachaPage() {
 
     // レアリティで重み付けしてランダム選択（URは個別重み）
     const pickRandomUnit = (): UnitDefinition => {
-        // 基本レアリティ確率: N=50%, R=30%, SR=15%, SSR=3%, UR=1%(ベース)
-        const rarityWeights = { N: 50, R: 30, SR: 15, SSR: 3, UR: 1 };
+        // 基本レアリティ確率: N=51%, R=30%, SR=15%, SSR=1%, UR=1%(ベース)
+        const rarityWeights = { N: 51, R: 30, SR: 15, SSR: 1, UR: 1 };
 
         // URユニットの合計重みを計算
         const urUnits = gachaPool.filter(u => u.rarity === "UR");
@@ -104,7 +104,7 @@ export default function GachaPage() {
 
     // ユニットの排出率を計算（%表示用）
     const getDropRate = (unit: UnitDefinition): number => {
-        const rarityWeights = { N: 50, R: 30, SR: 15, SSR: 3, UR: 1 };
+        const rarityWeights = { N: 51, R: 30, SR: 15, SSR: 1, UR: 1 };
 
         if (unit.rarity === "UR") {
             const urUnits = gachaPool.filter(u => u.rarity === "UR");
@@ -173,10 +173,10 @@ export default function GachaPage() {
 
                     {/* 排出率 */}
                     <div className="flex justify-center gap-2 mb-6 text-xs flex-wrap">
-                        <span className="px-2 py-1 rounded bg-gray-200 text-gray-700">N: 50%</span>
+                        <span className="px-2 py-1 rounded bg-gray-200 text-gray-700">N: 51%</span>
                         <span className="px-2 py-1 rounded bg-blue-200 text-blue-700">R: 30%</span>
                         <span className="px-2 py-1 rounded bg-purple-200 text-purple-700">SR: 15%</span>
-                        <span className="px-2 py-1 rounded bg-amber-200 text-amber-700">SSR: 3%</span>
+                        <span className="px-2 py-1 rounded bg-amber-200 text-amber-700">SSR: 1%</span>
                         <span className="px-2 py-1 rounded bg-gradient-to-r from-pink-200 to-cyan-200 text-purple-700 font-bold">UR: 1%</span>
                     </div>
 
@@ -279,6 +279,13 @@ export default function GachaPage() {
                                         {isOwned && (
                                             <div className="absolute -top-2 -left-2 w-5 h-5 rounded-full bg-green-500 text-white text-[10px] font-bold flex items-center justify-center z-10">
                                                 ✓
+                                            </div>
+                                        )}
+
+                                        {/* 飛行バッジ */}
+                                        {unit.isFlying && (
+                                            <div className={`absolute ${isOwned ? "-bottom-1" : "-top-2"} -left-2 w-5 h-5 rounded-full bg-sky-500 text-white text-[10px] flex items-center justify-center z-10`} title="Flying">
+                                                🪽
                                             </div>
                                         )}
 

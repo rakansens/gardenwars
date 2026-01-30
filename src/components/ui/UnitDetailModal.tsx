@@ -20,6 +20,16 @@ function getSpawnCooldown(unit: UnitDefinition): number {
     return unit.spawnCooldownMs ?? DEFAULT_SPAWN_COOLDOWN[unit.rarity];
 }
 
+// サイズカテゴリを取得
+function getSizeCategory(scale: number): { key: string; emoji: string } {
+    if (scale <= 0.85) return { key: "size_tiny", emoji: "🐜" };
+    if (scale <= 1.1) return { key: "size_small", emoji: "🐱" };
+    if (scale <= 1.4) return { key: "size_medium", emoji: "🐕" };
+    if (scale <= 1.8) return { key: "size_large", emoji: "🦁" };
+    if (scale <= 2.5) return { key: "size_huge", emoji: "🐘" };
+    return { key: "size_giant", emoji: "🦕" };
+}
+
 interface UnitDetailModalProps {
     unit: UnitDefinition;
     isOwned: boolean;
@@ -83,12 +93,19 @@ export default function UnitDetailModal({
                             ✕
                         </button>
                     </div>
-                    {/* Animation badge in header */}
-                    {unitHasAnimation && (
-                        <div className="absolute top-4 left-4 bg-purple-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1 shadow-lg">
-                            🎬 Animated
-                        </div>
-                    )}
+                    {/* Badges in header */}
+                    <div className="absolute top-4 left-4 flex gap-2">
+                        {unitHasAnimation && (
+                            <div className="bg-purple-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1 shadow-lg">
+                                🎬 Animated
+                            </div>
+                        )}
+                        {unit.isFlying && (
+                            <div className="bg-sky-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1 shadow-lg">
+                                🪽 {t("flying")}
+                            </div>
+                        )}
+                    </div>
                     <h2 className="text-3xl font-bold text-white drop-shadow-md mt-4">{unitName}</h2>
                 </div>
 
@@ -208,6 +225,18 @@ export default function UnitDetailModal({
                                 <div className="text-xs text-gray-500 mb-1">{t("spawn_cooldown")}</div>
                                 <div className="text-lg font-bold text-purple-500">⏰ {(getSpawnCooldown(unit) / 1000).toFixed(1)}s</div>
                             </div>
+                            <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                                <div className="text-xs text-gray-500 mb-1">{t("size")}</div>
+                                <div className="text-lg font-bold text-emerald-600">
+                                    {getSizeCategory(unit.scale ?? 1).emoji} {t(getSizeCategory(unit.scale ?? 1).key)}
+                                </div>
+                            </div>
+                            {unit.isFlying && (
+                                <div className="bg-gradient-to-br from-sky-50 to-blue-50 rounded-lg p-3 border border-sky-200">
+                                    <div className="text-xs text-sky-600 mb-1">{t("flying")}</div>
+                                    <div className="text-lg font-bold text-sky-500">🪽 Yes</div>
+                                </div>
+                            )}
                             {dropRate !== undefined && (
                                 <div className="bg-gradient-to-br from-pink-50 to-purple-50 rounded-lg p-3 border border-pink-200">
                                     <div className="text-xs text-pink-600 mb-1">{t("drop_rate")}</div>

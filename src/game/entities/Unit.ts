@@ -44,6 +44,9 @@ export class Unit extends Phaser.GameObjects.Container {
     // アニメーション対応フラグ
     private hasAnimation: boolean = false;
 
+    // 飛行ユニットの浮遊オフセット
+    private flyingOffset: number = 0;
+
     // 蓄積ダメージ（ノックバック計算用）
     private damageAccumulated: number = 0;
 
@@ -122,9 +125,20 @@ export class Unit extends Phaser.GameObjects.Container {
 
         this.add(this.sprite);
 
+        // 飛行ユニットの場合、スプライトを上にずらす
+        if (definition.isFlying) {
+            this.flyingOffset = 40; // 40px上に浮遊
+            this.sprite.setY(-this.flyingOffset);
+
+            // 影を追加（地面に落とす）
+            const shadow = scene.add.ellipse(0, 0, 40, 15, 0x000000, 0.3);
+            shadow.setOrigin(0.5, 0.5);
+            this.addAt(shadow, 0); // スプライトの後ろに配置
+        }
+
         // HPバー (ボス以外のみ表示)
         if (!definition.isBoss) {
-            const barY = -this.sprite.displayHeight - 10;
+            const barY = -this.sprite.displayHeight - 10 - this.flyingOffset;
             this.hpBarBg = scene.add.rectangle(0, barY, 50, 6, 0x333333);
             this.add(this.hpBarBg);
 
@@ -141,9 +155,9 @@ export class Unit extends Phaser.GameObjects.Container {
 
         // ユニット名表示（ボスはUIで表示するので非表示、あるいは表示？）
         // ボスでも足元に名前あってもいいかも。一旦残すか、位置調整。
-        const baseNameY = -this.sprite.displayHeight - 15;
+        const baseNameY = -this.sprite.displayHeight - 15 - this.flyingOffset;
         // ボスの場合は少し下げて表示（頭上に）
-        const nameY = definition.isBoss ? -this.sprite.displayHeight : baseNameY;
+        const nameY = definition.isBoss ? -this.sprite.displayHeight - this.flyingOffset : baseNameY;
 
         const nameText = scene.add.text(0, nameY, definition.name.slice(0, 8), {
             fontSize: definition.isBoss ? '14px' : '10px',
@@ -372,7 +386,7 @@ export class Unit extends Phaser.GameObjects.Container {
     }
 
     private showDamageNumber(damage: number): void {
-        const text = this.scene.add.text(this.x, this.y - this.sprite.displayHeight - 20, `-${damage}`, {
+        const text = this.scene.add.text(this.x, this.y - this.sprite.displayHeight - 20 - this.flyingOffset, `-${damage}`, {
             fontSize: '16px',
             color: '#ff0000',
             fontStyle: 'bold',
