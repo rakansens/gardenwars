@@ -214,7 +214,7 @@ export default function CollectionPage() {
 
                 {/* ユニットグリッド */}
                 <section>
-                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                         {sortedUnits.map((unit) => {
                             const isOwned = (unitInventory[unit.id] || 0) > 0;
                             const count = unitInventory[unit.id] || 0;
@@ -224,7 +224,7 @@ export default function CollectionPage() {
                                 <div
                                     key={unit.id}
                                     className={`
-                                        relative bg-white rounded-xl p-2 shadow-md
+                                        relative bg-white rounded-xl p-3 shadow-md
                                         cursor-pointer hover:shadow-lg transition-all
                                         ${!isOwned ? "opacity-50 grayscale" : "hover:scale-105"}
                                     `}
@@ -232,40 +232,42 @@ export default function CollectionPage() {
                                 >
                                     {/* 所持数バッジ */}
                                     {isOwned && (
-                                        <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-green-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10">
+                                        <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-green-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10">
                                             {count > 99 ? "99+" : count}
                                         </div>
                                     )}
 
                                     {/* 未所持マーク */}
                                     {!isOwned && (
-                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl z-10 opacity-70">
+                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl z-10 opacity-70">
                                             🔒
                                         </div>
                                     )}
 
                                     {/* アニメーションバッジ */}
                                     {unitHasAnimation && isOwned && (
-                                        <div className="absolute -top-2 -left-2 w-6 h-6 rounded-full bg-purple-500 text-white text-xs flex items-center justify-center border-2 border-white shadow z-10" title="Has Animation">
+                                        <div className="absolute -top-2 -left-2 w-7 h-7 rounded-full bg-purple-500 text-white text-xs flex items-center justify-center border-2 border-white shadow z-10" title="Has Animation">
                                             🎬
                                         </div>
                                     )}
 
-                                    <RarityFrame
-                                        unitId={unit.id}
-                                        unitName={unit.name}
-                                        rarity={unit.rarity}
-                                        size="sm"
-                                        showLabel={false}
-                                        baseUnitId={unit.baseUnitId}
-                                        grayscale={!isOwned}
-                                    />
+                                    <div className="flex justify-center">
+                                        <RarityFrame
+                                            unitId={unit.id}
+                                            unitName={unit.name}
+                                            rarity={unit.rarity}
+                                            size="md"
+                                            showLabel={true}
+                                            baseUnitId={unit.baseUnitId}
+                                            grayscale={!isOwned}
+                                        />
+                                    </div>
 
-                                    <div className="mt-1 text-center">
-                                        <div className={`text-xs font-medium truncate ${!isOwned ? "text-gray-400" : ""}`}>
-                                            {unit.name.length > 8 ? unit.name.slice(0, 7) + "…" : unit.name}
+                                    <div className="mt-2 text-center">
+                                        <div className={`text-sm font-bold leading-tight min-h-[2.5rem] flex items-center justify-center ${!isOwned ? "text-gray-400" : ""}`}>
+                                            {unit.name}
                                         </div>
-                                        <div className={`text-xs font-bold ${
+                                        <div className={`text-xs font-bold mt-1 ${
                                             unit.rarity === "UR" ? "text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500" :
                                             unit.rarity === "SSR" ? "text-amber-600" :
                                             unit.rarity === "SR" ? "text-purple-600" :

@@ -367,10 +367,10 @@ export default function GachaReveal({ results, onComplete }: GachaRevealProps) {
             </h2>
 
             <div
-                className={`grid gap-1 mb-6 max-w-full px-2 ${results.length >= 100
-                    ? "grid-cols-8 sm:grid-cols-10 md:grid-cols-12"
+                className={`grid gap-2 mb-6 max-w-full px-2 ${results.length >= 100
+                    ? "grid-cols-5 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10"
                     : isMulti
-                        ? "grid-cols-5"
+                        ? "grid-cols-3 sm:grid-cols-4 md:grid-cols-5"
                         : "grid-cols-1"
                     }`}
             >
@@ -393,7 +393,7 @@ export default function GachaReveal({ results, onComplete }: GachaRevealProps) {
                             key={index}
                             onClick={handleCardClick}
                             className={`
-                                ${isMassive ? "w-10 h-14 sm:w-12 sm:h-16" : "w-20 h-28"} rounded-lg
+                                ${isMassive ? "w-16 h-24 sm:w-20 sm:h-28" : "w-24 h-36 sm:w-28 sm:h-40"} rounded-lg
                                 transform transition-all duration-200
                                 ${isRevealed
                                     ? `bg-gradient-to-br ${getRarityGradientClass(unit.rarity)} ${effect.glowColor} border-white/50 cursor-pointer hover:scale-105`
@@ -406,26 +406,24 @@ export default function GachaReveal({ results, onComplete }: GachaRevealProps) {
                         >
                             {isRevealed ? (
                                 <>
-                                    <div className={`${isMassive ? "scale-[0.65] -my-3" : "scale-100"}`}>
+                                    <div className={`${isMassive ? "scale-[0.85] -my-1" : "scale-100"}`}>
                                         <RarityFrame
                                             unitId={unit.id}
                                             unitName={unit.name}
                                             rarity={unit.rarity}
-                                            size="sm"
+                                            size={isMassive ? "sm" : "md"}
                                             showLabel={false}
                                             baseUnitId={unit.baseUnitId}
                                         />
                                     </div>
-                                    {!isMassive && (
-                                        <div className="text-xs text-white font-bold mt-1 truncate w-full text-center px-1">
-                                            {unit.name.slice(0, 4)}
-                                        </div>
-                                    )}
+                                    <div className={`${isMassive ? "text-[10px]" : "text-xs"} text-white font-bold mt-1 leading-tight text-center px-1 min-h-[2em] flex items-center justify-center`}>
+                                        {unit.name}
+                                    </div>
                                 </>
                             ) : (
                                 <div className="text-center">
-                                    <span className={`${isMassive ? "text-xl" : "text-2xl"}`}>❓</span>
-                                    {!isMassive && <div className="text-xs text-white/80 font-bold mt-1">{unit.rarity}</div>}
+                                    <span className={`${isMassive ? "text-2xl" : "text-3xl"}`}>❓</span>
+                                    <div className={`${isMassive ? "text-[10px]" : "text-xs"} text-white/80 font-bold mt-1`}>{unit.rarity}</div>
                                 </div>
                             )}
                         </div>
