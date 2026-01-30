@@ -22,13 +22,14 @@ const allUnits = unitsData as UnitDefinition[];
 const allyUnits = allUnits.filter(u => !u.id.startsWith("enemy_") && !u.id.startsWith("boss_") && !u.isBoss);
 
 export default function GardenPage() {
-    const { unitInventory, selectedTeam, gardenUnits: savedGardenUnitIds, setGardenUnits: saveGardenUnits, isLoaded } = usePlayerData();
+    const { unitInventory, selectedTeam, gardenUnits: savedGardenUnitIds, setGardenUnits: saveGardenUnits, isLoaded, addCoins, coins } = usePlayerData();
     const { t } = useLanguage();
     const { playerId } = useAuth();
     const [displayUnits, setDisplayUnits] = useState<UnitDefinition[]>([]);
     const [ready, setReady] = useState(false);
     const [isSelectModalOpen, setIsSelectModalOpen] = useState(false);
     const [editUnits, setEditUnits] = useState<string[]>([]);
+    const [coinEffect, setCoinEffect] = useState(false);
 
     // Helper
     const getUnitName = (unit: UnitDefinition) => {
@@ -138,14 +139,25 @@ export default function GardenPage() {
         setIsSelectModalOpen(false);
     };
 
+    const showCoinEffect = () => {
+        setCoinEffect(true);
+        setTimeout(() => setCoinEffect(false), 600);
+    };
+
     const handleFeed = (type: string) => {
         console.log('GardenPage: Emitting FEED', type);
         eventBus.emit(GameEvents.GARDEN_FEED, { type });
+        // コイン報酬
+        addCoins(1);
+        showCoinEffect();
     };
 
     const handleClean = () => {
         console.log('GardenPage: Emitting CLEAN');
         eventBus.emit(GameEvents.GARDEN_CLEAN);
+        // コイン報酬
+        addCoins(1);
+        showCoinEffect();
     };
 
     if (!isLoaded || !ready) {
@@ -168,6 +180,13 @@ export default function GardenPage() {
                 <div className="bg-white/60 p-4 rounded-xl backdrop-blur-sm border-2 border-white/80 shadow-lg text-center">
                     <h1 className="text-2xl font-bold text-green-800">{t("garden_title")}</h1>
                     <p className="text-sm text-green-700 font-bold">{displayUnits.length} {t("garden_hint")}</p>
+                    <div className="mt-2 flex items-center justify-center gap-1 text-amber-600 font-bold">
+                        <span>💰</span>
+                        <span className={`transition-all ${coinEffect ? 'scale-125 text-green-500' : ''}`}>
+                            {coins.toLocaleString()}
+                        </span>
+                        {coinEffect && <span className="text-green-500 text-sm animate-bounce">+1</span>}
+                    </div>
                 </div>
                 <div className="pointer-events-auto">
                     <button

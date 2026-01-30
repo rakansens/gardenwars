@@ -24,8 +24,8 @@ export class GardenScene extends Phaser.Scene {
     }
 
     preload() {
-        // 背景
-        this.load.image('bg_garden', '/assets/backgrounds/stage_forest.png'); // 代用
+        // 背景 - 森のステージ画像を使用
+        this.load.image('bg_garden', '/assets/stages/stage_1.webp');
         this.load.image('castle_ally', '/assets/sprites/castle_ally.webp'); // 一応
 
         // ユニットアセット
@@ -98,15 +98,21 @@ export class GardenScene extends Phaser.Scene {
     create() {
         const { width, height } = this.scale;
 
-        // 背景 (空)
-        this.add.rectangle(0, 0, width, height, 0x87CEEB).setOrigin(0);
+        // 背景画像をタイル表示
+        const bgTexture = this.textures.get('bg_garden');
+        if (bgTexture && bgTexture.key !== '__MISSING') {
+            const bg = this.add.tileSprite(0, 0, width, height, 'bg_garden');
+            bg.setOrigin(0, 0);
+            bg.setTileScale(0.5); // 適度なスケール
+        } else {
+            // フォールバック: 空と地面
+            this.add.rectangle(0, 0, width, height, 0x87CEEB).setOrigin(0);
+            this.add.rectangle(0, height - 100, width, 200, 0x4caf50).setOrigin(0);
+        }
 
-        // 地面
-        this.add.rectangle(0, height - 100, width, 200, 0x4caf50).setOrigin(0); // 緑の芝生
-
-        // Groups
-        this.foodGroup = this.add.group();
-        this.poopGroup = this.add.group();
+        // Groups - 明示的に初期化
+        this.foodGroup = this.add.group({ runChildUpdate: false });
+        this.poopGroup = this.add.group({ runChildUpdate: false });
 
         // アニメーション作成 (BattleSceneと同じロジックが必要だが簡易的に)
         this.createAnimations();
@@ -178,18 +184,45 @@ export class GardenScene extends Phaser.Scene {
 
     private handleClean() {
         console.log('GardenScene: handleClean');
-        // Destroy all poop
-        const poops = this.poopGroup.getChildren();
-        if (poops.length === 0) return;
 
-        this.tweens.add({
-            targets: poops,
-            alpha: 0,
-            scale: 0,
-            duration: 500,
-            onComplete: () => {
-                this.poopGroup.clear(true, true);
-            }
+        // poopGroupが存在するか確認
+        if (!this.poopGroup) {
+            console.warn('GardenScene: poopGroup not initialized');
+            return;
+        }
+
+        // うんちのみを取得（foodGroupは触らない）
+        const poops = this.poopGroup.getChildren().filter(obj => obj.active);
+        console.log('GardenScene: Found', poops.length, 'poops to clean');
+
+        if (poops.length === 0) {
+            // うんちがない場合も掃除エフェクトは表示
+            const text = this.add.text(this.scale.width / 2, this.scale.height / 2, "✨", {
+                fontSize: '48px',
+            }).setOrigin(0.5);
+            this.tweens.add({
+                targets: text,
+                y: text.y - 50,
+                alpha: 0,
+                duration: 800,
+                onComplete: () => text.destroy()
+            });
+            return;
+        }
+
+        // 各うんちを個別に処理（より確実に）
+        poops.forEach((poop) => {
+            this.tweens.add({
+                targets: poop,
+                alpha: 0,
+                scale: 0,
+                duration: 500,
+                onComplete: () => {
+                    if (poop && poop.active) {
+                        poop.destroy();
+                    }
+                }
+            });
         });
 
         // Visual feedback text
