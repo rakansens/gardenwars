@@ -359,6 +359,31 @@ export class BattleScene extends Phaser.Scene {
         this.load.atlas('ur_phoenix_atlas', '/assets/sprites/ur_phoenix_sheet.png', '/assets/sprites/ur_phoenix_sheet.json');
         this.load.atlas('ur_golem_atlas', '/assets/sprites/ur_golem_sheet.png', '/assets/sprites/ur_golem_sheet.json');
         this.load.atlas('ur_angel_atlas', '/assets/sprites/ur_angel_sheet.png', '/assets/sprites/ur_angel_sheet.json');
+        this.load.atlas('ur_ancient_treant_atlas', '/assets/sprites/ur_ancient_treant_sheet.png', '/assets/sprites/ur_ancient_treant_sheet.json');
+
+        // New UR Unit Atlases
+        this.load.atlas('ur_astral_wizard_atlas', '/assets/sprites/ur_astral_wizard_sheet.png', '/assets/sprites/ur_astral_wizard_sheet.json');
+        this.load.atlas('ur_celestial_cat_atlas', '/assets/sprites/ur_celestial_cat_sheet.png', '/assets/sprites/ur_celestial_cat_sheet.json');
+        this.load.atlas('ur_chrono_sage_atlas', '/assets/sprites/ur_chrono_sage_sheet.png', '/assets/sprites/ur_chrono_sage_sheet.json');
+        this.load.atlas('ur_chronos_cat_atlas', '/assets/sprites/ur_chronos_cat_sheet.png', '/assets/sprites/ur_chronos_cat_sheet.json');
+        this.load.atlas('ur_cosmic_dragon_atlas', '/assets/sprites/ur_cosmic_dragon_sheet.png', '/assets/sprites/ur_cosmic_dragon_sheet.json');
+        this.load.atlas('ur_crystal_griffin_atlas', '/assets/sprites/ur_crystal_griffin_sheet.png', '/assets/sprites/ur_crystal_griffin_sheet.json');
+        this.load.atlas('ur_emerald_dragon_atlas', '/assets/sprites/ur_emerald_dragon_sheet.png', '/assets/sprites/ur_emerald_dragon_sheet.json');
+        this.load.atlas('ur_fire_lotus_cat_atlas', '/assets/sprites/ur_fire_lotus_cat_sheet.png', '/assets/sprites/ur_fire_lotus_cat_sheet.json');
+        this.load.atlas('ur_frost_giant_atlas', '/assets/sprites/ur_frost_giant_sheet.png', '/assets/sprites/ur_frost_giant_sheet.json');
+        this.load.atlas('ur_galaxy_butterfly_atlas', '/assets/sprites/ur_galaxy_butterfly_sheet.png', '/assets/sprites/ur_galaxy_butterfly_sheet.json');
+        this.load.atlas('ur_golden_lion_atlas', '/assets/sprites/ur_golden_lion_sheet.png', '/assets/sprites/ur_golden_lion_sheet.json');
+        this.load.atlas('ur_inferno_demon_atlas', '/assets/sprites/ur_inferno_demon_sheet.png', '/assets/sprites/ur_inferno_demon_sheet.json');
+        this.load.atlas('ur_jade_dragon_atlas', '/assets/sprites/ur_jade_dragon_sheet.png', '/assets/sprites/ur_jade_dragon_sheet.json');
+        this.load.atlas('ur_nature_spirit_cat_atlas', '/assets/sprites/ur_nature_spirit_cat_sheet.png', '/assets/sprites/ur_nature_spirit_cat_sheet.json');
+        this.load.atlas('ur_nature_titan_atlas', '/assets/sprites/ur_nature_titan_sheet.png', '/assets/sprites/ur_nature_titan_sheet.json');
+        this.load.atlas('ur_prismatic_cat_atlas', '/assets/sprites/ur_prismatic_cat_sheet.png', '/assets/sprites/ur_prismatic_cat_sheet.json');
+        this.load.atlas('ur_rose_capybara_atlas', '/assets/sprites/ur_rose_capybara_sheet.png', '/assets/sprites/ur_rose_capybara_sheet.json');
+        this.load.atlas('ur_rose_queen_atlas', '/assets/sprites/ur_rose_queen_sheet.png', '/assets/sprites/ur_rose_queen_sheet.json');
+        this.load.atlas('ur_rune_golem_atlas', '/assets/sprites/ur_rune_golem_sheet.png', '/assets/sprites/ur_rune_golem_sheet.json');
+        this.load.atlas('ur_sea_leviathan_atlas', '/assets/sprites/ur_sea_leviathan_sheet.png', '/assets/sprites/ur_sea_leviathan_sheet.json');
+        this.load.atlas('ur_stone_golem_cat_atlas', '/assets/sprites/ur_stone_golem_cat_sheet.png', '/assets/sprites/ur_stone_golem_cat_sheet.json');
+        this.load.atlas('ur_thunder_phoenix_atlas', '/assets/sprites/ur_thunder_phoenix_sheet.png', '/assets/sprites/ur_thunder_phoenix_sheet.json');
     }
 
     private summonUIButtons: {
@@ -366,7 +391,7 @@ export class BattleScene extends Phaser.Scene {
         cost: number;
         rarity: Rarity;
         bg: Phaser.GameObjects.Rectangle;
-        icon: Phaser.GameObjects.Image;
+        icon: Phaser.GameObjects.Image | Phaser.GameObjects.Sprite;
         nameText: Phaser.GameObjects.Text;
         costTag: Phaser.GameObjects.Rectangle;
         costText: Phaser.GameObjects.Text;
@@ -379,6 +404,44 @@ export class BattleScene extends Phaser.Scene {
         buttonY: number;
         buttonHeight: number;
     }[] = [];
+
+    // テクスチャが存在するか確認し、存在しなければフォールバックを返す
+    private getValidTextureKey(unitId: string): string {
+        if (this.textures.exists(unitId)) {
+            return unitId;
+        }
+        // atlasからidle frameを使用する試み
+        const atlasKey = `${unitId}_atlas`;
+        if (this.textures.exists(atlasKey)) {
+            return atlasKey;
+        }
+        // フォールバック: cat_warrior（必ず存在するテクスチャ）
+        console.warn(`[BattleScene] Texture not found for ${unitId}, using fallback`);
+        return 'cat_warrior';
+    }
+
+    // atlasからユニットアイコンを作成（アトラスがあればフレーム使用、なければ静止画）
+    private createUnitIcon(x: number, y: number, unitId: string): Phaser.GameObjects.Image | Phaser.GameObjects.Sprite {
+        const atlasKey = `${unitId}_atlas`;
+        const idleFrame = `${unitId}_idle.png`;
+
+        // atlasが存在し、idleフレームがある場合はそれを使用
+        if (this.textures.exists(atlasKey)) {
+            const atlasTexture = this.textures.get(atlasKey);
+            if (atlasTexture && atlasTexture.has(idleFrame)) {
+                return this.add.image(x, y, atlasKey, idleFrame);
+            }
+        }
+
+        // 静止画テクスチャを確認
+        if (this.textures.exists(unitId)) {
+            return this.add.image(x, y, unitId);
+        }
+
+        // フォールバック
+        console.warn(`[BattleScene] No texture found for ${unitId}, using cat_warrior fallback`);
+        return this.add.image(x, y, 'cat_warrior');
+    }
 
     create() {
         const { width, height } = this.scale;
@@ -646,7 +709,17 @@ export class BattleScene extends Phaser.Scene {
         });
 
         // UR Units animations
-        const urUnits = ['ur_knight', 'ur_mage', 'ur_archer', 'ur_tank', 'ur_ninja', 'ur_healer', 'ur_dragon', 'ur_spirit', 'ur_phoenix', 'ur_golem', 'ur_angel'];
+        const urUnits = [
+            'ur_knight', 'ur_mage', 'ur_archer', 'ur_tank', 'ur_ninja', 'ur_healer',
+            'ur_dragon', 'ur_spirit', 'ur_phoenix', 'ur_golem', 'ur_angel', 'ur_ancient_treant',
+            // New UR units
+            'ur_astral_wizard', 'ur_celestial_cat', 'ur_chrono_sage', 'ur_chronos_cat',
+            'ur_cosmic_dragon', 'ur_crystal_griffin', 'ur_emerald_dragon', 'ur_fire_lotus_cat',
+            'ur_frost_giant', 'ur_galaxy_butterfly', 'ur_golden_lion', 'ur_inferno_demon',
+            'ur_jade_dragon', 'ur_nature_spirit_cat', 'ur_nature_titan', 'ur_prismatic_cat',
+            'ur_rose_capybara', 'ur_rose_queen', 'ur_rune_golem', 'ur_sea_leviathan',
+            'ur_stone_golem_cat', 'ur_thunder_phoenix'
+        ];
         urUnits.forEach(unit => {
             this.anims.create({
                 key: `${unit}_idle`,
@@ -946,9 +1019,10 @@ export class BattleScene extends Phaser.Scene {
             bg.setInteractive({ useHandCursor: true });
             bg.setStrokeStyle(3, 0x3b2a1a);
 
-            // ユニット画像
-            const unitIcon = this.add.image(x, buttonY - 22, unit.id);
-            const iconScale = 45 / unitIcon.height;
+            // ユニット画像（テクスチャ存在確認とフォールバック対応）
+            const unitIcon = this.createUnitIcon(x, buttonY - 22, unit.id);
+            const iconHeight = unitIcon.height > 0 ? unitIcon.height : 45; // 0の場合デフォルト値
+            const iconScale = 45 / iconHeight;
             unitIcon.setScale(iconScale);
             unitIcon.setScrollFactor(0);
             unitIcon.setDepth(101);
@@ -1092,9 +1166,10 @@ export class BattleScene extends Phaser.Scene {
             bg.setInteractive({ useHandCursor: true });
             bg.setStrokeStyle(3, 0x3b2a1a);
 
-            // ユニット画像
-            const unitIcon = this.add.image(x, buttonY - 22, unit.id);
-            const iconScale = 45 / unitIcon.height; // 45pxに収める
+            // ユニット画像（テクスチャ存在確認とフォールバック対応）
+            const unitIcon = this.createUnitIcon(x, buttonY - 22, unit.id);
+            const iconHeight = unitIcon.height > 0 ? unitIcon.height : 45; // 0の場合デフォルト値
+            const iconScale = 45 / iconHeight; // 45pxに収める
             unitIcon.setScale(iconScale);
             unitIcon.setScrollFactor(0);
             unitIcon.setDepth(101);

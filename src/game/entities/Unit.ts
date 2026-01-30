@@ -87,12 +87,11 @@ export class Unit extends Phaser.GameObjects.Container {
             if (scene.textures.exists(spriteUnitId)) {
                 this.sprite = scene.add.image(0, 0, spriteUnitId);
             } else {
-                console.warn(`Missing texture for unit: ${spriteUnitId}`);
-                // 代替テクスチャ（あれば）または矩形でフォールバック
-                this.sprite = scene.add.sprite(0, 0, 'n_mushroom'); // 仮のフォールバック
-                if (this.sprite instanceof Phaser.GameObjects.Sprite) {
-                    this.sprite.setTint(0x000000); // シルエットにして区別
-                }
+                console.warn(`[Unit] Missing texture for unit: ${spriteUnitId}, using cat_warrior fallback`);
+                // 代替テクスチャとして cat_warrior を使用（見やすいフォールバック）
+                this.sprite = scene.add.image(0, 0, 'cat_warrior');
+                // 視覚的に区別するためにわずかに色を変える（完全な黒ではなく）
+                this.sprite.setTint(0xaaaaaa);
             }
         }
 

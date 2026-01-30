@@ -8,7 +8,7 @@ The process involves AI-based sprite sheet generation, automated background remo
 
 ## Tools
 - **AI Image Generator**: For creating sprite sheets via Image-to-Image or Text-to-Image.
-- **remove_bg.js**: Custom Node.js script to remove solid white backgrounds.
+- **remove_bg_ai.mjs**: AI-based background removal using `@imgly/background-removal-node` (high accuracy).
 
 ## Workflow Steps
 
@@ -17,23 +17,22 @@ Generate a sprite sheet using the existing unit image as a reference (Image-to-I
 
 **Settings:**
 - **Resolution**: 1024x1024 (recommended)
-- **Layout**: Grid (e.g., 4 columns x 4 rows)
+- **Layout**: Grid (e.g., 4 columns x 2 rows for 8 frames)
 - **Rows**:
-  - Row 1: Idle (4 frames)
-  - Row 2: Walk (4 frames)
-  - Row 3: Attack (3-4 frames)
-- **Background**: **Solid WHITE background** (Pure white `#FFFFFF` is best for the script).
+  - Row 1: Idle (1 frame) + Walk (3 frames)
+  - Row 2: Attack (4 frames)
+- **Background**: Any background is OK (AI will remove it).
 
 **Prompt Example:**
-> Sprite sheet of [Character Description]. Layout: a grid of frames. Row 1: Idle (4 frames) - Standing, breathing. Row 2: Walk (4 frames) - Moving forward. Row 3: Attack (3 frames) - Action pose. Background: Solid WHITE background. Style: Modern 2D game asset.
+> Sprite sheet of [Character Description]. Layout: 4 columns x 2 rows grid. Row 1: idle, walk_1, walk_2, walk_3. Row 2: attack_1, attack_2, attack_3, attack_4. Style: Modern 2D game asset.
 
-### 2. Background Removal
-Run the background removal script on the generated image.
+### 2. Background Removal (AI-based)
+Run the AI background removal script on the generated image.
 
 ```bash
-node remove_bg.js public/assets/sprites/ur_target_sheet.png
+node remove_bg_ai.mjs public/assets/sprites/ur_target_sheet.png
 ```
-*Creates/Overwrites the file with transparent background.*
+*Uses @imgly/background-removal-node for high-accuracy transparent background.*
 
 ### 3. JSON Atlas Definition
 Create a JSON file (e.g., `public/assets/sprites/ur_target_sheet.json`) defining the frames.

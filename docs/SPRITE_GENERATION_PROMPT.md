@@ -5,7 +5,49 @@ Garden Wars用のスプライトシートを生成するための指示。
 
 ---
 
+## 🚀 推奨ワークフロー（Nano Banana Pro Image-to-Image）
+
+既存のユニット画像からスプライトシートを自動生成する最も簡単な方法。
+
+### Step 1: スプライトシート生成
+
+```bash
+node generate_sprite.js <入力画像> <出力パス>
+```
+
+**例:**
+```bash
+node generate_sprite.js public/assets/sprites/ur_frost_giant.png public/assets/sprites/ur_frost_giant_sheet.png
+```
+
+### Step 2: 背景除去
+
+```bash
+node remove_bg.js <スプライトシート>
+```
+
+**例:**
+```bash
+node remove_bg.js public/assets/sprites/ur_frost_giant_sheet.png
+```
+
+### 必要な環境変数
+
+`.env.local` に以下を設定:
+```
+NANOBANANAPRO_API_KEY=your_api_key_here
+```
+
+### 使用モデル
+
+- **Nano Banana Pro** (`gemini-3-pro-image-preview`)
+- Image-to-Image編集で元キャラクターのデザインを維持
+
+---
+
 ## 🎨 AI画像生成ツール用プロンプト（日本語）
+
+手動でAIツールを使う場合のプロンプト:
 
 ```
 ピクセルアート風の2Dゲームキャラクターのスプライトシートを作成してください。
@@ -96,20 +138,29 @@ Row 2 (left to right):
 
 ## ✅ 出力後のチェックリスト
 
-□ 画像サイズが正確に **1376 x 768** ピクセルか
-□ 背景が **透明** か（白背景ではない）
-□ 4列 x 2行のグリッドになっているか
-□ キャラクターが **右向き** か
-□ 各フレームでキャラクターが中央に配置されているか
+- [ ] 画像サイズが正確に **1376 x 768** ピクセルか
+- [ ] 背景が **透明** か（白背景ではない）
+- [ ] 4列 x 2行のグリッドになっているか
+- [ ] キャラクターが **右向き** か
+- [ ] 各フレームでキャラクターが中央に配置されているか
+- [ ] 元のキャラクターデザインが維持されているか
 
 ---
 
 ## 🔧 背景透過処理
 
-もし白背景で生成された場合は、以下のツールで透過処理：
+### 方法1: プロジェクト内スクリプト（推奨）
+
+```bash
+node remove_bg.js <画像パス>
+```
+
+白背景・チェッカーボード背景を自動で透明化。
+
+### 方法2: 外部ツール
+
 - remove.bg (https://www.remove.bg/)
 - Photoshop / GIMP
-- `npm run remove-bg` (プロジェクト内スクリプト)
 
 ---
 
@@ -120,3 +171,17 @@ Row 2 (left to right):
 
 配置先：
 - `public/assets/sprites/[unit_id]_sheet.png`
+
+---
+
+## 🔄 バッチ処理例
+
+複数ユニットを一括処理する場合:
+
+```bash
+# 全URユニットのスプライトシート生成
+for unit in ur_frost_giant ur_dragon ur_phoenix; do
+  node generate_sprite.js public/assets/sprites/${unit}.png public/assets/sprites/${unit}_sheet.png
+  node remove_bg.js public/assets/sprites/${unit}_sheet.png
+done
+```
