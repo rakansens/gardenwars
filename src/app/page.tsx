@@ -25,11 +25,45 @@ interface ParadeChar {
 export default function Home() {
   const { coins, unitInventory, isLoaded } = usePlayerData();
   const { t, language } = useLanguage();
-  const { status, playerName, player, logout } = useAuth();
+  const { status, playerName, player, logout, updateName } = useAuth();
   const [paradeChars, setParadeChars] = useState<ParadeChar[]>([]);
   const [showPinModal, setShowPinModal] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showLogoutSuccess, setShowLogoutSuccess] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [isUpdatingName, setIsUpdatingName] = useState(false);
+  const [showNameSuccess, setShowNameSuccess] = useState(false);
+
+  const handleEditName = () => {
+    setEditedName(playerName || "");
+    setNameError("");
+    setIsEditingName(true);
+  };
+
+  const handleSaveName = async () => {
+    if (!editedName.trim()) {
+      setNameError(language === "ja" ? "名前を入力してください" : "Please enter a name");
+      return;
+    }
+    if (editedName.trim().length > 20) {
+      setNameError(language === "ja" ? "名前は20文字以内にしてください" : "Name must be 20 characters or less");
+      return;
+    }
+
+    setIsUpdatingName(true);
+    const result = await updateName(editedName.trim());
+    setIsUpdatingName(false);
+
+    if (result.success) {
+      setIsEditingName(false);
+      setShowPinModal(false);
+      setShowNameSuccess(true);
+    } else {
+      setNameError(result.error || (language === "ja" ? "変更に失敗しました" : "Failed to update"));
+    }
+  };
 
   // 所持ユニットからパレードキャラを生成
   useEffect(() => {
@@ -205,18 +239,64 @@ export default function Home() {
       </footer>
 
       {/* PIN確認モーダル */}
-      <Modal isOpen={showPinModal && !!player} onClose={() => setShowPinModal(false)} showCloseButton={false}>
+      <Modal isOpen={showPinModal && !!player} onClose={() => { setShowPinModal(false); setIsEditingName(false); }} showCloseButton={false}>
         {player && (
           <div className="p-6">
             <h2 className="text-xl font-bold text-green-700 mb-4 text-center">
               {language === "ja" ? "アカウント情報" : "Account Info"}
             </h2>
 
+            {/* 名前セクション */}
             <div className="bg-gray-50 rounded-xl p-4 mb-4">
               <p className="text-gray-600 text-sm mb-1">
                 {language === "ja" ? "なまえ" : "Name"}
               </p>
-              <p className="text-lg font-bold text-gray-800">{playerName}</p>
+              {isEditingName ? (
+                <div>
+                  <input
+                    type="text"
+                    value={editedName}
+                    onChange={(e) => {
+                      setEditedName(e.target.value);
+                      setNameError("");
+                    }}
+                    maxLength={20}
+                    className="w-full px-3 py-2 border-2 border-green-300 rounded-lg text-lg font-bold text-gray-800 focus:outline-none focus:border-green-500"
+                    autoFocus
+                  />
+                  {nameError && (
+                    <p className="text-red-500 text-xs mt-1">{nameError}</p>
+                  )}
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      onClick={() => setIsEditingName(false)}
+                      className="flex-1 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-lg text-sm transition-all active:scale-95 min-h-[44px]"
+                      disabled={isUpdatingName}
+                    >
+                      {language === "ja" ? "キャンセル" : "Cancel"}
+                    </button>
+                    <button
+                      onClick={handleSaveName}
+                      className="flex-1 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg text-sm transition-all active:scale-95 min-h-[44px] disabled:opacity-50"
+                      disabled={isUpdatingName}
+                    >
+                      {isUpdatingName
+                        ? (language === "ja" ? "保存中..." : "Saving...")
+                        : (language === "ja" ? "保存" : "Save")}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <p className="text-lg font-bold text-gray-800">{playerName}</p>
+                  <button
+                    onClick={handleEditName}
+                    className="px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold rounded-lg text-sm transition-all active:scale-95 min-h-[36px]"
+                  >
+                    ✏️ {language === "ja" ? "変更" : "Edit"}
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="bg-amber-50 rounded-xl p-4 mb-4">
@@ -242,7 +322,7 @@ export default function Home() {
 
             <div className="flex gap-3">
               <button
-                onClick={() => setShowPinModal(false)}
+                onClick={() => { setShowPinModal(false); setIsEditingName(false); }}
                 className="flex-1 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-xl transition-all active:scale-95 min-h-[48px]"
               >
                 {language === "ja" ? "とじる" : "Close"}
@@ -250,6 +330,7 @@ export default function Home() {
               <button
                 onClick={() => {
                   setShowPinModal(false);
+                  setIsEditingName(false);
                   setShowLogoutConfirm(true);
                 }}
                 className="flex-1 py-3 bg-red-100 hover:bg-red-200 text-red-700 font-bold rounded-xl transition-all active:scale-95 min-h-[48px]"
@@ -286,6 +367,16 @@ export default function Home() {
         icon="👋"
         title={language === "ja" ? "ログアウトしました" : "Logged out"}
         message={language === "ja" ? "またね！" : "See you again!"}
+        buttonText="OK"
+      />
+
+      {/* 名前変更完了モーダル */}
+      <SuccessModal
+        isOpen={showNameSuccess}
+        onClose={() => setShowNameSuccess(false)}
+        icon="✨"
+        title={language === "ja" ? "名前を変更しました" : "Name Updated"}
+        message={language === "ja" ? "新しい名前でプレイしよう！" : "Play with your new name!"}
         buttonText="OK"
       />
     </main>

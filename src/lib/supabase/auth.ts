@@ -152,6 +152,25 @@ export async function verifyPIN(pin: string): Promise<DBPlayer | null> {
     return player;
 }
 
+// Update player name
+export async function updatePlayerName(
+    playerId: string,
+    newName: string
+): Promise<boolean> {
+    const trimmedName = newName.trim();
+    if (!trimmedName || trimmedName.length > 20) return false;
+
+    const { error } = await supabase
+        .from("players")
+        .update({
+            name: trimmedName,
+            updated_at: new Date().toISOString()
+        })
+        .eq("id", playerId);
+
+    return !error;
+}
+
 // Migrate localStorage data to database for existing player
 export async function migrateLocalData(
     pin: string,

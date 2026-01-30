@@ -28,6 +28,7 @@ export {
     loginWithPIN,
     verifyPIN,
     migrateLocalData,
+    updatePlayerName,
 } from "./auth";
 
 // Player data operations

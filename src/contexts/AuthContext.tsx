@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect, useCallback, ReactNode 
 import {
     registerPlayer,
     loginWithPIN,
+    updatePlayerName,
     type FullPlayerData,
     type LocalStorageData,
 } from "@/lib/supabase";
@@ -84,6 +85,7 @@ interface AuthContextType {
     login: (pin: string) => Promise<{ success: boolean; error?: string }>;
     logout: () => void;
     refreshPlayer: () => Promise<void>;
+    updateName: (newName: string) => Promise<{ success: boolean; error?: string }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -204,6 +206,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
+    // Update player name
+    const updateName = useCallback(async (newName: string): Promise<{ success: boolean; error?: string }> => {
+        if (!player) {
+            return { success: false, error: "ログインしていません" };
+        }
+
+        const trimmedName = newName.trim();
+        if (!trimmedName) {
+            return { success: false, error: "名前を入力してください" };
+        }
+
+        if (trimmedName.length > 20) {
+            return { success: false, error: "名前は20文字以内にしてください" };
+        }
+
+        try {
+            const success = await updatePlayerName(player.id, trimmedName);
+            if (success) {
+                // Update local state
+                setPlayer(prev => prev ? { ...prev, name: trimmedName } : null);
+                return { success: true };
+            } else {
+                return { success: false, error: "名前の変更に失敗しました" };
+            }
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : "名前の変更に失敗しました";
+            return { success: false, error: errorMessage };
+        }
+    }, [player]);
+
     return (
         <AuthContext.Provider
             value={{
@@ -215,6 +247,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 login,
                 logout,
                 refreshPlayer,
+                updateName,
             }}
         >
             {children}
