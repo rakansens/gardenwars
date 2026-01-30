@@ -55,7 +55,7 @@ function getDropRate(unit: UnitDefinition): number {
     return baseRate / unitsInRarity;
 }
 
-type SortKey = "none" | "hp" | "attack" | "range" | "speed" | "move" | "dps" | "cost" | "spawn" | "droprate";
+type SortKey = "none" | "hp" | "attack" | "range" | "speed" | "move" | "dps" | "cost" | "spawn" | "droprate" | "size";
 
 export default function TeamPage() {
     const { selectedTeam, unitInventory, setTeam, isLoaded, activeLoadoutIndex, switchLoadout, loadouts } = usePlayerData();
@@ -85,6 +85,7 @@ export default function TeamPage() {
         { key: "cost", label: t("cost"), icon: "💰" },
         { key: "spawn", label: t("spawn_cooldown"), icon: "⏰" },
         { key: "droprate", label: t("drop_rate"), icon: "🎰" },
+        { key: "size", label: t("size"), icon: "📐" },
     ];
 
     const sortUnits = (units: UnitDefinition[]): UnitDefinition[] => {
@@ -117,6 +118,9 @@ export default function TeamPage() {
                 case "droprate":
                     // ドロップレート低い順（レア順）
                     return getDropRate(a) - getDropRate(b);
+                case "size":
+                    // サイズ大きい順
+                    return (b.scale ?? 1) - (a.scale ?? 1);
                 default:
                     return 0;
             }
