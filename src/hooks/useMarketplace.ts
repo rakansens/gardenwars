@@ -34,10 +34,11 @@ export interface UseMarketplaceReturn {
     isAuthenticated: boolean;
 
     // Actions
-    refreshListings: (filter?: ListingFilter) => Promise<void>;
+    refreshListings: (filter?: ListingFilter, force?: boolean) => Promise<void>;
     refreshMyListings: () => Promise<void>;
     refreshSoldHistory: () => Promise<void>;
     refreshNotifications: () => Promise<void>;
+    refreshAll: () => Promise<void>;
     createNewListing: (
         unitId: string,
         quantity: number,
@@ -72,11 +73,11 @@ export function useMarketplace(): UseMarketplaceReturn {
 
     // リスティング一覧を取得
     const refreshListings = useCallback(
-        async (filter?: ListingFilter) => {
+        async (filter?: ListingFilter, force: boolean = false) => {
             if (!isAuthenticated || !playerId) return;
 
             const now = Date.now();
-            if (now - lastFetchRef.current < FETCH_COOLDOWN) return;
+            if (!force && now - lastFetchRef.current < FETCH_COOLDOWN) return;
             lastFetchRef.current = now;
 
             setIsLoading(true);
@@ -135,6 +136,23 @@ export function useMarketplace(): UseMarketplaceReturn {
         }
     }, [isAuthenticated, playerId]);
 
+    // 全てをリフレッシュ（手動リフレッシュボタン用）
+    const refreshAll = useCallback(async () => {
+        if (!isAuthenticated || !playerId) return;
+
+        setIsLoading(true);
+        try {
+            await Promise.all([
+                refreshListings(undefined, true),
+                refreshMyListings(),
+                refreshSoldHistory(),
+                refreshNotifications(),
+            ]);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [isAuthenticated, playerId, refreshListings, refreshMyListings, refreshSoldHistory, refreshNotifications]);
+
     // 初回読み込み
     useEffect(() => {
         if (isAuthenticated && playerId) {
@@ -177,8 +195,8 @@ export function useMarketplace(): UseMarketplaceReturn {
                 if (listingId) {
                     // ローカル状態も更新（removeUnitはusePlayerDataが処理）
                     removeUnit(unitId, quantity);
-                    // リスト更新
-                    await Promise.all([refreshListings(), refreshMyListings()]);
+                    // リスト更新（強制リフレッシュ）
+                    await Promise.all([refreshListings(undefined, true), refreshMyListings()]);
                     return true;
                 }
                 return false;
@@ -224,8 +242,8 @@ export function useMarketplace(): UseMarketplaceReturn {
                     addUnit(listing.unitId, listing.quantity);
                     // コインはSupabaseで処理済み、ローカルも同期されるはず
 
-                    // リスト更新
-                    await refreshListings();
+                    // リスト更新（強制リフレッシュ）
+                    await refreshListings(undefined, true);
                     return true;
                 }
                 return false;
@@ -255,8 +273,8 @@ export function useMarketplace(): UseMarketplaceReturn {
                 if (success) {
                     // ユニットを戻す（ローカル）
                     addUnit(listing.unitId, listing.quantity);
-                    // リスト更新
-                    await Promise.all([refreshListings(), refreshMyListings()]);
+                    // リスト更新（強制リフレッシュ）
+                    await Promise.all([refreshListings(undefined, true), refreshMyListings()]);
                     return true;
                 }
                 return false;
@@ -358,6 +376,7 @@ export function useMarketplace(): UseMarketplaceReturn {
         refreshMyListings,
         refreshSoldHistory,
         refreshNotifications,
+        refreshAll,
         createNewListing,
         buyListing,
         cancelMyListing,

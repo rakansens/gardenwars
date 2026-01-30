@@ -38,6 +38,7 @@ export default function MarketplacePage() {
         refreshMyListings,
         refreshSoldHistory,
         refreshNotifications,
+        refreshAll,
         createNewListing,
         buyListing,
         cancelMyListing,
@@ -211,6 +212,21 @@ export default function MarketplacePage() {
                         `}
                     >
                         🛍️ {t("browse_marketplace")}
+                    </button>
+
+                    {/* リフレッシュボタン */}
+                    <button
+                        onClick={refreshAll}
+                        disabled={isLoading}
+                        className={`
+                            px-3 py-2 rounded-xl font-bold transition-all whitespace-nowrap
+                            bg-slate-700/50 text-gray-300 hover:bg-slate-600/50 hover:text-white
+                            disabled:opacity-50 disabled:cursor-not-allowed
+                            ${isLoading ? "animate-spin" : ""}
+                        `}
+                        title={t("refresh")}
+                    >
+                        🔄
                     </button>
                     <button
                         onClick={() => setActiveTab("my_listings")}

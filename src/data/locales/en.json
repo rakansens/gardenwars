@@ -338,6 +338,7 @@
   "clear_filter": "Clear",
   "sold_history": "Sold History",
   "no_sold_history": "No sold items yet",
+  "refresh": "Refresh",
   "coins_per_unit": "/unit",
   "total": "Total",
   "days_left": "d left",
