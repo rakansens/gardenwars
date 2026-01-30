@@ -238,6 +238,70 @@ export default function GachaPage() {
                     </div>
                 </div>
 
+                {/* UR ユニットショーケース */}
+                <div className="card mb-8 bg-gradient-to-br from-purple-900 via-pink-900 to-indigo-900 border-2 border-pink-400/50">
+                    <h3 className="text-xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-pink-300 via-purple-300 to-cyan-300 text-center">
+                        ✨ {t("ur_showcase")} ✨
+                    </h3>
+                    <p className="text-pink-200/70 text-center text-sm mb-4">
+                        {t("ur_showcase_desc")}
+                    </p>
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                        {gachaPool
+                            .filter(u => u.rarity === "UR")
+                            .sort((a, b) => (a.gachaWeight ?? 1) - (b.gachaWeight ?? 1))
+                            .map((unit) => {
+                                const rate = getDropRate(unit);
+                                const isOwned = (unitInventory[unit.id] || 0) > 0;
+                                return (
+                                    <div
+                                        key={unit.id}
+                                        className={`
+                                            relative p-2 rounded-xl cursor-pointer transition-all
+                                            bg-gradient-to-br from-purple-800/50 to-pink-800/50
+                                            border border-pink-500/30 hover:border-pink-400
+                                            hover:scale-105 hover:shadow-lg hover:shadow-pink-500/20
+                                            ${isOwned ? "" : "opacity-70"}
+                                        `}
+                                        onClick={() => setViewingUnit(unit)}
+                                    >
+                                        {/* 排出率バッジ */}
+                                        <div className={`
+                                            absolute -top-2 -right-2 px-2 py-0.5 rounded-full text-[10px] font-bold z-10
+                                            ${rate < 0.05 ? "bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 text-white animate-pulse" :
+                                              rate < 0.08 ? "bg-pink-500 text-white" :
+                                              "bg-purple-500 text-white"}
+                                        `}>
+                                            {rate.toFixed(2)}%
+                                        </div>
+
+                                        {/* 所持バッジ */}
+                                        {isOwned && (
+                                            <div className="absolute -top-2 -left-2 w-5 h-5 rounded-full bg-green-500 text-white text-[10px] font-bold flex items-center justify-center z-10">
+                                                ✓
+                                            </div>
+                                        )}
+
+                                        <div className="flex justify-center">
+                                            <RarityFrame
+                                                unitId={unit.id}
+                                                unitName={unit.name}
+                                                rarity={unit.rarity}
+                                                size="sm"
+                                                showLabel={false}
+                                                baseUnitId={unit.baseUnitId}
+                                                grayscale={!isOwned}
+                                            />
+                                        </div>
+                                        <div className="text-[10px] text-center text-pink-100 truncate mt-1 font-medium">
+                                            {unit.name}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                    </div>
+                </div>
+
                 {/* ガチャ履歴 */}
                 <div className="card mb-8">
                     <div

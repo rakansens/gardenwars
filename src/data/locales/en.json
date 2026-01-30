@@ -245,5 +245,7 @@
   "move_speed": "Move",
   "spawn_cooldown": "Summon CD",
   "in_deck": "Deck",
-  "drop_rate": "Drop Rate"
+  "drop_rate": "Drop Rate",
+  "ur_showcase": "UR Units Lineup",
+  "ur_showcase_desc": "Ultra Rare units! The rarer, the stronger!"
 }

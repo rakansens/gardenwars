@@ -245,5 +245,7 @@
   "move_speed": "移動",
   "spawn_cooldown": "召喚CT",
   "in_deck": "デッキ",
-  "drop_rate": "排出率"
+  "drop_rate": "排出率",
+  "ur_showcase": "URユニット一覧",
+  "ur_showcase_desc": "超激レアユニット！レアなほど強い！"
 }
