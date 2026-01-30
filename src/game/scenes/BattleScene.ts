@@ -295,6 +295,32 @@ export class BattleScene extends Phaser.Scene {
         this.load.image('sr_crystal_lotus_cat', '/assets/sprites/sr_crystal_lotus_cat.png');
         this.load.image('sr_bonsai_cat', '/assets/sprites/sr_bonsai_cat.png');
 
+        // New N Units
+        this.load.image('n_ladybug_cat', '/assets/sprites/n_ladybug_cat.png');
+        this.load.image('n_autumn_leaf_cat', '/assets/sprites/n_autumn_leaf_cat.png');
+        this.load.image('n_frog_cat', '/assets/sprites/n_frog_cat.png');
+        this.load.image('n_succulent_cat', '/assets/sprites/n_succulent_cat.png');
+        this.load.image('n_farmer_cat', '/assets/sprites/n_farmer_cat.png');
+        this.load.image('n_cinnamon_cat', '/assets/sprites/n_cinnamon_cat.png');
+        this.load.image('n_potted_plant_cat', '/assets/sprites/n_potted_plant_cat.png');
+        this.load.image('n_ivy_harvest_cat', '/assets/sprites/n_ivy_harvest_cat.png');
+        this.load.image('n_sunflower_cat', '/assets/sprites/n_sunflower_cat.png');
+
+        // New R Units
+        this.load.image('r_cactus_guardian', '/assets/sprites/r_cactus_guardian.png');
+        this.load.image('r_dandelion_cat', '/assets/sprites/r_dandelion_cat.png');
+        this.load.image('r_ivy_ninja_cat', '/assets/sprites/r_ivy_ninja_cat.png');
+        this.load.image('r_cherry_blossom_cat', '/assets/sprites/r_cherry_blossom_cat.png');
+        this.load.image('r_rose_bunny_cat', '/assets/sprites/r_rose_bunny_cat.png');
+        this.load.image('r_bamboo_samurai_cat', '/assets/sprites/r_bamboo_samurai_cat.png');
+        this.load.image('r_hydrangea_cat', '/assets/sprites/r_hydrangea_cat.png');
+
+        // New SR Units
+        this.load.image('sr_cloud_angel_cat', '/assets/sprites/sr_cloud_angel_cat.png');
+        this.load.image('sr_thorn_beast_cat', '/assets/sprites/sr_thorn_beast_cat.png');
+        this.load.image('sr_thorn_reaper_cat', '/assets/sprites/sr_thorn_reaper_cat.png');
+        this.load.image('sr_lucky_clover_cat', '/assets/sprites/sr_lucky_clover_cat.png');
+
         // SSR Units
         this.load.image('flame_knight', '/assets/sprites/flame_knight.png');
         this.load.image('ice_samurai', '/assets/sprites/ice_samurai.png');
