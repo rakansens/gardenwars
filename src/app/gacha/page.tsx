@@ -26,7 +26,18 @@ export default function GachaPage() {
     const [showReveal, setShowReveal] = useState(false);
     const [showHistory, setShowHistory] = useState(false);
     const [viewingUnit, setViewingUnit] = useState<UnitDefinition | null>(null);
+    const [ownedRarityFilter, setOwnedRarityFilter] = useState<Rarity | "ALL">("ALL");
     const [unownedRarityFilter, setUnownedRarityFilter] = useState<Rarity | "ALL">("ALL");
+
+    // レアリティフィルタータブの定義
+    const rarityTabs: { key: Rarity | "ALL"; label: string; color: string }[] = [
+        { key: "ALL", label: "ALL", color: "bg-gray-500" },
+        { key: "N", label: "N", color: "bg-gray-400" },
+        { key: "R", label: "R", color: "bg-blue-500" },
+        { key: "SR", label: "SR", color: "bg-purple-500" },
+        { key: "SSR", label: "SSR", color: "bg-amber-500" },
+        { key: "UR", label: "UR", color: "bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500" },
+    ];
 
     // ガチャを引く
     const rollGacha = (count: number) => {
@@ -295,13 +306,48 @@ export default function GachaPage() {
                     <h3 className="text-xl font-bold mb-4 text-amber-950">
                         {t("gacha_owned_units")} ({gachaPool.filter(u => (unitInventory[u.id] || 0) > 0).length}/{gachaPool.length})
                     </h3>
-                    {gachaPool.filter(u => (unitInventory[u.id] || 0) > 0).length === 0 ? (
-                        <p className="text-amber-900/50 text-center py-4">{t("no_units")}</p>
-                    ) : (
-                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-                            {gachaPool
-                                .filter(unit => (unitInventory[unit.id] || 0) > 0)
-                                .map((unit) => {
+
+                    {/* レアリティフィルター */}
+                    <div className="flex gap-2 flex-wrap mb-4">
+                        {rarityTabs.map(tab => {
+                            const ownedInRarity = gachaPool.filter(u =>
+                                (unitInventory[u.id] || 0) > 0 &&
+                                (tab.key === "ALL" || u.rarity === tab.key)
+                            ).length;
+                            return (
+                                <button
+                                    key={tab.key}
+                                    onClick={() => setOwnedRarityFilter(tab.key)}
+                                    className={`
+                                        px-3 py-1 rounded-lg font-bold text-sm transition-all
+                                        ${ownedRarityFilter === tab.key
+                                            ? `${tab.color} text-white shadow-md scale-105`
+                                            : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                                        }
+                                    `}
+                                >
+                                    {tab.label}
+                                    <span className="ml-1 text-xs opacity-75">({ownedInRarity})</span>
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    {(() => {
+                        const filteredOwned = gachaPool.filter(u =>
+                            (unitInventory[u.id] || 0) > 0 &&
+                            (ownedRarityFilter === "ALL" || u.rarity === ownedRarityFilter)
+                        );
+
+                        if (filteredOwned.length === 0) {
+                            return (
+                                <p className="text-amber-900/50 text-center py-4">{t("no_owned_in_rarity")}</p>
+                            );
+                        }
+
+                        return (
+                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                                {filteredOwned.map((unit) => {
                                     const count = unitInventory[unit.id] || 0;
                                     return (
                                         <div
@@ -326,8 +372,9 @@ export default function GachaPage() {
                                         </div>
                                     );
                                 })}
-                        </div>
-                    )}
+                            </div>
+                        );
+                    })()}
                 </div>
 
                 {/* 未所持ユニット一覧 */}
@@ -338,14 +385,7 @@ export default function GachaPage() {
 
                     {/* レアリティフィルター */}
                     <div className="flex gap-2 flex-wrap mb-4">
-                        {([
-                            { key: "ALL" as const, label: "ALL", color: "bg-gray-500" },
-                            { key: "N" as const, label: "N", color: "bg-gray-400" },
-                            { key: "R" as const, label: "R", color: "bg-blue-500" },
-                            { key: "SR" as const, label: "SR", color: "bg-purple-500" },
-                            { key: "SSR" as const, label: "SSR", color: "bg-amber-500" },
-                            { key: "UR" as const, label: "UR", color: "bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500" },
-                        ]).map(tab => {
+                        {rarityTabs.map(tab => {
                             const unownedInRarity = gachaPool.filter(u =>
                                 (unitInventory[u.id] || 0) === 0 &&
                                 (tab.key === "ALL" || u.rarity === tab.key)
