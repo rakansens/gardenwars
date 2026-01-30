@@ -254,27 +254,27 @@ export default function StagesPage() {
 
                                     {/* 出現する敵ユニット */}
                                     <div className="mb-3">
-                                        <div className="text-xs text-amber-800 mb-1">{t("encounter_units")}:</div>
-                                        <div className="flex gap-1 flex-wrap">
+                                        <div className="text-xs text-amber-800 mb-1.5">{t("encounter_units")}:</div>
+                                        <div className="flex gap-2 flex-wrap">
                                             {enemyUnits.slice(0, 6).map((unit) => {
                                                 const isBoss = unit.isBoss;
                                                 return (
                                                     <div
                                                         key={unit.id}
-                                                        className={`w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden ${isBoss
+                                                        className={`w-11 h-11 rounded-lg flex items-center justify-center overflow-hidden ${isBoss
                                                                 ? 'bg-purple-900 border-2 border-purple-500'
-                                                                : 'bg-red-100 border border-red-300'
+                                                                : 'bg-red-100 border-2 border-red-300'
                                                             }`}
                                                         title={isBoss ? "???" : unit.name}
                                                     >
                                                         {isBoss ? (
-                                                            <span className="text-purple-300 font-bold">?</span>
+                                                            <span className="text-purple-300 font-bold text-lg">?</span>
                                                         ) : (
                                                             <Image
                                                                 src={`/assets/sprites/${unit.baseUnitId || unit.id}.png`}
                                                                 alt={unit.name}
-                                                                width={24}
-                                                                height={24}
+                                                                width={36}
+                                                                height={36}
                                                                 className="object-contain"
                                                                 style={{ transform: unit.flipSprite ? "scaleX(-1)" : "none" }}
                                                             />
@@ -283,7 +283,7 @@ export default function StagesPage() {
                                                 );
                                             })}
                                             {enemyUnits.length > 6 && (
-                                                <div className="w-8 h-8 rounded-lg bg-amber-200 flex items-center justify-center text-xs font-bold text-amber-700">
+                                                <div className="w-11 h-11 rounded-lg bg-amber-200 flex items-center justify-center text-sm font-bold text-amber-700">
                                                     +{enemyUnits.length - 6}
                                                 </div>
                                             )}
@@ -299,29 +299,34 @@ export default function StagesPage() {
                                         </div>
                                     </div>
 
-                                    {/* ドロップ（コンパクト） */}
+                                    {/* ドロップ報酬 */}
                                     {stage.reward.drops && stage.reward.drops.length > 0 && (
-                                        <div className="mb-3 flex gap-1 flex-wrap">
-                                            {stage.reward.drops.slice(0, 3).map((drop) => {
-                                                const unit = allUnits.find(u => u.id === drop.unitId);
-                                                if (!unit) return null;
-                                                return (
-                                                    <div
-                                                        key={drop.unitId}
-                                                        className="flex items-center gap-1 bg-green-100 border border-green-300 rounded px-1 py-0.5"
-                                                        title={`${unit.name} (${drop.rate}%)`}
-                                                    >
-                                                        <Image
-                                                            src={`/assets/sprites/${unit.id}.png`}
-                                                            alt={unit.name}
-                                                            width={16}
-                                                            height={16}
-                                                            className="object-contain"
-                                                        />
-                                                        <span className="text-xs text-green-700">{drop.rate}%</span>
-                                                    </div>
-                                                );
-                                            })}
+                                        <div className="mb-3">
+                                            <div className="text-xs text-green-700 mb-1.5">🎁 {t("drops")}:</div>
+                                            <div className="flex gap-2 flex-wrap">
+                                                {stage.reward.drops.slice(0, 4).map((drop) => {
+                                                    const unit = allUnits.find(u => u.id === drop.unitId);
+                                                    if (!unit) return null;
+                                                    return (
+                                                        <div
+                                                            key={drop.unitId}
+                                                            className="flex items-center gap-1.5 bg-green-100 border-2 border-green-300 rounded-lg px-2 py-1"
+                                                            title={`${unit.name} (${drop.rate}%)`}
+                                                        >
+                                                            <div className="w-8 h-8 rounded bg-white flex items-center justify-center overflow-hidden">
+                                                                <Image
+                                                                    src={`/assets/sprites/${unit.baseUnitId || unit.id}.png`}
+                                                                    alt={unit.name}
+                                                                    width={28}
+                                                                    height={28}
+                                                                    className="object-contain"
+                                                                />
+                                                            </div>
+                                                            <span className="text-sm font-bold text-green-700">{drop.rate}%</span>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
                                         </div>
                                     )}
 

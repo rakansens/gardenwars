@@ -97,7 +97,8 @@
     "background": {
       "skyColor": "0xffd700",
       "groundColor": "0x8b6914",
-      "cloudColor": "0xffec8b"
+      "cloudColor": "0xffec8b",
+      "image": "/assets/stages/stage_ur_rush.png"
     }
   },
   {
@@ -198,7 +199,8 @@
     "background": {
       "skyColor": "0x9370db",
       "groundColor": "0x483d8b",
-      "cloudColor": "0xdda0dd"
+      "cloudColor": "0xdda0dd",
+      "image": "/assets/stages/stage_sr_rush.png"
     }
   }
 ]

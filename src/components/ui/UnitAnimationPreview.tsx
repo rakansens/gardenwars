@@ -111,7 +111,14 @@ export default function UnitAnimationPreview({
 
             // 既存のゲームインスタンスを破棄
             if (gameRef.current) {
-                gameRef.current.destroy(true);
+                try {
+                    if (gameRef.current.sound) {
+                        gameRef.current.sound.pauseOnBlur = false;
+                    }
+                    gameRef.current.destroy(true);
+                } catch (e) {
+                    console.warn('[UnitAnimationPreview] Error during destroy:', e);
+                }
                 gameRef.current = null;
             }
 
@@ -262,7 +269,14 @@ export default function UnitAnimationPreview({
         return () => {
             cancelled = true;
             if (gameRef.current) {
-                gameRef.current.destroy(true);
+                try {
+                    if (gameRef.current.sound) {
+                        gameRef.current.sound.pauseOnBlur = false;
+                    }
+                    gameRef.current.destroy(true);
+                } catch (e) {
+                    console.warn('[UnitAnimationPreview] Error during cleanup destroy:', e);
+                }
                 gameRef.current = null;
             }
         };

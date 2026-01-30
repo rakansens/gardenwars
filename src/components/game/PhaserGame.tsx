@@ -60,7 +60,15 @@ export default function PhaserGame({
         // 既存のゲームインスタンスを破棄
         if (globalPhaserGame) {
             console.log('[PhaserGame] Destroying existing game instance');
-            globalPhaserGame.destroy(true);
+            try {
+                // AudioContextエラーを防ぐためblur時のpause無効化
+                if (globalPhaserGame.sound) {
+                    globalPhaserGame.sound.pauseOnBlur = false;
+                }
+                globalPhaserGame.destroy(true);
+            } catch (e) {
+                console.warn('[PhaserGame] Error during destroy:', e);
+            }
             globalPhaserGame = null;
         }
 
@@ -151,7 +159,14 @@ export default function PhaserGame({
             cancelled = true;
             cleanup?.();
             if (globalPhaserGame) {
-                globalPhaserGame.destroy(true);
+                try {
+                    if (globalPhaserGame.sound) {
+                        globalPhaserGame.sound.pauseOnBlur = false;
+                    }
+                    globalPhaserGame.destroy(true);
+                } catch (e) {
+                    console.warn('[PhaserGame] Error during cleanup destroy:', e);
+                }
                 globalPhaserGame = null;
             }
         };
