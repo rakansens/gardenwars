@@ -125,7 +125,7 @@ const getUniqueEnemyUnits = (stage: StageDefinition): UnitDefinition[] => {
 
 // サムネイル画像のパスを取得
 const getStageThumbnail = (stageId: string): string => {
-    return `/assets/stages/${stageId}.png`;
+    return `/assets/stages/${stageId}.webp`;
 };
 
 export default function WorldMapPage() {

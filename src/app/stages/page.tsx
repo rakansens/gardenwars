@@ -209,7 +209,7 @@ export default function StagesPage() {
                         {filteredStages.map((stage) => {
                             const enemyUnits = getUniqueEnemyUnits(stage);
                             const isCleared = clearedStages.includes(stage.id);
-                            const stageImage = stage.background?.image || `/assets/stages/${stage.id}.png`;
+                            const stageImage = stage.background?.image || `/assets/stages/${stage.id}.webp`;
                             return (
                                 <div
                                     key={stage.id}
