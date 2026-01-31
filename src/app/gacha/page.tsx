@@ -32,6 +32,8 @@ export default function GachaPage() {
     const [ownedRarityFilter, setOwnedRarityFilter] = useState<Rarity | "ALL">("ALL");
     const [unownedRarityFilter, setUnownedRarityFilter] = useState<Rarity | "ALL">("ALL");
     const [newRarityFilter, setNewRarityFilter] = useState<Rarity | "ALL">("ALL");
+    const [urViewMode, setUrViewMode] = useState<"carousel" | "grid">("carousel");
+    const [newViewMode, setNewViewMode] = useState<"carousel" | "grid">("carousel");
 
     // NEWユニット判定（1週間以内に追加されたユニット）
     const isNewUnit = (unit: UnitDefinition): boolean => {
@@ -250,74 +252,111 @@ export default function GachaPage() {
                 </div>
 
                 {/* UR ユニットショーケース */}
-                <div className="card mb-8 bg-gradient-to-br from-purple-900 via-pink-900 to-indigo-900 border-2 border-pink-400/50">
-                    <h3 className="text-xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-pink-300 via-purple-300 to-cyan-300 text-center">
-                        ✨ {t("ur_showcase")} ✨
-                    </h3>
-                    <p className="text-pink-200/70 text-center text-sm mb-4">
+                <div className="card mb-8 bg-gradient-to-br from-purple-900 via-pink-900 to-indigo-900 border-2 border-pink-400/50 overflow-hidden">
+                    <div className="flex items-center justify-between mb-2">
+                        <div className="flex-1" />
+                        <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-300 via-purple-300 to-cyan-300 text-center">
+                            ✨ {t("ur_showcase")} ✨
+                        </h3>
+                        <div className="flex-1 flex justify-end">
+                            <div className="flex gap-1 bg-purple-800/50 rounded-lg p-1">
+                                <button
+                                    onClick={() => setUrViewMode("carousel")}
+                                    className={`px-2 py-1 rounded text-xs transition-all ${urViewMode === "carousel" ? "bg-pink-500 text-white" : "text-pink-300 hover:bg-purple-700"}`}
+                                >
+                                    ⟷
+                                </button>
+                                <button
+                                    onClick={() => setUrViewMode("grid")}
+                                    className={`px-2 py-1 rounded text-xs transition-all ${urViewMode === "grid" ? "bg-pink-500 text-white" : "text-pink-300 hover:bg-purple-700"}`}
+                                >
+                                    ⊞
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <p className="text-pink-200/70 text-center text-sm mb-3">
                         {t("ur_showcase_desc")}
                     </p>
-                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-                        {gachaPool
-                            .filter(u => u.rarity === "UR")
-                            .sort((a, b) => (a.gachaWeight ?? 1) - (b.gachaWeight ?? 1))
-                            .map((unit) => {
-                                const rate = getDropRate(unit);
-                                const isOwned = (unitInventory[unit.id] || 0) > 0;
-                                return (
-                                    <div
-                                        key={unit.id}
-                                        className={`
-                                            relative p-2 rounded-xl cursor-pointer transition-all
-                                            bg-gradient-to-br from-purple-800/50 to-pink-800/50
-                                            border border-pink-500/30 hover:border-pink-400
-                                            hover:scale-105 hover:shadow-lg hover:shadow-pink-500/20
-                                            ${isOwned ? "" : "opacity-70"}
-                                        `}
-                                        onClick={() => setViewingUnit(unit)}
-                                    >
-                                        {/* 排出率バッジ */}
-                                        <div className={`
-                                            absolute -top-2 -right-2 px-2 py-0.5 rounded-full text-[10px] font-bold z-10
-                                            ${rate < 0.05 ? "bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 text-white animate-pulse" :
-                                              rate < 0.08 ? "bg-pink-500 text-white" :
-                                              "bg-purple-500 text-white"}
-                                        `}>
-                                            {rate.toFixed(2)}%
-                                        </div>
 
-                                        {/* 所持バッジ */}
-                                        {isOwned && (
-                                            <div className="absolute -top-2 -left-2 w-5 h-5 rounded-full bg-green-500 text-white text-[10px] font-bold flex items-center justify-center z-10">
-                                                ✓
+                    {urViewMode === "carousel" ? (
+                        <>
+                            <p className="text-pink-300/50 text-center text-xs mb-3">← スワイプで確認 →</p>
+                            <div className="overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide">
+                                <div className="flex gap-4" style={{ width: 'max-content' }}>
+                                    {gachaPool
+                                        .filter(u => u.rarity === "UR")
+                                        .sort((a, b) => (a.gachaWeight ?? 1) - (b.gachaWeight ?? 1))
+                                        .map((unit) => {
+                                            const rate = getDropRate(unit);
+                                            const isOwned = (unitInventory[unit.id] || 0) > 0;
+                                            return (
+                                                <div
+                                                    key={unit.id}
+                                                    className={`
+                                                        relative flex-shrink-0 w-36 p-3 rounded-2xl cursor-pointer transition-all
+                                                        bg-gradient-to-br from-purple-800/60 to-pink-800/60
+                                                        border-2 border-pink-500/40 hover:border-pink-400
+                                                        hover:shadow-xl hover:shadow-pink-500/30
+                                                        ${isOwned ? "ring-2 ring-green-400/50" : "opacity-80"}
+                                                    `}
+                                                    onClick={() => setViewingUnit(unit)}
+                                                >
+                                                    <div className={`absolute -top-2 -right-2 px-2 py-1 rounded-full text-xs font-bold z-10 ${rate < 0.05 ? "bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 text-white animate-pulse" : "bg-purple-500 text-white"}`}>
+                                                        {rate.toFixed(2)}%
+                                                    </div>
+                                                    {isOwned && (
+                                                        <div className="absolute -top-2 -left-2 w-6 h-6 rounded-full bg-green-500 text-white text-xs font-bold flex items-center justify-center z-10 shadow-lg">✓</div>
+                                                    )}
+                                                    {unit.isFlying && (
+                                                        <div className="absolute top-8 -left-2 w-6 h-6 rounded-full bg-sky-500 text-white text-xs flex items-center justify-center z-10 shadow-lg">🪽</div>
+                                                    )}
+                                                    <div className="flex justify-center mb-2">
+                                                        <RarityFrame unitId={unit.id} unitName={unit.name} rarity={unit.rarity} size="lg" showLabel={false} baseUnitId={unit.baseUnitId} grayscale={!isOwned} />
+                                                    </div>
+                                                    <div className="text-sm text-center text-pink-100 font-bold truncate">{unit.name}</div>
+                                                    <div className="mt-2 text-[10px] text-pink-200/60 text-center space-y-0.5">
+                                                        <div>HP: {unit.maxHp.toLocaleString()}</div>
+                                                        <div>ATK: {unit.attackDamage}</div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                            {gachaPool
+                                .filter(u => u.rarity === "UR")
+                                .sort((a, b) => (a.gachaWeight ?? 1) - (b.gachaWeight ?? 1))
+                                .map((unit) => {
+                                    const rate = getDropRate(unit);
+                                    const isOwned = (unitInventory[unit.id] || 0) > 0;
+                                    return (
+                                        <div
+                                            key={unit.id}
+                                            className={`relative p-2 rounded-xl cursor-pointer transition-all bg-gradient-to-br from-purple-800/50 to-pink-800/50 border border-pink-500/30 hover:border-pink-400 hover:scale-105 ${isOwned ? "" : "opacity-70"}`}
+                                            onClick={() => setViewingUnit(unit)}
+                                        >
+                                            <div className={`absolute -top-2 -right-2 px-2 py-0.5 rounded-full text-[10px] font-bold z-10 ${rate < 0.05 ? "bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 text-white animate-pulse" : "bg-purple-500 text-white"}`}>
+                                                {rate.toFixed(2)}%
                                             </div>
-                                        )}
-
-                                        {/* 飛行バッジ */}
-                                        {unit.isFlying && (
-                                            <div className={`absolute ${isOwned ? "-bottom-1" : "-top-2"} -left-2 w-5 h-5 rounded-full bg-sky-500 text-white text-[10px] flex items-center justify-center z-10`} title="Flying">
-                                                🪽
+                                            {isOwned && (
+                                                <div className="absolute -top-2 -left-2 w-5 h-5 rounded-full bg-green-500 text-white text-[10px] font-bold flex items-center justify-center z-10">✓</div>
+                                            )}
+                                            {unit.isFlying && (
+                                                <div className={`absolute ${isOwned ? "-bottom-1" : "-top-2"} -left-2 w-5 h-5 rounded-full bg-sky-500 text-white text-[10px] flex items-center justify-center z-10`}>🪽</div>
+                                            )}
+                                            <div className="flex justify-center">
+                                                <RarityFrame unitId={unit.id} unitName={unit.name} rarity={unit.rarity} size="sm" showLabel={false} baseUnitId={unit.baseUnitId} grayscale={!isOwned} />
                                             </div>
-                                        )}
-
-                                        <div className="flex justify-center">
-                                            <RarityFrame
-                                                unitId={unit.id}
-                                                unitName={unit.name}
-                                                rarity={unit.rarity}
-                                                size="sm"
-                                                showLabel={false}
-                                                baseUnitId={unit.baseUnitId}
-                                                grayscale={!isOwned}
-                                            />
+                                            <div className="text-[10px] text-center text-pink-100 truncate mt-1 font-medium">{unit.name}</div>
                                         </div>
-                                        <div className="text-[10px] text-center text-pink-100 truncate mt-1 font-medium">
-                                            {unit.name}
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                    </div>
+                                    );
+                                })}
+                        </div>
+                    )}
                 </div>
 
                 {/* ガチャ履歴 */}
@@ -424,6 +463,22 @@ export default function GachaPage() {
                             <h3 className="text-xl font-bold text-green-800 dark:text-green-300">
                                 {t("new_units") || "新キャラクター"} ({newUnits.length})
                             </h3>
+                            <div className="flex-1 flex justify-end">
+                                <div className="flex gap-1 bg-green-700/50 rounded-lg p-1">
+                                    <button
+                                        onClick={() => setNewViewMode("carousel")}
+                                        className={`px-2 py-1 rounded text-xs transition-all ${newViewMode === "carousel" ? "bg-green-500 text-white" : "text-green-200 hover:bg-green-600"}`}
+                                    >
+                                        ⟷
+                                    </button>
+                                    <button
+                                        onClick={() => setNewViewMode("grid")}
+                                        className={`px-2 py-1 rounded text-xs transition-all ${newViewMode === "grid" ? "bg-green-500 text-white" : "text-green-200 hover:bg-green-600"}`}
+                                    >
+                                        ⊞
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
                         {/* レアリティフィルター */}
@@ -452,50 +507,103 @@ export default function GachaPage() {
                             })}
                         </div>
 
-                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-                            {newUnits
-                                .filter(u => newRarityFilter === "ALL" || u.rarity === newRarityFilter)
-                                .map((unit) => {
-                                    const count = unitInventory[unit.id] || 0;
-                                    const isOwned = count > 0;
-                                    return (
-                                        <div
-                                            key={unit.id}
-                                            className={`
-                                                relative p-2 rounded-lg cursor-pointer transition-all
-                                                hover:bg-green-200/50 dark:hover:bg-green-800/30
-                                                ${!isOwned ? "opacity-70" : ""}
-                                            `}
-                                            onClick={() => setViewingUnit(unit)}
-                                        >
-                                            {/* NEWバッジ */}
-                                            <div className="absolute -top-1 -right-1 px-1.5 py-0.5 rounded-full bg-green-500 text-white text-[10px] font-bold z-10">
-                                                NEW
-                                            </div>
-                                            {/* 所持バッジ */}
-                                            {isOwned && (
-                                                <div className="absolute -top-1 -left-1 w-5 h-5 rounded-full bg-blue-500 text-white text-[10px] font-bold flex items-center justify-center z-10">
-                                                    {count}
+                        {newViewMode === "carousel" ? (
+                            <>
+                                <p className="text-green-600/60 dark:text-green-300/50 text-center text-xs mb-3">← スワイプで確認 →</p>
+                                <div className="overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide">
+                                    <div className="flex gap-4" style={{ width: 'max-content' }}>
+                                        {newUnits
+                                            .filter(u => newRarityFilter === "ALL" || u.rarity === newRarityFilter)
+                                            .map((unit) => {
+                                                const count = unitInventory[unit.id] || 0;
+                                                const isOwned = count > 0;
+                                                const rarityColors: Record<string, string> = {
+                                                    UR: "from-purple-600/60 to-pink-600/60 border-pink-400/50",
+                                                    SSR: "from-amber-500/60 to-orange-600/60 border-amber-400/50",
+                                                    SR: "from-purple-500/60 to-indigo-600/60 border-purple-400/50",
+                                                    R: "from-blue-400/60 to-cyan-500/60 border-blue-400/50",
+                                                    N: "from-gray-400/60 to-slate-500/60 border-gray-400/50",
+                                                };
+                                                return (
+                                                    <div
+                                                        key={unit.id}
+                                                        className={`
+                                                            relative flex-shrink-0 w-36 p-3 rounded-2xl cursor-pointer transition-all
+                                                            bg-gradient-to-br ${rarityColors[unit.rarity] || rarityColors.N}
+                                                            border-2 hover:shadow-xl hover:scale-105
+                                                            ${isOwned ? "ring-2 ring-green-400/50" : "opacity-80"}
+                                                        `}
+                                                        onClick={() => setViewingUnit(unit)}
+                                                    >
+                                                        <div className="absolute -top-2 -right-2 px-2 py-1 rounded-full text-xs font-bold z-10 bg-green-500 text-white animate-pulse shadow-lg">
+                                                            NEW
+                                                        </div>
+                                                        {isOwned && (
+                                                            <div className="absolute -top-2 -left-2 w-6 h-6 rounded-full bg-blue-500 text-white text-xs font-bold flex items-center justify-center z-10 shadow-lg">{count}</div>
+                                                        )}
+                                                        {unit.isFlying && (
+                                                            <div className="absolute top-8 -left-2 w-6 h-6 rounded-full bg-sky-500 text-white text-xs flex items-center justify-center z-10 shadow-lg">🪽</div>
+                                                        )}
+                                                        <div className="flex justify-center mb-2">
+                                                            <RarityFrame unitId={unit.id} unitName={unit.name} rarity={unit.rarity} size="lg" showLabel={false} baseUnitId={unit.baseUnitId} grayscale={!isOwned} />
+                                                        </div>
+                                                        <div className="text-sm text-center text-white font-bold truncate drop-shadow-md">{unit.name}</div>
+                                                        <div className="mt-2 text-[10px] text-white/70 text-center space-y-0.5">
+                                                            <div>HP: {unit.maxHp.toLocaleString()}</div>
+                                                            <div>ATK: {unit.attackDamage}</div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                                {newUnits
+                                    .filter(u => newRarityFilter === "ALL" || u.rarity === newRarityFilter)
+                                    .map((unit) => {
+                                        const count = unitInventory[unit.id] || 0;
+                                        const isOwned = count > 0;
+                                        return (
+                                            <div
+                                                key={unit.id}
+                                                className={`
+                                                    relative p-2 rounded-lg cursor-pointer transition-all
+                                                    hover:bg-green-200/50 dark:hover:bg-green-800/30
+                                                    ${!isOwned ? "opacity-70" : ""}
+                                                `}
+                                                onClick={() => setViewingUnit(unit)}
+                                            >
+                                                {/* NEWバッジ */}
+                                                <div className="absolute -top-1 -right-1 px-1.5 py-0.5 rounded-full bg-green-500 text-white text-[10px] font-bold z-10">
+                                                    NEW
                                                 </div>
-                                            )}
-                                            <div className="flex justify-center">
-                                                <RarityFrame
-                                                    unitId={unit.id}
-                                                    unitName={unit.name}
-                                                    rarity={unit.rarity}
-                                                    size="md"
-                                                    showLabel={true}
-                                                    baseUnitId={unit.baseUnitId}
-                                                    grayscale={!isOwned}
-                                                />
+                                                {/* 所持バッジ */}
+                                                {isOwned && (
+                                                    <div className="absolute -top-1 -left-1 w-5 h-5 rounded-full bg-blue-500 text-white text-[10px] font-bold flex items-center justify-center z-10">
+                                                        {count}
+                                                    </div>
+                                                )}
+                                                <div className="flex justify-center">
+                                                    <RarityFrame
+                                                        unitId={unit.id}
+                                                        unitName={unit.name}
+                                                        rarity={unit.rarity}
+                                                        size="md"
+                                                        showLabel={true}
+                                                        baseUnitId={unit.baseUnitId}
+                                                        grayscale={!isOwned}
+                                                    />
+                                                </div>
+                                                <div className={`text-xs text-center truncate mt-1 ${isOwned ? "text-green-900 dark:text-green-200" : "text-gray-500"}`}>
+                                                    {unit.name}
+                                                </div>
                                             </div>
-                                            <div className={`text-xs text-center truncate mt-1 ${isOwned ? "text-green-900 dark:text-green-200" : "text-gray-500"}`}>
-                                                {unit.name}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                        </div>
+                                        );
+                                    })}
+                            </div>
+                        )}
                     </div>
                 )}
 

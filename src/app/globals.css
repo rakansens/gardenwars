@@ -390,3 +390,12 @@ body {
 .has-bottom-nav {
   padding-bottom: 100px;
 }
+
+/* スクロールバー非表示（横スクロールカルーセル用） */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
