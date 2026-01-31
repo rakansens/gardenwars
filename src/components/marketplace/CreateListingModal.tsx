@@ -25,6 +25,9 @@ export default function CreateListingModal({
     const [selectedUnit, setSelectedUnit] = useState<string | null>(null);
     const [quantity, setQuantity] = useState(1);
     const [pricePerUnit, setPricePerUnit] = useState(100);
+    // 入力中の文字列を保持（空文字許可）
+    const [priceInputValue, setPriceInputValue] = useState("100");
+    const [quantityInputValue, setQuantityInputValue] = useState("1");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -88,7 +91,9 @@ export default function CreateListingModal({
                 // リセット
                 setSelectedUnit(null);
                 setQuantity(1);
+                setQuantityInputValue("1");
                 setPricePerUnit(100);
+                setPriceInputValue("100");
             } else {
                 setError(t("listing_failed"));
             }
@@ -104,7 +109,9 @@ export default function CreateListingModal({
             onClose();
             setSelectedUnit(null);
             setQuantity(1);
+            setQuantityInputValue("1");
             setPricePerUnit(100);
+            setPriceInputValue("100");
             setError(null);
         }
     };
@@ -144,6 +151,7 @@ export default function CreateListingModal({
                                                 }
                                             })();
                                             setPricePerUnit(suggested);
+                                            setPriceInputValue(String(suggested));
                                         }}
                                         className="flex flex-col items-center p-1 rounded-lg hover:bg-gray-100 transition-colors"
                                     >
@@ -194,32 +202,63 @@ export default function CreateListingModal({
                             </label>
                             <div className="flex items-center gap-2">
                                 <button
-                                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                                    onClick={() => {
+                                        const newVal = Math.max(1, quantity - 1);
+                                        setQuantity(newVal);
+                                        setQuantityInputValue(String(newVal));
+                                    }}
                                     className="w-10 h-10 bg-gray-200 hover:bg-gray-300 rounded-lg font-bold text-xl text-gray-700"
                                     disabled={quantity <= 1}
                                 >
                                     -
                                 </button>
                                 <input
-                                    type="number"
-                                    value={quantity}
+                                    type="text"
+                                    inputMode="numeric"
+                                    value={quantityInputValue}
                                     onChange={(e) => {
-                                        const val = parseInt(e.target.value) || 1;
-                                        setQuantity(Math.min(maxQuantity, Math.max(1, val)));
+                                        const rawValue = e.target.value;
+                                        // 数字のみ許可
+                                        if (rawValue === "" || /^\d+$/.test(rawValue)) {
+                                            setQuantityInputValue(rawValue);
+                                            const val = parseInt(rawValue);
+                                            if (!isNaN(val) && val > 0) {
+                                                setQuantity(Math.min(maxQuantity, val));
+                                            }
+                                        }
                                     }}
-                                    min={1}
-                                    max={maxQuantity}
+                                    onBlur={() => {
+                                        // フォーカスが外れたら有効な値に補正
+                                        const val = parseInt(quantityInputValue);
+                                        if (isNaN(val) || val < 1) {
+                                            setQuantity(1);
+                                            setQuantityInputValue("1");
+                                        } else if (val > maxQuantity) {
+                                            setQuantity(maxQuantity);
+                                            setQuantityInputValue(String(maxQuantity));
+                                        } else {
+                                            setQuantity(val);
+                                            setQuantityInputValue(String(val));
+                                        }
+                                    }}
                                     className="w-20 h-10 text-center border rounded-lg font-bold text-lg text-gray-800 bg-white"
                                 />
                                 <button
-                                    onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
+                                    onClick={() => {
+                                        const newVal = Math.min(maxQuantity, quantity + 1);
+                                        setQuantity(newVal);
+                                        setQuantityInputValue(String(newVal));
+                                    }}
                                     className="w-10 h-10 bg-gray-200 hover:bg-gray-300 rounded-lg font-bold text-xl text-gray-700"
                                     disabled={quantity >= maxQuantity}
                                 >
                                     +
                                 </button>
                                 <button
-                                    onClick={() => setQuantity(maxQuantity)}
+                                    onClick={() => {
+                                        setQuantity(maxQuantity);
+                                        setQuantityInputValue(String(maxQuantity));
+                                    }}
                                     className="px-3 h-10 bg-gray-200 hover:bg-gray-300 rounded-lg text-sm text-gray-700"
                                 >
                                     {t("max")}
@@ -234,18 +273,41 @@ export default function CreateListingModal({
                             </label>
                             <div className="flex items-center gap-2">
                                 <input
-                                    type="number"
-                                    value={pricePerUnit}
+                                    type="text"
+                                    inputMode="numeric"
+                                    value={priceInputValue}
                                     onChange={(e) => {
-                                        const val = parseInt(e.target.value) || MIN_LISTING_PRICE;
-                                        setPricePerUnit(Math.min(MAX_LISTING_PRICE, Math.max(MIN_LISTING_PRICE, val)));
+                                        const rawValue = e.target.value;
+                                        // 数字のみ許可
+                                        if (rawValue === "" || /^\d+$/.test(rawValue)) {
+                                            setPriceInputValue(rawValue);
+                                            const val = parseInt(rawValue);
+                                            if (!isNaN(val) && val > 0) {
+                                                setPricePerUnit(Math.min(MAX_LISTING_PRICE, val));
+                                            }
+                                        }
                                     }}
-                                    min={MIN_LISTING_PRICE}
-                                    max={MAX_LISTING_PRICE}
+                                    onBlur={() => {
+                                        // フォーカスが外れたら有効な値に補正
+                                        const val = parseInt(priceInputValue);
+                                        if (isNaN(val) || val < MIN_LISTING_PRICE) {
+                                            setPricePerUnit(MIN_LISTING_PRICE);
+                                            setPriceInputValue(String(MIN_LISTING_PRICE));
+                                        } else if (val > MAX_LISTING_PRICE) {
+                                            setPricePerUnit(MAX_LISTING_PRICE);
+                                            setPriceInputValue(String(MAX_LISTING_PRICE));
+                                        } else {
+                                            setPricePerUnit(val);
+                                            setPriceInputValue(String(val));
+                                        }
+                                    }}
                                     className="flex-1 h-10 px-3 border rounded-lg font-bold text-lg text-gray-800 bg-white"
                                 />
                                 <button
-                                    onClick={() => setPricePerUnit(suggestedPrice)}
+                                    onClick={() => {
+                                        setPricePerUnit(suggestedPrice);
+                                        setPriceInputValue(String(suggestedPrice));
+                                    }}
                                     className="px-3 h-10 bg-amber-100 hover:bg-amber-200 text-amber-700 rounded-lg text-sm whitespace-nowrap"
                                 >
                                     {t("suggested")}: {suggestedPrice}

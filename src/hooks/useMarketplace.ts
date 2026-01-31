@@ -58,7 +58,7 @@ export interface UseMarketplaceReturn {
  */
 export function useMarketplace(): UseMarketplaceReturn {
     const { status, playerId } = useAuth();
-    const { addCoins, addUnit, removeUnit, unitInventory, coins } = usePlayerData();
+    const { addCoins, spendCoins, addUnit, removeUnit, unitInventory, coins } = usePlayerData();
     const isAuthenticated = status === "authenticated" && !!playerId;
 
     const [listings, setListings] = useState<MarketplaceListing[]>([]);
@@ -237,10 +237,10 @@ export function useMarketplace(): UseMarketplaceReturn {
 
                 if (success) {
                     // ローカル状態を更新（Supabaseでは既に処理済み）
-                    // usePlayerDataが自動的にSupabaseと同期するため、
-                    // ここでは状態の即時反映のためにローカル更新
+                    // UIの即時反映のためにローカル更新
                     addUnit(listing.unitId, listing.quantity);
-                    // コインはSupabaseで処理済み、ローカルも同期されるはず
+                    // コインを減らす
+                    spendCoins(listing.totalPrice);
 
                     // リスト更新（強制リフレッシュ）
                     await refreshListings(undefined, true);
@@ -252,7 +252,7 @@ export function useMarketplace(): UseMarketplaceReturn {
                 return false;
             }
         },
-        [isAuthenticated, playerId, listings, coins, addUnit, refreshListings]
+        [isAuthenticated, playerId, listings, coins, addUnit, spendCoins, refreshListings]
     );
 
     // 出品キャンセル
