@@ -3,27 +3,57 @@
     "id": "boss_stage_1",
     "name": "boss_stage_1_name",
     "description": "boss_stage_1_desc",
-    "length": 2000,
-    "baseCastleHp": 3000,
+    "length": 3000,
+    "baseCastleHp": 30000,
     "enemyCastleHp": 1,
     "isBossStage": true,
     "enemyWaves": [
       {
-        "timeMs": 3000,
+        "timeMs": 2000,
+        "unitId": "enemy_penguin",
+        "count": 10,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 15000,
+        "unitId": "enemy_ur_tank",
+        "count": 5,
+        "intervalMs": 1500
+      },
+      {
+        "timeMs": 30000,
+        "unitId": "enemy_wolf",
+        "count": 20,
+        "intervalMs": 300
+      },
+      {
+        "timeMs": 45000,
+        "unitId": "enemy_penguin",
+        "count": 8,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 60000,
+        "unitId": "enemy_ur_knight",
+        "count": 5,
+        "intervalMs": 2000
+      },
+      {
+        "timeMs": 80000,
         "unitId": "boss_giant_king",
         "count": 1,
         "intervalMs": 0
       }
     ],
     "reward": {
-      "coins": 5000,
+      "coins": 50000,
       "drops": [
         {
-          "unitId": "cat_tank",
+          "unitId": "penguin_boy",
           "rate": 50
         },
         {
-          "unitId": "ribbon_girl",
+          "unitId": "ur_tank",
           "rate": 20
         }
       ]
@@ -40,27 +70,61 @@
     "id": "boss_stage_2",
     "name": "boss_stage_2_name",
     "description": "boss_stage_2_desc",
-    "length": 2200,
-    "baseCastleHp": 4000,
+    "length": 3500,
+    "baseCastleHp": 40000,
     "enemyCastleHp": 1,
     "isBossStage": true,
     "enemyWaves": [
       {
-        "timeMs": 3000,
+        "timeMs": 2000,
+        "unitId": "enemy_crow",
+        "count": 50,
+        "intervalMs": 150
+      },
+      {
+        "timeMs": 15000,
+        "unitId": "enemy_ur_angel",
+        "count": 10,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 30000,
+        "unitId": "enemy_ur_dragon",
+        "count": 5,
+        "intervalMs": 2000
+      },
+      {
+        "timeMs": 50000,
+        "unitId": "enemy_crow",
+        "count": 40,
+        "intervalMs": 100
+      },
+      {
+        "timeMs": 65000,
+        "unitId": "enemy_ur_angel",
+        "count": 8,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 85000,
         "unitId": "boss_dragon",
         "count": 1,
         "intervalMs": 0
       }
     ],
     "reward": {
-      "coins": 8000,
+      "coins": 80000,
       "drops": [
         {
-          "unitId": "ribbon_girl",
-          "rate": 30
+          "unitId": "lennon",
+          "rate": 40
         },
         {
-          "unitId": "cinnamon_girl",
+          "unitId": "ur_angel",
+          "rate": 25
+        },
+        {
+          "unitId": "ur_dragon",
           "rate": 15
         }
       ]
@@ -77,32 +141,62 @@
     "id": "boss_stage_3",
     "name": "boss_stage_3_name",
     "description": "boss_stage_3_desc",
-    "length": 2500,
-    "baseCastleHp": 5000,
+    "length": 4000,
+    "baseCastleHp": 50000,
     "enemyCastleHp": 1,
     "isBossStage": true,
     "enemyWaves": [
       {
-        "timeMs": 5000,
+        "timeMs": 2000,
+        "unitId": "enemy_ribbon",
+        "count": 10,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 18000,
+        "unitId": "enemy_ur_knight",
+        "count": 10,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 35000,
+        "unitId": "enemy_yumemi",
+        "count": 6,
+        "intervalMs": 2000
+      },
+      {
+        "timeMs": 55000,
+        "unitId": "enemy_ur_mage",
+        "count": 15,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 75000,
+        "unitId": "enemy_ribbon",
+        "count": 8,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 95000,
         "unitId": "boss_death_titan",
         "count": 1,
         "intervalMs": 0
       }
     ],
     "reward": {
-      "coins": 15000,
+      "coins": 150000,
       "drops": [
         {
+          "unitId": "ribbon_girl",
+          "rate": 50
+        },
+        {
           "unitId": "cinnamon_girl",
-          "rate": 25
+          "rate": 30
         },
         {
           "unitId": "nika",
-          "rate": 10
-        },
-        {
-          "unitId": "lennon",
-          "rate": 5
+          "rate": 15
         }
       ]
     },
@@ -118,32 +212,62 @@
     "id": "boss_stage_4",
     "name": "boss_stage_4_name",
     "description": "boss_stage_4_desc",
-    "length": 2300,
-    "baseCastleHp": 4500,
+    "length": 3500,
+    "baseCastleHp": 45000,
     "enemyCastleHp": 1,
     "isBossStage": true,
     "enemyWaves": [
       {
-        "timeMs": 3000,
+        "timeMs": 2000,
+        "unitId": "enemy_ninja",
+        "count": 50,
+        "intervalMs": 120
+      },
+      {
+        "timeMs": 15000,
+        "unitId": "enemy_nika",
+        "count": 5,
+        "intervalMs": 2000
+      },
+      {
+        "timeMs": 30000,
+        "unitId": "enemy_leaf_ninja",
+        "count": 30,
+        "intervalMs": 200
+      },
+      {
+        "timeMs": 45000,
+        "unitId": "enemy_wolf",
+        "count": 25,
+        "intervalMs": 250
+      },
+      {
+        "timeMs": 60000,
+        "unitId": "enemy_nika",
+        "count": 4,
+        "intervalMs": 2500
+      },
+      {
+        "timeMs": 80000,
         "unitId": "boss_nika",
         "count": 1,
         "intervalMs": 0
       }
     ],
     "reward": {
-      "coins": 12000,
+      "coins": 120000,
       "drops": [
         {
           "unitId": "nika",
+          "rate": 60
+        },
+        {
+          "unitId": "cat_ninja",
           "rate": 40
         },
         {
-          "unitId": "cinnamon_girl",
-          "rate": 20
-        },
-        {
           "unitId": "lennon",
-          "rate": 8
+          "rate": 10
         }
       ]
     },
@@ -159,31 +283,77 @@
     "id": "boss_stage_5",
     "name": "boss_stage_5_name",
     "description": "boss_stage_5_desc",
-    "length": 2400,
-    "baseCastleHp": 5000,
+    "length": 5000,
+    "baseCastleHp": 60000,
     "enemyCastleHp": 1,
     "isBossStage": true,
     "enemyWaves": [
       {
-        "timeMs": 3000,
+        "timeMs": 2000,
+        "unitId": "enemy_yumemi",
+        "count": 10,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 18000,
+        "unitId": "enemy_ur_knight",
+        "count": 15,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 35000,
+        "unitId": "enemy_ur_dragon",
+        "count": 8,
+        "intervalMs": 1500
+      },
+      {
+        "timeMs": 55000,
+        "unitId": "enemy_ribbon",
+        "count": 15,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 75000,
+        "unitId": "enemy_ur_mage",
+        "count": 20,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 95000,
+        "unitId": "enemy_yumemi",
+        "count": 8,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 115000,
+        "unitId": "enemy_penguin",
+        "count": 10,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 140000,
         "unitId": "boss_mona",
         "count": 1,
         "intervalMs": 0
       }
     ],
     "reward": {
-      "coins": 18000,
+      "coins": 200000,
       "drops": [
         {
           "unitId": "cinnamon_girl",
-          "rate": 50
+          "rate": 80
         },
         {
           "unitId": "nika",
-          "rate": 25
+          "rate": 50
         },
         {
           "unitId": "lennon",
+          "rate": 25
+        },
+        {
+          "unitId": "yumemi",
           "rate": 10
         }
       ]
