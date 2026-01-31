@@ -8,16 +8,10 @@ import stagesData from "@/data/stages";
 import unitsData from "@/data/units";
 import type { StageDefinition, UnitDefinition, StageDifficulty } from "@/data/types";
 import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
-import { usePlayerData } from "@/hooks/usePlayerData";
+import { useStageUnlock } from "@/hooks/useStageUnlock";
 
 const stages = stagesData as StageDefinition[];
 const allUnits = unitsData as UnitDefinition[];
-
-// ステージの元の順序を保存するマップ（インデックス順序の保証用）
-const stageOrderMap = new Map<string, number>();
-stages.forEach((stage, index) => {
-    stageOrderMap.set(stage.id, index);
-});
 
 // 難易度タブ設定（順番が重要 - アンロック順）
 const DIFFICULTY_TABS: {
@@ -38,9 +32,6 @@ const DIFFICULTY_TABS: {
     { key: "boss", labelKey: "difficulty_boss", subKey: "difficulty_boss_sub", icon: "🏰", color: "bg-purple-600", banner: "/assets/stages/boss_banner.webp", gradient: "from-purple-700 to-black" },
     { key: "special", labelKey: "difficulty_special", subKey: "difficulty_special_sub", icon: "✨", color: "bg-gradient-to-r from-pink-500 to-cyan-500", banner: "/assets/stages/special_banner.webp", gradient: "from-pink-400 via-purple-500 to-cyan-400" },
 ];
-
-// 難易度の順番（アンロック順）
-const DIFFICULTY_ORDER: StageDifficulty[] = ["tutorial", "easy", "normal", "hard", "extreme", "boss", "special"];
 
 // ステージのテーマアイコン
 const stageIcons: { [key: string]: string } = {
@@ -106,7 +97,7 @@ const getDifficultyStars = (difficulty?: StageDifficulty): string => {
 export default function StagesPage() {
     const router = useRouter();
     const { t } = useLanguage();
-    const { clearedStages } = usePlayerData();
+    const { clearedStages, isDifficultyUnlocked, isStageUnlocked, getClearCount } = useStageUnlock();
     const [selectedDifficulty, setSelectedDifficulty] = useState<StageDifficulty | "all">("all");
 
     const handleSelectStage = (stageId: string) => {
@@ -117,46 +108,6 @@ export default function StagesPage() {
     const filteredStages = selectedDifficulty === "all"
         ? stages
         : stages.filter(s => s.difficulty === selectedDifficulty);
-
-    // 各難易度のステージ数をカウント
-    const getClearCount = (difficulty: StageDifficulty | "all") => {
-        const targetStages = difficulty === "all"
-            ? stages
-            : stages.filter(s => s.difficulty === difficulty);
-        const cleared = targetStages.filter(s => clearedStages.includes(s.id)).length;
-        return { cleared, total: targetStages.length };
-    };
-
-    // 難易度がアンロックされているかチェック
-    const isDifficultyUnlocked = (difficulty: StageDifficulty): boolean => {
-        const difficultyIndex = DIFFICULTY_ORDER.indexOf(difficulty);
-        if (difficultyIndex === 0) return true; // tutorialは常にアンロック
-
-        // 前の難易度の全ステージをクリアしているかチェック
-        const prevDifficulty = DIFFICULTY_ORDER[difficultyIndex - 1];
-        const prevStages = stages
-            .filter(s => s.difficulty === prevDifficulty)
-            .sort((a, b) => (stageOrderMap.get(a.id) ?? 0) - (stageOrderMap.get(b.id) ?? 0));
-        return prevStages.every(s => clearedStages.includes(s.id));
-    };
-
-    // ステージがアンロックされているかチェック
-    const isStageUnlocked = (stage: StageDefinition, stageIndex: number, stagesInDifficulty: StageDefinition[]): boolean => {
-        // 難易度がアンロックされていなければステージもロック
-        if (!isDifficultyUnlocked(stage.difficulty as StageDifficulty)) return false;
-
-        // インデックスが無効な場合はロック
-        if (stageIndex < 0 || stageIndex >= stagesInDifficulty.length) return false;
-
-        // 最初のステージは常にアンロック（難易度がアンロックされていれば）
-        if (stageIndex === 0) return true;
-
-        // 前のステージがクリアされていればアンロック
-        const prevStage = stagesInDifficulty[stageIndex - 1];
-        if (!prevStage) return false; // 安全ガード
-
-        return clearedStages.includes(prevStage.id);
-    };
 
     return (
         <main className="min-h-screen p-4 md:p-8">
@@ -262,13 +213,8 @@ export default function StagesPage() {
                             const isCleared = clearedStages.includes(stage.id);
                             const stageImage = stage.background?.image || `/assets/stages/${stage.id}.webp`;
 
-                            // ステージのロック判定（元の配列順序でソートして判定）
-                            const stagesInSameDifficulty = stages
-                                .filter(s => s.difficulty === stage.difficulty)
-                                .sort((a, b) => (stageOrderMap.get(a.id) ?? 0) - (stageOrderMap.get(b.id) ?? 0));
-                            const stageIndexInDifficulty = stagesInSameDifficulty.findIndex(s => s.id === stage.id);
-
-                            const isLocked = !isStageUnlocked(stage, stageIndexInDifficulty, stagesInSameDifficulty);
+                            // ステージのロック判定（共有フックを使用）
+                            const isLocked = !isStageUnlocked(stage);
 
                             return (
                                 <div

@@ -15,10 +15,22 @@
         "intervalMs": 800
       },
       {
+        "timeMs": 10000,
+        "unitId": "enemy_sr_rose",
+        "count": 5,
+        "intervalMs": 1200
+      },
+      {
         "timeMs": 15000,
         "unitId": "enemy_ur_tank",
         "count": 5,
         "intervalMs": 1500
+      },
+      {
+        "timeMs": 25000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 6,
+        "intervalMs": 1000
       },
       {
         "timeMs": 30000,
@@ -27,16 +39,34 @@
         "intervalMs": 300
       },
       {
+        "timeMs": 40000,
+        "unitId": "enemy_mage",
+        "count": 8,
+        "intervalMs": 800
+      },
+      {
         "timeMs": 45000,
         "unitId": "enemy_penguin",
         "count": 8,
         "intervalMs": 1000
       },
       {
+        "timeMs": 55000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 4,
+        "intervalMs": 1500
+      },
+      {
         "timeMs": 60000,
         "unitId": "enemy_ur_knight",
         "count": 5,
         "intervalMs": 2000
+      },
+      {
+        "timeMs": 70000,
+        "unitId": "enemy_sr_pirate",
+        "count": 5,
+        "intervalMs": 1200
       },
       {
         "timeMs": 80000,
@@ -82,10 +112,22 @@
         "intervalMs": 150
       },
       {
+        "timeMs": 12000,
+        "unitId": "enemy_sr_tulip",
+        "count": 6,
+        "intervalMs": 1000
+      },
+      {
         "timeMs": 15000,
         "unitId": "enemy_ur_angel",
         "count": 10,
         "intervalMs": 1000
+      },
+      {
+        "timeMs": 25000,
+        "unitId": "enemy_sr_rose",
+        "count": 8,
+        "intervalMs": 800
       },
       {
         "timeMs": 30000,
@@ -94,15 +136,33 @@
         "intervalMs": 2000
       },
       {
+        "timeMs": 40000,
+        "unitId": "enemy_mage",
+        "count": 10,
+        "intervalMs": 600
+      },
+      {
         "timeMs": 50000,
         "unitId": "enemy_crow",
         "count": 40,
         "intervalMs": 100
       },
       {
+        "timeMs": 58000,
+        "unitId": "enemy_sr_pirate",
+        "count": 6,
+        "intervalMs": 1000
+      },
+      {
         "timeMs": 65000,
         "unitId": "enemy_ur_angel",
         "count": 8,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 75000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 5,
         "intervalMs": 1200
       },
       {
@@ -153,10 +213,22 @@
         "intervalMs": 1000
       },
       {
+        "timeMs": 10000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 8,
+        "intervalMs": 800
+      },
+      {
         "timeMs": 18000,
         "unitId": "enemy_ur_knight",
         "count": 10,
         "intervalMs": 1000
+      },
+      {
+        "timeMs": 28000,
+        "unitId": "enemy_mage",
+        "count": 12,
+        "intervalMs": 500
       },
       {
         "timeMs": 35000,
@@ -165,9 +237,21 @@
         "intervalMs": 2000
       },
       {
+        "timeMs": 45000,
+        "unitId": "enemy_sr_tulip",
+        "count": 8,
+        "intervalMs": 800
+      },
+      {
         "timeMs": 55000,
         "unitId": "enemy_ur_mage",
         "count": 15,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 65000,
+        "unitId": "enemy_sr_rose",
+        "count": 10,
         "intervalMs": 600
       },
       {
@@ -175,6 +259,12 @@
         "unitId": "enemy_ribbon",
         "count": 8,
         "intervalMs": 1200
+      },
+      {
+        "timeMs": 85000,
+        "unitId": "enemy_sr_pirate",
+        "count": 6,
+        "intervalMs": 1000
       },
       {
         "timeMs": 95000,
@@ -224,10 +314,22 @@
         "intervalMs": 120
       },
       {
+        "timeMs": 10000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 8,
+        "intervalMs": 700
+      },
+      {
         "timeMs": 15000,
         "unitId": "enemy_nika",
         "count": 5,
         "intervalMs": 2000
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_mage",
+        "count": 10,
+        "intervalMs": 500
       },
       {
         "timeMs": 30000,
@@ -236,16 +338,34 @@
         "intervalMs": 200
       },
       {
+        "timeMs": 38000,
+        "unitId": "enemy_sr_pirate",
+        "count": 8,
+        "intervalMs": 800
+      },
+      {
         "timeMs": 45000,
         "unitId": "enemy_wolf",
         "count": 25,
         "intervalMs": 250
       },
       {
+        "timeMs": 52000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 6,
+        "intervalMs": 1000
+      },
+      {
         "timeMs": 60000,
         "unitId": "enemy_nika",
         "count": 4,
         "intervalMs": 2500
+      },
+      {
+        "timeMs": 70000,
+        "unitId": "enemy_sr_tulip",
+        "count": 8,
+        "intervalMs": 800
       },
       {
         "timeMs": 80000,
@@ -295,10 +415,22 @@
         "intervalMs": 1000
       },
       {
+        "timeMs": 10000,
+        "unitId": "enemy_sr_rose",
+        "count": 10,
+        "intervalMs": 600
+      },
+      {
         "timeMs": 18000,
         "unitId": "enemy_ur_knight",
         "count": 15,
         "intervalMs": 800
+      },
+      {
+        "timeMs": 28000,
+        "unitId": "enemy_mage",
+        "count": 15,
+        "intervalMs": 400
       },
       {
         "timeMs": 35000,
@@ -307,15 +439,33 @@
         "intervalMs": 1500
       },
       {
+        "timeMs": 45000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 10,
+        "intervalMs": 600
+      },
+      {
         "timeMs": 55000,
         "unitId": "enemy_ribbon",
         "count": 15,
         "intervalMs": 600
       },
       {
+        "timeMs": 65000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 8,
+        "intervalMs": 800
+      },
+      {
         "timeMs": 75000,
         "unitId": "enemy_ur_mage",
         "count": 20,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 85000,
+        "unitId": "enemy_sr_tulip",
+        "count": 12,
         "intervalMs": 500
       },
       {
@@ -325,10 +475,22 @@
         "intervalMs": 1200
       },
       {
+        "timeMs": 105000,
+        "unitId": "enemy_sr_pirate",
+        "count": 10,
+        "intervalMs": 600
+      },
+      {
         "timeMs": 115000,
         "unitId": "enemy_penguin",
         "count": 10,
         "intervalMs": 1000
+      },
+      {
+        "timeMs": 125000,
+        "unitId": "enemy_sr_rose",
+        "count": 8,
+        "intervalMs": 800
       },
       {
         "timeMs": 140000,

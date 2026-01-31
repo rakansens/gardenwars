@@ -8,7 +8,7 @@ import stagesData from "@/data/stages";
 import unitsData from "@/data/units";
 import type { StageDefinition, UnitDefinition, StageDifficulty } from "@/data/types";
 import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
-import { usePlayerData } from "@/hooks/usePlayerData";
+import { useStageUnlock } from "@/hooks/useStageUnlock";
 
 const stages = stagesData as StageDefinition[];
 const allUnits = unitsData as UnitDefinition[];
@@ -131,7 +131,7 @@ const getStageThumbnail = (stageId: string): string => {
 export default function WorldMapPage() {
     const router = useRouter();
     const { t } = useLanguage();
-    const { clearedStages } = usePlayerData();
+    const { clearedStages, isDifficultyUnlocked, isStageUnlocked, getClearCount } = useStageUnlock();
     const [selectedStage, setSelectedStage] = useState<StageDefinition | null>(null);
     const [activeArea, setActiveArea] = useState<StageDifficulty | "all">("tutorial");
     const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -146,9 +146,6 @@ export default function WorldMapPage() {
     const totalStages = stages.length;
     const clearedCount = clearedStages.length;
     const progressPercent = totalStages > 0 ? Math.round((clearedCount / totalStages) * 100) : 0;
-
-    // ワールドマップでは全ステージ解放済み
-    const isUnlocked = () => true;
 
     // ステージ選択
     const handleSelectStage = (stage: StageDefinition) => {
@@ -222,15 +219,19 @@ export default function WorldMapPage() {
                         const areaClearedCount = areaStages.filter((s) => clearedStages.includes(s.id)).length;
                         const isActive = activeArea === tab.key;
                         const isAllCleared = areaClearedCount === areaStages.length && areaStages.length > 0;
+                        const isLocked = !isDifficultyUnlocked(tab.key as StageDifficulty);
 
                         return (
                             <button
                                 key={tab.key}
-                                onClick={() => setActiveArea(tab.key)}
+                                onClick={() => !isLocked && setActiveArea(tab.key)}
+                                disabled={isLocked}
                                 className={`relative overflow-hidden rounded-xl transition-all duration-300 ${
-                                    isActive
-                                        ? "ring-4 ring-yellow-400 scale-105 shadow-2xl z-10"
-                                        : "hover:scale-102 hover:shadow-lg opacity-80 hover:opacity-100"
+                                    isLocked
+                                        ? "opacity-50 cursor-not-allowed grayscale"
+                                        : isActive
+                                            ? "ring-4 ring-yellow-400 scale-105 shadow-2xl z-10"
+                                            : "hover:scale-102 hover:shadow-lg opacity-80 hover:opacity-100"
                                 }`}
                             >
                                 {/* バナー画像背景 */}
@@ -244,8 +245,15 @@ export default function WorldMapPage() {
                                     {/* オーバーレイ */}
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
+                                    {/* ロックアイコン */}
+                                    {isLocked && (
+                                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
+                                            <span className="text-2xl">🔒</span>
+                                        </div>
+                                    )}
+
                                     {/* クリア済みバッジ */}
-                                    {isAllCleared && (
+                                    {isAllCleared && !isLocked && (
                                         <div className="absolute top-1 right-1 bg-green-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
                                             ✓
                                         </div>
@@ -336,7 +344,7 @@ export default function WorldMapPage() {
                     >
                         {filteredStages.map((stage, index) => {
                             const isCleared = clearedStages.includes(stage.id);
-                            const unlocked = isUnlocked();
+                            const unlocked = isStageUnlocked(stage);
                             const yOffset = index % 2 === 0 ? 0 : 50;
                             const isSelected = selectedStage?.id === stage.id;
                             const isBoss = stage.difficulty === "boss" || stage.isBossStage;

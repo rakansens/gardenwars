@@ -9,15 +9,21 @@
     "enemyWaves": [
       {
         "timeMs": 3000,
-        "unitId": "enemy_sunflower",
-        "count": 2,
-        "intervalMs": 3000
+        "unitId": "enemy_acorn",
+        "count": 3,
+        "intervalMs": 2000
       },
       {
-        "timeMs": 12000,
+        "timeMs": 10000,
         "unitId": "enemy_sunflower",
         "count": 2,
         "intervalMs": 2500
+      },
+      {
+        "timeMs": 18000,
+        "unitId": "enemy_acorn",
+        "count": 4,
+        "intervalMs": 1500
       }
     ],
     "reward": {
@@ -47,18 +53,30 @@
     "enemyWaves": [
       {
         "timeMs": 2000,
+        "unitId": "enemy_acorn",
+        "count": 4,
+        "intervalMs": 1500
+      },
+      {
+        "timeMs": 8000,
         "unitId": "enemy_sunflower",
-        "count": 2,
-        "intervalMs": 2000
+        "count": 3,
+        "intervalMs": 1800
       },
       {
-        "timeMs": 10000,
+        "timeMs": 15000,
+        "unitId": "enemy_mushroom",
+        "count": 3,
+        "intervalMs": 1500
+      },
+      {
+        "timeMs": 22000,
         "unitId": "enemy_corn_kid",
-        "count": 2,
-        "intervalMs": 2000
+        "count": 3,
+        "intervalMs": 1500
       },
       {
-        "timeMs": 18000,
+        "timeMs": 30000,
         "unitId": "enemy_dog",
         "count": 2,
         "intervalMs": 2000
@@ -95,27 +113,33 @@
     "enemyWaves": [
       {
         "timeMs": 2000,
-        "unitId": "enemy_dog",
-        "count": 2,
-        "intervalMs": 1500
-      },
-      {
-        "timeMs": 10000,
-        "unitId": "enemy_corn_kid",
-        "count": 3,
-        "intervalMs": 1500
-      },
-      {
-        "timeMs": 18000,
-        "unitId": "enemy_sunflower",
-        "count": 3,
+        "unitId": "enemy_mushroom",
+        "count": 4,
         "intervalMs": 1200
       },
       {
-        "timeMs": 26000,
+        "timeMs": 8000,
+        "unitId": "enemy_dog",
+        "count": 3,
+        "intervalMs": 1500
+      },
+      {
+        "timeMs": 15000,
+        "unitId": "enemy_frog",
+        "count": 4,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_corn_kid",
+        "count": 4,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 30000,
         "unitId": "enemy_cat_warrior",
-        "count": 2,
-        "intervalMs": 2000
+        "count": 3,
+        "intervalMs": 1500
       }
     ],
     "reward": {
@@ -150,30 +174,48 @@
     "enemyWaves": [
       {
         "timeMs": 3000,
-        "unitId": "enemy_sunflower",
-        "count": 5,
-        "intervalMs": 1500
-      },
-      {
-        "timeMs": 15000,
-        "unitId": "enemy_corn_kid",
-        "count": 5,
-        "intervalMs": 1200
-      },
-      {
-        "timeMs": 28000,
-        "unitId": "enemy_dog",
-        "count": 3,
-        "intervalMs": 1500
-      },
-      {
-        "timeMs": 40000,
-        "unitId": "enemy_sunflower",
+        "unitId": "enemy_acorn",
         "count": 8,
         "intervalMs": 800
       },
       {
-        "timeMs": 55000,
+        "timeMs": 10000,
+        "unitId": "enemy_sunflower",
+        "count": 5,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 18000,
+        "unitId": "enemy_mushroom",
+        "count": 6,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 26000,
+        "unitId": "enemy_corn_kid",
+        "count": 6,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 34000,
+        "unitId": "enemy_frog",
+        "count": 5,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_bean",
+        "count": 4,
+        "intervalMs": 1500
+      },
+      {
+        "timeMs": 50000,
+        "unitId": "enemy_dog",
+        "count": 5,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 60000,
         "unitId": "boss_tutorial",
         "count": 1,
         "intervalMs": 0
@@ -211,26 +253,38 @@
       {
         "timeMs": 2000,
         "unitId": "enemy_acorn",
-        "count": 3,
-        "intervalMs": 1500
+        "count": 8,
+        "intervalMs": 800
       },
       {
-        "timeMs": 10000,
-        "unitId": "enemy_sunflower",
-        "count": 3,
-        "intervalMs": 1200
-      },
-      {
-        "timeMs": 18000,
+        "timeMs": 8000,
         "unitId": "enemy_mushroom",
-        "count": 3,
+        "count": 5,
         "intervalMs": 1000
       },
       {
-        "timeMs": 26000,
-        "unitId": "enemy_corn_kid",
-        "count": 3,
+        "timeMs": 15000,
+        "unitId": "enemy_sunflower",
+        "count": 5,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_frog",
+        "count": 4,
         "intervalMs": 1200
+      },
+      {
+        "timeMs": 30000,
+        "unitId": "enemy_corn_kid",
+        "count": 5,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 38000,
+        "unitId": "enemy_pebble",
+        "count": 3,
+        "intervalMs": 1500
       }
     ],
     "reward": {
@@ -264,33 +318,39 @@
     "enemyWaves": [
       {
         "timeMs": 2000,
-        "unitId": "enemy_cat_warrior",
-        "count": 3,
-        "intervalMs": 1200
-      },
-      {
-        "timeMs": 10000,
-        "unitId": "enemy_frog",
-        "count": 3,
+        "unitId": "enemy_dog",
+        "count": 5,
         "intervalMs": 1000
       },
       {
-        "timeMs": 18000,
+        "timeMs": 8000,
+        "unitId": "enemy_frog",
+        "count": 5,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 15000,
         "unitId": "enemy_root",
-        "count": 2,
+        "count": 4,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_capybara",
+        "count": 3,
         "intervalMs": 1500
       },
       {
-        "timeMs": 26000,
-        "unitId": "enemy_bean",
-        "count": 2,
-        "intervalMs": 2000
+        "timeMs": 30000,
+        "unitId": "enemy_tomato",
+        "count": 4,
+        "intervalMs": 1200
       },
       {
-        "timeMs": 34000,
-        "unitId": "enemy_capybara",
-        "count": 2,
-        "intervalMs": 2000
+        "timeMs": 38000,
+        "unitId": "enemy_bean",
+        "count": 3,
+        "intervalMs": 1500
       }
     ],
     "reward": {
@@ -323,40 +383,46 @@
     "enemyCastleHp": 1500,
     "enemyWaves": [
       {
-        "timeMs": 1000,
-        "unitId": "enemy_tomato",
-        "count": 3,
-        "intervalMs": 1000
+        "timeMs": 2000,
+        "unitId": "enemy_corn_kid",
+        "count": 6,
+        "intervalMs": 800
       },
       {
-        "timeMs": 10000,
-        "unitId": "enemy_archer",
-        "count": 3,
+        "timeMs": 8000,
+        "unitId": "enemy_capybara",
+        "count": 4,
         "intervalMs": 1200
       },
       {
-        "timeMs": 18000,
+        "timeMs": 15000,
         "unitId": "enemy_pepper",
-        "count": 3,
+        "count": 5,
         "intervalMs": 1000
       },
       {
-        "timeMs": 26000,
-        "unitId": "enemy_pebble",
-        "count": 2,
-        "intervalMs": 2000
-      },
-      {
-        "timeMs": 34000,
-        "unitId": "enemy_dew",
+        "timeMs": 22000,
+        "unitId": "enemy_wolf",
         "count": 3,
         "intervalMs": 1500
       },
       {
-        "timeMs": 42000,
-        "unitId": "enemy_block",
-        "count": 2,
-        "intervalMs": 2000
+        "timeMs": 30000,
+        "unitId": "enemy_bean",
+        "count": 4,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 38000,
+        "unitId": "enemy_tomato",
+        "count": 5,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 46000,
+        "unitId": "enemy_pebble",
+        "count": 3,
+        "intervalMs": 1500
       }
     ],
     "reward": {
@@ -392,38 +458,56 @@
       {
         "timeMs": 2000,
         "unitId": "enemy_acorn",
-        "count": 8,
-        "intervalMs": 1200
-      },
-      {
-        "timeMs": 15000,
-        "unitId": "enemy_sunflower",
-        "count": 10,
-        "intervalMs": 1000
-      },
-      {
-        "timeMs": 30000,
-        "unitId": "enemy_mushroom",
-        "count": 8,
-        "intervalMs": 800
-      },
-      {
-        "timeMs": 45000,
-        "unitId": "enemy_corn_kid",
         "count": 10,
         "intervalMs": 600
       },
       {
-        "timeMs": 60000,
-        "unitId": "enemy_cat_warrior",
-        "count": 5,
+        "timeMs": 10000,
+        "unitId": "enemy_pebble",
+        "count": 4,
         "intervalMs": 1500
       },
       {
-        "timeMs": 75000,
-        "unitId": "enemy_frog",
+        "timeMs": 18000,
+        "unitId": "enemy_block",
+        "count": 3,
+        "intervalMs": 2000
+      },
+      {
+        "timeMs": 28000,
+        "unitId": "enemy_archer",
+        "count": 6,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 38000,
+        "unitId": "enemy_dew",
         "count": 8,
         "intervalMs": 800
+      },
+      {
+        "timeMs": 48000,
+        "unitId": "enemy_cat_tank",
+        "count": 3,
+        "intervalMs": 2000
+      },
+      {
+        "timeMs": 58000,
+        "unitId": "enemy_crow",
+        "count": 10,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 68000,
+        "unitId": "enemy_wolf",
+        "count": 5,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 78000,
+        "unitId": "enemy_tomato",
+        "count": 6,
+        "intervalMs": 1000
       },
       {
         "timeMs": 90000,
@@ -466,34 +550,40 @@
     "enemyCastleHp": 1800,
     "enemyWaves": [
       {
-        "timeMs": 1500,
-        "unitId": "enemy_leaf_ninja",
-        "count": 2,
-        "intervalMs": 1500
-      },
-      {
-        "timeMs": 10000,
-        "unitId": "enemy_ice_flower",
-        "count": 3,
-        "intervalMs": 1500
-      },
-      {
-        "timeMs": 18000,
-        "unitId": "enemy_fire_chili",
-        "count": 3,
+        "timeMs": 2000,
+        "unitId": "enemy_cat_warrior",
+        "count": 5,
         "intervalMs": 1000
       },
       {
-        "timeMs": 26000,
-        "unitId": "enemy_corn",
-        "count": 3,
-        "intervalMs": 1200
+        "timeMs": 8000,
+        "unitId": "enemy_archer",
+        "count": 5,
+        "intervalMs": 1000
       },
       {
-        "timeMs": 34000,
-        "unitId": "enemy_cat_tank",
-        "count": 2,
-        "intervalMs": 2500
+        "timeMs": 15000,
+        "unitId": "enemy_ninja",
+        "count": 6,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_fire_chili",
+        "count": 6,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 30000,
+        "unitId": "enemy_leaf_ninja",
+        "count": 8,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 38000,
+        "unitId": "enemy_pepper",
+        "count": 5,
+        "intervalMs": 1000
       }
     ],
     "reward": {
@@ -526,40 +616,40 @@
     "enemyCastleHp": 2000,
     "enemyWaves": [
       {
-        "timeMs": 1000,
-        "unitId": "enemy_dew",
+        "timeMs": 2000,
+        "unitId": "enemy_block",
         "count": 3,
-        "intervalMs": 1200
-      },
-      {
-        "timeMs": 10000,
-        "unitId": "enemy_corn_kid",
-        "count": 4,
-        "intervalMs": 1000
-      },
-      {
-        "timeMs": 18000,
-        "unitId": "enemy_ninja",
-        "count": 3,
-        "intervalMs": 1200
-      },
-      {
-        "timeMs": 26000,
-        "unitId": "enemy_pebble",
-        "count": 3,
-        "intervalMs": 1500
-      },
-      {
-        "timeMs": 34000,
-        "unitId": "enemy_watermelon",
-        "count": 2,
         "intervalMs": 2000
       },
       {
-        "timeMs": 42000,
-        "unitId": "enemy_leaf_ninja",
-        "count": 3,
+        "timeMs": 10000,
+        "unitId": "enemy_pebble",
+        "count": 5,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 18000,
+        "unitId": "enemy_corn",
+        "count": 5,
         "intervalMs": 1000
+      },
+      {
+        "timeMs": 26000,
+        "unitId": "enemy_watermelon",
+        "count": 4,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 34000,
+        "unitId": "enemy_cat_tank",
+        "count": 3,
+        "intervalMs": 2000
+      },
+      {
+        "timeMs": 44000,
+        "unitId": "enemy_ice_flower",
+        "count": 4,
+        "intervalMs": 1200
       }
     ],
     "reward": {
@@ -593,39 +683,39 @@
     "enemyWaves": [
       {
         "timeMs": 2000,
-        "unitId": "enemy_ice_flower",
-        "count": 3,
-        "intervalMs": 1500
+        "unitId": "enemy_dew",
+        "count": 10,
+        "intervalMs": 500
       },
       {
         "timeMs": 10000,
-        "unitId": "enemy_fire_chili",
-        "count": 4,
+        "unitId": "enemy_root",
+        "count": 6,
         "intervalMs": 1000
       },
       {
         "timeMs": 18000,
-        "unitId": "enemy_tomato",
-        "count": 4,
-        "intervalMs": 1000
+        "unitId": "enemy_crow",
+        "count": 12,
+        "intervalMs": 500
       },
       {
         "timeMs": 26000,
-        "unitId": "enemy_archer",
-        "count": 4,
-        "intervalMs": 1000
+        "unitId": "enemy_ice_flower",
+        "count": 5,
+        "intervalMs": 1200
       },
       {
-        "timeMs": 34000,
-        "unitId": "enemy_capybara",
+        "timeMs": 35000,
+        "unitId": "enemy_mage",
         "count": 3,
-        "intervalMs": 1500
+        "intervalMs": 2000
       },
       {
-        "timeMs": 42000,
-        "unitId": "enemy_cat_tank",
-        "count": 2,
-        "intervalMs": 2500
+        "timeMs": 45000,
+        "unitId": "enemy_dew",
+        "count": 15,
+        "intervalMs": 400
       }
     ],
     "reward": {
@@ -658,46 +748,46 @@
     "enemyCastleHp": 3000,
     "enemyWaves": [
       {
-        "timeMs": 1000,
-        "unitId": "enemy_sr_rose",
-        "count": 2,
-        "intervalMs": 2000
+        "timeMs": 2000,
+        "unitId": "enemy_frog",
+        "count": 8,
+        "intervalMs": 600
       },
       {
         "timeMs": 10000,
-        "unitId": "enemy_corn",
-        "count": 4,
-        "intervalMs": 1000
+        "unitId": "enemy_mushroom",
+        "count": 8,
+        "intervalMs": 600
       },
       {
         "timeMs": 18000,
-        "unitId": "enemy_fire_chili",
-        "count": 4,
-        "intervalMs": 800
+        "unitId": "enemy_leaf_ninja",
+        "count": 8,
+        "intervalMs": 600
       },
       {
         "timeMs": 26000,
-        "unitId": "enemy_leaf_ninja",
-        "count": 4,
+        "unitId": "enemy_tomato",
+        "count": 6,
         "intervalMs": 800
       },
       {
         "timeMs": 34000,
-        "unitId": "enemy_pebble",
-        "count": 3,
+        "unitId": "enemy_sr_rose",
+        "count": 4,
         "intervalMs": 1500
       },
       {
-        "timeMs": 42000,
-        "unitId": "enemy_watermelon",
-        "count": 3,
-        "intervalMs": 1500
+        "timeMs": 44000,
+        "unitId": "enemy_wolf",
+        "count": 6,
+        "intervalMs": 1000
       },
       {
-        "timeMs": 50000,
-        "unitId": "enemy_sr_pirate",
-        "count": 2,
-        "intervalMs": 2000
+        "timeMs": 54000,
+        "unitId": "enemy_pepper",
+        "count": 8,
+        "intervalMs": 600
       }
     ],
     "reward": {
@@ -730,46 +820,46 @@
     "enemyCastleHp": 4000,
     "enemyWaves": [
       {
-        "timeMs": 1000,
-        "unitId": "enemy_sr_corn_tank",
-        "count": 1,
-        "intervalMs": 0
+        "timeMs": 2000,
+        "unitId": "enemy_capybara",
+        "count": 5,
+        "intervalMs": 1200
       },
       {
         "timeMs": 10000,
-        "unitId": "enemy_sr_bamboo",
-        "count": 2,
-        "intervalMs": 2000
-      },
-      {
-        "timeMs": 20000,
-        "unitId": "enemy_mage",
-        "count": 3,
-        "intervalMs": 1500
-      },
-      {
-        "timeMs": 30000,
-        "unitId": "enemy_sr_tulip",
-        "count": 2,
-        "intervalMs": 2000
-      },
-      {
-        "timeMs": 40000,
-        "unitId": "enemy_nika",
-        "count": 1,
-        "intervalMs": 0
-      },
-      {
-        "timeMs": 50000,
-        "unitId": "enemy_ice_flower",
-        "count": 4,
+        "unitId": "enemy_bean",
+        "count": 6,
         "intervalMs": 1000
       },
       {
-        "timeMs": 60000,
-        "unitId": "enemy_ribbon",
-        "count": 1,
-        "intervalMs": 0
+        "timeMs": 18000,
+        "unitId": "enemy_wolf",
+        "count": 6,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 26000,
+        "unitId": "enemy_pepper",
+        "count": 8,
+        "intervalMs": 700
+      },
+      {
+        "timeMs": 34000,
+        "unitId": "enemy_sr_pirate",
+        "count": 4,
+        "intervalMs": 1500
+      },
+      {
+        "timeMs": 44000,
+        "unitId": "enemy_fire_chili",
+        "count": 10,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 54000,
+        "unitId": "enemy_corn",
+        "count": 6,
+        "intervalMs": 1000
       }
     ],
     "reward": {
@@ -804,54 +894,66 @@
     "enemyWaves": [
       {
         "timeMs": 2000,
-        "unitId": "enemy_leaf_ninja",
-        "count": 6,
-        "intervalMs": 1200
+        "unitId": "enemy_acorn",
+        "count": 15,
+        "intervalMs": 400
       },
       {
-        "timeMs": 15000,
-        "unitId": "enemy_ice_flower",
-        "count": 8,
-        "intervalMs": 1000
-      },
-      {
-        "timeMs": 28000,
-        "unitId": "enemy_fire_chili",
+        "timeMs": 10000,
+        "unitId": "enemy_mushroom",
         "count": 10,
-        "intervalMs": 800
+        "intervalMs": 600
       },
       {
-        "timeMs": 42000,
-        "unitId": "enemy_corn",
-        "count": 8,
-        "intervalMs": 800
-      },
-      {
-        "timeMs": 55000,
+        "timeMs": 18000,
         "unitId": "enemy_cat_tank",
-        "count": 5,
+        "count": 4,
         "intervalMs": 1500
       },
       {
+        "timeMs": 28000,
+        "unitId": "enemy_ninja",
+        "count": 12,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 38000,
+        "unitId": "enemy_crow",
+        "count": 15,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 48000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 4,
+        "intervalMs": 1500
+      },
+      {
+        "timeMs": 58000,
+        "unitId": "enemy_wolf",
+        "count": 8,
+        "intervalMs": 800
+      },
+      {
         "timeMs": 68000,
-        "unitId": "enemy_sr_bamboo",
-        "count": 4,
-        "intervalMs": 2000
-      },
-      {
-        "timeMs": 82000,
-        "unitId": "enemy_sr_rose",
-        "count": 4,
-        "intervalMs": 1800
-      },
-      {
-        "timeMs": 98000,
-        "unitId": "enemy_mage",
-        "count": 6,
+        "unitId": "enemy_sr_tulip",
+        "count": 5,
         "intervalMs": 1200
       },
       {
-        "timeMs": 115000,
+        "timeMs": 78000,
+        "unitId": "enemy_ice_flower",
+        "count": 8,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 88000,
+        "unitId": "enemy_mage",
+        "count": 6,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 100000,
         "unitId": "boss_normal",
         "count": 1,
         "intervalMs": 0
@@ -891,40 +993,46 @@
     "enemyCastleHp": 4500,
     "enemyWaves": [
       {
-        "timeMs": 1000,
-        "unitId": "enemy_frog",
-        "count": 5,
-        "intervalMs": 600
+        "timeMs": 2000,
+        "unitId": "enemy_wolf",
+        "count": 8,
+        "intervalMs": 700
       },
       {
         "timeMs": 10000,
-        "unitId": "enemy_tomato",
-        "count": 4,
-        "intervalMs": 800
+        "unitId": "enemy_fire_chili",
+        "count": 10,
+        "intervalMs": 500
       },
       {
         "timeMs": 20000,
-        "unitId": "enemy_pepper",
-        "count": 4,
-        "intervalMs": 800
+        "unitId": "enemy_mage",
+        "count": 5,
+        "intervalMs": 1200
       },
       {
         "timeMs": 30000,
         "unitId": "enemy_sr_rose",
-        "count": 3,
-        "intervalMs": 1500
+        "count": 6,
+        "intervalMs": 1000
       },
       {
         "timeMs": 40000,
-        "unitId": "enemy_bean",
-        "count": 5,
-        "intervalMs": 800
+        "unitId": "enemy_ninja",
+        "count": 12,
+        "intervalMs": 500
       },
       {
         "timeMs": 50000,
-        "unitId": "enemy_sr_corn_tank",
-        "count": 2,
-        "intervalMs": 2000
+        "unitId": "enemy_corn",
+        "count": 8,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 60000,
+        "unitId": "enemy_sr_pirate",
+        "count": 5,
+        "intervalMs": 1200
       }
     ],
     "reward": {
@@ -957,40 +1065,46 @@
     "enemyCastleHp": 5500,
     "enemyWaves": [
       {
-        "timeMs": 1000,
-        "unitId": "enemy_wolf",
-        "count": 3,
-        "intervalMs": 1200
+        "timeMs": 2000,
+        "unitId": "enemy_crow",
+        "count": 20,
+        "intervalMs": 300
       },
       {
         "timeMs": 12000,
-        "unitId": "enemy_cat_tank",
-        "count": 3,
-        "intervalMs": 1500
-      },
-      {
-        "timeMs": 24000,
-        "unitId": "enemy_mage",
-        "count": 2,
-        "intervalMs": 2000
-      },
-      {
-        "timeMs": 36000,
-        "unitId": "enemy_ribbon",
-        "count": 1,
-        "intervalMs": 0
-      },
-      {
-        "timeMs": 48000,
-        "unitId": "enemy_block",
-        "count": 5,
+        "unitId": "enemy_ice_flower",
+        "count": 8,
         "intervalMs": 800
       },
       {
-        "timeMs": 60000,
-        "unitId": "enemy_ninja",
+        "timeMs": 22000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 5,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_dew",
+        "count": 15,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_sr_tulip",
         "count": 6,
-        "intervalMs": 600
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 52000,
+        "unitId": "enemy_watermelon",
+        "count": 6,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 62000,
+        "unitId": "enemy_mage",
+        "count": 6,
+        "intervalMs": 1000
       }
     ],
     "reward": {
@@ -1023,40 +1137,46 @@
     "enemyCastleHp": 7000,
     "enemyWaves": [
       {
-        "timeMs": 1000,
-        "unitId": "enemy_cat_tank",
-        "count": 4,
-        "intervalMs": 1000
+        "timeMs": 2000,
+        "unitId": "enemy_ninja",
+        "count": 15,
+        "intervalMs": 400
       },
       {
         "timeMs": 12000,
-        "unitId": "enemy_ribbon",
-        "count": 1,
-        "intervalMs": 0
+        "unitId": "enemy_leaf_ninja",
+        "count": 12,
+        "intervalMs": 500
       },
       {
-        "timeMs": 24000,
-        "unitId": "enemy_mage",
-        "count": 4,
+        "timeMs": 22000,
+        "unitId": "enemy_sr_pirate",
+        "count": 6,
         "intervalMs": 1000
       },
       {
-        "timeMs": 36000,
-        "unitId": "enemy_watermelon",
-        "count": 5,
+        "timeMs": 32000,
+        "unitId": "enemy_sr_rose",
+        "count": 8,
         "intervalMs": 800
       },
       {
-        "timeMs": 48000,
-        "unitId": "enemy_penguin",
-        "count": 2,
-        "intervalMs": 2000
+        "timeMs": 42000,
+        "unitId": "enemy_wolf",
+        "count": 10,
+        "intervalMs": 600
       },
       {
-        "timeMs": 60000,
-        "unitId": "enemy_ur_knight",
-        "count": 1,
-        "intervalMs": 0
+        "timeMs": 52000,
+        "unitId": "enemy_ribbon",
+        "count": 2,
+        "intervalMs": 3000
+      },
+      {
+        "timeMs": 62000,
+        "unitId": "enemy_fire_chili",
+        "count": 15,
+        "intervalMs": 400
       }
     ],
     "reward": {
@@ -1089,46 +1209,52 @@
     "enemyCastleHp": 10000,
     "enemyWaves": [
       {
-        "timeMs": 1000,
-        "unitId": "enemy_dog",
-        "count": 15,
-        "intervalMs": 300
+        "timeMs": 2000,
+        "unitId": "enemy_cat_tank",
+        "count": 5,
+        "intervalMs": 1200
       },
       {
         "timeMs": 12000,
-        "unitId": "enemy_cat_tank",
+        "unitId": "enemy_corn",
+        "count": 10,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_sr_corn_tank",
         "count": 5,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_mage",
+        "count": 8,
         "intervalMs": 800
       },
       {
-        "timeMs": 24000,
-        "unitId": "enemy_ribbon",
-        "count": 2,
-        "intervalMs": 2000
+        "timeMs": 42000,
+        "unitId": "enemy_block",
+        "count": 6,
+        "intervalMs": 1000
       },
       {
-        "timeMs": 38000,
-        "unitId": "enemy_ur_knight",
+        "timeMs": 52000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 6,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 62000,
+        "unitId": "enemy_yumemi",
         "count": 2,
         "intervalMs": 3000
       },
       {
-        "timeMs": 52000,
-        "unitId": "enemy_wolf",
-        "count": 8,
-        "intervalMs": 500
-      },
-      {
-        "timeMs": 66000,
-        "unitId": "enemy_penguin",
-        "count": 2,
-        "intervalMs": 2000
-      },
-      {
-        "timeMs": 80000,
-        "unitId": "enemy_yumemi",
-        "count": 1,
-        "intervalMs": 0
+        "timeMs": 72000,
+        "unitId": "enemy_ice_flower",
+        "count": 10,
+        "intervalMs": 600
       }
     ],
     "reward": {
@@ -1162,33 +1288,51 @@
     "enemyWaves": [
       {
         "timeMs": 2000,
-        "unitId": "enemy_ninja",
-        "count": 20,
-        "intervalMs": 300
-      },
-      {
-        "timeMs": 12000,
-        "unitId": "enemy_corn",
-        "count": 10,
+        "unitId": "enemy_watermelon",
+        "count": 8,
         "intervalMs": 800
       },
       {
-        "timeMs": 25000,
-        "unitId": "enemy_mage",
+        "timeMs": 12000,
+        "unitId": "enemy_pepper",
+        "count": 12,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 6,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_sr_pirate",
+        "count": 8,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_tomato",
         "count": 15,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 52000,
+        "unitId": "enemy_nika",
+        "count": 2,
+        "intervalMs": 3000
+      },
+      {
+        "timeMs": 62000,
+        "unitId": "enemy_sr_rose",
+        "count": 10,
         "intervalMs": 600
       },
       {
-        "timeMs": 40000,
-        "unitId": "enemy_yumemi",
-        "count": 5,
-        "intervalMs": 2000
-      },
-      {
-        "timeMs": 60000,
-        "unitId": "enemy_ur_knight",
-        "count": 4,
-        "intervalMs": 2500
+        "timeMs": 72000,
+        "unitId": "enemy_mage",
+        "count": 8,
+        "intervalMs": 800
       }
     ],
     "reward": {
@@ -1223,26 +1367,56 @@
       {
         "timeMs": 2000,
         "unitId": "enemy_crow",
-        "count": 30,
+        "count": 25,
         "intervalMs": 200
       },
       {
-        "timeMs": 15000,
-        "unitId": "enemy_ur_angel",
+        "timeMs": 8000,
+        "unitId": "enemy_wolf",
+        "count": 15,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 18000,
+        "unitId": "enemy_sr_rose",
         "count": 8,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 28000,
+        "unitId": "enemy_mage",
+        "count": 12,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 38000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 6,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 48000,
+        "unitId": "enemy_ribbon",
+        "count": 8,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 58000,
+        "unitId": "enemy_sr_pirate",
+        "count": 5,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 68000,
+        "unitId": "enemy_yumemi",
+        "count": 4,
         "intervalMs": 2000
       },
       {
-        "timeMs": 35000,
-        "unitId": "enemy_ur_dragon",
-        "count": 5,
-        "intervalMs": 4000
-      },
-      {
-        "timeMs": 60000,
-        "unitId": "enemy_ribbon",
-        "count": 10,
-        "intervalMs": 1500
+        "timeMs": 78000,
+        "unitId": "enemy_ur_angel",
+        "count": 6,
+        "intervalMs": 2000
       }
     ],
     "reward": {
@@ -1275,34 +1449,64 @@
     "enemyCastleHp": 60000,
     "enemyWaves": [
       {
-        "timeMs": 5000,
-        "unitId": "boss_giant_king",
-        "count": 1,
-        "intervalMs": 0
+        "timeMs": 2000,
+        "unitId": "enemy_ninja",
+        "count": 30,
+        "intervalMs": 200
+      },
+      {
+        "timeMs": 10000,
+        "unitId": "enemy_sr_tulip",
+        "count": 8,
+        "intervalMs": 800
       },
       {
         "timeMs": 20000,
-        "unitId": "enemy_ur_tank",
-        "count": 5,
-        "intervalMs": 3000
+        "unitId": "enemy_wolf",
+        "count": 20,
+        "intervalMs": 300
+      },
+      {
+        "timeMs": 30000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 6,
+        "intervalMs": 1000
       },
       {
         "timeMs": 40000,
-        "unitId": "boss_dragon",
-        "count": 1,
-        "intervalMs": 0
+        "unitId": "enemy_ribbon",
+        "count": 10,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 50000,
+        "unitId": "enemy_sr_pirate",
+        "count": 6,
+        "intervalMs": 1000
       },
       {
         "timeMs": 60000,
-        "unitId": "boss_death_titan",
-        "count": 1,
-        "intervalMs": 0
+        "unitId": "enemy_penguin",
+        "count": 6,
+        "intervalMs": 1500
+      },
+      {
+        "timeMs": 70000,
+        "unitId": "enemy_nika",
+        "count": 3,
+        "intervalMs": 2500
       },
       {
         "timeMs": 80000,
-        "unitId": "enemy_ur_mage",
-        "count": 10,
-        "intervalMs": 1000
+        "unitId": "enemy_ur_tank",
+        "count": 5,
+        "intervalMs": 2000
+      },
+      {
+        "timeMs": 90000,
+        "unitId": "enemy_lennon",
+        "count": 3,
+        "intervalMs": 3000
       }
     ],
     "reward": {
@@ -1338,53 +1542,71 @@
       {
         "timeMs": 2000,
         "unitId": "enemy_ninja",
+        "count": 20,
+        "intervalMs": 300
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_sr_rose",
+        "count": 6,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_wolf",
         "count": 15,
         "intervalMs": 400
       },
       {
-        "timeMs": 15000,
-        "unitId": "enemy_wolf",
+        "timeMs": 32000,
+        "unitId": "enemy_sr_tulip",
+        "count": 5,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_mage",
         "count": 12,
         "intervalMs": 600
       },
       {
-        "timeMs": 28000,
-        "unitId": "enemy_mage",
-        "count": 10,
-        "intervalMs": 800
+        "timeMs": 52000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 5,
+        "intervalMs": 1200
       },
       {
-        "timeMs": 42000,
-        "unitId": "enemy_cat_tank",
-        "count": 8,
-        "intervalMs": 1000
-      },
-      {
-        "timeMs": 55000,
+        "timeMs": 62000,
         "unitId": "enemy_ribbon",
-        "count": 3,
-        "intervalMs": 2500
+        "count": 5,
+        "intervalMs": 1500
       },
       {
-        "timeMs": 70000,
-        "unitId": "enemy_ur_knight",
+        "timeMs": 72000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 4,
+        "intervalMs": 1500
+      },
+      {
+        "timeMs": 82000,
+        "unitId": "enemy_penguin",
         "count": 4,
         "intervalMs": 2000
       },
       {
-        "timeMs": 85000,
-        "unitId": "enemy_penguin",
+        "timeMs": 92000,
+        "unitId": "enemy_sr_pirate",
+        "count": 5,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 102000,
+        "unitId": "enemy_yumemi",
         "count": 3,
         "intervalMs": 2500
       },
       {
-        "timeMs": 100000,
-        "unitId": "enemy_yumemi",
-        "count": 2,
-        "intervalMs": 3000
-      },
-      {
-        "timeMs": 120000,
+        "timeMs": 115000,
         "unitId": "boss_hard",
         "count": 1,
         "intervalMs": 0
@@ -1425,45 +1647,63 @@
     "enemyWaves": [
       {
         "timeMs": 2000,
-        "unitId": "enemy_dog",
-        "count": 50,
-        "intervalMs": 120
+        "unitId": "enemy_leaf_ninja",
+        "count": 40,
+        "intervalMs": 150
       },
       {
         "timeMs": 12000,
+        "unitId": "enemy_sr_rose",
+        "count": 10,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 22000,
         "unitId": "enemy_ninja",
-        "count": 35,
-        "intervalMs": 180
+        "count": 30,
+        "intervalMs": 200
       },
       {
-        "timeMs": 25000,
-        "unitId": "enemy_wolf",
-        "count": 25,
-        "intervalMs": 250
+        "timeMs": 32000,
+        "unitId": "enemy_sr_tulip",
+        "count": 8,
+        "intervalMs": 800
       },
       {
-        "timeMs": 40000,
-        "unitId": "enemy_mage",
-        "count": 20,
-        "intervalMs": 350
+        "timeMs": 42000,
+        "unitId": "enemy_ribbon",
+        "count": 8,
+        "intervalMs": 1000
       },
       {
-        "timeMs": 55000,
-        "unitId": "enemy_cat_tank",
-        "count": 12,
-        "intervalMs": 500
+        "timeMs": 52000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 6,
+        "intervalMs": 1000
       },
       {
-        "timeMs": 70000,
+        "timeMs": 62000,
+        "unitId": "enemy_penguin",
+        "count": 6,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 72000,
+        "unitId": "enemy_sr_pirate",
+        "count": 6,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 82000,
         "unitId": "enemy_ur_knight",
         "count": 6,
-        "intervalMs": 1800
+        "intervalMs": 1500
       },
       {
-        "timeMs": 85000,
-        "unitId": "enemy_ribbon",
-        "count": 6,
-        "intervalMs": 1400
+        "timeMs": 92000,
+        "unitId": "enemy_nika",
+        "count": 4,
+        "intervalMs": 2000
       }
     ],
     "reward": {
@@ -1496,52 +1736,70 @@
     "enemyCastleHp": 100000,
     "enemyWaves": [
       {
-        "timeMs": 1000,
+        "timeMs": 2000,
         "unitId": "enemy_crow",
-        "count": 50,
-        "intervalMs": 120
+        "count": 40,
+        "intervalMs": 150
       },
       {
-        "timeMs": 15000,
-        "unitId": "enemy_frog",
-        "count": 30,
-        "intervalMs": 200
-      },
-      {
-        "timeMs": 28000,
-        "unitId": "enemy_sr_rose",
-        "count": 15,
-        "intervalMs": 500
-      },
-      {
-        "timeMs": 40000,
-        "unitId": "enemy_ur_angel",
-        "count": 10,
+        "timeMs": 12000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 6,
         "intervalMs": 1000
       },
       {
-        "timeMs": 55000,
-        "unitId": "enemy_cat_tank",
-        "count": 20,
-        "intervalMs": 400
+        "timeMs": 22000,
+        "unitId": "enemy_wolf",
+        "count": 25,
+        "intervalMs": 250
       },
       {
-        "timeMs": 70000,
-        "unitId": "enemy_ur_dragon",
-        "count": 8,
-        "intervalMs": 2000
+        "timeMs": 32000,
+        "unitId": "enemy_sr_rose",
+        "count": 10,
+        "intervalMs": 600
       },
       {
-        "timeMs": 90000,
-        "unitId": "enemy_penguin",
-        "count": 5,
+        "timeMs": 42000,
+        "unitId": "enemy_yumemi",
+        "count": 6,
         "intervalMs": 1500
       },
       {
+        "timeMs": 52000,
+        "unitId": "enemy_sr_pirate",
+        "count": 8,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 62000,
+        "unitId": "enemy_ribbon",
+        "count": 10,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 72000,
+        "unitId": "enemy_ur_angel",
+        "count": 8,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 82000,
+        "unitId": "enemy_penguin",
+        "count": 6,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 92000,
+        "unitId": "enemy_lennon",
+        "count": 3,
+        "intervalMs": 2500
+      },
+      {
         "timeMs": 105000,
-        "unitId": "boss_giant_king",
-        "count": 2,
-        "intervalMs": 5000
+        "unitId": "enemy_ur_dragon",
+        "count": 5,
+        "intervalMs": 2000
       }
     ],
     "reward": {
@@ -1576,50 +1834,74 @@
       {
         "timeMs": 2000,
         "unitId": "enemy_ninja",
-        "count": 60,
-        "intervalMs": 100
+        "count": 50,
+        "intervalMs": 120
       },
       {
-        "timeMs": 15000,
-        "unitId": "enemy_wolf",
-        "count": 40,
-        "intervalMs": 150
-      },
-      {
-        "timeMs": 30000,
-        "unitId": "enemy_sr_corn_tank",
-        "count": 15,
+        "timeMs": 12000,
+        "unitId": "enemy_sr_tulip",
+        "count": 10,
         "intervalMs": 600
       },
       {
-        "timeMs": 45000,
-        "unitId": "enemy_ur_tank",
-        "count": 10,
-        "intervalMs": 1500
+        "timeMs": 22000,
+        "unitId": "enemy_leaf_ninja",
+        "count": 35,
+        "intervalMs": 180
       },
       {
-        "timeMs": 60000,
-        "unitId": "enemy_mage",
-        "count": 25,
-        "intervalMs": 300
+        "timeMs": 32000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 8,
+        "intervalMs": 800
       },
       {
-        "timeMs": 80000,
+        "timeMs": 42000,
+        "unitId": "enemy_ribbon",
+        "count": 12,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 52000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 6,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 62000,
         "unitId": "enemy_yumemi",
         "count": 8,
-        "intervalMs": 2000
-      },
-      {
-        "timeMs": 100000,
-        "unitId": "enemy_ur_knight",
-        "count": 12,
         "intervalMs": 1200
       },
       {
+        "timeMs": 72000,
+        "unitId": "enemy_sr_pirate",
+        "count": 8,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 82000,
+        "unitId": "enemy_nika",
+        "count": 5,
+        "intervalMs": 1500
+      },
+      {
+        "timeMs": 92000,
+        "unitId": "enemy_ur_tank",
+        "count": 8,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 105000,
+        "unitId": "enemy_ur_knight",
+        "count": 10,
+        "intervalMs": 1000
+      },
+      {
         "timeMs": 120000,
-        "unitId": "boss_dragon",
-        "count": 3,
-        "intervalMs": 6000
+        "unitId": "enemy_lennon",
+        "count": 4,
+        "intervalMs": 2000
       }
     ],
     "reward": {
@@ -1652,56 +1934,80 @@
     "enemyCastleHp": 200000,
     "enemyWaves": [
       {
-        "timeMs": 1000,
-        "unitId": "enemy_dog",
-        "count": 80,
-        "intervalMs": 80
-      },
-      {
-        "timeMs": 12000,
+        "timeMs": 2000,
         "unitId": "enemy_crow",
         "count": 60,
         "intervalMs": 100
       },
       {
-        "timeMs": 25000,
-        "unitId": "enemy_cat_tank",
-        "count": 30,
-        "intervalMs": 300
+        "timeMs": 12000,
+        "unitId": "enemy_sr_rose",
+        "count": 12,
+        "intervalMs": 500
       },
       {
-        "timeMs": 40000,
-        "unitId": "enemy_ur_mage",
-        "count": 20,
+        "timeMs": 22000,
+        "unitId": "enemy_ninja",
+        "count": 40,
+        "intervalMs": 150
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_sr_tulip",
+        "count": 10,
         "intervalMs": 600
       },
       {
-        "timeMs": 60000,
+        "timeMs": 42000,
         "unitId": "enemy_ribbon",
         "count": 15,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 52000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 8,
         "intervalMs": 800
       },
       {
-        "timeMs": 80000,
-        "unitId": "enemy_ur_dragon",
+        "timeMs": 62000,
+        "unitId": "enemy_yumemi",
         "count": 10,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 72000,
+        "unitId": "enemy_sr_pirate",
+        "count": 10,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 82000,
+        "unitId": "enemy_penguin",
+        "count": 8,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 92000,
+        "unitId": "enemy_nika",
+        "count": 6,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 102000,
+        "unitId": "enemy_ur_dragon",
+        "count": 8,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 115000,
+        "unitId": "enemy_lennon",
+        "count": 5,
         "intervalMs": 1500
       },
       {
-        "timeMs": 100000,
-        "unitId": "enemy_penguin",
-        "count": 8,
-        "intervalMs": 2000
-      },
-      {
-        "timeMs": 120000,
-        "unitId": "boss_death_titan",
-        "count": 2,
-        "intervalMs": 8000
-      },
-      {
-        "timeMs": 140000,
-        "unitId": "enemy_ur_knight",
+        "timeMs": 130000,
+        "unitId": "enemy_ur_mage",
         "count": 15,
         "intervalMs": 500
       }
@@ -1736,64 +2042,94 @@
     "enemyCastleHp": 300000,
     "enemyWaves": [
       {
-        "timeMs": 1000,
-        "unitId": "enemy_ninja",
-        "count": 100,
-        "intervalMs": 60
+        "timeMs": 2000,
+        "unitId": "enemy_leaf_ninja",
+        "count": 60,
+        "intervalMs": 100
       },
       {
         "timeMs": 12000,
-        "unitId": "enemy_wolf",
+        "unitId": "enemy_sr_rose",
+        "count": 15,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_ninja",
         "count": 50,
         "intervalMs": 120
       },
       {
-        "timeMs": 25000,
-        "unitId": "enemy_mage",
-        "count": 40,
-        "intervalMs": 200
+        "timeMs": 32000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 8,
+        "intervalMs": 800
       },
       {
-        "timeMs": 40000,
-        "unitId": "enemy_ur_tank",
+        "timeMs": 42000,
+        "unitId": "enemy_ribbon",
         "count": 20,
-        "intervalMs": 600
+        "intervalMs": 400
       },
       {
-        "timeMs": 55000,
-        "unitId": "enemy_ur_angel",
-        "count": 25,
+        "timeMs": 52000,
+        "unitId": "enemy_sr_tulip",
+        "count": 12,
         "intervalMs": 500
       },
       {
-        "timeMs": 75000,
+        "timeMs": 62000,
         "unitId": "enemy_yumemi",
         "count": 12,
-        "intervalMs": 1200
+        "intervalMs": 800
       },
       {
-        "timeMs": 95000,
-        "unitId": "boss_giant_king",
-        "count": 3,
-        "intervalMs": 5000
+        "timeMs": 72000,
+        "unitId": "enemy_sr_pirate",
+        "count": 12,
+        "intervalMs": 500
       },
       {
-        "timeMs": 115000,
-        "unitId": "enemy_ur_dragon",
-        "count": 15,
+        "timeMs": 82000,
+        "unitId": "enemy_penguin",
+        "count": 10,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 92000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 10,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 102000,
+        "unitId": "enemy_nika",
+        "count": 8,
         "intervalMs": 1000
       },
       {
-        "timeMs": 135000,
-        "unitId": "boss_dragon",
-        "count": 2,
-        "intervalMs": 6000
+        "timeMs": 115000,
+        "unitId": "enemy_ur_tank",
+        "count": 12,
+        "intervalMs": 800
       },
       {
-        "timeMs": 155000,
-        "unitId": "boss_death_titan",
-        "count": 3,
-        "intervalMs": 5000
+        "timeMs": 130000,
+        "unitId": "enemy_lennon",
+        "count": 6,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 145000,
+        "unitId": "enemy_ur_dragon",
+        "count": 10,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 160000,
+        "unitId": "enemy_ur_mage",
+        "count": 20,
+        "intervalMs": 400
       }
     ],
     "reward": {
@@ -1832,63 +2168,93 @@
     "enemyWaves": [
       {
         "timeMs": 2000,
+        "unitId": "enemy_leaf_ninja",
+        "count": 50,
+        "intervalMs": 120
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_sr_rose",
+        "count": 12,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 22000,
         "unitId": "enemy_ninja",
         "count": 40,
         "intervalMs": 150
       },
       {
-        "timeMs": 15000,
-        "unitId": "enemy_crow",
-        "count": 50,
-        "intervalMs": 120
+        "timeMs": 32000,
+        "unitId": "enemy_sr_tulip",
+        "count": 10,
+        "intervalMs": 600
       },
       {
-        "timeMs": 28000,
+        "timeMs": 42000,
         "unitId": "enemy_wolf",
         "count": 30,
         "intervalMs": 200
       },
       {
-        "timeMs": 42000,
-        "unitId": "enemy_mage",
-        "count": 25,
-        "intervalMs": 300
+        "timeMs": 52000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 8,
+        "intervalMs": 800
       },
       {
-        "timeMs": 55000,
-        "unitId": "enemy_ur_tank",
-        "count": 10,
+        "timeMs": 62000,
+        "unitId": "enemy_ribbon",
+        "count": 12,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 72000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 6,
         "intervalMs": 1000
       },
       {
-        "timeMs": 70000,
-        "unitId": "enemy_ur_knight",
+        "timeMs": 82000,
+        "unitId": "enemy_yumemi",
         "count": 8,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 92000,
+        "unitId": "enemy_sr_pirate",
+        "count": 10,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 102000,
+        "unitId": "enemy_penguin",
+        "count": 8,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 112000,
+        "unitId": "enemy_nika",
+        "count": 6,
         "intervalMs": 1200
       },
       {
-        "timeMs": 85000,
-        "unitId": "enemy_ur_dragon",
-        "count": 6,
-        "intervalMs": 2000
+        "timeMs": 122000,
+        "unitId": "enemy_ur_tank",
+        "count": 10,
+        "intervalMs": 800
       },
       {
-        "timeMs": 100000,
-        "unitId": "enemy_ribbon",
+        "timeMs": 132000,
+        "unitId": "enemy_lennon",
         "count": 5,
         "intervalMs": 1500
       },
       {
-        "timeMs": 115000,
-        "unitId": "enemy_yumemi",
-        "count": 4,
-        "intervalMs": 2500
-      },
-      {
-        "timeMs": 135000,
-        "unitId": "enemy_penguin",
-        "count": 4,
-        "intervalMs": 2500
+        "timeMs": 142000,
+        "unitId": "enemy_ur_dragon",
+        "count": 8,
+        "intervalMs": 1000
       },
       {
         "timeMs": 155000,
