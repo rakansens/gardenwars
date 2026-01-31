@@ -244,6 +244,8 @@ export class BattleScene extends Phaser.Scene {
             'ur_jade_dragon', 'ur_nature_spirit_cat', 'ur_nature_titan', 'ur_prismatic_cat',
             'ur_rose_capybara', 'ur_rose_queen', 'ur_rune_golem', 'ur_sea_leviathan',
             'ur_stone_golem_cat', 'ur_thunder_phoenix',
+            // New UR units (2025-01)
+            'ur_cosmic_tiger', 'ur_botanical_gundam', 'ur_fairy_knight', 'ur_golden_paladin', 'ur_overlord_rose',
         ];
 
         // 必要なシートだけロード
@@ -635,7 +637,9 @@ export class BattleScene extends Phaser.Scene {
             'ur_frost_giant', 'ur_galaxy_butterfly', 'ur_golden_lion', 'ur_inferno_demon',
             'ur_jade_dragon', 'ur_nature_spirit_cat', 'ur_nature_titan', 'ur_prismatic_cat',
             'ur_rose_capybara', 'ur_rose_queen', 'ur_rune_golem', 'ur_sea_leviathan',
-            'ur_stone_golem_cat', 'ur_thunder_phoenix'
+            'ur_stone_golem_cat', 'ur_thunder_phoenix',
+            // New UR units (2025-01)
+            'ur_cosmic_tiger', 'ur_botanical_gundam', 'ur_fairy_knight', 'ur_golden_paladin', 'ur_overlord_rose'
         ];
         urUnits.forEach(unit => {
             this.anims.create({

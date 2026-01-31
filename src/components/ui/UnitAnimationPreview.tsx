@@ -52,6 +52,12 @@ export const ANIMATED_UNITS = [
     "ur_sea_leviathan",
     "ur_stone_golem_cat",
     "ur_thunder_phoenix",
+    // New UR units (2025-01)
+    "ur_cosmic_tiger",
+    "ur_botanical_gundam",
+    "ur_fairy_knight",
+    "ur_golden_paladin",
+    "ur_overlord_rose",
     // SR units
     "sr_bamboo_mech",
     "sr_corn_tank",
@@ -168,6 +174,8 @@ export default function UnitAnimationPreview({
                         "ur_jade_dragon", "ur_nature_spirit_cat", "ur_nature_titan", "ur_prismatic_cat",
                         "ur_rose_capybara", "ur_rose_queen", "ur_rune_golem", "ur_sea_leviathan",
                         "ur_stone_golem_cat", "ur_thunder_phoenix",
+                        // New UR units (2025-01)
+                        "ur_cosmic_tiger", "ur_botanical_gundam", "ur_fairy_knight", "ur_golden_paladin", "ur_overlord_rose",
                         // SR units
                         "sr_bamboo_mech", "sr_corn_tank", "sr_rose_hero", "sr_sun_pirate", "sr_tulip_idol",
                         "sr_cappuccino_assassin", "sr_capybara_ninja", "sr_capybara_shaman", "sr_odindindun", "sr_traffarella"
