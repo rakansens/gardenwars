@@ -1,82 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { getSheetPath } from "@/lib/sprites";
+import { getSheetPath, ANIMATED_UNITS, hasAnimation } from "@/lib/sprites";
+export type { AnimatedUnitId } from "@/lib/sprites";
 
-// アニメーションが存在するユニットのリスト
-export const ANIMATED_UNITS = [
-    "cat_warrior",
-    "corn_fighter",
-    "penguin_boy",
-    "cinnamon_girl",
-    "nika",
-    "lennon",
-    "n_bee",
-    "thunder_golem",
-    "flame_knight",
-    "ice_samurai",
-    "shadow_assassin",
-    // Existing UR units
-    "ur_dragon",
-    "ur_golem",
-    "ur_mage",
-    "ur_ninja",
-    "ur_tank",
-    "ur_knight",
-    "ur_archer",
-    "ur_healer",
-    "ur_spirit",
-    "ur_phoenix",
-    "ur_angel",
-    "ur_ancient_treant",
-    // New UR units (22種)
-    "ur_astral_wizard",
-    "ur_celestial_cat",
-    "ur_chrono_sage",
-    "ur_chronos_cat",
-    "ur_cosmic_dragon",
-    "ur_crystal_griffin",
-    "ur_emerald_dragon",
-    "ur_fire_lotus_cat",
-    "ur_frost_giant",
-    "ur_galaxy_butterfly",
-    "ur_golden_lion",
-    "ur_inferno_demon",
-    "ur_jade_dragon",
-    "ur_nature_spirit_cat",
-    "ur_nature_titan",
-    "ur_prismatic_cat",
-    "ur_rose_capybara",
-    "ur_rose_queen",
-    "ur_rune_golem",
-    "ur_sea_leviathan",
-    "ur_stone_golem_cat",
-    "ur_thunder_phoenix",
-    // New UR units (2025-01)
-    "ur_cosmic_tiger",
-    "ur_botanical_gundam",
-    "ur_fairy_knight",
-    "ur_golden_paladin",
-    "ur_overlord_rose",
-    // SR units
-    "sr_bamboo_mech",
-    "sr_corn_tank",
-    "sr_rose_hero",
-    "sr_sun_pirate",
-    "sr_tulip_idol",
-    "sr_cappuccino_assassin",
-    "sr_capybara_ninja",
-    "sr_capybara_shaman",
-    // "sr_coffee_ninja", // TODO: スプライトシート生成問題で一時的に除外
-    "sr_odindindun",
-    "sr_traffarella",
-] as const;
-
-export type AnimatedUnitId = (typeof ANIMATED_UNITS)[number];
-
-export function hasAnimation(unitId: string): boolean {
-    return ANIMATED_UNITS.includes(unitId as AnimatedUnitId);
-}
+// 後方互換性のためにre-export
+export { ANIMATED_UNITS, hasAnimation };
 
 interface UnitAnimationPreviewProps {
     unitId: string;

@@ -8,34 +8,8 @@ import { QuizSystem } from '../systems/QuizSystem';
 import { CannonSystem } from '../systems/CannonSystem';
 import { AIController } from '../systems/AIController';
 import { eventBus, GameEvents } from '../utils/EventBus';
+import { getSpritePath, getSheetPath, ANIMATED_UNITS } from '@/lib/sprites';
 import type { StageDefinition, UnitDefinition, GameState, Rarity } from '@/data/types';
-
-// スプライトパスを取得するユーティリティ
-function getSpritePath(id: string, rarity?: Rarity): string {
-    if (id.startsWith('enemy_')) {
-        return `/assets/sprites/enemies/${id}.webp`;
-    }
-    if (id.startsWith('boss_')) {
-        return `/assets/sprites/bosses/${id}.webp`;
-    }
-    if (id.startsWith('castle_')) {
-        return `/assets/sprites/common/${id}.webp`;
-    }
-    // 味方ユニットはレアリティ別フォルダ
-    if (rarity) {
-        return `/assets/sprites/allies/${rarity}/${id}.webp`;
-    }
-    // レアリティ不明の場合はフォールバック（シートなど）
-    return `/assets/sprites/sheets/${id}`;
-}
-
-// スプライトシートパスを取得
-function getSheetPath(id: string): { image: string; json: string } {
-    return {
-        image: `/assets/sprites/sheets/${id}_sheet.webp`,
-        json: `/assets/sprites/sheets/${id}_sheet.json`
-    };
-}
 
 // ============================================
 // BattleScene - メインバトルシーン
@@ -225,34 +199,11 @@ export class BattleScene extends Phaser.Scene {
             }
         }
 
-        // アニメーションシート（アトラス）をロード
-        // シートが存在するユニットのリスト
-        const unitsWithSheets = [
-            // 基本ユニット
-            'cat_warrior', 'corn_fighter', 'penguin_boy', 'cinnamon_girl', 'nika', 'lennon',
-            // SR ユニット
-            'sr_rose_hero', 'sr_corn_tank', 'sr_bamboo_mech', 'sr_sun_pirate', 'sr_tulip_idol',
-            'sr_cappuccino_assassin', 'sr_capybara_ninja', 'sr_capybara_shaman', 'sr_odindindun', 'sr_traffarella',
-            // SSR ユニット
-            'flame_knight', 'ice_samurai', 'shadow_assassin', 'thunder_golem',
-            // UR ユニット
-            'ur_knight', 'ur_mage', 'ur_archer', 'ur_tank', 'ur_ninja', 'ur_healer',
-            'ur_dragon', 'ur_spirit', 'ur_phoenix', 'ur_golem', 'ur_angel', 'ur_ancient_treant',
-            'ur_astral_wizard', 'ur_celestial_cat', 'ur_chrono_sage', 'ur_chronos_cat',
-            'ur_cosmic_dragon', 'ur_crystal_griffin', 'ur_emerald_dragon', 'ur_fire_lotus_cat',
-            'ur_frost_giant', 'ur_galaxy_butterfly', 'ur_golden_lion', 'ur_inferno_demon',
-            'ur_jade_dragon', 'ur_nature_spirit_cat', 'ur_nature_titan', 'ur_prismatic_cat',
-            'ur_rose_capybara', 'ur_rose_queen', 'ur_rune_golem', 'ur_sea_leviathan',
-            'ur_stone_golem_cat', 'ur_thunder_phoenix',
-            // New UR units (2025-01)
-            'ur_cosmic_tiger', 'ur_botanical_gundam', 'ur_fairy_knight', 'ur_golden_paladin', 'ur_overlord_rose',
-        ];
-
-        // 必要なシートだけロード
+        // アニメーションシート（アトラス）をロード（共有リストを使用）
         const loadedSheets = new Set<string>();
         for (const [unitId, { spriteId }] of unitsToLoad) {
             // spriteIdでシートを確認（baseUnitIdがある場合はそのスプライトを使用）
-            if (unitsWithSheets.includes(spriteId) && !loadedSheets.has(spriteId)) {
+            if (ANIMATED_UNITS.includes(spriteId as any) && !loadedSheets.has(spriteId)) {
                 const sheetPath = getSheetPath(spriteId);
                 this.load.atlas(`${spriteId}_atlas`, sheetPath.image, sheetPath.json);
                 loadedSheets.add(spriteId);

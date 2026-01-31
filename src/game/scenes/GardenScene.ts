@@ -2,30 +2,7 @@ import Phaser from 'phaser';
 import { GardenPet } from '../entities/GardenPet';
 import type { UnitDefinition, Rarity } from '@/data/types';
 import { eventBus, GameEvents } from '../utils/EventBus';
-
-// スプライトパスを取得するユーティリティ
-function getSpritePath(id: string, rarity?: Rarity): string {
-    if (id.startsWith('enemy_')) {
-        return `/assets/sprites/enemies/${id}.webp`;
-    }
-    if (id.startsWith('boss_')) {
-        return `/assets/sprites/bosses/${id}.webp`;
-    }
-    if (id.startsWith('castle_')) {
-        return `/assets/sprites/common/${id}.webp`;
-    }
-    if (rarity) {
-        return `/assets/sprites/allies/${rarity}/${id}.webp`;
-    }
-    return `/assets/sprites/sheets/${id}`;
-}
-
-function getSheetPath(id: string): { image: string; json: string } {
-    return {
-        image: `/assets/sprites/sheets/${id}_sheet.webp`,
-        json: `/assets/sprites/sheets/${id}_sheet.json`
-    };
-}
+import { getSpritePath, getSheetPath, ANIMATED_UNITS } from '@/lib/sprites';
 
 export interface GardenSceneData {
     units: UnitDefinition[];
@@ -66,16 +43,11 @@ export class GardenScene extends Phaser.Scene {
             }
         }
 
-        // アニメーションシートをロード
-        const unitsWithSheets = [
-            'cat_warrior', 'corn_fighter', 'penguin_boy', 'cinnamon_girl',
-            'nika', 'lennon'
-        ];
-
+        // アニメーションシートをロード（共有リストを使用）
         const loadedSheets = new Set<string>();
         for (const unit of this.unitsData) {
             const spriteId = unit.baseUnitId || unit.atlasKey || unit.id;
-            if (unitsWithSheets.includes(spriteId) && !loadedSheets.has(spriteId)) {
+            if (ANIMATED_UNITS.includes(spriteId as any) && !loadedSheets.has(spriteId)) {
                 const sheetPath = getSheetPath(spriteId);
                 this.load.atlas(`${spriteId}_atlas`, sheetPath.image, sheetPath.json);
                 loadedSheets.add(spriteId);

@@ -5,9 +5,7 @@ import type { Castle } from './Castle';
 // ============================================
 // Unit Entity - 状態機械による自動戦闘ユニット
 // ============================================
-
-// アニメーション対応ユニットIDのリスト
-const ANIMATED_UNITS = ['cat_warrior', 'corn_fighter', 'penguin_boy', 'cinnamon_girl', 'nika', 'lennon'];
+// 注: アニメーション対応判定はランタイムでテクスチャ存在チェックを行う（hasAnimation参照は不要）
 
 export class Unit extends Phaser.GameObjects.Container {
     // 基本データ
