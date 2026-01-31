@@ -8,6 +8,7 @@ import stagesData from "@/data/stages";
 import unitsData from "@/data/units";
 import type { StageDefinition, UnitDefinition, StageDifficulty } from "@/data/types";
 import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
+import { getSpritePath } from "@/lib/sprites";
 import { useStageUnlock } from "@/hooks/useStageUnlock";
 
 const stages = stagesData as StageDefinition[];
@@ -290,7 +291,7 @@ export default function StagesPage() {
                                                             <span className="text-purple-300 font-bold text-lg">?</span>
                                                         ) : (
                                                             <Image
-                                                                src={`/assets/sprites/${unit.baseUnitId || unit.id}.webp`}
+                                                                src={getSpritePath(unit.baseUnitId || unit.id, unit.rarity)}
                                                                 alt={unit.name}
                                                                 width={36}
                                                                 height={36}
@@ -334,7 +335,7 @@ export default function StagesPage() {
                                                         >
                                                             <div className="w-8 h-8 rounded bg-white dark:bg-slate-700 flex items-center justify-center overflow-hidden">
                                                                 <Image
-                                                                    src={`/assets/sprites/${unit.baseUnitId || unit.id}.webp`}
+                                                                    src={getSpritePath(unit.baseUnitId || unit.id, unit.rarity)}
                                                                     alt={unit.name}
                                                                     width={28}
                                                                     height={28}

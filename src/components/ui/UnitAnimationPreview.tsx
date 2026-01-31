@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { getSheetPath } from "@/lib/sprites";
 
 // アニメーションが存在するユニットのリスト
 export const ANIMATED_UNITS = [
@@ -135,10 +136,11 @@ export default function UnitAnimationPreview({
 
                 preload() {
                     // アトラスをロード
+                    const sheetPath = getSheetPath(unitId);
                     this.load.atlas(
                         `${unitId}_atlas`,
-                        `/assets/sprites/${unitId}_sheet.webp`,
-                        `/assets/sprites/${unitId}_sheet.json`
+                        sheetPath.image,
+                        sheetPath.json
                     );
                 }
 

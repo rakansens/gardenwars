@@ -8,6 +8,7 @@ import stagesData from "@/data/stages";
 import unitsData from "@/data/units";
 import type { StageDefinition, UnitDefinition, StageDifficulty } from "@/data/types";
 import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
+import { getSpritePath } from "@/lib/sprites";
 import { useStageUnlock } from "@/hooks/useStageUnlock";
 
 const stages = stagesData as StageDefinition[];
@@ -525,7 +526,7 @@ export default function WorldMapPage() {
                                             title={unit.name}
                                         >
                                             <Image
-                                                src={`/assets/sprites/${unit.baseUnitId || unit.id}.webp`}
+                                                src={getSpritePath(unit.baseUnitId || unit.id, unit.rarity)}
                                                 alt={unit.name}
                                                 width={40}
                                                 height={40}
@@ -556,7 +557,7 @@ export default function WorldMapPage() {
                                                 >
                                                     <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center overflow-hidden">
                                                         <Image
-                                                            src={`/assets/sprites/${unit.baseUnitId || unit.id}.webp`}
+                                                            src={getSpritePath(unit.baseUnitId || unit.id, unit.rarity)}
                                                             alt={unit.name}
                                                             width={36}
                                                             height={36}

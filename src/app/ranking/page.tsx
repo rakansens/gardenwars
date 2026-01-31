@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import unitsData from "@/data/units";
 import type { UnitDefinition } from "@/data/types";
+import { getSpritePath } from "@/lib/sprites";
 
 const allUnits = unitsData as UnitDefinition[];
 
@@ -181,7 +182,7 @@ export default function RankingPage() {
                                                                 title={unit.name}
                                                             >
                                                                 <Image
-                                                                    src={`/assets/sprites/${baseId}.webp`}
+                                                                    src={getSpritePath(baseId, unit.rarity)}
                                                                     alt={unit.name}
                                                                     width={56}
                                                                     height={56}

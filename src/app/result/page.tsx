@@ -8,6 +8,7 @@ import stages from "@/data/stages";
 import allUnits from "@/data/units";
 import type { StageDefinition, UnitDefinition } from "@/data/types";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getSpritePath } from "@/lib/sprites";
 
 const typedStages = stages as StageDefinition[];
 const typedUnits = allUnits as UnitDefinition[];
@@ -77,7 +78,7 @@ function ResultContent() {
                                     >
                                         <div className="w-16 h-16 rounded-lg overflow-hidden bg-green-100 dark:bg-green-900/50 mb-2 flex items-center justify-center">
                                             <Image
-                                                src={`/assets/sprites/${drop.unit.id}.webp`}
+                                                src={getSpritePath(drop.unit.id, drop.unit.rarity)}
                                                 alt={drop.unit.name}
                                                 width={48}
                                                 height={48}

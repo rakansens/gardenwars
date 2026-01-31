@@ -1,7 +1,31 @@
 import Phaser from 'phaser';
 import { GardenPet } from '../entities/GardenPet';
-import type { UnitDefinition } from '@/data/types';
+import type { UnitDefinition, Rarity } from '@/data/types';
 import { eventBus, GameEvents } from '../utils/EventBus';
+
+// スプライトパスを取得するユーティリティ
+function getSpritePath(id: string, rarity?: Rarity): string {
+    if (id.startsWith('enemy_')) {
+        return `/assets/sprites/enemies/${id}.webp`;
+    }
+    if (id.startsWith('boss_')) {
+        return `/assets/sprites/bosses/${id}.webp`;
+    }
+    if (id.startsWith('castle_')) {
+        return `/assets/sprites/common/${id}.webp`;
+    }
+    if (rarity) {
+        return `/assets/sprites/allies/${rarity}/${id}.webp`;
+    }
+    return `/assets/sprites/sheets/${id}`;
+}
+
+function getSheetPath(id: string): { image: string; json: string } {
+    return {
+        image: `/assets/sprites/sheets/${id}_sheet.webp`,
+        json: `/assets/sprites/sheets/${id}_sheet.json`
+    };
+}
 
 export interface GardenSceneData {
     units: UnitDefinition[];
@@ -26,73 +50,37 @@ export class GardenScene extends Phaser.Scene {
     preload() {
         // 背景 - 森のステージ画像を使用
         this.load.image('bg_garden', '/assets/stages/stage_1.webp');
-        this.load.image('castle_ally', '/assets/sprites/castle_ally.webp'); // 一応
+        this.load.image('castle_ally', getSpritePath('castle_ally'));
 
-        // ユニットアセット
-        const assetList = [
-            { key: 'cat_warrior', path: 'cat_warrior' },
-            { key: 'cat_tank', path: 'cat_tank' },
-            { key: 'cat_archer', path: 'cat_archer' },
-            { key: 'cat_mage', path: 'cat_mage' },
-            { key: 'cat_ninja', path: 'cat_ninja' },
-            { key: 'ice_flower', path: 'ice_flower' },
-            { key: 'corn_fighter', path: 'corn_fighter' },
-            { key: 'block_slime', path: 'block_slime' },
-            { key: 'sunflower', path: 'sunflower' },
-            { key: 'watermelon', path: 'watermelon' },
-            { key: 'corn_kid', path: 'corn_kid' },
-            { key: 'ribbon_girl', path: 'ribbon_girl' },
-            { key: 'penguin_boy', path: 'penguin_boy' },
-            { key: 'cinnamon_girl', path: 'cinnamon_girl' },
-            { key: 'enemy_dog', path: 'enemy_dog' },
-            { key: 'enemy_wolf', path: 'enemy_wolf' },
-            { key: 'enemy_crow', path: 'enemy_crow' },
-            { key: 'nika', path: 'nika' },
-            { key: 'lennon', path: 'lennon' },
-            // UR
-            { key: 'ur_knight', path: 'ur_knight' },
-            { key: 'ur_mage', path: 'ur_mage' },
-            { key: 'ur_archer', path: 'ur_archer' },
-            { key: 'ur_tank', path: 'ur_tank' },
-            { key: 'ur_ninja', path: 'ur_ninja' },
-            { key: 'ur_healer', path: 'ur_healer' },
-            { key: 'ur_dragon', path: 'ur_dragon' },
-            { key: 'ur_spirit', path: 'ur_spirit' },
-            { key: 'ur_phoenix', path: 'ur_phoenix' },
-            { key: 'ur_golem', path: 'ur_golem' },
-            { key: 'ur_angel', path: 'ur_angel' },
-            // R vegetables
-            { key: 'r_tomato', path: 'r_tomato' },
-            { key: 'r_pepper', path: 'r_pepper' },
-            { key: 'r_broccoli', path: 'r_broccoli' },
-            { key: 'r_eggplant', path: 'r_eggplant' },
-            { key: 'r_cherry', path: 'r_cherry' },
-            { key: 'r_lemon', path: 'r_lemon' },
-            { key: 'r_radish', path: 'r_radish' },
-            // N vegetables
-            { key: 'n_mushroom', path: 'n_mushroom' },
-            { key: 'n_apple', path: 'n_apple' },
-            { key: 'n_carrot', path: 'n_carrot' },
-            { key: 'n_pumpkin', path: 'n_pumpkin' },
-            { key: 'n_acorn', path: 'n_acorn' },
-            { key: 'n_strawberry', path: 'n_strawberry' },
-            { key: 'n_onion', path: 'n_onion' },
-            { key: 'n_grape', path: 'n_grape' },
-        ];
+        // ガーデンに表示するユニットのスプライトをロード
+        const loadedSprites = new Set<string>();
+        for (const unit of this.unitsData) {
+            const spriteId = unit.baseUnitId || unit.atlasKey || unit.id;
+            if (!loadedSprites.has(spriteId)) {
+                this.load.image(spriteId, getSpritePath(spriteId, unit.rarity));
+                loadedSprites.add(spriteId);
+            }
+            if (unit.id !== spriteId && !loadedSprites.has(unit.id)) {
+                this.load.image(unit.id, getSpritePath(spriteId, unit.rarity));
+                loadedSprites.add(unit.id);
+            }
+        }
 
-        assetList.forEach(asset => {
-            this.load.image(asset.key, `/assets/sprites/${asset.path}.webp`);
-        });
-
-        // アトラス
-        const atlases = [
+        // アニメーションシートをロード
+        const unitsWithSheets = [
             'cat_warrior', 'corn_fighter', 'penguin_boy', 'cinnamon_girl',
             'nika', 'lennon'
         ];
 
-        atlases.forEach(key => {
-            this.load.atlas(`${key}_atlas`, `/assets/sprites/${key}_sheet.webp`, `/assets/sprites/${key}_sheet.json`);
-        });
+        const loadedSheets = new Set<string>();
+        for (const unit of this.unitsData) {
+            const spriteId = unit.baseUnitId || unit.atlasKey || unit.id;
+            if (unitsWithSheets.includes(spriteId) && !loadedSheets.has(spriteId)) {
+                const sheetPath = getSheetPath(spriteId);
+                this.load.atlas(`${spriteId}_atlas`, sheetPath.image, sheetPath.json);
+                loadedSheets.add(spriteId);
+            }
+        }
     }
 
     create() {

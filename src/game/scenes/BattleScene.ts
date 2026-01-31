@@ -10,6 +10,33 @@ import { AIController } from '../systems/AIController';
 import { eventBus, GameEvents } from '../utils/EventBus';
 import type { StageDefinition, UnitDefinition, GameState, Rarity } from '@/data/types';
 
+// スプライトパスを取得するユーティリティ
+function getSpritePath(id: string, rarity?: Rarity): string {
+    if (id.startsWith('enemy_')) {
+        return `/assets/sprites/enemies/${id}.webp`;
+    }
+    if (id.startsWith('boss_')) {
+        return `/assets/sprites/bosses/${id}.webp`;
+    }
+    if (id.startsWith('castle_')) {
+        return `/assets/sprites/common/${id}.webp`;
+    }
+    // 味方ユニットはレアリティ別フォルダ
+    if (rarity) {
+        return `/assets/sprites/allies/${rarity}/${id}.webp`;
+    }
+    // レアリティ不明の場合はフォールバック（シートなど）
+    return `/assets/sprites/sheets/${id}`;
+}
+
+// スプライトシートパスを取得
+function getSheetPath(id: string): { image: string; json: string } {
+    return {
+        image: `/assets/sprites/sheets/${id}_sheet.webp`,
+        json: `/assets/sprites/sheets/${id}_sheet.json`
+    };
+}
+
 // ============================================
 // BattleScene - メインバトルシーン
 // ============================================
@@ -138,341 +165,97 @@ export class BattleScene extends Phaser.Scene {
 
     preload() {
         // 城スプライトをロード
-        this.load.image('castle_ally', '/assets/sprites/castle_ally.webp');
-        this.load.image('castle_enemy', '/assets/sprites/castle_enemy.webp');
+        this.load.image('castle_ally', getSpritePath('castle_ally'));
+        this.load.image('castle_enemy', getSpritePath('castle_enemy'));
 
         // 背景画像をロード（設定されている場合）
         if (this.stageData.background?.image) {
             this.load.image('stage_bg', this.stageData.background.image);
         }
 
-        // ユニットスプライトをロード（静止画フォールバック用）
-        this.load.image('cat_warrior', '/assets/sprites/cat_warrior.webp');
-        this.load.image('cat_tank', '/assets/sprites/cat_tank.webp');
-        this.load.image('cat_archer', '/assets/sprites/cat_archer.webp');
-        this.load.image('cat_mage', '/assets/sprites/cat_mage.webp');
-        this.load.image('cat_ninja', '/assets/sprites/cat_ninja.webp');
-        this.load.image('ice_flower', '/assets/sprites/ice_flower.webp');
-        this.load.image('corn_fighter', '/assets/sprites/corn_fighter.webp');
-        this.load.image('block_slime', '/assets/sprites/block_slime.webp');
-        this.load.image('sunflower', '/assets/sprites/sunflower.webp');
-        this.load.image('watermelon', '/assets/sprites/watermelon.webp');
-        this.load.image('corn_kid', '/assets/sprites/corn_kid.webp');
-        this.load.image('ribbon_girl', '/assets/sprites/ribbon_girl.webp');
-        this.load.image('penguin_boy', '/assets/sprites/penguin_boy.webp');
-        this.load.image('cinnamon_girl', '/assets/sprites/cinnamon_girl.webp');
-        this.load.image('enemy_dog', '/assets/sprites/enemy_dog.webp');
-        this.load.image('enemy_wolf', '/assets/sprites/enemy_wolf.webp');
-        this.load.image('enemy_crow', '/assets/sprites/enemy_crow.webp');
+        // 必要なユニットを収集（チーム + ステージの敵）
+        // unitId -> { spriteId, rarity } のマップ（spriteIdは実際のスプライトファイル名）
+        const unitsToLoad = new Map<string, { spriteId: string; rarity: Rarity }>();
 
-        // スプライトシート（アトラス）をロード
-        this.load.atlas(
-            'cat_warrior_atlas',
-            '/assets/sprites/cat_warrior_sheet.webp',
-            '/assets/sprites/cat_warrior_sheet.json'
-        );
-        this.load.atlas(
-            'corn_fighter_atlas',
-            '/assets/sprites/corn_fighter_sheet.webp',
-            '/assets/sprites/corn_fighter_sheet.json'
-        );
-        this.load.atlas(
-            'penguin_boy_atlas',
-            '/assets/sprites/penguin_boy_sheet.webp',
-            '/assets/sprites/penguin_boy_sheet.json'
-        );
-        this.load.atlas(
-            'cinnamon_girl_atlas',
-            '/assets/sprites/cinnamon_girl_sheet.webp',
-            '/assets/sprites/cinnamon_girl_sheet.json'
-        );
-        this.load.image('nika', '/assets/sprites/nika.webp');
-        this.load.atlas(
-            'nika_atlas',
-            '/assets/sprites/nika_sheet.webp',
-            '/assets/sprites/nika_sheet.json'
-        );
-        this.load.image('lennon', '/assets/sprites/lennon.webp');
-        this.load.atlas(
-            'lennon_atlas',
-            '/assets/sprites/lennon_sheet.webp',
-            '/assets/sprites/lennon_sheet.json'
-        );
-        this.load.atlas(
-            'n_bee_atlas',
-            '/assets/sprites/n_bee_sheet.webp',
-            '/assets/sprites/n_bee_sheet.json'
-        );
+        // チームのユニットを追加
+        for (const unit of this.teamData) {
+            const spriteId = unit.baseUnitId || unit.atlasKey || unit.id;
+            unitsToLoad.set(unit.id, { spriteId, rarity: unit.rarity });
+        }
 
-        // UR Units
-        this.load.image('ur_knight', '/assets/sprites/ur_knight.webp');
-        this.load.image('ur_mage', '/assets/sprites/ur_mage.webp');
-        this.load.image('ur_archer', '/assets/sprites/ur_archer.webp');
-        this.load.image('ur_tank', '/assets/sprites/ur_tank.webp');
-        this.load.image('ur_ninja', '/assets/sprites/ur_ninja.webp');
-        this.load.image('ur_healer', '/assets/sprites/ur_healer.webp');
-        this.load.image('ur_dragon', '/assets/sprites/ur_dragon.webp');
-        this.load.image('ur_spirit', '/assets/sprites/ur_spirit.webp');
-        this.load.image('ur_phoenix', '/assets/sprites/ur_phoenix.webp');
-        this.load.image('ur_golem', '/assets/sprites/ur_golem.webp');
-        this.load.image('ur_angel', '/assets/sprites/ur_angel.webp');
+        // 全ロードアウトのユニットを追加
+        for (const loadout of this.loadoutsData) {
+            for (const unit of loadout) {
+                const spriteId = unit.baseUnitId || unit.atlasKey || unit.id;
+                unitsToLoad.set(unit.id, { spriteId, rarity: unit.rarity });
+            }
+        }
 
-        // New UR Units
-        this.load.image('ur_rose_queen', '/assets/sprites/ur_rose_queen.webp');
-        this.load.image('ur_galaxy_butterfly', '/assets/sprites/ur_galaxy_butterfly.webp');
-        this.load.image('ur_rose_capybara', '/assets/sprites/ur_rose_capybara.webp');
-        this.load.image('ur_cosmic_dragon', '/assets/sprites/ur_cosmic_dragon.webp');
-        this.load.image('ur_nature_spirit_cat', '/assets/sprites/ur_nature_spirit_cat.webp');
-        this.load.image('ur_inferno_demon', '/assets/sprites/ur_inferno_demon.webp');
-        this.load.image('ur_golden_lion', '/assets/sprites/ur_golden_lion.webp');
-        this.load.image('ur_chrono_sage', '/assets/sprites/ur_chrono_sage.webp');
-        this.load.image('ur_jade_dragon', '/assets/sprites/ur_jade_dragon.webp');
-        this.load.image('ur_emerald_dragon', '/assets/sprites/ur_emerald_dragon.webp');
-        this.load.image('ur_chronos_cat', '/assets/sprites/ur_chronos_cat.webp');
-        this.load.image('ur_ancient_treant', '/assets/sprites/ur_ancient_treant.webp');
-        this.load.image('ur_nature_titan', '/assets/sprites/ur_nature_titan.webp');
-        this.load.image('ur_stone_golem_cat', '/assets/sprites/ur_stone_golem_cat.webp');
-        this.load.image('ur_fire_lotus_cat', '/assets/sprites/ur_fire_lotus_cat.webp');
-        this.load.image('ur_astral_wizard', '/assets/sprites/ur_astral_wizard.webp');
-        this.load.image('ur_rune_golem', '/assets/sprites/ur_rune_golem.webp');
-        this.load.image('ur_frost_giant', '/assets/sprites/ur_frost_giant.webp');
-        this.load.image('ur_celestial_cat', '/assets/sprites/ur_celestial_cat.webp');
-        this.load.image('ur_crystal_griffin', '/assets/sprites/ur_crystal_griffin.webp');
-        this.load.image('ur_prismatic_cat', '/assets/sprites/ur_prismatic_cat.webp');
-        this.load.image('ur_sea_leviathan', '/assets/sprites/ur_sea_leviathan.webp');
-        this.load.image('ur_thunder_phoenix', '/assets/sprites/ur_thunder_phoenix.webp');
+        // ステージの敵を追加
+        for (const wave of this.stageData.enemyWaves) {
+            const unitDef = this.allUnitsData.find(u => u.id === wave.unitId);
+            if (unitDef) {
+                // baseUnitIdがあればそれを使用（敵が味方スプライトを流用する場合）
+                const spriteId = unitDef.baseUnitId || unitDef.atlasKey || unitDef.id;
+                // baseUnitIdがある場合、そのユニットのレアリティを取得
+                let rarity = unitDef.rarity;
+                if (unitDef.baseUnitId) {
+                    const baseUnit = this.allUnitsData.find(u => u.id === unitDef.baseUnitId);
+                    if (baseUnit) {
+                        rarity = baseUnit.rarity;
+                    }
+                }
+                unitsToLoad.set(wave.unitId, { spriteId, rarity });
+            }
+        }
 
-        // Normal Units
-        this.load.image('n_mushroom', '/assets/sprites/n_mushroom.webp');
-        this.load.image('n_apple', '/assets/sprites/n_apple.webp');
-        this.load.image('n_carrot', '/assets/sprites/n_carrot.webp');
-        this.load.image('n_pumpkin', '/assets/sprites/n_pumpkin.webp');
-        this.load.image('n_acorn', '/assets/sprites/n_acorn.webp');
-        this.load.image('n_strawberry', '/assets/sprites/n_strawberry.webp');
-        this.load.image('n_onion', '/assets/sprites/n_onion.webp');
-        this.load.image('n_grape', '/assets/sprites/n_grape.webp');
-        this.load.image('n_aloe_beast', '/assets/sprites/n_aloe_beast.webp');
-        this.load.image('n_cherry_bomb', '/assets/sprites/n_cherry_bomb.webp');
-        this.load.image('n_dust_bunny', '/assets/sprites/n_dust_bunny.webp');
-        this.load.image('n_hibiscus', '/assets/sprites/n_hibiscus.webp');
-        this.load.image('n_leaf_sprite', '/assets/sprites/n_leaf_sprite.webp');
-        this.load.image('n_pebble', '/assets/sprites/n_pebble.webp');
-        this.load.image('n_dew', '/assets/sprites/n_dew.webp');
-        this.load.image('n_root', '/assets/sprites/n_root.webp');
-        this.load.image('n_capybara', '/assets/sprites/n_capybara.webp');
-        this.load.image('r_capybara_gardener', '/assets/sprites/r_capybara_gardener.webp');
-        this.load.image('r_capybara_spa', '/assets/sprites/r_capybara_spa.webp');
-        this.load.image('sr_capybara_ninja', '/assets/sprites/sr_capybara_ninja.webp');
-        this.load.image('sr_capybara_shaman', '/assets/sprites/sr_capybara_shaman.webp');
+        // 全ユニットの静止画をロード
+        const loadedSprites = new Set<string>();
+        for (const [unitId, { spriteId, rarity }] of unitsToLoad) {
+            // 同じスプライトを重複ロードしないように
+            if (!loadedSprites.has(spriteId)) {
+                this.load.image(spriteId, getSpritePath(spriteId, rarity));
+                loadedSprites.add(spriteId);
+            }
+            // unitIdとspriteIdが異なる場合（敵がbaseUnitIdを使う場合）、
+            // unitIdでもロードして参照できるようにする
+            if (unitId !== spriteId && !loadedSprites.has(unitId)) {
+                this.load.image(unitId, getSpritePath(spriteId, rarity));
+                loadedSprites.add(unitId);
+            }
+        }
 
-        // New N Units
-        this.load.image('n_log', '/assets/sprites/n_log.webp');
-        this.load.image('n_octopus', '/assets/sprites/n_octopus.webp');
-        this.load.image('n_dolphin', '/assets/sprites/n_dolphin.webp');
-        this.load.image('n_bean', '/assets/sprites/n_bean.webp');
-        this.load.image('n_frog', '/assets/sprites/n_frog.webp');
+        // アニメーションシート（アトラス）をロード
+        // シートが存在するユニットのリスト
+        const unitsWithSheets = [
+            // 基本ユニット
+            'cat_warrior', 'corn_fighter', 'penguin_boy', 'cinnamon_girl', 'nika', 'lennon',
+            // SR ユニット
+            'sr_rose_hero', 'sr_corn_tank', 'sr_bamboo_mech', 'sr_sun_pirate', 'sr_tulip_idol',
+            'sr_cappuccino_assassin', 'sr_capybara_ninja', 'sr_capybara_shaman', 'sr_odindindun', 'sr_traffarella',
+            // SSR ユニット
+            'flame_knight', 'ice_samurai', 'shadow_assassin', 'thunder_golem',
+            // UR ユニット
+            'ur_knight', 'ur_mage', 'ur_archer', 'ur_tank', 'ur_ninja', 'ur_healer',
+            'ur_dragon', 'ur_spirit', 'ur_phoenix', 'ur_golem', 'ur_angel', 'ur_ancient_treant',
+            'ur_astral_wizard', 'ur_celestial_cat', 'ur_chrono_sage', 'ur_chronos_cat',
+            'ur_cosmic_dragon', 'ur_crystal_griffin', 'ur_emerald_dragon', 'ur_fire_lotus_cat',
+            'ur_frost_giant', 'ur_galaxy_butterfly', 'ur_golden_lion', 'ur_inferno_demon',
+            'ur_jade_dragon', 'ur_nature_spirit_cat', 'ur_nature_titan', 'ur_prismatic_cat',
+            'ur_rose_capybara', 'ur_rose_queen', 'ur_rune_golem', 'ur_sea_leviathan',
+            'ur_stone_golem_cat', 'ur_thunder_phoenix',
+        ];
 
-        // New R Units
-        this.load.image('r_croc_pilot', '/assets/sprites/r_croc_pilot.webp');
-        this.load.image('r_latte_ballerina', '/assets/sprites/r_latte_ballerina.webp');
-        this.load.image('r_penguin_scholar', '/assets/sprites/r_penguin_scholar.webp');
-
-        // New SR Units
-        this.load.image('sr_coffee_ninja', '/assets/sprites/sr_coffee_ninja.webp');
-        this.load.image('sr_cappuccino_assassin', '/assets/sprites/sr_cappuccino_assassin.webp');
-        this.load.image('sr_odindindun', '/assets/sprites/sr_odindindun.webp');
-        this.load.image('sr_traffarella', '/assets/sprites/sr_traffarella.webp');
-
-        // Rare Units
-        this.load.image('r_tomato', '/assets/sprites/r_tomato.webp');
-        this.load.image('r_pepper', '/assets/sprites/r_pepper.webp');
-        this.load.image('r_broccoli', '/assets/sprites/r_broccoli.webp');
-        this.load.image('r_eggplant', '/assets/sprites/r_eggplant.webp');
-        this.load.image('r_cherry', '/assets/sprites/r_cherry.webp');
-        this.load.image('r_lemon', '/assets/sprites/r_lemon.webp');
-        this.load.image('r_radish', '/assets/sprites/r_radish.webp');
-        this.load.image('r_pumpkin_brawler', '/assets/sprites/r_pumpkin_brawler.webp');
-        this.load.image('r_solar_spike', '/assets/sprites/r_solar_spike.webp');
-        this.load.image('r_fire_chili', '/assets/sprites/r_fire_chili.webp');
-        this.load.image('r_leaf_ninja', '/assets/sprites/r_leaf_ninja.webp');
-
-        // SR Units
-        this.load.image('sr_rose_hero', '/assets/sprites/sr_rose_hero.webp');
-        this.load.image('sr_corn_tank', '/assets/sprites/sr_corn_tank.webp');
-        this.load.image('sr_bamboo_mech', '/assets/sprites/sr_bamboo_mech.webp');
-        this.load.image('sr_sun_pirate', '/assets/sprites/sr_sun_pirate.webp');
-        this.load.image('sr_tulip_idol', '/assets/sprites/sr_tulip_idol.webp');
-        this.load.image('sr_crystal_lotus_cat', '/assets/sprites/sr_crystal_lotus_cat.webp');
-        this.load.image('sr_bonsai_cat', '/assets/sprites/sr_bonsai_cat.webp');
-
-        // New N Units
-        this.load.image('n_ladybug_cat', '/assets/sprites/n_ladybug_cat.webp');
-        this.load.image('n_autumn_leaf_cat', '/assets/sprites/n_autumn_leaf_cat.webp');
-        this.load.image('n_frog_cat', '/assets/sprites/n_frog_cat.webp');
-        this.load.image('n_succulent_cat', '/assets/sprites/n_succulent_cat.webp');
-        this.load.image('n_farmer_cat', '/assets/sprites/n_farmer_cat.webp');
-        this.load.image('n_cinnamon_cat', '/assets/sprites/n_cinnamon_cat.webp');
-        this.load.image('n_potted_plant_cat', '/assets/sprites/n_potted_plant_cat.webp');
-        this.load.image('n_ivy_harvest_cat', '/assets/sprites/n_ivy_harvest_cat.webp');
-        this.load.image('n_sunflower_cat', '/assets/sprites/n_sunflower_cat.webp');
-        this.load.image('n_sprout_cat', '/assets/sprites/n_sprout_cat.webp');
-
-        // New R Units
-        this.load.image('r_cactus_guardian', '/assets/sprites/r_cactus_guardian.webp');
-        this.load.image('r_dandelion_cat', '/assets/sprites/r_dandelion_cat.webp');
-        this.load.image('r_ivy_ninja_cat', '/assets/sprites/r_ivy_ninja_cat.webp');
-        this.load.image('r_cherry_blossom_cat', '/assets/sprites/r_cherry_blossom_cat.webp');
-        this.load.image('r_rose_bunny_cat', '/assets/sprites/r_rose_bunny_cat.webp');
-        this.load.image('r_bamboo_samurai_cat', '/assets/sprites/r_bamboo_samurai_cat.webp');
-        this.load.image('r_hydrangea_cat', '/assets/sprites/r_hydrangea_cat.webp');
-
-        // New SR Units
-        this.load.image('sr_cloud_angel_cat', '/assets/sprites/sr_cloud_angel_cat.webp');
-        this.load.image('sr_thorn_beast_cat', '/assets/sprites/sr_thorn_beast_cat.webp');
-        this.load.image('sr_thorn_reaper_cat', '/assets/sprites/sr_thorn_reaper_cat.webp');
-        this.load.image('sr_lucky_clover_cat', '/assets/sprites/sr_lucky_clover_cat.webp');
-
-        // New SR/R Units (Oni, Mecha, etc.)
-        this.load.image('sr_oni_bonsai', '/assets/sprites/sr_oni_bonsai.webp');
-        this.load.image('sr_vine_evangelion', '/assets/sprites/sr_vine_evangelion.webp');
-        this.load.image('sr_garden_guardian', '/assets/sprites/sr_garden_guardian.webp');
-        this.load.image('sr_green_cyborg', '/assets/sprites/sr_green_cyborg.webp');
-        this.load.image('sr_rose_paladin', '/assets/sprites/sr_rose_paladin.webp');
-        this.load.image('sr_bamboo_blaster', '/assets/sprites/sr_bamboo_blaster.webp');
-        this.load.image('sr_flora_captain', '/assets/sprites/sr_flora_captain.webp');
-        this.load.image('r_rake_rock_cat', '/assets/sprites/r_rake_rock_cat.webp');
-        this.load.image('r_diesel_farmer', '/assets/sprites/r_diesel_farmer.webp');
-        this.load.image('r_steam_gardener', '/assets/sprites/r_steam_gardener.webp');
-
-        // New SR Units (Batch 2)
-        this.load.image('sr_crystal_rose_knight', '/assets/sprites/sr_crystal_rose_knight.webp');
-        this.load.image('sr_elder_botanist', '/assets/sprites/sr_elder_botanist.webp');
-        this.load.image('sr_jade_emperor', '/assets/sprites/sr_jade_emperor.webp');
-        this.load.image('sr_bonsai_samurai', '/assets/sprites/sr_bonsai_samurai.webp');
-        this.load.image('sr_angelic_garden', '/assets/sprites/sr_angelic_garden.webp');
-        this.load.image('sr_frost_rose_queen', '/assets/sprites/sr_frost_rose_queen.webp');
-
-        // New R Units (Batch 2)
-        this.load.image('r_cactus_cowboy', '/assets/sprites/r_cactus_cowboy.webp');
-        this.load.image('r_grape_gladiator', '/assets/sprites/r_grape_gladiator.webp');
-        this.load.image('r_valkyrie_bloom', '/assets/sprites/r_valkyrie_bloom.webp');
-        this.load.image('r_space_botanist', '/assets/sprites/r_space_botanist.webp');
-        this.load.image('r_jungle_explorer', '/assets/sprites/r_jungle_explorer.webp');
-        this.load.image('r_herb_alchemist', '/assets/sprites/r_herb_alchemist.webp');
-        this.load.image('r_harvest_viking', '/assets/sprites/r_harvest_viking.webp');
-
-        // New N Units (Batch 2)
-        this.load.image('n_plant_detective', '/assets/sprites/n_plant_detective.webp');
-        this.load.image('n_leaf_punk', '/assets/sprites/n_leaf_punk.webp');
-        this.load.image('n_cactus_luchador', '/assets/sprites/n_cactus_luchador.webp');
-        this.load.image('n_marigold_mariachi', '/assets/sprites/n_marigold_mariachi.webp');
-        this.load.image('n_veggie_chef', '/assets/sprites/n_veggie_chef.webp');
-
-        // SSR Units
-        this.load.image('flame_knight', '/assets/sprites/flame_knight.webp');
-        this.load.image('ice_samurai', '/assets/sprites/ice_samurai.webp');
-        this.load.image('shadow_assassin', '/assets/sprites/shadow_assassin.webp');
-        this.load.image('thunder_golem', '/assets/sprites/thunder_golem.webp');
-
-        // SR Unit Atlases (animations)
-        this.load.atlas('sr_rose_hero_atlas', '/assets/sprites/sr_rose_hero_sheet.webp', '/assets/sprites/sr_rose_hero_sheet.json');
-        this.load.atlas('sr_corn_tank_atlas', '/assets/sprites/sr_corn_tank_sheet.webp', '/assets/sprites/sr_corn_tank_sheet.json');
-        this.load.atlas('sr_bamboo_mech_atlas', '/assets/sprites/sr_bamboo_mech_sheet.webp', '/assets/sprites/sr_bamboo_mech_sheet.json');
-        this.load.atlas('sr_sun_pirate_atlas', '/assets/sprites/sr_sun_pirate_sheet.webp', '/assets/sprites/sr_sun_pirate_sheet.json');
-        this.load.atlas('sr_tulip_idol_atlas', '/assets/sprites/sr_tulip_idol_sheet.webp', '/assets/sprites/sr_tulip_idol_sheet.json');
-        this.load.atlas('sr_cappuccino_assassin_atlas', '/assets/sprites/sr_cappuccino_assassin_sheet.webp', '/assets/sprites/sr_cappuccino_assassin_sheet.json');
-        this.load.atlas('sr_capybara_ninja_atlas', '/assets/sprites/sr_capybara_ninja_sheet.webp', '/assets/sprites/sr_capybara_ninja_sheet.json');
-        this.load.atlas('sr_capybara_shaman_atlas', '/assets/sprites/sr_capybara_shaman_sheet.webp', '/assets/sprites/sr_capybara_shaman_sheet.json');
-        // sr_coffee_ninja uses static image (no sprite sheet)
-        this.load.atlas('sr_odindindun_atlas', '/assets/sprites/sr_odindindun_sheet.webp', '/assets/sprites/sr_odindindun_sheet.json');
-        this.load.atlas('sr_traffarella_atlas', '/assets/sprites/sr_traffarella_sheet.webp', '/assets/sprites/sr_traffarella_sheet.json');
-
-        // SSR Unit Atlases (animations)
-        this.load.atlas('flame_knight_atlas', '/assets/sprites/flame_knight_sheet.webp', '/assets/sprites/flame_knight_sheet.json');
-        this.load.atlas('ice_samurai_atlas', '/assets/sprites/ice_samurai_sheet.webp', '/assets/sprites/ice_samurai_sheet.json');
-        this.load.atlas('shadow_assassin_atlas', '/assets/sprites/shadow_assassin_sheet.webp', '/assets/sprites/shadow_assassin_sheet.json');
-        this.load.atlas('thunder_golem_atlas', '/assets/sprites/thunder_golem_sheet.webp', '/assets/sprites/thunder_golem_sheet.json');
-
-        // UR Unit Atlases (animations)
-        this.load.atlas('ur_knight_atlas', '/assets/sprites/ur_knight_sheet.webp', '/assets/sprites/ur_knight_sheet.json');
-        this.load.atlas('ur_mage_atlas', '/assets/sprites/ur_mage_sheet.webp', '/assets/sprites/ur_mage_sheet.json');
-        this.load.atlas('ur_archer_atlas', '/assets/sprites/ur_archer_sheet.webp', '/assets/sprites/ur_archer_sheet.json');
-        this.load.atlas('ur_tank_atlas', '/assets/sprites/ur_tank_sheet.webp', '/assets/sprites/ur_tank_sheet.json');
-        this.load.atlas('ur_ninja_atlas', '/assets/sprites/ur_ninja_sheet.webp', '/assets/sprites/ur_ninja_sheet.json');
-        this.load.atlas('ur_healer_atlas', '/assets/sprites/ur_healer_sheet.webp', '/assets/sprites/ur_healer_sheet.json');
-        this.load.atlas('ur_dragon_atlas', '/assets/sprites/ur_dragon_sheet.webp', '/assets/sprites/ur_dragon_sheet.json');
-        this.load.atlas('ur_spirit_atlas', '/assets/sprites/ur_spirit_sheet.webp', '/assets/sprites/ur_spirit_sheet.json');
-        this.load.atlas('ur_phoenix_atlas', '/assets/sprites/ur_phoenix_sheet.webp', '/assets/sprites/ur_phoenix_sheet.json');
-        this.load.atlas('ur_golem_atlas', '/assets/sprites/ur_golem_sheet.webp', '/assets/sprites/ur_golem_sheet.json');
-        this.load.atlas('ur_angel_atlas', '/assets/sprites/ur_angel_sheet.webp', '/assets/sprites/ur_angel_sheet.json');
-        this.load.atlas('ur_ancient_treant_atlas', '/assets/sprites/ur_ancient_treant_sheet.webp', '/assets/sprites/ur_ancient_treant_sheet.json');
-
-        // New UR Unit Atlases
-        this.load.atlas('ur_astral_wizard_atlas', '/assets/sprites/ur_astral_wizard_sheet.webp', '/assets/sprites/ur_astral_wizard_sheet.json');
-        this.load.atlas('ur_celestial_cat_atlas', '/assets/sprites/ur_celestial_cat_sheet.webp', '/assets/sprites/ur_celestial_cat_sheet.json');
-        this.load.atlas('ur_chrono_sage_atlas', '/assets/sprites/ur_chrono_sage_sheet.webp', '/assets/sprites/ur_chrono_sage_sheet.json');
-        this.load.atlas('ur_chronos_cat_atlas', '/assets/sprites/ur_chronos_cat_sheet.webp', '/assets/sprites/ur_chronos_cat_sheet.json');
-        this.load.atlas('ur_cosmic_dragon_atlas', '/assets/sprites/ur_cosmic_dragon_sheet.webp', '/assets/sprites/ur_cosmic_dragon_sheet.json');
-        this.load.atlas('ur_crystal_griffin_atlas', '/assets/sprites/ur_crystal_griffin_sheet.webp', '/assets/sprites/ur_crystal_griffin_sheet.json');
-        this.load.atlas('ur_emerald_dragon_atlas', '/assets/sprites/ur_emerald_dragon_sheet.webp', '/assets/sprites/ur_emerald_dragon_sheet.json');
-        this.load.atlas('ur_fire_lotus_cat_atlas', '/assets/sprites/ur_fire_lotus_cat_sheet.webp', '/assets/sprites/ur_fire_lotus_cat_sheet.json');
-        this.load.atlas('ur_frost_giant_atlas', '/assets/sprites/ur_frost_giant_sheet.webp', '/assets/sprites/ur_frost_giant_sheet.json');
-        this.load.atlas('ur_galaxy_butterfly_atlas', '/assets/sprites/ur_galaxy_butterfly_sheet.webp', '/assets/sprites/ur_galaxy_butterfly_sheet.json');
-        this.load.atlas('ur_golden_lion_atlas', '/assets/sprites/ur_golden_lion_sheet.webp', '/assets/sprites/ur_golden_lion_sheet.json');
-        this.load.atlas('ur_inferno_demon_atlas', '/assets/sprites/ur_inferno_demon_sheet.webp', '/assets/sprites/ur_inferno_demon_sheet.json');
-        this.load.atlas('ur_jade_dragon_atlas', '/assets/sprites/ur_jade_dragon_sheet.webp', '/assets/sprites/ur_jade_dragon_sheet.json');
-        this.load.atlas('ur_nature_spirit_cat_atlas', '/assets/sprites/ur_nature_spirit_cat_sheet.webp', '/assets/sprites/ur_nature_spirit_cat_sheet.json');
-        this.load.atlas('ur_nature_titan_atlas', '/assets/sprites/ur_nature_titan_sheet.webp', '/assets/sprites/ur_nature_titan_sheet.json');
-        this.load.atlas('ur_prismatic_cat_atlas', '/assets/sprites/ur_prismatic_cat_sheet.webp', '/assets/sprites/ur_prismatic_cat_sheet.json');
-        this.load.atlas('ur_rose_capybara_atlas', '/assets/sprites/ur_rose_capybara_sheet.webp', '/assets/sprites/ur_rose_capybara_sheet.json');
-        this.load.atlas('ur_rose_queen_atlas', '/assets/sprites/ur_rose_queen_sheet.webp', '/assets/sprites/ur_rose_queen_sheet.json');
-        this.load.atlas('ur_rune_golem_atlas', '/assets/sprites/ur_rune_golem_sheet.webp', '/assets/sprites/ur_rune_golem_sheet.json');
-        this.load.atlas('ur_sea_leviathan_atlas', '/assets/sprites/ur_sea_leviathan_sheet.webp', '/assets/sprites/ur_sea_leviathan_sheet.json');
-        this.load.atlas('ur_stone_golem_cat_atlas', '/assets/sprites/ur_stone_golem_cat_sheet.webp', '/assets/sprites/ur_stone_golem_cat_sheet.json');
-        this.load.atlas('ur_thunder_phoenix_atlas', '/assets/sprites/ur_thunder_phoenix_sheet.webp', '/assets/sprites/ur_thunder_phoenix_sheet.json');
-
-        // New Anime Units (Batch 3 - 2026-01-31)
-        // UR Units
-        this.load.image('ur_overlord_rose', '/assets/sprites/ur_overlord_rose.webp');
-        this.load.image('ur_fairy_knight', '/assets/sprites/ur_fairy_knight.webp');
-        this.load.image('ur_golden_paladin', '/assets/sprites/ur_golden_paladin.webp');
-        this.load.image('ur_cosmic_tiger', '/assets/sprites/ur_cosmic_tiger.webp');
-        this.load.image('ur_botanical_gundam', '/assets/sprites/ur_botanical_gundam.webp');
-
-        // SSR Units
-        this.load.image('ssr_sakura_samurai', '/assets/sprites/ssr_sakura_samurai.webp');
-        this.load.image('ssr_higanbana_mage', '/assets/sprites/ssr_higanbana_mage.webp');
-        this.load.image('ssr_frost_empress', '/assets/sprites/ssr_frost_empress.webp');
-        this.load.image('ssr_rose_gunslinger', '/assets/sprites/ssr_rose_gunslinger.webp');
-        this.load.image('ssr_rainbow_storm', '/assets/sprites/ssr_rainbow_storm.webp');
-        this.load.image('ssr_phantom_masquerade', '/assets/sprites/ssr_phantom_masquerade.webp');
-        this.load.image('ssr_carnivore_mask', '/assets/sprites/ssr_carnivore_mask.webp');
-        this.load.image('ssr_psychedelic_bloom', '/assets/sprites/ssr_psychedelic_bloom.webp');
-        this.load.image('ssr_cyber_rose', '/assets/sprites/ssr_cyber_rose.webp');
-        this.load.image('ssr_galaxy_slime', '/assets/sprites/ssr_galaxy_slime.webp');
-        this.load.image('ssr_poinsettia_wild', '/assets/sprites/ssr_poinsettia_wild.webp');
-
-        // SR Units
-        this.load.image('sr_bamboo_ninja', '/assets/sprites/sr_bamboo_ninja.webp');
-        this.load.image('sr_vine_warlock', '/assets/sprites/sr_vine_warlock.webp');
-        this.load.image('sr_celtic_warrior', '/assets/sprites/sr_celtic_warrior.webp');
-        this.load.image('sr_mecha_gunner', '/assets/sprites/sr_mecha_gunner.webp');
-        this.load.image('sr_scout_corps', '/assets/sprites/sr_scout_corps.webp');
-        this.load.image('sr_cyber_swordsman', '/assets/sprites/sr_cyber_swordsman.webp');
-        this.load.image('sr_shadow_ninja', '/assets/sprites/sr_shadow_ninja.webp');
-        this.load.image('sr_flora_hero', '/assets/sprites/sr_flora_hero.webp');
-        this.load.image('sr_demon_mage', '/assets/sprites/sr_demon_mage.webp');
-        this.load.image('sr_banchou_brawler', '/assets/sprites/sr_banchou_brawler.webp');
-        this.load.image('sr_wasteland_merc', '/assets/sprites/sr_wasteland_merc.webp');
-
-        // R Units
-        this.load.image('r_garden_hero', '/assets/sprites/r_garden_hero.webp');
-        this.load.image('r_sprout_knight', '/assets/sprites/r_sprout_knight.webp');
-        this.load.image('r_chainsaw_gardener', '/assets/sprites/r_chainsaw_gardener.webp');
-        this.load.image('r_wisteria_swordsman', '/assets/sprites/r_wisteria_swordsman.webp');
-        this.load.image('r_apple_scholar', '/assets/sprites/r_apple_scholar.webp');
-        this.load.image('r_plant_dealer', '/assets/sprites/r_plant_dealer.webp');
-        this.load.image('r_sailor_rose', '/assets/sprites/r_sailor_rose.webp');
+        // 必要なシートだけロード
+        const loadedSheets = new Set<string>();
+        for (const [unitId, { spriteId }] of unitsToLoad) {
+            // spriteIdでシートを確認（baseUnitIdがある場合はそのスプライトを使用）
+            if (unitsWithSheets.includes(spriteId) && !loadedSheets.has(spriteId)) {
+                const sheetPath = getSheetPath(spriteId);
+                this.load.atlas(`${spriteId}_atlas`, sheetPath.image, sheetPath.json);
+                loadedSheets.add(spriteId);
+            }
+        }
     }
 
     private summonUIButtons: {

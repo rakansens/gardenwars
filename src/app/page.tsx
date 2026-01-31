@@ -10,6 +10,7 @@ import Modal, { SuccessModal, ConfirmModal } from "@/components/ui/Modal";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import unitsData from "@/data/units";
 import type { UnitDefinition } from "@/data/types";
+import { getSpritePath } from "@/lib/sprites";
 
 const allUnits = unitsData as UnitDefinition[];
 // ガチャ対象ユニット（コレクション対象）
@@ -217,24 +218,27 @@ export default function Home() {
         <div className="absolute bottom-6 left-[90%] text-2xl">🌿</div>
 
         {/* パレードキャラ */}
-        {paradeChars.map((char) => (
-          <div
-            key={char.id}
-            className="absolute bottom-10 transition-all duration-100"
-            style={{
-              left: `${char.x}%`,
-              transform: `scaleX(${char.direction}) scale(${char.scale})`,
-            }}
-          >
-            <Image
-              src={`/assets/sprites/${char.unitId}.webp`}
-              alt="parade character"
-              width={48}
-              height={48}
-              className="object-contain drop-shadow-md"
-            />
-          </div>
-        ))}
+        {paradeChars.map((char) => {
+          const unit = allUnits.find(u => u.id === char.unitId);
+          return (
+            <div
+              key={char.id}
+              className="absolute bottom-10 transition-all duration-100"
+              style={{
+                left: `${char.x}%`,
+                transform: `scaleX(${char.direction}) scale(${char.scale})`,
+              }}
+            >
+              <Image
+                src={getSpritePath(char.unitId, unit?.rarity)}
+                alt="parade character"
+                width={48}
+                height={48}
+                className="object-contain drop-shadow-md"
+              />
+            </div>
+          );
+        })}
 
         {/* パレード説明（ユニットが少ない場合） */}
         {paradeChars.length === 0 && isLoaded && (

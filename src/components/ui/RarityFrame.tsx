@@ -118,6 +118,18 @@ export default function RarityFrame({
     const sizeClass = sizeClasses[size];
     const imageId = baseUnitId || unitId; // baseUnitIdがあればそれを使用
 
+    // スプライトパスを決定
+    const getSpritePath = (id: string): string => {
+        if (id.startsWith("enemy_")) {
+            return `/assets/sprites/enemies/${id}.webp`;
+        }
+        if (id.startsWith("boss_")) {
+            return `/assets/sprites/bosses/${id}.webp`;
+        }
+        // 味方ユニットはレアリティ別フォルダ
+        return `/assets/sprites/allies/${rarity}/${id}.webp`;
+    };
+
     return (
         <div className="relative">
             {/* フレーム */}
@@ -136,7 +148,7 @@ export default function RarityFrame({
             >
                 {/* キャラ画像 */}
                 <Image
-                    src={`/assets/sprites/${imageId}.webp`}
+                    src={getSpritePath(imageId)}
                     alt={unitName}
                     width={sizeClass.image}
                     height={sizeClass.image}

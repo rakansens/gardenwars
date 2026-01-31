@@ -10,6 +10,7 @@ import { usePlayerData } from "@/hooks/usePlayerData";
 import { getAsyncOpponents, type AsyncOpponent } from "@/lib/supabase";
 import unitsData from "@/data/units";
 import type { UnitDefinition } from "@/data/types";
+import { getSpritePath } from "@/lib/sprites";
 
 const allUnits = unitsData as UnitDefinition[];
 
@@ -125,7 +126,7 @@ export default function AsyncBattlePage() {
                                         title={unit.name}
                                     >
                                         <Image
-                                            src={`/assets/sprites/${baseId}.webp`}
+                                            src={getSpritePath(baseId, unit.rarity)}
                                             alt={unit.name}
                                             width={48}
                                             height={48}
@@ -183,7 +184,7 @@ export default function AsyncBattlePage() {
                                                             title={unit.name}
                                                         >
                                                             <Image
-                                                                src={`/assets/sprites/${baseId}.webp`}
+                                                                src={getSpritePath(baseId, unit.rarity)}
                                                                 alt={unit.name}
                                                                 width={40}
                                                                 height={40}

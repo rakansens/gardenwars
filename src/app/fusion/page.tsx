@@ -6,6 +6,7 @@ import Image from "next/image";
 import unitsData from "@/data/units";
 import type { UnitDefinition, Rarity } from "@/data/types";
 import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
+import { getSpritePath } from "@/lib/sprites";
 import RarityFrame from "@/components/ui/RarityFrame";
 import { usePlayerData } from "@/hooks/usePlayerData";
 
@@ -257,7 +258,7 @@ export default function FusionPage() {
                             {unitDef ? (
                                 <div className="relative">
                                     <Image
-                                        src={`/assets/sprites/${unitDef.atlasKey || unitDef.baseUnitId || unitDef.id}.webp`}
+                                        src={getSpritePath(unitDef.atlasKey || unitDef.baseUnitId || unitDef.id, unitDef.rarity)}
                                         alt={unitDef.name}
                                         width={fusionMode === 10 ? 32 : 48}
                                         height={fusionMode === 10 ? 32 : 48}
@@ -323,7 +324,7 @@ export default function FusionPage() {
                                     }`}
                             >
                                 <Image
-                                    src={`/assets/sprites/${unit.atlasKey || unit.baseUnitId || unit.id}.webp`}
+                                    src={getSpritePath(unit.atlasKey || unit.baseUnitId || unit.id, unit.rarity)}
                                     alt={unit.name}
                                     width={48}
                                     height={48}

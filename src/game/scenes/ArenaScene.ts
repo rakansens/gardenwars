@@ -5,6 +5,30 @@ import { CostSystem } from '../systems/CostSystem';
 import { eventBus, GameEvents } from '../utils/EventBus';
 import type { ArenaStageDefinition, UnitDefinition, GameState, Rarity, LaneIndex, ArenaWaveConfig } from '@/data/types';
 
+// スプライトパスを取得するユーティリティ
+function getSpritePath(id: string, rarity?: Rarity): string {
+    if (id.startsWith('enemy_')) {
+        return `/assets/sprites/enemies/${id}.webp`;
+    }
+    if (id.startsWith('boss_')) {
+        return `/assets/sprites/bosses/${id}.webp`;
+    }
+    if (id.startsWith('castle_')) {
+        return `/assets/sprites/common/${id}.webp`;
+    }
+    if (rarity) {
+        return `/assets/sprites/allies/${rarity}/${id}.webp`;
+    }
+    return `/assets/sprites/sheets/${id}`;
+}
+
+function getSheetPath(id: string): { image: string; json: string } {
+    return {
+        image: `/assets/sprites/sheets/${id}_sheet.webp`,
+        json: `/assets/sprites/sheets/${id}_sheet.json`
+    };
+}
+
 // ============================================
 // ArenaScene - 5レーン制タワーディフェンス
 // ============================================
@@ -116,29 +140,62 @@ export class ArenaScene extends Phaser.Scene {
 
     preload() {
         // 城スプライトをロード
-        this.load.image('castle_ally', '/assets/sprites/castle_ally.webp');
-        this.load.image('castle_enemy', '/assets/sprites/castle_enemy.webp');
+        this.load.image('castle_ally', getSpritePath('castle_ally'));
+        this.load.image('castle_enemy', getSpritePath('castle_enemy'));
 
-        // 基本ユニットスプライトをロード
-        const unitSprites = [
-            'cat_warrior', 'cat_tank', 'cat_archer', 'cat_mage', 'cat_ninja',
-            'ice_flower', 'corn_fighter', 'block_slime', 'sunflower', 'watermelon',
-            'corn_kid', 'ribbon_girl', 'penguin_boy', 'cinnamon_girl',
-            'enemy_dog', 'enemy_wolf', 'enemy_crow', 'nika', 'lennon'
-        ];
+        // 必要なユニットを収集
+        // unitId -> { spriteId, rarity } のマップ（spriteIdは実際のスプライトファイル名）
+        const unitsToLoad = new Map<string, { spriteId: string; rarity: Rarity }>();
 
-        for (const sprite of unitSprites) {
-            this.load.image(sprite, `/assets/sprites/${sprite}.webp`);
+        // チームのユニットを追加
+        for (const unit of this.teamData) {
+            const spriteId = unit.baseUnitId || unit.atlasKey || unit.id;
+            unitsToLoad.set(unit.id, { spriteId, rarity: unit.rarity });
         }
 
-        // アニメーションアトラス
-        const animatedUnits = ['cat_warrior', 'corn_fighter', 'penguin_boy', 'cinnamon_girl', 'nika', 'lennon'];
-        for (const unit of animatedUnits) {
-            this.load.atlas(
-                `${unit}_atlas`,
-                `/assets/sprites/${unit}_sheet.webp`,
-                `/assets/sprites/${unit}_sheet.json`
-            );
+        // ステージの敵を追加
+        for (const wave of this.stageData.enemyWaves) {
+            const unitDef = this.allUnitsData.find(u => u.id === wave.unitId);
+            if (unitDef) {
+                // baseUnitIdがあればそれを使用（敵が味方スプライトを流用する場合）
+                const spriteId = unitDef.baseUnitId || unitDef.atlasKey || unitDef.id;
+                // baseUnitIdがある場合、そのユニットのレアリティを取得
+                let rarity = unitDef.rarity;
+                if (unitDef.baseUnitId) {
+                    const baseUnit = this.allUnitsData.find(u => u.id === unitDef.baseUnitId);
+                    if (baseUnit) {
+                        rarity = baseUnit.rarity;
+                    }
+                }
+                unitsToLoad.set(wave.unitId, { spriteId, rarity });
+            }
+        }
+
+        // 全ユニットの静止画をロード
+        const loadedSprites = new Set<string>();
+        for (const [unitId, { spriteId, rarity }] of unitsToLoad) {
+            if (!loadedSprites.has(spriteId)) {
+                this.load.image(spriteId, getSpritePath(spriteId, rarity));
+                loadedSprites.add(spriteId);
+            }
+            if (unitId !== spriteId && !loadedSprites.has(unitId)) {
+                this.load.image(unitId, getSpritePath(spriteId, rarity));
+                loadedSprites.add(unitId);
+            }
+        }
+
+        // アニメーションシートをロード
+        const unitsWithSheets = [
+            'cat_warrior', 'corn_fighter', 'penguin_boy', 'cinnamon_girl', 'nika', 'lennon'
+        ];
+
+        const loadedSheets = new Set<string>();
+        for (const [unitId, { spriteId }] of unitsToLoad) {
+            if (unitsWithSheets.includes(spriteId) && !loadedSheets.has(spriteId)) {
+                const sheetPath = getSheetPath(spriteId);
+                this.load.atlas(`${spriteId}_atlas`, sheetPath.image, sheetPath.json);
+                loadedSheets.add(spriteId);
+            }
         }
     }
 
