@@ -13,6 +13,12 @@ import { usePlayerData } from "@/hooks/usePlayerData";
 const stages = stagesData as StageDefinition[];
 const allUnits = unitsData as UnitDefinition[];
 
+// ステージの元の順序を保存するマップ（インデックス順序の保証用）
+const stageOrderMap = new Map<string, number>();
+stages.forEach((stage, index) => {
+    stageOrderMap.set(stage.id, index);
+});
+
 // 難易度タブ設定（順番が重要 - アンロック順）
 const DIFFICULTY_TABS: {
     key: StageDifficulty | "all";
@@ -128,7 +134,9 @@ export default function StagesPage() {
 
         // 前の難易度の全ステージをクリアしているかチェック
         const prevDifficulty = DIFFICULTY_ORDER[difficultyIndex - 1];
-        const prevStages = stages.filter(s => s.difficulty === prevDifficulty);
+        const prevStages = stages
+            .filter(s => s.difficulty === prevDifficulty)
+            .sort((a, b) => (stageOrderMap.get(a.id) ?? 0) - (stageOrderMap.get(b.id) ?? 0));
         return prevStages.every(s => clearedStages.includes(s.id));
     };
 
@@ -249,8 +257,10 @@ export default function StagesPage() {
                             const isCleared = clearedStages.includes(stage.id);
                             const stageImage = stage.background?.image || `/assets/stages/${stage.id}.webp`;
 
-                            // ステージのロック判定
-                            const stagesInSameDifficulty = stages.filter(s => s.difficulty === stage.difficulty);
+                            // ステージのロック判定（元の配列順序でソートして判定）
+                            const stagesInSameDifficulty = stages
+                                .filter(s => s.difficulty === stage.difficulty)
+                                .sort((a, b) => (stageOrderMap.get(a.id) ?? 0) - (stageOrderMap.get(b.id) ?? 0));
                             const stageIndexInDifficulty = stagesInSameDifficulty.findIndex(s => s.id === stage.id);
                             const isLocked = !isStageUnlocked(stage, stageIndexInDifficulty, stagesInSameDifficulty);
 
