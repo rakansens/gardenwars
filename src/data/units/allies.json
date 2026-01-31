@@ -2535,7 +2535,8 @@
     "attackWindupMs": 500,
     "knockback": 55,
     "spawnCooldownMs": 9000,
-    "scale": 1.4
+    "scale": 1.4,
+    "addedDate": "2026-01-30"
   },
   {
     "id": "sr_vine_evangelion",
@@ -2550,7 +2551,8 @@
     "attackWindupMs": 350,
     "knockback": 40,
     "spawnCooldownMs": 8000,
-    "scale": 1.3
+    "scale": 1.3,
+    "addedDate": "2026-01-30"
   },
   {
     "id": "sr_garden_guardian",
@@ -2565,7 +2567,8 @@
     "attackWindupMs": 600,
     "knockback": 60,
     "spawnCooldownMs": 10000,
-    "scale": 1.5
+    "scale": 1.5,
+    "addedDate": "2026-01-30"
   },
   {
     "id": "r_rake_rock_cat",
@@ -2579,7 +2582,8 @@
     "attackCooldownMs": 1000,
     "attackWindupMs": 350,
     "knockback": 20,
-    "scale": 1.1
+    "scale": 1.1,
+    "addedDate": "2026-01-30"
   },
   {
     "id": "sr_green_cyborg",
@@ -2594,7 +2598,8 @@
     "attackWindupMs": 400,
     "knockback": 35,
     "spawnCooldownMs": 8500,
-    "scale": 1.2
+    "scale": 1.2,
+    "addedDate": "2026-01-30"
   },
   {
     "id": "sr_rose_paladin",
@@ -2609,7 +2614,8 @@
     "attackWindupMs": 450,
     "knockback": 45,
     "spawnCooldownMs": 9000,
-    "scale": 1.35
+    "scale": 1.35,
+    "addedDate": "2026-01-30"
   },
   {
     "id": "sr_bamboo_blaster",
@@ -2624,7 +2630,8 @@
     "attackWindupMs": 550,
     "knockback": 50,
     "spawnCooldownMs": 9500,
-    "scale": 1.4
+    "scale": 1.4,
+    "addedDate": "2026-01-30"
   },
   {
     "id": "r_diesel_farmer",
@@ -2638,7 +2645,8 @@
     "attackCooldownMs": 1300,
     "attackWindupMs": 450,
     "knockback": 30,
-    "scale": 1.15
+    "scale": 1.15,
+    "addedDate": "2026-01-30"
   },
   {
     "id": "sr_flora_captain",
@@ -2653,7 +2661,8 @@
     "attackWindupMs": 320,
     "knockback": 38,
     "spawnCooldownMs": 7500,
-    "scale": 1.25
+    "scale": 1.25,
+    "addedDate": "2026-01-30"
   },
   {
     "id": "r_steam_gardener",
@@ -2667,7 +2676,8 @@
     "attackCooldownMs": 1400,
     "attackWindupMs": 500,
     "knockback": 22,
-    "scale": 1.1
+    "scale": 1.1,
+    "addedDate": "2026-01-30"
   },
   {
     "id": "sr_crystal_rose_knight",
@@ -2682,7 +2692,8 @@
     "attackWindupMs": 450,
     "knockback": 50,
     "spawnCooldownMs": 9000,
-    "scale": 1.35
+    "scale": 1.35,
+    "addedDate": "2026-01-30"
   },
   {
     "id": "sr_elder_botanist",
@@ -2697,7 +2708,8 @@
     "attackWindupMs": 700,
     "knockback": 35,
     "spawnCooldownMs": 10000,
-    "scale": 1.3
+    "scale": 1.3,
+    "addedDate": "2026-01-30"
   },
   {
     "id": "sr_jade_emperor",
@@ -2712,7 +2724,8 @@
     "attackWindupMs": 600,
     "knockback": 55,
     "spawnCooldownMs": 10000,
-    "scale": 1.4
+    "scale": 1.4,
+    "addedDate": "2026-01-30"
   },
   {
     "id": "sr_bonsai_samurai",
@@ -2727,7 +2740,8 @@
     "attackWindupMs": 350,
     "knockback": 45,
     "spawnCooldownMs": 8000,
-    "scale": 1.25
+    "scale": 1.25,
+    "addedDate": "2026-01-30"
   },
   {
     "id": "sr_angelic_garden",
@@ -2743,7 +2757,8 @@
     "knockback": 30,
     "spawnCooldownMs": 9000,
     "scale": 1.2,
-    "isFlying": true
+    "isFlying": true,
+    "addedDate": "2026-01-30"
   },
   {
     "id": "sr_frost_rose_queen",
@@ -2758,7 +2773,8 @@
     "attackWindupMs": 550,
     "knockback": 40,
     "spawnCooldownMs": 9500,
-    "scale": 1.3
+    "scale": 1.3,
+    "addedDate": "2026-01-30"
   },
   {
     "id": "r_cactus_cowboy",
@@ -2772,7 +2788,8 @@
     "attackCooldownMs": 1200,
     "attackWindupMs": 400,
     "knockback": 20,
-    "scale": 1.1
+    "scale": 1.1,
+    "addedDate": "2026-01-30"
   },
   {
     "id": "r_grape_gladiator",
@@ -2786,7 +2803,8 @@
     "attackCooldownMs": 1300,
     "attackWindupMs": 450,
     "knockback": 28,
-    "scale": 1.15
+    "scale": 1.15,
+    "addedDate": "2026-01-30"
   },
   {
     "id": "r_valkyrie_bloom",
@@ -2800,7 +2818,8 @@
     "attackCooldownMs": 1100,
     "attackWindupMs": 380,
     "knockback": 25,
-    "scale": 1.1
+    "scale": 1.1,
+    "addedDate": "2026-01-30"
   },
   {
     "id": "r_space_botanist",
@@ -2815,7 +2834,8 @@
     "attackWindupMs": 500,
     "knockback": 18,
     "scale": 1.15,
-    "isFlying": true
+    "isFlying": true,
+    "addedDate": "2026-01-30"
   },
   {
     "id": "r_jungle_explorer",
@@ -2829,7 +2849,8 @@
     "attackCooldownMs": 1150,
     "attackWindupMs": 400,
     "knockback": 22,
-    "scale": 1.1
+    "scale": 1.1,
+    "addedDate": "2026-01-30"
   },
   {
     "id": "r_herb_alchemist",
@@ -2843,7 +2864,8 @@
     "attackCooldownMs": 1500,
     "attackWindupMs": 550,
     "knockback": 20,
-    "scale": 1.05
+    "scale": 1.05,
+    "addedDate": "2026-01-30"
   },
   {
     "id": "r_harvest_viking",
@@ -2857,7 +2879,8 @@
     "attackCooldownMs": 1400,
     "attackWindupMs": 500,
     "knockback": 35,
-    "scale": 1.2
+    "scale": 1.2,
+    "addedDate": "2026-01-30"
   },
   {
     "id": "n_plant_detective",
@@ -2871,7 +2894,8 @@
     "attackCooldownMs": 1000,
     "attackWindupMs": 350,
     "knockback": 10,
-    "scale": 0.95
+    "scale": 0.95,
+    "addedDate": "2026-01-30"
   },
   {
     "id": "n_leaf_punk",
@@ -2885,7 +2909,8 @@
     "attackCooldownMs": 900,
     "attackWindupMs": 300,
     "knockback": 12,
-    "scale": 1
+    "scale": 1,
+    "addedDate": "2026-01-30"
   },
   {
     "id": "n_cactus_luchador",
@@ -2899,7 +2924,8 @@
     "attackCooldownMs": 1100,
     "attackWindupMs": 400,
     "knockback": 18,
-    "scale": 1.05
+    "scale": 1.05,
+    "addedDate": "2026-01-30"
   },
   {
     "id": "n_marigold_mariachi",
@@ -2913,7 +2939,8 @@
     "attackCooldownMs": 950,
     "attackWindupMs": 320,
     "knockback": 8,
-    "scale": 0.9
+    "scale": 0.9,
+    "addedDate": "2026-01-30"
   },
   {
     "id": "n_veggie_chef",
@@ -2927,6 +2954,7 @@
     "attackCooldownMs": 1050,
     "attackWindupMs": 380,
     "knockback": 14,
-    "scale": 1
+    "scale": 1,
+    "addedDate": "2026-01-30"
   }
 ]
