@@ -180,7 +180,7 @@ export default function GachaPage() {
 
                     {/* 排出率 */}
                     <div className="flex justify-center gap-2 mb-6 text-xs flex-wrap">
-                        <span className="px-2 py-1 rounded bg-gray-200 text-gray-700">N: 51%</span>
+                        <span className="px-2 py-1 rounded bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-300">N: 51%</span>
                         <span className="px-2 py-1 rounded bg-blue-200 text-blue-700">R: 30%</span>
                         <span className="px-2 py-1 rounded bg-purple-200 text-purple-700">SR: 15%</span>
                         <span className="px-2 py-1 rounded bg-amber-200 text-amber-700">SSR: 1%</span>
@@ -431,7 +431,7 @@ export default function GachaPage() {
                                         px-3 py-1 rounded-lg font-bold text-sm transition-all
                                         ${ownedRarityFilter === tab.key
                                             ? `${tab.color} text-white shadow-md scale-105`
-                                            : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                                            : "bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-slate-600"
                                         }
                                     `}
                                 >
@@ -488,7 +488,7 @@ export default function GachaPage() {
 
                 {/* 未所持ユニット一覧 */}
                 <div className="card">
-                    <h3 className="text-xl font-bold mb-4 text-gray-600">
+                    <h3 className="text-xl font-bold mb-4 text-gray-600 dark:text-gray-400">
                         {t("unowned_units")} ({gachaPool.filter(u => (unitInventory[u.id] || 0) === 0).length})
                     </h3>
 
@@ -507,7 +507,7 @@ export default function GachaPage() {
                                         px-3 py-1 rounded-lg font-bold text-sm transition-all
                                         ${unownedRarityFilter === tab.key
                                             ? `${tab.color} text-white shadow-md scale-105`
-                                            : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                                            : "bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-slate-600"
                                         }
                                     `}
                                 >
@@ -537,7 +537,7 @@ export default function GachaPage() {
                                 {filteredUnowned.map((unit) => (
                                     <div
                                         key={unit.id}
-                                        className="relative p-2 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                                        className="relative p-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
                                         onClick={() => setViewingUnit(unit)}
                                     >
                                         <div className="flex justify-center">
@@ -551,7 +551,7 @@ export default function GachaPage() {
                                                 baseUnitId={unit.baseUnitId}
                                             />
                                         </div>
-                                        <div className="text-xs text-center text-gray-500 truncate mt-1">
+                                        <div className="text-xs text-center text-gray-500 dark:text-gray-500 truncate mt-1">
                                             {unit.name}
                                         </div>
                                     </div>

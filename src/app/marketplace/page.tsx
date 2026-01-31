@@ -162,8 +162,8 @@ export default function MarketplacePage() {
             <main className="min-h-screen p-4 md:p-8">
                 <div className="max-w-4xl mx-auto px-4 py-12 text-center">
                     <div className="text-6xl mb-6">🔐</div>
-                    <h1 className="text-2xl font-bold mb-4">{t("login_required")}</h1>
-                    <p className="text-gray-600 mb-8">{t("marketplace_login_message")}</p>
+                    <h1 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">{t("login_required")}</h1>
+                    <p className="text-gray-600 dark:text-gray-400 mb-8">{t("marketplace_login_message")}</p>
                     <Link
                         href="/"
                         className="btn btn-primary"
@@ -183,7 +183,7 @@ export default function MarketplacePage() {
                     <Link href="/" className="btn btn-secondary">
                         ← {t("back_to_home")}
                     </Link>
-                    <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
+                    <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2 text-gray-800 dark:text-white">
                         🏪 {t("marketplace_title")}
                     </h1>
                     <div className="flex items-center gap-2">
@@ -205,7 +205,7 @@ export default function MarketplacePage() {
                             px-4 py-2 rounded-xl font-bold transition-all whitespace-nowrap min-h-[44px]
                             ${activeTab === "browse"
                                 ? "bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-lg"
-                                : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                                : "bg-gray-200 text-gray-600 hover:bg-gray-300 dark:bg-slate-700 dark:text-gray-300 dark:hover:bg-slate-600"
                             }
                         `}
                     >
@@ -218,7 +218,7 @@ export default function MarketplacePage() {
                         disabled={isLoading}
                         className={`
                             px-3 py-2 rounded-xl font-bold transition-all whitespace-nowrap min-h-[44px]
-                            bg-gray-200 text-gray-600 hover:bg-gray-300
+                            bg-gray-200 text-gray-600 hover:bg-gray-300 dark:bg-slate-700 dark:text-gray-300 dark:hover:bg-slate-600
                             disabled:opacity-50 disabled:cursor-not-allowed
                             ${isLoading ? "animate-spin" : ""}
                         `}
@@ -232,7 +232,7 @@ export default function MarketplacePage() {
                             px-4 py-2 rounded-xl font-bold transition-all whitespace-nowrap min-h-[44px]
                             ${activeTab === "my_listings"
                                 ? "bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-lg"
-                                : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                                : "bg-gray-200 text-gray-600 hover:bg-gray-300 dark:bg-slate-700 dark:text-gray-300 dark:hover:bg-slate-600"
                             }
                         `}
                     >
@@ -247,7 +247,7 @@ export default function MarketplacePage() {
                             px-4 py-2 rounded-xl font-bold transition-all whitespace-nowrap min-h-[44px]
                             ${activeTab === "history"
                                 ? "bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-lg"
-                                : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                                : "bg-gray-200 text-gray-600 hover:bg-gray-300 dark:bg-slate-700 dark:text-gray-300 dark:hover:bg-slate-600"
                             }
                         `}
                     >
@@ -262,7 +262,7 @@ export default function MarketplacePage() {
                             px-4 py-2 rounded-xl font-bold transition-all whitespace-nowrap relative min-h-[44px]
                             ${activeTab === "notifications"
                                 ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg"
-                                : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                                : "bg-gray-200 text-gray-600 hover:bg-gray-300 dark:bg-slate-700 dark:text-gray-300 dark:hover:bg-slate-600"
                             }
                         `}
                     >
@@ -289,7 +289,7 @@ export default function MarketplacePage() {
                         {soldHistory.length === 0 ? (
                             <div className="text-center py-12">
                                 <div className="text-6xl mb-4">📜</div>
-                                <p className="text-gray-600">{t("no_sold_history")}</p>
+                                <p className="text-gray-600 dark:text-gray-400">{t("no_sold_history")}</p>
                             </div>
                         ) : (
                             soldHistory.map((listing) => {
@@ -298,7 +298,7 @@ export default function MarketplacePage() {
                                 return (
                                     <div
                                         key={listing.id}
-                                        className="card bg-gradient-to-r from-purple-50 to-pink-50 border-purple-300"
+                                        className="card bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 border-purple-300 dark:border-purple-700"
                                     >
                                         <div className="flex items-center gap-4">
                                             <RarityFrame
@@ -309,20 +309,20 @@ export default function MarketplacePage() {
                                                 count={listing.quantity}
                                             />
                                             <div className="flex-1">
-                                                <h3 className="font-bold text-gray-800">{unit.name}</h3>
-                                                <p className="text-sm text-gray-600">
+                                                <h3 className="font-bold text-gray-800 dark:text-white">{unit.name}</h3>
+                                                <p className="text-sm text-gray-600 dark:text-gray-400">
                                                     x{listing.quantity} @ {listing.pricePerUnit.toLocaleString()} {t("coins_per_unit")}
                                                 </p>
                                                 <div className="flex items-center gap-2 mt-1">
-                                                    <span className="text-xs text-gray-500">{t("buyer")}:</span>
-                                                    <span className="text-sm font-bold text-blue-600">{listing.buyerName || "Unknown"}</span>
+                                                    <span className="text-xs text-gray-500 dark:text-gray-500">{t("buyer")}:</span>
+                                                    <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{listing.buyerName || "Unknown"}</span>
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <div className="text-lg font-bold text-amber-600">
+                                                <div className="text-lg font-bold text-amber-600 dark:text-amber-400">
                                                     +{listing.totalPrice.toLocaleString()} 💰
                                                 </div>
-                                                <div className="text-xs text-gray-500">
+                                                <div className="text-xs text-gray-500 dark:text-gray-500">
                                                     {listing.soldAt ? new Date(listing.soldAt).toLocaleDateString() : ""}
                                                 </div>
                                             </div>
@@ -335,19 +335,19 @@ export default function MarketplacePage() {
                 )}
 
                 {/* ブラウズ / マイリスティングタブ */}
-                {activeTab !== "notifications" && (
+                {activeTab !== "notifications" && activeTab !== "history" && (
                     <>
                         {/* 販売者フィルター表示 */}
                         {filterSeller && activeTab === "browse" && (
-                            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-3 mb-4 border border-blue-300 flex items-center justify-between">
+                            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30 rounded-xl p-3 mb-4 border border-blue-300 dark:border-blue-700 flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <span className="text-2xl">👤</span>
-                                    <span className="text-gray-600">{t("seller_filter")}:</span>
-                                    <span className="font-bold text-blue-600">{filterSeller.name}</span>
+                                    <span className="text-gray-600 dark:text-gray-400">{t("seller_filter")}:</span>
+                                    <span className="font-bold text-blue-600 dark:text-blue-400">{filterSeller.name}</span>
                                 </div>
                                 <button
                                     onClick={clearSellerFilter}
-                                    className="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-lg text-sm transition-colors"
+                                    className="px-3 py-1 bg-gray-200 hover:bg-gray-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-600 dark:text-gray-300 rounded-lg text-sm transition-colors"
                                 >
                                     ✕ {t("clear_filter")}
                                 </button>
@@ -364,7 +364,7 @@ export default function MarketplacePage() {
                                         placeholder={t("search_units")}
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="w-full px-4 py-2 bg-white border-2 border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:border-emerald-500"
+                                        className="w-full px-4 py-2 bg-white border-2 border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:border-emerald-500 dark:bg-slate-800 dark:border-slate-600 dark:text-white dark:placeholder-gray-500"
                                     />
                                 </div>
 
@@ -372,7 +372,7 @@ export default function MarketplacePage() {
                                 <select
                                     value={sortBy}
                                     onChange={(e) => handleSortChange(e.target.value as SortType)}
-                                    className="px-4 py-2 bg-white border-2 border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:border-emerald-500"
+                                    className="px-4 py-2 bg-white border-2 border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:border-emerald-500 dark:bg-slate-800 dark:border-slate-600 dark:text-white"
                                 >
                                     <option value="newest">{t("sort_newest")}</option>
                                     <option value="oldest">{t("sort_oldest")}</option>
@@ -384,7 +384,7 @@ export default function MarketplacePage() {
                                 <select
                                     value={filterRarity}
                                     onChange={(e) => setFilterRarity(e.target.value as Rarity | "all")}
-                                    className="px-4 py-2 bg-white border-2 border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:border-emerald-500"
+                                    className="px-4 py-2 bg-white border-2 border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:border-emerald-500 dark:bg-slate-800 dark:border-slate-600 dark:text-white"
                                 >
                                     <option value="all">{t("all_rarities")}</option>
                                     <option value="N">N</option>
@@ -412,7 +412,7 @@ export default function MarketplacePage() {
                         ) : filteredListings.length === 0 ? (
                             <div className="text-center py-12">
                                 <div className="text-6xl mb-4">📭</div>
-                                <p className="text-gray-600">
+                                <p className="text-gray-600 dark:text-gray-400">
                                     {activeTab === "my_listings" ? t("no_my_listings") : t("no_listings")}
                                 </p>
                                 {activeTab === "my_listings" && (
@@ -446,7 +446,7 @@ export default function MarketplacePage() {
 
                         {/* 件数表示 */}
                         {filteredListings.length > 0 && (
-                            <div className="mt-6 text-center text-gray-500 text-sm">
+                            <div className="mt-6 text-center text-gray-500 dark:text-gray-500 text-sm">
                                 {filteredListings.length} {t("listings_found")}
                             </div>
                         )}

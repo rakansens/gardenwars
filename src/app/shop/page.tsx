@@ -13,13 +13,13 @@ const allUnits = unitsData as UnitDefinition[];
 
 const REFRESH_COST = 100;
 
-// レアリティカラー（ライトテーマ対応）
+// レアリティカラー（ライト/ダークテーマ対応）
 const rarityColors: Record<Rarity, { border: string; bg: string; glow: string }> = {
-    N: { border: "border-gray-400", bg: "from-gray-100 to-gray-200", glow: "" },
-    R: { border: "border-blue-400", bg: "from-blue-50 to-blue-100", glow: "shadow-blue-500/20" },
-    SR: { border: "border-purple-400", bg: "from-purple-50 to-purple-100", glow: "shadow-purple-500/30" },
-    SSR: { border: "border-amber-400", bg: "from-amber-50 to-orange-100", glow: "shadow-amber-500/40" },
-    UR: { border: "border-pink-400", bg: "from-pink-50 via-purple-50 to-cyan-50", glow: "shadow-pink-500/50" },
+    N: { border: "border-gray-400", bg: "from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800", glow: "" },
+    R: { border: "border-blue-400", bg: "from-blue-50 to-blue-100 dark:from-blue-900/50 dark:to-blue-800/50", glow: "shadow-blue-500/20" },
+    SR: { border: "border-purple-400", bg: "from-purple-50 to-purple-100 dark:from-purple-900/50 dark:to-purple-800/50", glow: "shadow-purple-500/30" },
+    SSR: { border: "border-amber-400", bg: "from-amber-50 to-orange-100 dark:from-amber-900/50 dark:to-orange-800/50", glow: "shadow-amber-500/40" },
+    UR: { border: "border-pink-400", bg: "from-pink-50 via-purple-50 to-cyan-50 dark:from-pink-900/50 dark:via-purple-900/50 dark:to-cyan-900/50", glow: "shadow-pink-500/50" },
 };
 
 export default function ShopPage() {
@@ -103,7 +103,7 @@ export default function ShopPage() {
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                         <div className="text-center sm:text-left">
                             <h2 className="text-lg font-bold mb-1">{t("shop_hint")}</h2>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
                                 {shopItems.filter(i => !i.soldOut).length} / {shopItems.length} {t("available")}
                             </p>
                         </div>
@@ -114,7 +114,7 @@ export default function ShopPage() {
                                 px-6 py-3 md:px-8 md:py-4 rounded-2xl font-bold text-base md:text-lg transition-all min-h-[52px]
                                 flex items-center gap-2 active:scale-95
                                 ${coins < REFRESH_COST || isRefreshing
-                                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                    ? "bg-gray-300 dark:bg-slate-600 text-gray-500 cursor-not-allowed"
                                     : "bg-gradient-to-r from-emerald-500 to-green-600 text-white hover:scale-105 shadow-lg"
                                 }
                             `}
@@ -140,7 +140,7 @@ export default function ShopPage() {
                                 className={`
                                     relative rounded-2xl border-3 transition-all duration-200 overflow-hidden
                                     ${item.soldOut
-                                        ? "bg-gray-200 border-gray-300 opacity-60 grayscale"
+                                        ? "bg-gray-200 dark:bg-slate-700 border-gray-300 dark:border-slate-600 opacity-60 grayscale"
                                         : `bg-gradient-to-br ${colors.bg} ${colors.border} hover:scale-105 cursor-pointer shadow-lg ${colors.glow}`
                                     }
                                 `}
@@ -162,7 +162,7 @@ export default function ShopPage() {
 
                                 {/* 売り切れオーバーレイ */}
                                 {item.soldOut && (
-                                    <div className="absolute inset-0 flex items-center justify-center bg-white/60 z-10">
+                                    <div className="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-slate-900/60 z-10">
                                         <div className="bg-gray-600 px-4 py-2 rounded-xl text-white font-bold">
                                             {t("sold_out")}
                                         </div>
@@ -185,13 +185,13 @@ export default function ShopPage() {
 
                                     {/* ステータス */}
                                     <div className="flex justify-center gap-3 mb-2 text-xs">
-                                        <span className="bg-green-100 px-2 py-1 rounded-lg text-green-700 font-bold">❤️ {unit.maxHp}</span>
-                                        <span className="bg-red-100 px-2 py-1 rounded-lg text-red-700 font-bold">⚔️ {unit.attackDamage}</span>
+                                        <span className="bg-green-100 dark:bg-green-900/50 px-2 py-1 rounded-lg text-green-700 dark:text-green-400 font-bold">❤️ {unit.maxHp}</span>
+                                        <span className="bg-red-100 dark:bg-red-900/50 px-2 py-1 rounded-lg text-red-700 dark:text-red-400 font-bold">⚔️ {unit.attackDamage}</span>
                                     </div>
 
                                     {/* 名前 */}
                                     <div className="text-center mb-2">
-                                        <div className="text-sm font-bold truncate text-gray-800">
+                                        <div className="text-sm font-bold truncate text-gray-800 dark:text-white">
                                             {unitName}
                                         </div>
                                     </div>
@@ -200,7 +200,7 @@ export default function ShopPage() {
                                     <div className={`
                                         text-center py-2 rounded-xl font-bold text-lg
                                         ${item.soldOut
-                                            ? "bg-gray-300 text-gray-500"
+                                            ? "bg-gray-300 dark:bg-slate-600 text-gray-500"
                                             : "bg-gradient-to-r from-amber-500 to-orange-500 text-white"
                                         }
                                     `}>
@@ -210,7 +210,7 @@ export default function ShopPage() {
 
                                 {/* 詳細ボタン */}
                                 <button
-                                    className="absolute top-2 left-2 w-8 h-8 bg-white/70 hover:bg-white rounded-full flex items-center justify-center text-sm transition-colors shadow"
+                                    className="absolute top-2 left-2 w-8 h-8 bg-white/70 dark:bg-slate-800/70 hover:bg-white dark:hover:bg-slate-700 rounded-full flex items-center justify-center text-sm transition-colors shadow"
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         setViewingUnit(unit);
@@ -224,7 +224,7 @@ export default function ShopPage() {
                 </div>
 
                 {/* ヒント */}
-                <div className="mt-8 text-center text-gray-600 text-sm">
+                <div className="mt-8 text-center text-gray-600 dark:text-gray-400 text-sm">
                     💡 ステージをクリアしてコインを集めよう！
                 </div>
             </div>
@@ -257,15 +257,15 @@ export default function ShopPage() {
                                     />
                                 </div>
 
-                                <div className="text-xl font-bold text-gray-700 mb-2 relative z-10">
+                                <div className="text-xl font-bold text-gray-700 dark:text-gray-200 mb-2 relative z-10">
                                     {getUnitName(targetUnit)}
                                 </div>
 
-                                <div className="bg-amber-100 rounded-2xl p-4 mb-6 relative z-10">
-                                    <div className="text-amber-700 text-3xl font-bold">
+                                <div className="bg-amber-100 dark:bg-amber-900/30 rounded-2xl p-4 mb-6 relative z-10">
+                                    <div className="text-amber-700 dark:text-amber-400 text-3xl font-bold">
                                         💰 {targetItem.price.toLocaleString()}
                                     </div>
-                                    <div className="text-sm text-gray-600 mt-1">
+                                    <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                                         {t("balance")}: 💰 {coins.toLocaleString()} → {(coins - targetItem.price).toLocaleString()}
                                     </div>
                                 </div>
@@ -273,7 +273,7 @@ export default function ShopPage() {
                                 <div className="flex gap-3 justify-center relative z-10">
                                     <button
                                         onClick={() => setPurchaseModalOpen(false)}
-                                        className="px-6 py-3 rounded-xl bg-gray-400 hover:bg-gray-500 text-white font-bold transition-all active:scale-95 min-h-[48px]"
+                                        className="px-6 py-3 rounded-xl bg-gray-400 dark:bg-slate-600 hover:bg-gray-500 dark:hover:bg-slate-500 text-white font-bold transition-all active:scale-95 min-h-[48px]"
                                     >
                                         {t("cancel")}
                                     </button>
@@ -283,7 +283,7 @@ export default function ShopPage() {
                                         className={`
                                             px-8 py-3 rounded-xl font-bold text-lg shadow-lg transition-all active:scale-95 min-h-[48px]
                                             ${coins < targetItem.price
-                                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                                ? "bg-gray-300 dark:bg-slate-600 text-gray-500 cursor-not-allowed"
                                                 : "bg-gradient-to-r from-amber-500 to-orange-600 text-white hover:scale-105"
                                             }
                                         `}

@@ -118,7 +118,7 @@ export default function CollectionPage() {
     const progressPercent = stats.total > 0 ? Math.round((stats.collected / stats.total) * 100) : 0;
 
     return (
-        <main className="min-h-screen p-4 md:p-6 lg:p-8 bg-gradient-to-b from-amber-50 to-orange-50">
+        <main className="min-h-screen p-4 md:p-6 lg:p-8 bg-gradient-to-b from-amber-50 to-orange-50 dark:from-slate-900 dark:to-slate-800">
             {/* ヘッダー */}
             <div className="page-header mb-6">
                 <div className="flex items-center justify-between flex-wrap gap-3">
@@ -139,7 +139,7 @@ export default function CollectionPage() {
 
             <div className="max-w-7xl mx-auto">
                 {/* コレクション進捗カード */}
-                <section className="mb-6 bg-white rounded-2xl p-4 md:p-6 shadow-lg border-2 border-amber-200">
+                <section className="mb-6 bg-white dark:bg-slate-800 rounded-2xl p-4 md:p-6 shadow-lg border-2 border-amber-200 dark:border-slate-700">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                         <div>
                             <h2 className="text-xl font-bold text-amber-800 flex items-center gap-2">
@@ -199,7 +199,7 @@ export default function CollectionPage() {
                 </section>
 
                 {/* フィルターセクション */}
-                <section className="mb-6 bg-white rounded-2xl p-4 shadow-md border border-amber-100">
+                <section className="mb-6 bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-md border border-amber-100 dark:border-slate-700">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         {/* レアリティタブ */}
                         <div className="flex gap-2 md:gap-3 flex-wrap">
@@ -219,13 +219,13 @@ export default function CollectionPage() {
                                             flex items-center gap-1.5 active:scale-95
                                             ${isSelected
                                                 ? `${tab.color} text-white shadow-lg scale-105`
-                                                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                                : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-600"
                                             }
                                         `}
                                     >
                                         <span>{tab.icon}</span>
                                         <span>{tab.label}</span>
-                                        <span className={`text-xs px-1.5 py-0.5 rounded-full ${isSelected ? "bg-white/30" : "bg-gray-200"}`}>
+                                        <span className={`text-xs px-1.5 py-0.5 rounded-full ${isSelected ? "bg-white/30" : "bg-gray-200 dark:bg-slate-600"}`}>
                                             {collectedCount}/{tabUnits.length}
                                         </span>
                                     </button>
@@ -241,7 +241,7 @@ export default function CollectionPage() {
                                 flex items-center gap-2 active:scale-95
                                 ${showOwnedOnly
                                     ? "bg-green-500 text-white shadow-md"
-                                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                                    : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-600"
                                 }
                             `}
                         >
@@ -267,8 +267,8 @@ export default function CollectionPage() {
                                             relative rounded-2xl p-3 md:p-4 shadow-md
                                             cursor-pointer transition-all duration-200
                                             ${isOwned
-                                                ? `bg-white border-2 ${config.border} hover:scale-105 hover:shadow-xl`
-                                                : "bg-gray-100 border-2 border-gray-200 opacity-60 grayscale"
+                                                ? `bg-white dark:bg-slate-800 border-2 ${config.border} hover:scale-105 hover:shadow-xl`
+                                                : "bg-gray-100 dark:bg-slate-700 border-2 border-gray-200 dark:border-slate-700 opacity-60 grayscale"
                                             }
                                         `}
                                         onClick={() => handleUnitClick(unit)}
@@ -321,14 +321,14 @@ export default function CollectionPage() {
                                                 <span className={`font-bold ${config.text}`}>
                                                     {unit.rarity}
                                                 </span>
-                                                <span className="text-gray-400">|</span>
-                                                <span className={isOwned ? "text-gray-600" : "text-gray-400"}>
+                                                <span className="text-gray-400 dark:text-gray-500">|</span>
+                                                <span className={isOwned ? "text-gray-600 dark:text-gray-400" : "text-gray-400 dark:text-gray-500"}>
                                                     {t(getSizeCategory(unit.scale ?? 1))}
                                                 </span>
                                                 {unit.isFlying && (
                                                     <>
-                                                        <span className="text-gray-400">|</span>
-                                                        <span className={isOwned ? "text-sky-500" : "text-gray-400"}>
+                                                        <span className="text-gray-400 dark:text-gray-500">|</span>
+                                                        <span className={isOwned ? "text-sky-500" : "text-gray-400 dark:text-gray-500"}>
                                                             {t("flying")}
                                                         </span>
                                                     </>
@@ -340,9 +340,9 @@ export default function CollectionPage() {
                             })}
                         </div>
                     ) : (
-                        <div className="text-center py-16 bg-white rounded-2xl shadow-md">
+                        <div className="text-center py-16 bg-white dark:bg-slate-800 rounded-2xl shadow-md">
                             <div className="text-5xl mb-4">🔍</div>
-                            <p className="text-gray-500 text-lg">{t("no_units_in_filter")}</p>
+                            <p className="text-gray-500 dark:text-gray-500 text-lg">{t("no_units_in_filter")}</p>
                         </div>
                     )}
                 </section>

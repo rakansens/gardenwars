@@ -28,17 +28,17 @@ export function LoginScreen({ onLogin, onBack }: LoginScreenProps) {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-green-200 via-green-100 to-amber-100 p-4">
-            <div className="bg-white/90 rounded-3xl shadow-2xl p-8 max-w-sm w-full">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-green-200 via-green-100 to-amber-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 p-4">
+            <div className="bg-white/90 dark:bg-slate-800/90 rounded-3xl shadow-2xl p-8 max-w-sm w-full">
                 <button
                     onClick={onBack}
                     disabled={isLoading}
-                    className="text-gray-500 hover:text-gray-700 mb-4 disabled:opacity-50"
+                    className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 mb-4 disabled:opacity-50"
                 >
                     ← {language === "ja" ? "もどる" : "Back"}
                 </button>
 
-                <h2 className="text-2xl font-bold text-green-700 text-center mb-6">
+                <h2 className="text-2xl font-bold text-green-700 dark:text-green-400 text-center mb-6">
                     {language === "ja" ? "ばんごうを いれてね" : "Enter your number"}
                 </h2>
 
@@ -49,7 +49,7 @@ export function LoginScreen({ onLogin, onBack }: LoginScreenProps) {
                 )}
 
                 {isLoading && (
-                    <p className="text-green-600 text-center mt-4">
+                    <p className="text-green-600 dark:text-green-400 text-center mt-4">
                         {language === "ja" ? "まってね..." : "Please wait..."}
                     </p>
                 )}

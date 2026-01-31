@@ -41,7 +41,7 @@ function ResultContent() {
     }, [dropsParam, stageId]);
 
     return (
-        <main className="min-h-screen flex flex-col items-center justify-center p-8">
+        <main className="min-h-screen flex flex-col items-center justify-center p-8 dark:bg-slate-900">
             {/* 結果アイコン */}
             <div className="text-8xl mb-8 animate-bounce">
                 {win ? "🏆" : "😿"}
@@ -57,8 +57,8 @@ function ResultContent() {
 
             {/* 報酬 */}
             {win && (
-                <div className="card mb-6">
-                    <h2 className="text-2xl mb-4">{t("result_rewards")}</h2>
+                <div className="card mb-6 dark:bg-slate-800 dark:border-amber-400/30">
+                    <h2 className="text-2xl mb-4 dark:text-white">{t("result_rewards")}</h2>
                     <div className="flex items-center justify-center gap-2 text-3xl mb-4">
                         <span className="text-yellow-400">💰</span>
                         <span className="font-bold text-yellow-300">+{coins}</span>
@@ -75,7 +75,7 @@ function ResultContent() {
                                         key={`${drop.unit.id}-${i}`}
                                         className="flex flex-col items-center bg-gradient-to-br from-green-900/50 to-emerald-900/50 rounded-xl p-3 border-2 border-green-400/50 animate-pulse"
                                     >
-                                        <div className="w-16 h-16 rounded-lg overflow-hidden bg-green-100 mb-2 flex items-center justify-center">
+                                        <div className="w-16 h-16 rounded-lg overflow-hidden bg-green-100 dark:bg-green-900/50 mb-2 flex items-center justify-center">
                                             <Image
                                                 src={`/assets/sprites/${drop.unit.id}.webp`}
                                                 alt={drop.unit.name}
@@ -94,7 +94,7 @@ function ResultContent() {
 
                     {/* ドロップなし */}
                     {droppedUnits.length === 0 && (
-                        <div className="mt-4 pt-4 border-t border-amber-300/30 text-gray-400 text-sm">
+                        <div className="mt-4 pt-4 border-t border-amber-300/30 text-gray-400 dark:text-gray-500 text-sm">
                             {t("result_no_drop")}
                         </div>
                     )}
@@ -127,7 +127,7 @@ function ResultContent() {
 
             {/* 励ましメッセージ */}
             {!win && (
-                <p className="mt-8 text-gray-500 text-center">
+                <p className="mt-8 text-gray-500 dark:text-gray-400 text-center">
                     {t("result_encourage")}<br />
                     {t("result_get_strong")}
                 </p>
@@ -140,7 +140,7 @@ export default function ResultPage() {
     return (
         <Suspense
             fallback={
-                <main className="min-h-screen flex items-center justify-center">
+                <main className="min-h-screen flex items-center justify-center dark:bg-slate-900">
                     <div className="animate-spin text-4xl">⏳</div>
                 </main>
             }

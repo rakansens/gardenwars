@@ -68,18 +68,18 @@ export default function RankingPage() {
         if (rank === 1) return "bg-gradient-to-r from-yellow-400 to-amber-500 text-black";
         if (rank === 2) return "bg-gradient-to-r from-gray-300 to-gray-400 text-black";
         if (rank === 3) return "bg-gradient-to-r from-amber-600 to-orange-700 text-white";
-        return "bg-gray-700 text-white";
+        return "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white";
     };
 
     return (
-        <main className="min-h-screen p-4 md:p-8 bg-gradient-to-b from-slate-900 to-slate-800">
+        <main className="min-h-screen p-4 md:p-8">
             {/* ヘッダー */}
             <div className="page-header mb-6">
                 <div className="flex items-center justify-between flex-wrap gap-3">
                     <Link href="/" className="btn btn-secondary">
                         ← {t("back_to_home")}
                     </Link>
-                    <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-2">
+                    <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
                         {t("ranking_title")}
                     </h1>
                     <div className="w-24" /> {/* スペーサー */}
@@ -97,7 +97,7 @@ export default function RankingPage() {
                                 className={`px-3 py-2 min-h-[44px] rounded-lg font-bold text-sm transition-all active:scale-95 ${
                                     sortBy === option.key
                                         ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg scale-105"
-                                        : "bg-slate-700 text-gray-300 hover:bg-slate-600"
+                                        : "bg-gray-200 text-gray-600 hover:bg-gray-300 dark:bg-slate-700 dark:text-gray-300 dark:hover:bg-slate-600"
                                 }`}
                             >
                                 {option.icon} {t(option.labelKey)}
@@ -107,24 +107,24 @@ export default function RankingPage() {
                 </div>
 
                 {/* ランキングリスト */}
-                <div className="bg-slate-800/50 rounded-2xl p-4 md:p-6 border border-slate-700">
+                <div className="bg-white/80 dark:bg-slate-800/50 rounded-2xl p-4 md:p-6 border border-gray-200 dark:border-slate-700">
                     {isLoading ? (
                         <div className="text-center py-12">
                             <div className="animate-spin text-4xl mb-4">⏳</div>
-                            <p className="text-gray-400">{t("loading")}</p>
+                            <p className="text-gray-600 dark:text-gray-400">{t("loading")}</p>
                         </div>
                     ) : rankings.length === 0 ? (
                         <div className="text-center py-12">
                             <div className="text-6xl mb-4">🏜️</div>
-                            <p className="text-gray-400">{t("ranking_no_data")}</p>
-                            <p className="text-gray-500 text-sm mt-2">
+                            <p className="text-gray-600 dark:text-gray-400">{t("ranking_no_data")}</p>
+                            <p className="text-gray-500 dark:text-gray-500 text-sm mt-2">
                                 {t("ranking_login_prompt")}
                             </p>
                         </div>
                     ) : (
                         <div className="space-y-2">
                             {/* ヘッダー - デッキタブでは簡略化 */}
-                            <div className="hidden md:grid grid-cols-12 gap-2 px-4 py-2 text-gray-400 text-sm font-bold border-b border-slate-700">
+                            <div className="hidden md:grid grid-cols-12 gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 text-sm font-bold border-b border-gray-200 dark:border-slate-700">
                                 <div className="col-span-1 text-center">#</div>
                                 <div className={isAllTab ? "col-span-11" : "col-span-4"}>{t("ranking_player")}{isAllTab && " / 🎴 Deck"}</div>
                                 {!isAllTab && (
@@ -148,8 +148,8 @@ export default function RankingPage() {
                                         key={entry.player_id}
                                         className={`grid grid-cols-12 gap-2 px-4 py-3 rounded-xl transition-all ${
                                             isCurrentPlayer
-                                                ? "bg-gradient-to-r from-blue-900/50 to-purple-900/50 border-2 border-blue-500"
-                                                : "bg-slate-700/50 hover:bg-slate-700"
+                                                ? "bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/50 dark:to-purple-900/50 border-2 border-blue-500"
+                                                : "bg-gray-100 dark:bg-slate-700/50 hover:bg-gray-200 dark:hover:bg-slate-700"
                                         }`}
                                     >
                                         {/* 順位 */}
@@ -161,10 +161,10 @@ export default function RankingPage() {
 
                                         {/* プレイヤー名 & ロードアウト */}
                                         <div className={`${isAllTab ? "col-span-10" : "col-span-6"} ${isAllTab ? "md:col-span-11" : "md:col-span-4"} flex flex-col justify-center`}>
-                                            <span className="text-white font-bold truncate">
+                                            <span className="text-gray-800 dark:text-white font-bold truncate">
                                                 {entry.player_name}
                                                 {isCurrentPlayer && (
-                                                    <span className="ml-2 text-xs text-blue-400">(You)</span>
+                                                    <span className="ml-2 text-xs text-blue-500 dark:text-blue-400">(You)</span>
                                                 )}
                                             </span>
                                             {/* ロードアウトアイコン（Allタブのみ） */}
@@ -177,7 +177,7 @@ export default function RankingPage() {
                                                         return (
                                                             <div
                                                                 key={idx}
-                                                                className="w-12 h-12 md:w-14 md:h-14 rounded-lg border-2 border-slate-500 overflow-hidden bg-slate-800 shadow-md"
+                                                                className="w-12 h-12 md:w-14 md:h-14 rounded-lg border-2 border-gray-400 dark:border-slate-500 overflow-hidden bg-gray-100 dark:bg-slate-800 shadow-md"
                                                                 title={unit.name}
                                                             >
                                                                 <Image
@@ -197,7 +197,7 @@ export default function RankingPage() {
                                         {/* メイン値（PC）- デッキタブでは非表示 */}
                                         {!isAllTab && (
                                             <div className="hidden md:flex col-span-2 items-center justify-center">
-                                                <span className="text-amber-400 font-bold text-lg">
+                                                <span className="text-amber-500 dark:text-amber-400 font-bold text-lg">
                                                     {formatValue(entry, sortBy)}
                                                 </span>
                                             </div>
@@ -206,16 +206,16 @@ export default function RankingPage() {
                                         {/* サブ統計（PC）- デッキタブでは非表示 */}
                                         {!isAllTab && (
                                             <>
-                                                <div className="hidden md:flex col-span-1 items-center justify-center text-gray-300 text-sm">
+                                                <div className="hidden md:flex col-span-1 items-center justify-center text-gray-600 dark:text-gray-300 text-sm">
                                                     {entry.max_stage}
                                                 </div>
-                                                <div className="hidden md:flex col-span-1 items-center justify-center text-gray-300 text-sm">
+                                                <div className="hidden md:flex col-span-1 items-center justify-center text-gray-600 dark:text-gray-300 text-sm">
                                                     {entry.total_wins}
                                                 </div>
-                                                <div className="hidden md:flex col-span-1 items-center justify-center text-gray-300 text-sm">
+                                                <div className="hidden md:flex col-span-1 items-center justify-center text-gray-600 dark:text-gray-300 text-sm">
                                                     {entry.collection_count}
                                                 </div>
-                                                <div className="hidden md:flex col-span-2 items-center justify-center text-gray-300 text-sm">
+                                                <div className="hidden md:flex col-span-2 items-center justify-center text-gray-600 dark:text-gray-300 text-sm">
                                                     {entry.total_coins.toLocaleString()}
                                                 </div>
                                             </>
@@ -224,7 +224,7 @@ export default function RankingPage() {
                                         {/* モバイル: メイン値 - デッキタブでは非表示 */}
                                         {!isAllTab && (
                                             <div className="col-span-4 md:hidden flex items-center justify-end">
-                                                <span className="text-amber-400 font-bold">
+                                                <span className="text-amber-500 dark:text-amber-400 font-bold">
                                                     {currentSortOption?.icon} {formatValue(entry, sortBy)}
                                                 </span>
                                             </div>
@@ -237,7 +237,7 @@ export default function RankingPage() {
                 </div>
 
                 {/* 注意書き */}
-                <div className="mt-6 text-center text-gray-500 text-sm">
+                <div className="mt-6 text-center text-gray-500 dark:text-gray-500 text-sm">
                     <p>{t("ranking_info_login")}</p>
                     <p className="mt-1">{t("ranking_info_auto_update")}</p>
                 </div>

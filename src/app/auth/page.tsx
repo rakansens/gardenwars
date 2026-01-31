@@ -52,9 +52,9 @@ export default function AuthPage() {
     // Loading state
     if (screen === "loading") {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-green-200 via-green-100 to-amber-100">
+            <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-green-200 via-green-100 to-amber-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
                 <div className="text-6xl animate-bounce">🌱</div>
-                <p className="mt-4 text-green-700 font-bold">Loading...</p>
+                <p className="mt-4 text-green-700 dark:text-green-400 font-bold">Loading...</p>
             </div>
         );
     }

@@ -11,14 +11,14 @@ export function WelcomeScreen({ onNewPlayer, onExistingPlayer }: WelcomeScreenPr
     const { language } = useLanguage();
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-green-200 via-green-100 to-amber-100 p-4">
-            <div className="bg-white/90 rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-green-200 via-green-100 to-amber-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 p-4">
+            <div className="bg-white/90 dark:bg-slate-800/90 rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center">
                 {/* Logo */}
                 <div className="text-6xl mb-4">🌱</div>
-                <h1 className="text-3xl font-bold text-green-700 mb-2">
+                <h1 className="text-3xl font-bold text-green-700 dark:text-green-400 mb-2">
                     Garden Wars
                 </h1>
-                <p className="text-gray-600 mb-8">
+                <p className="text-gray-600 dark:text-gray-400 mb-8">
                     {language === "ja" ? "にゃんこ軍団で敵を倒せ！" : "Defeat enemies with cat army!"}
                 </p>
 

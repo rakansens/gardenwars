@@ -13,18 +13,18 @@ function AsyncBattleResultContent() {
     const opponentId = searchParams.get("opponent") || "";
 
     return (
-        <main className="min-h-screen p-4 md:p-8 bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center">
+        <main className="min-h-screen p-4 md:p-8 flex items-center justify-center">
             <div className="text-center">
                 {/* 結果 */}
                 <div className={`text-8xl mb-6 ${win ? "animate-bounce" : ""}`}>
                     {win ? "🏆" : "💀"}
                 </div>
 
-                <h1 className={`text-5xl md:text-6xl font-bold mb-4 ${win ? "text-amber-400" : "text-red-500"}`}>
+                <h1 className={`text-5xl md:text-6xl font-bold mb-4 ${win ? "text-amber-500 dark:text-amber-400" : "text-red-600 dark:text-red-500"}`}>
                     {win ? t("async_victory") : t("async_defeat")}
                 </h1>
 
-                <p className="text-xl text-gray-400 mb-8">
+                <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">
                     {win
                         ? t("async_victory_message")
                         : t("async_defeat_message")
@@ -41,7 +41,7 @@ function AsyncBattleResultContent() {
                     </Link>
                     <Link
                         href="/"
-                        className="btn bg-slate-700 hover:bg-slate-600 text-white font-bold px-8 py-4 rounded-xl text-lg"
+                        className="btn bg-gray-200 hover:bg-gray-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-800 dark:text-white font-bold px-8 py-4 rounded-xl text-lg"
                     >
                         🏠 {t("back_to_home")}
                     </Link>
@@ -53,7 +53,7 @@ function AsyncBattleResultContent() {
 
 export default function AsyncBattleResultPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-slate-900 flex items-center justify-center text-white">Loading...</div>}>
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gray-800 dark:text-white">Loading...</div>}>
             <AsyncBattleResultContent />
         </Suspense>
     );

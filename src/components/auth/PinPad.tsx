@@ -40,8 +40,8 @@ export function PinPad({ onComplete, disabled = false }: PinPadProps) {
                         key={i}
                         className={`w-10 h-12 border-2 rounded-lg flex items-center justify-center text-2xl font-bold transition-all ${
                             pin[i]
-                                ? "border-green-500 bg-green-100 text-green-700"
-                                : "border-gray-300 bg-white text-gray-400"
+                                ? "border-green-500 bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400"
+                                : "border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-400 dark:text-gray-500"
                         }`}
                     >
                         {pin[i] || "·"}
@@ -56,7 +56,7 @@ export function PinPad({ onComplete, disabled = false }: PinPadProps) {
                         key={num}
                         onClick={() => handleNumber(num)}
                         disabled={disabled || pin.length >= 6}
-                        className="w-16 h-16 text-2xl font-bold rounded-xl bg-amber-100 hover:bg-amber-200 active:bg-amber-300 text-amber-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+                        className="w-16 h-16 text-2xl font-bold rounded-xl bg-amber-100 dark:bg-amber-900/50 hover:bg-amber-200 dark:hover:bg-amber-800/50 active:bg-amber-300 dark:active:bg-amber-700/50 text-amber-800 dark:text-amber-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
                     >
                         {num}
                     </button>
@@ -64,21 +64,21 @@ export function PinPad({ onComplete, disabled = false }: PinPadProps) {
                 <button
                     onClick={handleClear}
                     disabled={disabled || pin.length === 0}
-                    className="w-16 h-16 text-sm font-bold rounded-xl bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+                    className="w-16 h-16 text-sm font-bold rounded-xl bg-gray-200 dark:bg-slate-600 hover:bg-gray-300 dark:hover:bg-slate-500 active:bg-gray-400 dark:active:bg-slate-400 text-gray-700 dark:text-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
                 >
                     クリア
                 </button>
                 <button
                     onClick={() => handleNumber("0")}
                     disabled={disabled || pin.length >= 6}
-                    className="w-16 h-16 text-2xl font-bold rounded-xl bg-amber-100 hover:bg-amber-200 active:bg-amber-300 text-amber-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+                    className="w-16 h-16 text-2xl font-bold rounded-xl bg-amber-100 dark:bg-amber-900/50 hover:bg-amber-200 dark:hover:bg-amber-800/50 active:bg-amber-300 dark:active:bg-amber-700/50 text-amber-800 dark:text-amber-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
                 >
                     0
                 </button>
                 <button
                     onClick={handleDelete}
                     disabled={disabled || pin.length === 0}
-                    className="w-16 h-16 text-xl font-bold rounded-xl bg-red-100 hover:bg-red-200 active:bg-red-300 text-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+                    className="w-16 h-16 text-xl font-bold rounded-xl bg-red-100 dark:bg-red-900/50 hover:bg-red-200 dark:hover:bg-red-800/50 active:bg-red-300 dark:active:bg-red-700/50 text-red-700 dark:text-red-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
                 >
                     ←
                 </button>

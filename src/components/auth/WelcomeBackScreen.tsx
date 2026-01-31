@@ -12,14 +12,14 @@ export function WelcomeBackScreen({ playerName, onContinue, onSwitchPlayer }: We
     const { language } = useLanguage();
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-green-200 via-green-100 to-amber-100 p-4">
-            <div className="bg-white/90 rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-green-200 via-green-100 to-amber-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 p-4">
+            <div className="bg-white/90 dark:bg-slate-800/90 rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center">
                 {/* Welcome back */}
                 <div className="text-5xl mb-4">👋</div>
-                <h2 className="text-2xl font-bold text-green-700 mb-2">
+                <h2 className="text-2xl font-bold text-green-700 dark:text-green-400 mb-2">
                     {language === "ja" ? "おかえり、" : "Welcome back,"}
                 </h2>
-                <p className="text-3xl font-bold text-amber-600 mb-6">
+                <p className="text-3xl font-bold text-amber-600 dark:text-amber-400 mb-6">
                     {playerName}！
                 </p>
 
@@ -33,7 +33,7 @@ export function WelcomeBackScreen({ playerName, onContinue, onSwitchPlayer }: We
                     </button>
                     <button
                         onClick={onSwitchPlayer}
-                        className="w-full py-3 px-6 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-2xl transition-colors"
+                        className="w-full py-3 px-6 bg-gray-200 dark:bg-slate-600 hover:bg-gray-300 dark:hover:bg-slate-500 text-gray-700 dark:text-gray-300 font-bold rounded-2xl transition-colors"
                     >
                         🔄 {language === "ja" ? "べつの ひと" : "Switch Player"}
                     </button>

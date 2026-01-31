@@ -14,7 +14,7 @@ import { incrementGardenVisits } from "@/lib/supabase";
 
 const PhaserGame = dynamic(() => import('@/components/game/PhaserGame'), {
     ssr: false,
-    loading: () => <div className="w-full h-full bg-[#87CEEB] flex items-center justify-center text-white">Loading Game Engine...</div>
+    loading: () => <div className="w-full h-full bg-[#87CEEB] dark:bg-slate-800 flex items-center justify-center text-white">Loading Game Engine...</div>
 });
 
 const allUnits = unitsData as UnitDefinition[];
@@ -161,7 +161,7 @@ export default function GardenPage() {
     };
 
     if (!isLoaded || !ready) {
-        return <div className="min-h-screen bg-[#87CEEB] flex items-center justify-center text-white text-2xl font-bold">{t("loading")}</div>;
+        return <div className="min-h-screen bg-[#87CEEB] dark:bg-slate-900 flex items-center justify-center text-white text-2xl font-bold">{t("loading")}</div>;
     }
 
     // Filter owned units for modal list
@@ -169,18 +169,18 @@ export default function GardenPage() {
     const ownedUnits = allUnits.filter(u => ownedUnitIds.includes(u.id));
 
     return (
-        <main className="min-h-screen bg-[#87CEEB] relative overflow-hidden">
+        <main className="min-h-screen bg-[#87CEEB] dark:bg-slate-900 relative overflow-hidden">
             {/* Header */}
             <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-start z-10 pointer-events-none">
                 <div className="pointer-events-auto">
-                    <Link href="/" className="btn bg-white/50 hover:bg-white/80 text-green-900 border-green-500 font-bold">
+                    <Link href="/" className="btn bg-white/50 hover:bg-white/80 dark:bg-slate-700/80 dark:hover:bg-slate-600 text-green-900 dark:text-green-300 border-green-500 dark:border-green-400 font-bold">
                         {t("back_to_home")}
                     </Link>
                 </div>
-                <div className="bg-white/60 p-4 rounded-xl backdrop-blur-sm border-2 border-white/80 shadow-lg text-center">
-                    <h1 className="text-2xl font-bold text-green-800">{t("garden_title")}</h1>
-                    <p className="text-sm text-green-700 font-bold">{displayUnits.length} {t("garden_hint")}</p>
-                    <div className="mt-2 flex items-center justify-center gap-1 text-amber-600 font-bold">
+                <div className="bg-white/60 dark:bg-slate-800/80 p-4 rounded-xl backdrop-blur-sm border-2 border-white/80 dark:border-slate-600 shadow-lg text-center">
+                    <h1 className="text-2xl font-bold text-green-800 dark:text-green-300">{t("garden_title")}</h1>
+                    <p className="text-sm text-green-700 dark:text-green-400 font-bold">{displayUnits.length} {t("garden_hint")}</p>
+                    <div className="mt-2 flex items-center justify-center gap-1 text-amber-600 dark:text-amber-400 font-bold">
                         <span>💰</span>
                         <span className={`transition-all ${coinEffect ? 'scale-125 text-green-500' : ''}`}>
                             {coins.toLocaleString()}
@@ -191,7 +191,7 @@ export default function GardenPage() {
                 <div className="pointer-events-auto">
                     <button
                         onClick={openEditModal}
-                        className="btn bg-blue-500/80 hover:bg-blue-600 text-white border-blue-400 font-bold shadow-md"
+                        className="btn bg-blue-500/80 hover:bg-blue-600 dark:bg-blue-600/80 dark:hover:bg-blue-500 text-white border-blue-400 dark:border-blue-500 font-bold shadow-md"
                     >
                         {t("edit_garden")}
                     </button>
@@ -208,20 +208,20 @@ export default function GardenPage() {
 
             {/* Action Bar */}
             <div className="absolute bottom-6 left-0 right-0 flex justify-center items-center gap-4 z-10 pointer-events-none">
-                <div className="pointer-events-auto flex items-center gap-4 bg-white/40 p-4 rounded-full backdrop-blur-md border-2 border-white/60 shadow-xl">
-                    <div className="flex gap-2 mr-4 border-r-2 border-white/50 pr-4">
-                        <button onClick={() => handleFeed('n_apple')} className="w-16 h-16 rounded-full bg-red-400 hover:bg-red-500 border-4 border-white shadow-lg flex items-center justify-center text-3xl transition-transform hover:scale-110 active:scale-95" title="Feed Apple">
+                <div className="pointer-events-auto flex items-center gap-4 bg-white/40 dark:bg-slate-800/60 p-4 rounded-full backdrop-blur-md border-2 border-white/60 dark:border-slate-600 shadow-xl">
+                    <div className="flex gap-2 mr-4 border-r-2 border-white/50 dark:border-slate-600 pr-4">
+                        <button onClick={() => handleFeed('n_apple')} className="w-16 h-16 rounded-full bg-red-400 hover:bg-red-500 dark:bg-red-500 dark:hover:bg-red-400 border-4 border-white dark:border-slate-300 shadow-lg flex items-center justify-center text-3xl transition-transform hover:scale-110 active:scale-95" title="Feed Apple">
                             🍎
                         </button>
-                        <button onClick={() => handleFeed('n_carrot')} className="w-16 h-16 rounded-full bg-orange-400 hover:bg-orange-500 border-4 border-white shadow-lg flex items-center justify-center text-3xl transition-transform hover:scale-110 active:scale-95" title="Feed Carrot">
+                        <button onClick={() => handleFeed('n_carrot')} className="w-16 h-16 rounded-full bg-orange-400 hover:bg-orange-500 dark:bg-orange-500 dark:hover:bg-orange-400 border-4 border-white dark:border-slate-300 shadow-lg flex items-center justify-center text-3xl transition-transform hover:scale-110 active:scale-95" title="Feed Carrot">
                             🥕
                         </button>
-                        <button onClick={() => handleFeed('n_mushroom')} className="w-16 h-16 rounded-full bg-amber-700 hover:bg-amber-800 border-4 border-white shadow-lg flex items-center justify-center text-3xl transition-transform hover:scale-110 active:scale-95" title="Feed Mushroom">
+                        <button onClick={() => handleFeed('n_mushroom')} className="w-16 h-16 rounded-full bg-amber-700 hover:bg-amber-800 dark:bg-amber-600 dark:hover:bg-amber-500 border-4 border-white dark:border-slate-300 shadow-lg flex items-center justify-center text-3xl transition-transform hover:scale-110 active:scale-95" title="Feed Mushroom">
                             🍄
                         </button>
                     </div>
 
-                    <button onClick={handleClean} className="w-20 h-20 rounded-full bg-sky-500 hover:bg-sky-600 border-4 border-white shadow-lg flex items-center justify-center text-4xl transition-transform hover:scale-110 active:scale-95" title="Clean Garden">
+                    <button onClick={handleClean} className="w-20 h-20 rounded-full bg-sky-500 hover:bg-sky-600 dark:bg-sky-600 dark:hover:bg-sky-500 border-4 border-white dark:border-slate-300 shadow-lg flex items-center justify-center text-4xl transition-transform hover:scale-110 active:scale-95" title="Clean Garden">
                         🧹
                     </button>
                 </div>

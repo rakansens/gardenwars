@@ -48,16 +48,16 @@ export function RegisterScreen({ onRegister, onBack }: RegisterScreenProps) {
     // Step 1: Name input
     if (step === "name") {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-green-200 via-green-100 to-amber-100 p-4">
-                <div className="bg-white/90 rounded-3xl shadow-2xl p-8 max-w-sm w-full">
+            <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-green-200 via-green-100 to-amber-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 p-4">
+                <div className="bg-white/90 dark:bg-slate-800/90 rounded-3xl shadow-2xl p-8 max-w-sm w-full">
                     <button
                         onClick={onBack}
-                        className="text-gray-500 hover:text-gray-700 mb-4"
+                        className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 mb-4"
                     >
                         ← {language === "ja" ? "もどる" : "Back"}
                     </button>
 
-                    <h2 className="text-2xl font-bold text-green-700 text-center mb-6">
+                    <h2 className="text-2xl font-bold text-green-700 dark:text-green-400 text-center mb-6">
                         {language === "ja" ? "なまえを いれてね" : "Enter your name"}
                     </h2>
 
@@ -67,7 +67,7 @@ export function RegisterScreen({ onRegister, onBack }: RegisterScreenProps) {
                         onChange={(e) => setName(e.target.value)}
                         placeholder={language === "ja" ? "なまえ" : "Name"}
                         maxLength={20}
-                        className="w-full p-4 text-xl border-2 border-green-300 rounded-xl focus:border-green-500 focus:outline-none text-center mb-4"
+                        className="w-full p-4 text-xl border-2 border-green-300 dark:border-slate-600 rounded-xl focus:border-green-500 dark:focus:border-green-400 focus:outline-none text-center mb-4 dark:bg-slate-700 dark:text-white"
                         autoFocus
                     />
 
@@ -92,11 +92,11 @@ export function RegisterScreen({ onRegister, onBack }: RegisterScreenProps) {
     // Step 2: Show PIN
     if (step === "pin") {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-green-200 via-green-100 to-amber-100 p-4">
-                <div className="bg-white/90 rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center">
+            <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-green-200 via-green-100 to-amber-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 p-4">
+                <div className="bg-white/90 dark:bg-slate-800/90 rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center">
                     <div className="text-5xl mb-4">✨</div>
 
-                    <h2 className="text-2xl font-bold text-green-700 mb-2">
+                    <h2 className="text-2xl font-bold text-green-700 dark:text-green-400 mb-2">
                         {language === "ja" ? "あなたの ばんごうは..." : "Your number is..."}
                     </h2>
 
@@ -113,11 +113,11 @@ export function RegisterScreen({ onRegister, onBack }: RegisterScreenProps) {
                     </div>
 
                     {dataMigrated && (
-                        <div className="bg-green-50 rounded-xl p-4 mb-4">
-                            <p className="text-green-700 text-sm font-bold">
+                        <div className="bg-green-50 dark:bg-slate-700 rounded-xl p-4 mb-4">
+                            <p className="text-green-700 dark:text-green-400 text-sm font-bold">
                                 ✅ {language === "ja" ? "データを ひきつぎました！" : "Data migrated!"}
                             </p>
-                            <p className="text-green-600 text-xs mt-1">
+                            <p className="text-green-600 dark:text-green-500 text-xs mt-1">
                                 {language === "ja"
                                     ? "いままでの データが クラウドに ほぞんされたよ"
                                     : "Your existing data has been saved to the cloud"}
@@ -125,11 +125,11 @@ export function RegisterScreen({ onRegister, onBack }: RegisterScreenProps) {
                         </div>
                     )}
 
-                    <div className="bg-amber-50 rounded-xl p-4 mb-6">
-                        <p className="text-amber-700 text-sm">
+                    <div className="bg-amber-50 dark:bg-slate-700 rounded-xl p-4 mb-6">
+                        <p className="text-amber-700 dark:text-amber-400 text-sm">
                             📸 {language === "ja" ? "スクショ してね！" : "Take a screenshot!"}
                         </p>
-                        <p className="text-amber-600 text-xs mt-1">
+                        <p className="text-amber-600 dark:text-amber-500 text-xs mt-1">
                             {language === "ja"
                                 ? "べつの たんまつで あそぶとき この ばんごうが ひつようだよ"
                                 : "You'll need this number to play on other devices"}
@@ -149,10 +149,10 @@ export function RegisterScreen({ onRegister, onBack }: RegisterScreenProps) {
 
     // Step 3: Complete (will redirect)
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-green-200 via-green-100 to-amber-100 p-4">
-            <div className="bg-white/90 rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-green-200 via-green-100 to-amber-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 p-4">
+            <div className="bg-white/90 dark:bg-slate-800/90 rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center">
                 <div className="text-5xl mb-4">🎉</div>
-                <p className="text-xl text-green-700">
+                <p className="text-xl text-green-700 dark:text-green-400">
                     {language === "ja" ? "ようこそ！" : "Welcome!"}
                 </p>
             </div>

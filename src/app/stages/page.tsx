@@ -200,7 +200,7 @@ export default function StagesPage() {
             {/* ステージ一覧 */}
             <div className="container">
                 {filteredStages.length === 0 ? (
-                    <div className="text-center py-12 text-amber-700">
+                    <div className="text-center py-12 text-amber-700 dark:text-amber-400">
                         <div className="text-4xl mb-4">🏜️</div>
                         <p>{t("no_stages_in_category")}</p>
                     </div>
@@ -224,7 +224,7 @@ export default function StagesPage() {
                                             fill
                                             className="object-cover"
                                         />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-amber-50 via-transparent to-transparent" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-amber-50 dark:from-slate-800 via-transparent to-transparent" />
 
                                         {/* クリアバッジ */}
                                         {isCleared && (
@@ -245,16 +245,16 @@ export default function StagesPage() {
                                     </div>
 
                                     {/* ステージ名 */}
-                                    <h2 className="text-xl font-bold mb-2 text-amber-950">
+                                    <h2 className="text-xl font-bold mb-2 text-amber-950 dark:text-white">
                                         {t(stage.name)}
                                     </h2>
 
                                     {/* 説明 */}
-                                    <p className="text-amber-900/70 mb-3 text-sm">{t(stage.description)}</p>
+                                    <p className="text-amber-900/70 dark:text-gray-400 mb-3 text-sm">{t(stage.description)}</p>
 
                                     {/* 出現する敵ユニット */}
                                     <div className="mb-3">
-                                        <div className="text-xs text-amber-800 mb-1.5">{t("encounter_units")}:</div>
+                                        <div className="text-xs text-amber-800 dark:text-gray-400 mb-1.5">{t("encounter_units")}:</div>
                                         <div className="flex gap-2 flex-wrap">
                                             {enemyUnits.slice(0, 6).map((unit) => {
                                                 const isBoss = unit.isBoss;
@@ -283,7 +283,7 @@ export default function StagesPage() {
                                                 );
                                             })}
                                             {enemyUnits.length > 6 && (
-                                                <div className="w-11 h-11 rounded-lg bg-amber-200 flex items-center justify-center text-sm font-bold text-amber-700">
+                                                <div className="w-11 h-11 rounded-lg bg-amber-200 dark:bg-slate-700 flex items-center justify-center text-sm font-bold text-amber-700 dark:text-gray-300">
                                                     +{enemyUnits.length - 6}
                                                 </div>
                                             )}
@@ -291,7 +291,7 @@ export default function StagesPage() {
                                     </div>
 
                                     {/* 敵情報（コンパクト） */}
-                                    <div className="bg-amber-100/50 rounded-lg p-2 mb-3 text-xs">
+                                    <div className="bg-amber-100/50 dark:bg-slate-700/50 rounded-lg p-2 mb-3 text-xs dark:text-gray-300">
                                         <div className="flex justify-between">
                                             <span>👾 {getTotalEnemies(stage)}</span>
                                             <span>🌊 {stage.enemyWaves.length}</span>
@@ -302,7 +302,7 @@ export default function StagesPage() {
                                     {/* ドロップ報酬 */}
                                     {stage.reward.drops && stage.reward.drops.length > 0 && (
                                         <div className="mb-3">
-                                            <div className="text-xs text-green-700 mb-1.5">🎁 {t("drops")}:</div>
+                                            <div className="text-xs text-green-700 dark:text-green-400 mb-1.5">🎁 {t("drops")}:</div>
                                             <div className="flex gap-2 flex-wrap">
                                                 {stage.reward.drops.slice(0, 4).map((drop) => {
                                                     const unit = allUnits.find(u => u.id === drop.unitId);
@@ -310,10 +310,10 @@ export default function StagesPage() {
                                                     return (
                                                         <div
                                                             key={drop.unitId}
-                                                            className="flex items-center gap-1.5 bg-green-100 border-2 border-green-300 rounded-lg px-2 py-1"
+                                                            className="flex items-center gap-1.5 bg-green-100 dark:bg-green-900/50 border-2 border-green-300 dark:border-green-700 rounded-lg px-2 py-1"
                                                             title={`${unit.name} (${drop.rate}%)`}
                                                         >
-                                                            <div className="w-8 h-8 rounded bg-white flex items-center justify-center overflow-hidden">
+                                                            <div className="w-8 h-8 rounded bg-white dark:bg-slate-700 flex items-center justify-center overflow-hidden">
                                                                 <Image
                                                                     src={`/assets/sprites/${unit.baseUnitId || unit.id}.webp`}
                                                                     alt={unit.name}
@@ -322,7 +322,7 @@ export default function StagesPage() {
                                                                     className="object-contain"
                                                                 />
                                                             </div>
-                                                            <span className="text-sm font-bold text-green-700">{drop.rate}%</span>
+                                                            <span className="text-sm font-bold text-green-700 dark:text-green-400">{drop.rate}%</span>
                                                         </div>
                                                     );
                                                 })}
@@ -332,10 +332,10 @@ export default function StagesPage() {
 
                                     {/* 難易度と報酬 */}
                                     <div className="flex justify-between items-center text-sm">
-                                        <span className="text-amber-700">
+                                        <span className="text-amber-700 dark:text-amber-400">
                                             {getDifficultyStars(stage.difficulty)}
                                         </span>
-                                        <span className="text-amber-700 font-bold">
+                                        <span className="text-amber-700 dark:text-amber-400 font-bold">
                                             💰 {stage.reward.coins.toLocaleString()}
                                         </span>
                                     </div>
@@ -348,7 +348,7 @@ export default function StagesPage() {
 
             {/* ヒント */}
             <div className="container mt-6">
-                <div className="card text-center text-amber-900/70 text-sm">
+                <div className="card text-center text-amber-900/70 dark:text-gray-400 text-sm">
                     {t("stage_hint")}
                 </div>
             </div>

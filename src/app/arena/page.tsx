@@ -29,12 +29,12 @@ export default function ArenaSelectPage() {
                 <Link href="/" className="btn btn-secondary text-sm py-2 px-3">
                     ← {t("back_to_home")}
                 </Link>
-                <h1 className="text-2xl font-bold text-amber-600">🏟️ {t("menu_arena")}</h1>
+                <h1 className="text-2xl font-bold text-amber-600 dark:text-amber-400">🏟️ {t("menu_arena")}</h1>
                 <div className="w-20"></div>
             </div>
 
             {/* 説明 */}
-            <div className="text-center mb-6 text-amber-900/70">
+            <div className="text-center mb-6 text-amber-900/70 dark:text-gray-400">
                 <p>{language === "ja" ? "5レーンで敵を迎え撃て！" : "Defend against enemies in 5 lanes!"}</p>
                 <p className="text-sm mt-1">
                     {language === "ja"
@@ -58,15 +58,15 @@ export default function ArenaSelectPage() {
                             </span>
                         </div>
 
-                        <h2 className="text-lg font-bold text-amber-900 mb-1">
+                        <h2 className="text-lg font-bold text-amber-900 dark:text-white mb-1">
                             {t(stage.name) || `Arena ${index + 1}`}
                         </h2>
 
-                        <p className="text-sm text-amber-800/70 mb-3">
+                        <p className="text-sm text-amber-800/70 dark:text-gray-400 mb-3">
                             {t(stage.description) || stage.description}
                         </p>
 
-                        <div className="flex justify-between text-xs text-amber-700/60">
+                        <div className="flex justify-between text-xs text-amber-700/60 dark:text-gray-500">
                             <span>🏰 {stage.enemyCastleHp} HP</span>
                             <span>💰 {stage.reward.coins}</span>
                         </div>

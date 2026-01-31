@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Tailwind v4: data-theme属性でダークモードを検出 */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 @keyframes spin-slow {
   from {
     transform: rotate(0deg);
@@ -43,8 +46,8 @@
   --text-muted: #8b6a4b;
 }
 
-/* ダークモード */
-:root.dark {
+/* ダークモード（data-theme属性で切り替え） */
+[data-theme="dark"] {
   --background: #1a1a2e;
   --foreground: #e0e0e0;
   --primary: #ffd166;
@@ -80,7 +83,7 @@ body {
 }
 
 /* ダークモードのbody */
-:root.dark body {
+[data-theme="dark"] body {
   background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
   color: var(--foreground);
 }

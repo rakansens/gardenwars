@@ -175,7 +175,7 @@ export default function Home() {
         <h1 className="text-5xl md:text-6xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-amber-400 to-yellow-500 drop-shadow-lg animate-pulse">
           {t("game_title")}
         </h1>
-        <p className="text-lg text-amber-800/80 font-medium">
+        <p className="text-lg text-amber-800/80 dark:text-amber-200/80 font-medium">
           {t("game_subtitle")}
         </p>
         {/* 装飾 */}
@@ -238,14 +238,14 @@ export default function Home() {
 
         {/* パレード説明（ユニットが少ない場合） */}
         {paradeChars.length === 0 && isLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center text-amber-700/60 text-sm">
+          <div className="absolute inset-0 flex items-center justify-center text-amber-700/60 dark:text-amber-400/60 text-sm">
             ガチャでユニットを入手するとここに表示！
           </div>
         )}
       </div>
 
       {/* フッター */}
-      <footer className="text-amber-900/40 text-xs py-2">
+      <footer className="text-amber-900/40 dark:text-amber-100/40 text-xs py-2">
         Garden Wars MVP - Next.js + Phaser 3
       </footer>
 
@@ -253,13 +253,13 @@ export default function Home() {
       <Modal isOpen={showPinModal && !!player} onClose={() => { setShowPinModal(false); setIsEditingName(false); }} showCloseButton={false}>
         {player && (
           <div className="p-6">
-            <h2 className="text-xl font-bold text-green-700 mb-4 text-center">
+            <h2 className="text-xl font-bold text-green-700 dark:text-green-400 mb-4 text-center">
               {language === "ja" ? "アカウント情報" : "Account Info"}
             </h2>
 
             {/* 名前セクション */}
-            <div className="bg-gray-50 rounded-xl p-4 mb-4">
-              <p className="text-gray-600 text-sm mb-1">
+            <div className="bg-gray-50 dark:bg-slate-700 rounded-xl p-4 mb-4">
+              <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">
                 {language === "ja" ? "なまえ" : "Name"}
               </p>
               {isEditingName ? (
@@ -272,7 +272,7 @@ export default function Home() {
                       setNameError("");
                     }}
                     maxLength={20}
-                    className="w-full px-3 py-2 border-2 border-green-300 rounded-lg text-lg font-bold text-gray-800 focus:outline-none focus:border-green-500"
+                    className="w-full px-3 py-2 border-2 border-green-300 dark:border-green-600 rounded-lg text-lg font-bold text-gray-800 dark:text-white dark:bg-slate-600 focus:outline-none focus:border-green-500"
                     autoFocus
                   />
                   {nameError && (
@@ -281,7 +281,7 @@ export default function Home() {
                   <div className="flex gap-2 mt-2">
                     <button
                       onClick={() => setIsEditingName(false)}
-                      className="flex-1 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-lg text-sm transition-all active:scale-95 min-h-[44px]"
+                      className="flex-1 py-2 bg-gray-200 dark:bg-slate-600 hover:bg-gray-300 dark:hover:bg-slate-500 text-gray-700 dark:text-gray-300 font-bold rounded-lg text-sm transition-all active:scale-95 min-h-[44px]"
                       disabled={isUpdatingName}
                     >
                       {language === "ja" ? "キャンセル" : "Cancel"}
@@ -299,10 +299,10 @@ export default function Home() {
                 </div>
               ) : (
                 <div className="flex items-center justify-between">
-                  <p className="text-lg font-bold text-gray-800">{playerName}</p>
+                  <p className="text-lg font-bold text-gray-800 dark:text-white">{playerName}</p>
                   <button
                     onClick={handleEditName}
-                    className="px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold rounded-lg text-sm transition-all active:scale-95 min-h-[36px]"
+                    className="px-3 py-1 bg-blue-100 dark:bg-blue-900 hover:bg-blue-200 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-300 font-bold rounded-lg text-sm transition-all active:scale-95 min-h-[36px]"
                   >
                     ✏️ {language === "ja" ? "変更" : "Edit"}
                   </button>
@@ -310,8 +310,8 @@ export default function Home() {
               )}
             </div>
 
-            <div className="bg-amber-50 rounded-xl p-4 mb-4">
-              <p className="text-amber-700 text-sm mb-2">
+            <div className="bg-amber-50 dark:bg-amber-900/30 rounded-xl p-4 mb-4">
+              <p className="text-amber-700 dark:text-amber-400 text-sm mb-2">
                 {language === "ja" ? "あなたの ばんごう" : "Your Number"}
               </p>
               <div className="flex justify-center gap-1">
@@ -324,7 +324,7 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-              <p className="text-amber-600 text-xs mt-2 text-center">
+              <p className="text-amber-600 dark:text-amber-400 text-xs mt-2 text-center">
                 {language === "ja"
                   ? "べつの たんまつで この ばんごうを いれてね"
                   : "Enter this number on other devices"}
@@ -334,7 +334,7 @@ export default function Home() {
             <div className="flex gap-3">
               <button
                 onClick={() => { setShowPinModal(false); setIsEditingName(false); }}
-                className="flex-1 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-xl transition-all active:scale-95 min-h-[48px]"
+                className="flex-1 py-3 bg-gray-200 dark:bg-slate-600 hover:bg-gray-300 dark:hover:bg-slate-500 text-gray-700 dark:text-gray-300 font-bold rounded-xl transition-all active:scale-95 min-h-[48px]"
               >
                 {language === "ja" ? "とじる" : "Close"}
               </button>
@@ -344,7 +344,7 @@ export default function Home() {
                   setIsEditingName(false);
                   setShowLogoutConfirm(true);
                 }}
-                className="flex-1 py-3 bg-red-100 hover:bg-red-200 text-red-700 font-bold rounded-xl transition-all active:scale-95 min-h-[48px]"
+                className="flex-1 py-3 bg-red-100 dark:bg-red-900/50 hover:bg-red-200 dark:hover:bg-red-900/70 text-red-700 dark:text-red-400 font-bold rounded-xl transition-all active:scale-95 min-h-[48px]"
               >
                 {language === "ja" ? "ログアウト" : "Logout"}
               </button>

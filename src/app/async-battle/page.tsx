@@ -63,7 +63,7 @@ export default function AsyncBattlePage() {
     // Not logged in
     if (status === "unauthenticated") {
         return (
-            <main className="min-h-screen p-4 md:p-8 bg-gradient-to-b from-slate-900 to-slate-800">
+            <main className="min-h-screen p-4 md:p-8">
                 <div className="page-header mb-6">
                     <Link href="/" className="btn btn-secondary">
                         ← {t("back_to_home")}
@@ -72,8 +72,8 @@ export default function AsyncBattlePage() {
                 <div className="container max-w-4xl mx-auto">
                     <div className="text-center py-12">
                         <div className="text-6xl mb-4">🔒</div>
-                        <p className="text-gray-400 text-xl">{t("login_required")}</p>
-                        <p className="text-gray-500 mt-2">{t("async_login_message")}</p>
+                        <p className="text-gray-600 dark:text-gray-400 text-xl">{t("login_required")}</p>
+                        <p className="text-gray-500 dark:text-gray-500 mt-2">{t("async_login_message")}</p>
                     </div>
                 </div>
             </main>
@@ -81,14 +81,14 @@ export default function AsyncBattlePage() {
     }
 
     return (
-        <main className="min-h-screen p-4 md:p-8 bg-gradient-to-b from-slate-900 to-slate-800">
+        <main className="min-h-screen p-4 md:p-8">
             {/* Header */}
             <div className="page-header mb-6">
                 <div className="flex items-center justify-between flex-wrap gap-3">
                     <Link href="/" className="btn btn-secondary">
                         ← {t("back_to_home")}
                     </Link>
-                    <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-2">
+                    <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
                         ⚔️ {t("async_battle_title")}
                     </h1>
                     <button
@@ -103,11 +103,11 @@ export default function AsyncBattlePage() {
 
             <div className="container max-w-4xl mx-auto">
                 {/* My Team Display */}
-                <div className="bg-slate-800/50 rounded-2xl p-4 mb-6 border border-slate-700">
-                    <h2 className="text-lg font-bold text-white mb-3">{t("async_my_team")}</h2>
+                <div className="bg-white/80 dark:bg-slate-800/50 rounded-2xl p-4 mb-6 border border-gray-300 dark:border-slate-700">
+                    <h2 className="text-lg font-bold text-gray-800 dark:text-white mb-3">{t("async_my_team")}</h2>
                     {selectedTeam.length === 0 ? (
                         <div className="text-center py-4">
-                            <p className="text-gray-400">{t("async_no_team")}</p>
+                            <p className="text-gray-600 dark:text-gray-400">{t("async_no_team")}</p>
                             <Link href="/team" className="btn btn-primary mt-2">
                                 {t("menu_team")}
                             </Link>
@@ -121,7 +121,7 @@ export default function AsyncBattlePage() {
                                 return (
                                     <div
                                         key={idx}
-                                        className="w-12 h-12 rounded-lg border-2 border-blue-500 overflow-hidden bg-slate-800"
+                                        className="w-12 h-12 rounded-lg border-2 border-blue-500 overflow-hidden bg-gray-200 dark:bg-slate-800"
                                         title={unit.name}
                                     >
                                         <Image
@@ -139,34 +139,34 @@ export default function AsyncBattlePage() {
                 </div>
 
                 {/* Opponent List */}
-                <div className="bg-slate-800/50 rounded-2xl p-4 md:p-6 border border-slate-700">
-                    <h2 className="text-lg font-bold text-white mb-4">{t("async_select_opponent")}</h2>
+                <div className="bg-white/80 dark:bg-slate-800/50 rounded-2xl p-4 md:p-6 border border-gray-300 dark:border-slate-700">
+                    <h2 className="text-lg font-bold text-gray-800 dark:text-white mb-4">{t("async_select_opponent")}</h2>
 
                     {isLoading ? (
                         <div className="text-center py-12">
                             <div className="animate-spin text-4xl mb-4">⏳</div>
-                            <p className="text-gray-400">{t("loading")}</p>
+                            <p className="text-gray-600 dark:text-gray-400">{t("loading")}</p>
                         </div>
                     ) : opponents.length === 0 ? (
                         <div className="text-center py-12">
                             <div className="text-6xl mb-4">🏜️</div>
-                            <p className="text-gray-400">{t("async_no_opponents")}</p>
+                            <p className="text-gray-600 dark:text-gray-400">{t("async_no_opponents")}</p>
                         </div>
                     ) : (
                         <div className="space-y-3">
                             {opponents.map((opponent) => (
                                 <div
                                     key={opponent.player_id}
-                                    className="bg-slate-700/50 hover:bg-slate-700 rounded-xl p-4 transition-all"
+                                    className="bg-gray-100 dark:bg-slate-700/50 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-xl p-4 transition-all"
                                 >
                                     <div className="flex items-center justify-between gap-4">
                                         {/* Opponent Info */}
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2 mb-2">
-                                                <span className="text-white font-bold text-lg">
+                                                <span className="text-gray-800 dark:text-white font-bold text-lg">
                                                     {opponent.player_name}
                                                 </span>
-                                                <span className="text-amber-400 text-sm">
+                                                <span className="text-amber-600 dark:text-amber-400 text-sm">
                                                     🏆 Stage {opponent.max_stage}
                                                 </span>
                                             </div>
@@ -179,7 +179,7 @@ export default function AsyncBattlePage() {
                                                     return (
                                                         <div
                                                             key={idx}
-                                                            className="w-10 h-10 rounded border border-slate-500 overflow-hidden bg-slate-800"
+                                                            className="w-10 h-10 rounded border border-gray-400 dark:border-slate-500 overflow-hidden bg-gray-200 dark:bg-slate-800"
                                                             title={unit.name}
                                                         >
                                                             <Image
@@ -211,7 +211,7 @@ export default function AsyncBattlePage() {
                 </div>
 
                 {/* Info */}
-                <div className="mt-6 text-center text-gray-500 text-sm">
+                <div className="mt-6 text-center text-gray-500 dark:text-gray-500 text-sm">
                     <p>{t("async_info")}</p>
                 </div>
             </div>

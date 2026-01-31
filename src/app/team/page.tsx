@@ -217,7 +217,7 @@ export default function TeamPage() {
                                         px-4 py-2.5 md:px-6 md:py-3 rounded-xl font-bold text-sm md:text-base transition-all min-h-[44px]
                                         ${activeLoadoutIndex === idx
                                             ? "bg-orange-500 text-white shadow-lg scale-105"
-                                            : "bg-gray-200 text-gray-600 hover:bg-gray-300 active:scale-95"
+                                            : "bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-slate-600 active:scale-95"
                                         }
                                     `}
                                 >
@@ -261,7 +261,7 @@ export default function TeamPage() {
                         })}
                     </div>
                     {/* 合計コスト表示 */}
-                    <div className="mt-4 text-lg font-bold text-amber-700">
+                    <div className="mt-4 text-lg font-bold text-amber-700 dark:text-amber-400">
                         💰 {t("total_cost")}: ¥{getTotalCost()}
                     </div>
                 </section>
@@ -277,7 +277,7 @@ export default function TeamPage() {
                                     px-4 py-2.5 md:px-5 md:py-3 rounded-xl font-bold text-sm md:text-base transition-all min-h-[44px]
                                     ${rarityFilter === tab.key
                                         ? `${tab.color} text-white shadow-lg scale-105`
-                                        : "bg-gray-200 text-gray-600 hover:bg-gray-300 active:scale-95"
+                                        : "bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-slate-600 active:scale-95"
                                     }
                                 `}
                             >
@@ -295,7 +295,7 @@ export default function TeamPage() {
                 {/* ソートオプション */}
                 <section className="mb-6">
                     <div className="flex items-center gap-2 md:gap-3 flex-wrap">
-                        <span className="text-sm md:text-base font-bold text-gray-600">{t("sort_by")}:</span>
+                        <span className="text-sm md:text-base font-bold text-gray-600 dark:text-gray-400">{t("sort_by")}:</span>
                         {sortOptions.map(option => (
                             <button
                                 key={option.key}
@@ -304,7 +304,7 @@ export default function TeamPage() {
                                     px-3 py-2 md:px-4 md:py-2.5 rounded-xl text-sm md:text-base transition-all flex items-center gap-1.5 min-h-[40px] md:min-h-[44px]
                                     ${sortBy === option.key
                                         ? "bg-blue-500 text-white shadow-md scale-105"
-                                        : "bg-gray-100 text-gray-600 hover:bg-gray-200 active:scale-95"
+                                        : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-600 active:scale-95"
                                     }
                                 `}
                             >
@@ -327,8 +327,8 @@ export default function TeamPage() {
                         <>
                             <section className="mb-8">
                                 <div className="flex items-center gap-3 mb-4">
-                                    <h2 className="text-xl font-bold text-green-700">✅ {t("owned_units")}</h2>
-                                    <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-bold">
+                                    <h2 className="text-xl font-bold text-green-700 dark:text-green-400">✅ {t("owned_units")}</h2>
+                                    <span className="px-3 py-1 bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 rounded-full text-sm font-bold">
                                         {ownedUnits.length} {t("units_count")}
                                     </span>
                                 </div>
@@ -390,19 +390,19 @@ export default function TeamPage() {
                                                                 }`}>
                                                                     {unit.rarity}
                                                                 </span>
-                                                                <span className="text-gray-400">|</span>
-                                                                <span className="text-gray-600" title={`${(unit.scale ?? 1).toFixed(1)}x`}>
+                                                                <span className="text-gray-400 dark:text-gray-500">|</span>
+                                                                <span className="text-gray-600 dark:text-gray-400" title={`${(unit.scale ?? 1).toFixed(1)}x`}>
                                                                     {t(getSizeCategory(unit.scale ?? 1))}
                                                                 </span>
                                                                 {unit.isFlying && (
                                                                     <>
-                                                                        <span className="text-gray-400">|</span>
+                                                                        <span className="text-gray-400 dark:text-gray-500">|</span>
                                                                         <span className="text-sky-500">{t("flying")}</span>
                                                                     </>
                                                                 )}
                                                             </div>
                                                         </div>
-                                                        <div className="mt-1 text-xs text-gray-600 space-y-0.5">
+                                                        <div className="mt-1 text-xs text-gray-600 dark:text-gray-400 space-y-0.5">
                                                             <div className="flex justify-between">
                                                                 <span>❤️ {t("hp")}:</span>
                                                                 <span className="font-bold">{unit.maxHp}</span>
@@ -456,8 +456,8 @@ export default function TeamPage() {
                                                                 : canAdd
                                                                     ? "bg-green-500 hover:bg-green-600 text-white shadow-md"
                                                                     : isInOtherDeck
-                                                                        ? "bg-orange-300 text-orange-700 cursor-not-allowed"
-                                                                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                                                        ? "bg-orange-300 dark:bg-orange-900/50 text-orange-700 dark:text-orange-400 cursor-not-allowed"
+                                                                        : "bg-gray-300 dark:bg-slate-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
                                                             }
                                                         `}
                                                     >
@@ -481,7 +481,7 @@ export default function TeamPage() {
                                         })}
                                     </div>
                                 ) : (
-                                    <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
+                                    <div className="text-center py-8 text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-slate-800 rounded-lg">
                                         {t("no_owned_in_rarity")}
                                     </div>
                                 )}
@@ -490,8 +490,8 @@ export default function TeamPage() {
                             {/* 未保有ユニット */}
                             <section>
                                 <div className="flex items-center gap-3 mb-4">
-                                    <h2 className="text-xl font-bold text-gray-500">🔒 {t("unowned_units")}</h2>
-                                    <span className="px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-sm font-bold">
+                                    <h2 className="text-xl font-bold text-gray-500 dark:text-gray-400">🔒 {t("unowned_units")}</h2>
+                                    <span className="px-3 py-1 bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 rounded-full text-sm font-bold">
                                         {unownedUnits.length} {t("units_count")}
                                     </span>
                                 </div>
@@ -533,7 +533,7 @@ export default function TeamPage() {
                                                             grayscale={true}
                                                         />
                                                         <div className="mt-2 text-center">
-                                                            <div className="font-medium text-sm text-gray-500">{unit.name}</div>
+                                                            <div className="font-medium text-sm text-gray-500 dark:text-gray-400">{unit.name}</div>
                                                             <div className="flex items-center justify-center gap-1 mt-1 text-xs">
                                                                 <span className={`font-bold ${
                                                                     unit.rarity === "UR" ? "text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500" :
@@ -593,7 +593,7 @@ export default function TeamPage() {
                                                     </div>
 
                                                     {/* 未保有表示 */}
-                                                    <div className="w-full mt-3 py-3 md:py-3.5 rounded-xl font-bold text-sm md:text-base bg-gray-200 text-gray-500 text-center min-h-[44px] flex items-center justify-center">
+                                                    <div className="w-full mt-3 py-3 md:py-3.5 rounded-xl font-bold text-sm md:text-base bg-gray-200 dark:bg-slate-700 text-gray-500 dark:text-gray-400 text-center min-h-[44px] flex items-center justify-center">
                                                         {t("not_owned")}
                                                     </div>
                                                 </div>
@@ -601,7 +601,7 @@ export default function TeamPage() {
                                         })}
                                     </div>
                                 ) : (
-                                    <div className="text-center py-8 text-green-600 bg-green-50 rounded-lg font-bold">
+                                    <div className="text-center py-8 text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 rounded-lg font-bold">
                                         {t("all_owned_in_rarity")}
                                     </div>
                                 )}
