@@ -119,5 +119,126 @@
       "attack": "attack",
       "die": "die"
     }
+  },
+  {
+    "id": "boss_tutorial",
+    "name": "Garden Guardian",
+    "rarity": "SR",
+    "cost": 2000,
+    "maxHp": 30000,
+    "speed": 20,
+    "attackDamage": 400,
+    "attackRange": 60,
+    "attackCooldownMs": 2800,
+    "attackWindupMs": 900,
+    "knockback": 80,
+    "atlasKey": "sunflower",
+    "baseUnitId": "sunflower",
+    "flipSprite": true,
+    "scale": 4.0,
+    "isBoss": true,
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "boss_easy",
+    "name": "Forest Tyrant",
+    "rarity": "SR",
+    "cost": 2000,
+    "maxHp": 200000,
+    "speed": 30,
+    "attackDamage": 600,
+    "attackRange": 70,
+    "attackCooldownMs": 2500,
+    "attackWindupMs": 800,
+    "knockback": 100,
+    "atlasKey": "enemy_dog",
+    "baseUnitId": "enemy_dog",
+    "flipSprite": false,
+    "scale": 4.5,
+    "isBoss": true,
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "boss_normal",
+    "name": "Shadow Ninja",
+    "rarity": "SSR",
+    "cost": 2000,
+    "maxHp": 400000,
+    "speed": 40,
+    "attackDamage": 1000,
+    "attackRange": 80,
+    "attackCooldownMs": 2200,
+    "attackWindupMs": 700,
+    "knockback": 120,
+    "atlasKey": "cat_ninja",
+    "baseUnitId": "cat_ninja",
+    "flipSprite": true,
+    "scale": 5.0,
+    "isBoss": true,
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "boss_hard",
+    "name": "Dark Archmage",
+    "rarity": "SSR",
+    "cost": 2000,
+    "maxHp": 700000,
+    "speed": 25,
+    "attackDamage": 1500,
+    "attackRange": 200,
+    "attackCooldownMs": 2800,
+    "attackWindupMs": 900,
+    "knockback": 150,
+    "atlasKey": "cat_mage",
+    "baseUnitId": "cat_mage",
+    "flipSprite": true,
+    "scale": 5.5,
+    "isBoss": true,
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
+    "id": "boss_extreme",
+    "name": "Apocalypse Dragon",
+    "rarity": "UR",
+    "cost": 2000,
+    "maxHp": 1200000,
+    "speed": 35,
+    "attackDamage": 3000,
+    "attackRange": 180,
+    "attackCooldownMs": 2500,
+    "attackWindupMs": 800,
+    "knockback": 200,
+    "atlasKey": "ur_dragon",
+    "baseUnitId": "ur_dragon",
+    "flipSprite": true,
+    "scale": 6.0,
+    "isBoss": true,
+    "isFlying": true,
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
   }
 ]
