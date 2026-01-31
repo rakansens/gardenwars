@@ -145,11 +145,16 @@ export default function StagesPage() {
         // 難易度がアンロックされていなければステージもロック
         if (!isDifficultyUnlocked(stage.difficulty as StageDifficulty)) return false;
 
+        // インデックスが無効な場合はロック
+        if (stageIndex < 0 || stageIndex >= stagesInDifficulty.length) return false;
+
         // 最初のステージは常にアンロック（難易度がアンロックされていれば）
         if (stageIndex === 0) return true;
 
         // 前のステージがクリアされていればアンロック
         const prevStage = stagesInDifficulty[stageIndex - 1];
+        if (!prevStage) return false; // 安全ガード
+
         return clearedStages.includes(prevStage.id);
     };
 
@@ -262,6 +267,7 @@ export default function StagesPage() {
                                 .filter(s => s.difficulty === stage.difficulty)
                                 .sort((a, b) => (stageOrderMap.get(a.id) ?? 0) - (stageOrderMap.get(b.id) ?? 0));
                             const stageIndexInDifficulty = stagesInSameDifficulty.findIndex(s => s.id === stage.id);
+
                             const isLocked = !isStageUnlocked(stage, stageIndexInDifficulty, stagesInSameDifficulty);
 
                             return (

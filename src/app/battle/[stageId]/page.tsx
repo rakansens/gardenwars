@@ -37,6 +37,8 @@ const PhaserGame = dynamic(
 
 const allStages = stagesData as StageDefinition[];
 const allUnits = unitsData as UnitDefinition[];
+// プレイヤーが使用可能なユニット（ボス除外）
+const playableUnits = allUnits.filter(u => !u.id.startsWith("boss_") && !u.isBoss);
 
 export default function BattlePage() {
     const router = useRouter();
@@ -64,17 +66,17 @@ export default function BattlePage() {
         }
         setStage(stageData);
 
-        // 編成データ取得（チームのユニット定義）
+        // 編成データ取得（チームのユニット定義、ボス除外）
         const teamDefs = selectedTeam
-            .map((id) => allUnits.find((u) => u.id === id))
+            .map((id) => playableUnits.find((u) => u.id === id))
             .filter((u): u is UnitDefinition => u !== undefined);
         setTeam(teamDefs);
 
-        // 全ロードアウトを変換
+        // 全ロードアウトを変換（ボス除外）
         const convertedLoadouts: [UnitDefinition[], UnitDefinition[], UnitDefinition[]] = [
-            (loadouts[0] || []).map(id => allUnits.find(u => u.id === id)).filter((u): u is UnitDefinition => u !== undefined),
-            (loadouts[1] || []).map(id => allUnits.find(u => u.id === id)).filter((u): u is UnitDefinition => u !== undefined),
-            (loadouts[2] || []).map(id => allUnits.find(u => u.id === id)).filter((u): u is UnitDefinition => u !== undefined),
+            (loadouts[0] || []).map(id => playableUnits.find(u => u.id === id)).filter((u): u is UnitDefinition => u !== undefined),
+            (loadouts[1] || []).map(id => playableUnits.find(u => u.id === id)).filter((u): u is UnitDefinition => u !== undefined),
+            (loadouts[2] || []).map(id => playableUnits.find(u => u.id === id)).filter((u): u is UnitDefinition => u !== undefined),
         ];
         setLoadoutDefs(convertedLoadouts);
     }, [stageId, router, selectedTeam, loadouts, isLoaded]);
@@ -129,14 +131,15 @@ export default function BattlePage() {
 
     return (
         <main className="fixed inset-0 bg-[#1a1a2e] overflow-hidden">
-            {/* ヘッダー (オーバーレイ) */}
-            <div className="absolute top-0 left-0 w-full p-4 z-20 flex items-center justify-between pointer-events-none">
-                <Link href="/stages" className="btn btn-secondary text-sm py-2 px-3 pointer-events-auto shadow-lg border-2 border-white/20">
-                    ← {t("back_to_stages")}
-                </Link>
-                <div className="btn btn-primary pointer-events-none text-sm py-2 px-3 shadow-lg border-2 border-white/20">
+            {/* ヘッダー (オーバーレイ) - スマホ対応: Backボタンを右上に */}
+            <div className="absolute top-0 right-0 p-2 sm:p-4 z-20 flex items-center gap-2 pointer-events-none">
+                <div className="btn btn-primary pointer-events-none text-xs sm:text-sm py-1 px-2 sm:py-2 sm:px-3 shadow-lg border-2 border-white/20">
                     🎮 {team.length}
                 </div>
+                <Link href="/stages" className="btn btn-secondary text-xs sm:text-sm py-1 px-2 sm:py-2 sm:px-3 pointer-events-auto shadow-lg border-2 border-white/20 opacity-70 hover:opacity-100">
+                    <span className="sm:hidden">←</span>
+                    <span className="hidden sm:inline">← {t("back_to_stages")}</span>
+                </Link>
             </div>
 
             {/* ゲーム画面 (フルスクリーン) */}

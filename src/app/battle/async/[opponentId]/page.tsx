@@ -18,6 +18,8 @@ const PhaserGame = dynamic(
 );
 
 const allUnits = unitsData as UnitDefinition[];
+// プレイヤーが使用可能なユニット（ボス除外）
+const playableUnits = allUnits.filter(u => !u.id.startsWith("boss_") && !u.isBoss);
 
 // 相手のデッキからステージデータを生成（AI対戦モード）
 function createAsyncStage(opponentDeck: string[], opponentName: string): StageDefinition {
@@ -105,17 +107,17 @@ export default function AsyncBattlePage() {
         const asyncStage = createAsyncStage(opponent.deck, opponent.name);
         setStage(asyncStage);
 
-        // 編成データ取得
+        // 編成データ取得（ボス除外）
         const teamDefs = selectedTeam
-            .map((id) => allUnits.find((u) => u.id === id))
+            .map((id) => playableUnits.find((u) => u.id === id))
             .filter((u): u is UnitDefinition => u !== undefined);
         setTeam(teamDefs);
 
-        // 全ロードアウトを変換
+        // 全ロードアウトを変換（ボス除外）
         const convertedLoadouts: [UnitDefinition[], UnitDefinition[], UnitDefinition[]] = [
-            (loadouts[0] || []).map(id => allUnits.find(u => u.id === id)).filter((u): u is UnitDefinition => u !== undefined),
-            (loadouts[1] || []).map(id => allUnits.find(u => u.id === id)).filter((u): u is UnitDefinition => u !== undefined),
-            (loadouts[2] || []).map(id => allUnits.find(u => u.id === id)).filter((u): u is UnitDefinition => u !== undefined),
+            (loadouts[0] || []).map(id => playableUnits.find(u => u.id === id)).filter((u): u is UnitDefinition => u !== undefined),
+            (loadouts[1] || []).map(id => playableUnits.find(u => u.id === id)).filter((u): u is UnitDefinition => u !== undefined),
+            (loadouts[2] || []).map(id => playableUnits.find(u => u.id === id)).filter((u): u is UnitDefinition => u !== undefined),
         ];
         setLoadoutDefs(convertedLoadouts);
 
@@ -165,14 +167,15 @@ export default function AsyncBattlePage() {
 
     return (
         <main className="fixed inset-0 bg-[#1a1a2e] overflow-hidden">
-            {/* ヘッダー */}
-            <div className="absolute top-0 left-0 w-full p-4 z-20 flex items-center justify-between pointer-events-none">
-                <Link href="/async-battle" className="btn btn-secondary text-sm py-2 px-3 pointer-events-auto shadow-lg border-2 border-white/20">
-                    ← {t("back")}
-                </Link>
-                <div className="btn bg-red-500 text-white pointer-events-none text-sm py-2 px-3 shadow-lg border-2 border-white/20">
-                    🆚 VS {opponent.name}
+            {/* ヘッダー - スマホ対応: 右上に配置 */}
+            <div className="absolute top-0 right-0 p-2 sm:p-4 z-20 flex items-center gap-2 pointer-events-none">
+                <div className="btn bg-red-500 text-white pointer-events-none text-xs sm:text-sm py-1 px-2 sm:py-2 sm:px-3 shadow-lg border-2 border-white/20">
+                    🆚 <span className="hidden sm:inline">VS {opponent.name}</span><span className="sm:hidden">{opponent.name.slice(0, 6)}</span>
                 </div>
+                <Link href="/async-battle" className="btn btn-secondary text-xs sm:text-sm py-1 px-2 sm:py-2 sm:px-3 pointer-events-auto shadow-lg border-2 border-white/20 opacity-70 hover:opacity-100">
+                    <span className="sm:hidden">←</span>
+                    <span className="hidden sm:inline">← {t("back")}</span>
+                </Link>
             </div>
 
             {/* ゲーム画面 */}

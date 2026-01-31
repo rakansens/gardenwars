@@ -212,8 +212,8 @@ export default function PhaserGame({
                 </div>
             )}
 
-            {/* 縦向き時の案内（モバイルのみ） */}
-            {isPortrait && (
+            {/* 縦向き時の案内（モバイルのみ、アリーナ以外） */}
+            {isPortrait && mode !== 'arena' && (
                 <div className="md:hidden absolute inset-0 flex items-center justify-center bg-black/90 z-50 p-6 text-center">
                     <div>
                         <div className="text-5xl mb-4 animate-spin-slow">📱🔄</div>

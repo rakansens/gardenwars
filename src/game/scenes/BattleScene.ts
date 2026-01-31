@@ -1087,6 +1087,7 @@ export class BattleScene extends Phaser.Scene {
         // 背景
         const bg = this.add.rectangle(0, 0, 80, 32, isEnabled ? 0x4ade80 : 0x6b7280);
         bg.setStrokeStyle(2, 0x3b2a1a);
+        bg.setScrollFactor(0);
         bg.setInteractive({ useHandCursor: true });
 
         // テキスト
@@ -1096,6 +1097,7 @@ export class BattleScene extends Phaser.Scene {
             fontStyle: 'bold',
         });
         text.setOrigin(0.5, 0.5);
+        text.setScrollFactor(0);
 
         this.mathModeBtn.add([bg, text]);
 
@@ -1124,6 +1126,7 @@ export class BattleScene extends Phaser.Scene {
         // 背景
         const bg = this.add.rectangle(0, 0, 60, 32, 0x3b82f6);
         bg.setStrokeStyle(2, 0x1e40af);
+        bg.setScrollFactor(0);
         bg.setInteractive({ useHandCursor: true });
 
         // テキスト
@@ -1133,6 +1136,7 @@ export class BattleScene extends Phaser.Scene {
             fontStyle: 'bold',
         });
         text.setOrigin(0.5, 0.5);
+        text.setScrollFactor(0);
 
         this.speedBtn.add([bg, text]);
 

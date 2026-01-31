@@ -10,6 +10,18 @@ import type { ArenaStageDefinition, UnitDefinition } from "@/data/types";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePlayerData } from "@/hooks/usePlayerData";
 
+// 横向き検出フック
+function useIsLandscape() {
+    const [isLandscape, setIsLandscape] = useState(false);
+    useEffect(() => {
+        const check = () => setIsLandscape(window.innerWidth > window.innerHeight);
+        check();
+        window.addEventListener("resize", check);
+        return () => window.removeEventListener("resize", check);
+    }, []);
+    return isLandscape;
+}
+
 // Phaserコンポーネントを動的インポート（SSR無効）
 const PhaserGame = dynamic(
     () => import("@/components/game/PhaserGame"),
@@ -17,6 +29,8 @@ const PhaserGame = dynamic(
 );
 
 const allUnits = unitsData as UnitDefinition[];
+// プレイヤーが使用可能なユニット（ボス除外）
+const playableUnits = allUnits.filter(u => !u.id.startsWith("boss_") && !u.isBoss);
 
 export default function ArenaBattlePage() {
     const router = useRouter();
@@ -24,6 +38,7 @@ export default function ArenaBattlePage() {
     const stageId = params.stageId as string;
     const { t } = useLanguage();
     const { selectedTeam, isLoaded, addCoins } = usePlayerData();
+    const isLandscape = useIsLandscape();
 
     const [stage, setStage] = useState<ArenaStageDefinition | null>(null);
     const [team, setTeam] = useState<UnitDefinition[]>([]);
@@ -41,9 +56,9 @@ export default function ArenaBattlePage() {
         }
         setStage(stageData);
 
-        // 編成データ取得
+        // 編成データ取得（ボス除外）
         const teamDefs = selectedTeam
-            .map((id) => allUnits.find((u) => u.id === id))
+            .map((id) => playableUnits.find((u) => u.id === id))
             .filter((u): u is UnitDefinition => u !== undefined);
         setTeam(teamDefs);
     }, [stageId, router, selectedTeam, isLoaded]);
@@ -72,15 +87,30 @@ export default function ArenaBattlePage() {
 
     return (
         <main className="fixed inset-0 bg-[#1a1a2e] overflow-hidden">
-            {/* ヘッダー */}
-            <div className="absolute top-0 left-0 w-full p-4 z-20 flex items-center justify-between pointer-events-none">
-                <Link href="/" className="btn btn-secondary text-sm py-2 px-3 pointer-events-auto shadow-lg border-2 border-white/20">
-                    ← {t("back")}
-                </Link>
-                <div className="btn btn-primary pointer-events-none text-sm py-2 px-3 shadow-lg border-2 border-white/20">
-                    🏟️ Arena
+            {/* ヘッダー - スマホ対応: 右上に配置 */}
+            <div className="absolute top-0 right-0 p-2 sm:p-4 z-20 flex items-center gap-2 pointer-events-none">
+                <div className="btn btn-primary pointer-events-none text-xs sm:text-sm py-1 px-2 sm:py-2 sm:px-3 shadow-lg border-2 border-white/20">
+                    🏟️ <span className="hidden sm:inline">Arena</span>
                 </div>
+                <Link href="/" className="btn btn-secondary text-xs sm:text-sm py-1 px-2 sm:py-2 sm:px-3 pointer-events-auto shadow-lg border-2 border-white/20 opacity-70 hover:opacity-100">
+                    <span className="sm:hidden">←</span>
+                    <span className="hidden sm:inline">← {t("back")}</span>
+                </Link>
             </div>
+
+            {/* スマホ横向き時の案内 */}
+            {isLandscape && (
+                <div className="md:hidden absolute inset-0 flex items-center justify-center bg-black/90 z-50 p-6 text-center">
+                    <div>
+                        <div className="text-5xl mb-4 animate-bounce">📱↕️</div>
+                        <h2 className="text-white text-2xl font-bold mb-2">縦向きでプレイしよう！</h2>
+                        <p className="text-gray-300">
+                            アリーナは縦画面に<br />
+                            最適化されています。
+                        </p>
+                    </div>
+                </div>
+            )}
 
             {/* ゲーム画面 */}
             <div className="w-full h-full flex items-center justify-center">
