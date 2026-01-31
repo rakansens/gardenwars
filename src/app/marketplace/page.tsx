@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { useUnitDetailModal } from "@/hooks/useUnitDetailModal";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { useMarketplace } from "@/hooks/useMarketplace";
 import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
@@ -52,7 +53,7 @@ export default function MarketplacePage() {
     const [filterSeller, setFilterSeller] = useState<{ id: string; name: string } | null>(null);
 
     const [showCreateModal, setShowCreateModal] = useState(false);
-    const [viewingUnit, setViewingUnit] = useState<UnitDefinition | null>(null);
+    const { viewingUnit, openModal, closeModal } = useUnitDetailModal();
     const [confirmBuy, setConfirmBuy] = useState<MarketplaceListing | null>(null);
     const [confirmCancel, setConfirmCancel] = useState<MarketplaceListing | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -434,7 +435,7 @@ export default function MarketplacePage() {
                                         onCancel={() => setConfirmCancel(listing)}
                                         onDetail={() => {
                                             const unit = allUnits.find((u) => u.id === listing.unitId);
-                                            if (unit) setViewingUnit(unit);
+                                            if (unit) openModal(unit);
                                         }}
                                         onSellerClick={handleSellerClick}
                                         currentCoins={coins}
@@ -508,7 +509,7 @@ export default function MarketplacePage() {
                     unit={viewingUnit}
                     isOwned={!!unitInventory[viewingUnit.id]}
                     isInTeam={false}
-                    onClose={() => setViewingUnit(null)}
+                    onClose={() => closeModal()}
                     onToggleTeam={() => { }}
                 />
             )}

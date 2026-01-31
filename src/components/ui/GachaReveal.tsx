@@ -5,6 +5,7 @@ import type { UnitDefinition, Rarity } from "@/data/types";
 import { getRarityStars, getRarityGradientClass } from "@/components/ui/RarityFrame";
 import RarityFrame from "@/components/ui/RarityFrame";
 import UnitDetailModal from "@/components/ui/UnitDetailModal";
+import { useUnitDetailModal } from "@/hooks/useUnitDetailModal";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface GachaRevealProps {
@@ -74,7 +75,7 @@ export default function GachaReveal({ results, onComplete, dropRates }: GachaRev
     const [phase, setPhase] = useState<"video" | "cards" | "single">("video");
     const [revealedCards, setRevealedCards] = useState<boolean[]>(results.map(() => false));
     const [currentSingleIndex, setCurrentSingleIndex] = useState<number>(0);
-    const [viewingUnit, setViewingUnit] = useState<UnitDefinition | null>(null);
+    const { viewingUnit, openModal, closeModal } = useUnitDetailModal();
     const videoRef = useRef<HTMLVideoElement>(null);
 
     // 動画終了時の処理
@@ -394,7 +395,7 @@ export default function GachaReveal({ results, onComplete, dropRates }: GachaRev
                             setCurrentSingleIndex(index);
                             setPhase("single");
                         } else {
-                            setViewingUnit(unit);
+                            openModal(unit);
                         }
                     };
 
@@ -466,7 +467,7 @@ export default function GachaReveal({ results, onComplete, dropRates }: GachaRev
                     unit={viewingUnit}
                     isOwned={true}
                     isInTeam={false}
-                    onClose={() => setViewingUnit(null)}
+                    onClose={() => closeModal()}
                     onToggleTeam={() => { }}
                 />
             )}

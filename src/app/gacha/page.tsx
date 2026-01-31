@@ -7,7 +7,9 @@ import type { UnitDefinition, Rarity } from "@/data/types";
 import RarityFrame, { getRarityStars, getRarityGradientClass } from "@/components/ui/RarityFrame";
 import GachaReveal from "@/components/ui/GachaReveal";
 import UnitDetailModal from "@/components/ui/UnitDetailModal";
+import UnitCard from "@/components/ui/UnitCard";
 import { usePlayerData } from "@/hooks/usePlayerData";
+import { useUnitDetailModal } from "@/hooks/useUnitDetailModal";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { incrementGachaCount } from "@/lib/supabase";
@@ -28,7 +30,7 @@ export default function GachaPage() {
     const [isRolling, setIsRolling] = useState(false);
     const [showReveal, setShowReveal] = useState(false);
     const [showHistory, setShowHistory] = useState(false);
-    const [viewingUnit, setViewingUnit] = useState<UnitDefinition | null>(null);
+    const { viewingUnit, openModal, closeModal } = useUnitDetailModal();
     const [ownedRarityFilter, setOwnedRarityFilter] = useState<Rarity | "ALL">("ALL");
     const [unownedRarityFilter, setUnownedRarityFilter] = useState<Rarity | "ALL">("ALL");
     const [newRarityFilter, setNewRarityFilter] = useState<Rarity | "ALL">("ALL");
@@ -300,7 +302,7 @@ export default function GachaPage() {
                                                         hover:shadow-xl hover:shadow-pink-500/30
                                                         ${isOwned ? "ring-2 ring-green-400/50" : "opacity-80"}
                                                     `}
-                                                    onClick={() => setViewingUnit(unit)}
+                                                    onClick={() => openModal(unit)}
                                                 >
                                                     <div className={`absolute -top-2 -right-2 px-2 py-1 rounded-full text-xs font-bold z-10 ${rate < 0.05 ? "bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 text-white animate-pulse" : "bg-purple-500 text-white"}`}>
                                                         {rate.toFixed(2)}%
@@ -337,7 +339,7 @@ export default function GachaPage() {
                                         <div
                                             key={unit.id}
                                             className={`relative p-2 rounded-xl cursor-pointer transition-all bg-gradient-to-br from-purple-800/50 to-pink-800/50 border border-pink-500/30 hover:border-pink-400 hover:scale-105 ${isOwned ? "" : "opacity-70"}`}
-                                            onClick={() => setViewingUnit(unit)}
+                                            onClick={() => openModal(unit)}
                                         >
                                             <div className={`absolute -top-2 -right-2 px-2 py-0.5 rounded-full text-[10px] font-bold z-10 ${rate < 0.05 ? "bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500 text-white animate-pulse" : "bg-purple-500 text-white"}`}>
                                                 {rate.toFixed(2)}%
@@ -403,7 +405,7 @@ export default function GachaPage() {
                                                     <div
                                                         key={unitIndex}
                                                         className="w-10 h-10 cursor-pointer hover:scale-110 transition-transform"
-                                                        onClick={() => setViewingUnit(unit)}
+                                                        onClick={() => openModal(unit)}
                                                     >
                                                         <RarityFrame
                                                             unitId={unit.id}
@@ -533,7 +535,7 @@ export default function GachaPage() {
                                                             border-2 hover:shadow-xl hover:scale-105
                                                             ${isOwned ? "ring-2 ring-green-400/50" : "opacity-80"}
                                                         `}
-                                                        onClick={() => setViewingUnit(unit)}
+                                                        onClick={() => openModal(unit)}
                                                     >
                                                         <div className="absolute -top-2 -right-2 px-2 py-1 rounded-full text-xs font-bold z-10 bg-green-500 text-white animate-pulse shadow-lg">
                                                             NEW
@@ -573,7 +575,7 @@ export default function GachaPage() {
                                                     hover:bg-green-200/50 dark:hover:bg-green-800/30
                                                     ${!isOwned ? "opacity-70" : ""}
                                                 `}
-                                                onClick={() => setViewingUnit(unit)}
+                                                onClick={() => openModal(unit)}
                                             >
                                                 {/* NEWバッジ */}
                                                 <div className="absolute -top-1 -right-1 px-1.5 py-0.5 rounded-full bg-green-500 text-white text-[10px] font-bold z-10">
@@ -659,7 +661,7 @@ export default function GachaPage() {
                                         <div
                                             key={unit.id}
                                             className="relative p-2 rounded-lg cursor-pointer hover:bg-amber-100 transition-colors"
-                                            onClick={() => setViewingUnit(unit)}
+                                            onClick={() => openModal(unit)}
                                         >
                                             <div className="flex justify-center">
                                                 <RarityFrame
@@ -735,7 +737,7 @@ export default function GachaPage() {
                                     <div
                                         key={unit.id}
                                         className="relative p-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
-                                        onClick={() => setViewingUnit(unit)}
+                                        onClick={() => openModal(unit)}
                                     >
                                         <div className="flex justify-center">
                                             <RarityFrame
@@ -781,7 +783,7 @@ export default function GachaPage() {
                     unit={viewingUnit}
                     isOwned={(unitInventory[viewingUnit.id] || 0) > 0}
                     isInTeam={false}
-                    onClose={() => setViewingUnit(null)}
+                    onClose={() => closeModal()}
                     onToggleTeam={() => {}}
                     dropRate={getDropRate(viewingUnit)}
                 />

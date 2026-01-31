@@ -8,6 +8,7 @@ import RarityFrame from "@/components/ui/RarityFrame";
 import UnitDetailModal from "@/components/ui/UnitDetailModal";
 import { hasAnimation } from "@/components/ui/UnitAnimationPreview";
 import { usePlayerData } from "@/hooks/usePlayerData";
+import { useUnitDetailModal } from "@/hooks/useUnitDetailModal";
 import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
 
 const allUnits = unitsData as UnitDefinition[];
@@ -42,7 +43,7 @@ export default function CollectionPage() {
     const { unitInventory, selectedTeam, setTeam, isLoaded } = usePlayerData();
     const { t } = useLanguage();
     const [rarityFilter, setRarityFilter] = useState<Rarity | "ALL">("ALL");
-    const [viewingUnit, setViewingUnit] = useState<UnitDefinition | null>(null);
+    const { viewingUnit, openModal, closeModal } = useUnitDetailModal();
     const [showOwnedOnly, setShowOwnedOnly] = useState(false);
 
     const rarityTabs: { key: Rarity | "ALL"; label: string; color: string; icon: string }[] = [
@@ -94,7 +95,7 @@ export default function CollectionPage() {
     });
 
     const handleUnitClick = (unit: UnitDefinition) => {
-        setViewingUnit(unit);
+        openModal(unit);
     };
 
     const handleToggleUnit = (unitId: string) => {
@@ -359,7 +360,7 @@ export default function CollectionPage() {
                     unit={viewingUnit}
                     isOwned={(unitInventory[viewingUnit.id] || 0) > 0}
                     isInTeam={selectedTeam.includes(viewingUnit.id)}
-                    onClose={() => setViewingUnit(null)}
+                    onClose={() => closeModal()}
                     onToggleTeam={() => handleToggleUnit(viewingUnit.id)}
                 />
             )}

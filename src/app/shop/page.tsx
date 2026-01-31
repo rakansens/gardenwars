@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useUnitDetailModal } from "@/hooks/useUnitDetailModal";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import unitsData from "@/data/units";
 import type { UnitDefinition, Rarity } from "@/data/types";
@@ -25,7 +26,7 @@ const rarityColors: Record<Rarity, { border: string; bg: string; glow: string }>
 export default function ShopPage() {
     const { coins, shopItems, buyShopItem, refreshShop, spendCoins, isLoaded } = usePlayerData();
     const { t } = useLanguage();
-    const [viewingUnit, setViewingUnit] = useState<UnitDefinition | null>(null);
+    const { viewingUnit, openModal, closeModal } = useUnitDetailModal();
     const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
     const [targetIndex, setTargetIndex] = useState<number>(-1);
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -213,7 +214,7 @@ export default function ShopPage() {
                                     className="absolute top-2 left-2 w-8 h-8 bg-white/70 dark:bg-slate-800/70 hover:bg-white dark:hover:bg-slate-700 rounded-full flex items-center justify-center text-sm transition-colors shadow"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        setViewingUnit(unit);
+                                        openModal(unit);
                                     }}
                                 >
                                     🔍
@@ -303,7 +304,7 @@ export default function ShopPage() {
                     unit={viewingUnit}
                     isOwned={false}
                     isInTeam={false}
-                    onClose={() => setViewingUnit(null)}
+                    onClose={() => closeModal()}
                     onToggleTeam={() => { }}
                 />
             )}

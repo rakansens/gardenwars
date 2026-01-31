@@ -8,6 +8,7 @@ import RarityFrame from "@/components/ui/RarityFrame";
 import UnitDetailModal from "@/components/ui/UnitDetailModal";
 import { hasAnimation } from "@/components/ui/UnitAnimationPreview";
 import { usePlayerData } from "@/hooks/usePlayerData";
+import { useUnitDetailModal } from "@/hooks/useUnitDetailModal";
 import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
 
 const allUnits = unitsData as UnitDefinition[];
@@ -62,7 +63,7 @@ export default function TeamPage() {
     const { t } = useLanguage();
     const [rarityFilter, setRarityFilter] = useState<Rarity | "ALL">("ALL");
     const [sortBy, setSortBy] = useState<SortKey>("none");
-    const [viewingUnit, setViewingUnit] = useState<UnitDefinition | null>(null);
+    const { viewingUnit, openModal, closeModal } = useUnitDetailModal();
 
     // 他のデッキにユニットが含まれているかチェック
     const getOtherDeckIndex = (unitId: string): number | null => {
@@ -157,7 +158,7 @@ export default function TeamPage() {
     };
 
     const handleUnitClick = (unit: UnitDefinition) => {
-        setViewingUnit(unit);
+        openModal(unit);
     };
 
     const getSelectedTeamDefs = () => {
@@ -617,7 +618,7 @@ export default function TeamPage() {
                     unit={viewingUnit}
                     isOwned={(unitInventory[viewingUnit.id] || 0) > 0}
                     isInTeam={selectedTeam.includes(viewingUnit.id)}
-                    onClose={() => setViewingUnit(null)}
+                    onClose={() => closeModal()}
                     onToggleTeam={() => handleToggleUnit(viewingUnit.id)}
                     dropRate={getDropRate(viewingUnit)}
                 />
