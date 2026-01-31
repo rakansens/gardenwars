@@ -13,7 +13,7 @@ import { usePlayerData } from "@/hooks/usePlayerData";
 const stages = stagesData as StageDefinition[];
 const allUnits = unitsData as UnitDefinition[];
 
-// 難易度タブ設定
+// 難易度タブ設定（順番が重要 - アンロック順）
 const DIFFICULTY_TABS: {
     key: StageDifficulty | "all";
     labelKey: string;
@@ -32,6 +32,9 @@ const DIFFICULTY_TABS: {
     { key: "boss", labelKey: "difficulty_boss", subKey: "difficulty_boss_sub", icon: "🏰", color: "bg-purple-600", banner: "/assets/stages/boss_banner.webp", gradient: "from-purple-700 to-black" },
     { key: "special", labelKey: "difficulty_special", subKey: "difficulty_special_sub", icon: "✨", color: "bg-gradient-to-r from-pink-500 to-cyan-500", banner: "/assets/stages/special_banner.webp", gradient: "from-pink-400 via-purple-500 to-cyan-400" },
 ];
+
+// 難易度の順番（アンロック順）
+const DIFFICULTY_ORDER: StageDifficulty[] = ["tutorial", "easy", "normal", "hard", "extreme", "boss", "special"];
 
 // ステージのテーマアイコン
 const stageIcons: { [key: string]: string } = {
@@ -118,6 +121,30 @@ export default function StagesPage() {
         return { cleared, total: targetStages.length };
     };
 
+    // 難易度がアンロックされているかチェック
+    const isDifficultyUnlocked = (difficulty: StageDifficulty): boolean => {
+        const difficultyIndex = DIFFICULTY_ORDER.indexOf(difficulty);
+        if (difficultyIndex === 0) return true; // tutorialは常にアンロック
+
+        // 前の難易度の全ステージをクリアしているかチェック
+        const prevDifficulty = DIFFICULTY_ORDER[difficultyIndex - 1];
+        const prevStages = stages.filter(s => s.difficulty === prevDifficulty);
+        return prevStages.every(s => clearedStages.includes(s.id));
+    };
+
+    // ステージがアンロックされているかチェック
+    const isStageUnlocked = (stage: StageDefinition, stageIndex: number, stagesInDifficulty: StageDefinition[]): boolean => {
+        // 難易度がアンロックされていなければステージもロック
+        if (!isDifficultyUnlocked(stage.difficulty as StageDifficulty)) return false;
+
+        // 最初のステージは常にアンロック（難易度がアンロックされていれば）
+        if (stageIndex === 0) return true;
+
+        // 前のステージがクリアされていればアンロック
+        const prevStage = stagesInDifficulty[stageIndex - 1];
+        return clearedStages.includes(prevStage.id);
+    };
+
     return (
         <main className="min-h-screen p-4 md:p-8">
             {/* ヘッダー */}
@@ -143,14 +170,18 @@ export default function StagesPage() {
                         const { cleared, total } = getClearCount(tab.key);
                         const isSelected = selectedDifficulty === tab.key;
                         const isAllCleared = cleared === total && total > 0;
+                        const isLocked = tab.key !== "all" && !isDifficultyUnlocked(tab.key as StageDifficulty);
                         return (
                             <button
                                 key={tab.key}
-                                onClick={() => setSelectedDifficulty(tab.key)}
+                                onClick={() => !isLocked && setSelectedDifficulty(tab.key)}
+                                disabled={isLocked}
                                 className={`relative overflow-hidden rounded-xl transition-all duration-300 ${
-                                    isSelected
-                                        ? "ring-4 ring-yellow-400 scale-105 shadow-2xl z-10"
-                                        : "hover:scale-102 hover:shadow-lg opacity-80 hover:opacity-100"
+                                    isLocked
+                                        ? "opacity-50 cursor-not-allowed grayscale"
+                                        : isSelected
+                                            ? "ring-4 ring-yellow-400 scale-105 shadow-2xl z-10"
+                                            : "hover:scale-102 hover:shadow-lg opacity-80 hover:opacity-100"
                                 }`}
                             >
                                 {/* バナー画像背景 */}
@@ -166,8 +197,15 @@ export default function StagesPage() {
                                     {/* オーバーレイ */}
                                     <div className={`absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent`} />
 
+                                    {/* ロックアイコン */}
+                                    {isLocked && (
+                                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
+                                            <span className="text-3xl">🔒</span>
+                                        </div>
+                                    )}
+
                                     {/* クリア済みバッジ */}
-                                    {isAllCleared && (
+                                    {isAllCleared && !isLocked && (
                                         <div className="absolute top-1 right-1 bg-green-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
                                             ✓
                                         </div>
@@ -210,11 +248,23 @@ export default function StagesPage() {
                             const enemyUnits = getUniqueEnemyUnits(stage);
                             const isCleared = clearedStages.includes(stage.id);
                             const stageImage = stage.background?.image || `/assets/stages/${stage.id}.webp`;
+
+                            // ステージのロック判定
+                            const stagesInSameDifficulty = stages.filter(s => s.difficulty === stage.difficulty);
+                            const stageIndexInDifficulty = stagesInSameDifficulty.findIndex(s => s.id === stage.id);
+                            const isLocked = !isStageUnlocked(stage, stageIndexInDifficulty, stagesInSameDifficulty);
+
                             return (
                                 <div
                                     key={stage.id}
-                                    className={`stage-card relative overflow-hidden ${isCleared ? 'ring-2 ring-green-400' : ''}`}
-                                    onClick={() => handleSelectStage(stage.id)}
+                                    className={`stage-card relative overflow-hidden ${
+                                        isLocked
+                                            ? 'opacity-60 grayscale cursor-not-allowed'
+                                            : isCleared
+                                                ? 'ring-2 ring-green-400 cursor-pointer'
+                                                : 'cursor-pointer'
+                                    }`}
+                                    onClick={() => !isLocked && handleSelectStage(stage.id)}
                                 >
                                     {/* サムネイル画像 */}
                                     <div className="relative h-32 -mx-4 -mt-4 mb-3 overflow-hidden">
@@ -226,8 +276,15 @@ export default function StagesPage() {
                                         />
                                         <div className="absolute inset-0 bg-gradient-to-t from-amber-50 dark:from-slate-800 via-transparent to-transparent" />
 
+                                        {/* ロックオーバーレイ */}
+                                        {isLocked && (
+                                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
+                                                <span className="text-4xl">🔒</span>
+                                            </div>
+                                        )}
+
                                         {/* クリアバッジ */}
-                                        {isCleared && (
+                                        {isCleared && !isLocked && (
                                             <div className="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg z-10">
                                                 ✓ CLEAR
                                             </div>
@@ -291,7 +348,7 @@ export default function StagesPage() {
                                     </div>
 
                                     {/* 敵情報（コンパクト） */}
-                                    <div className="bg-amber-100/50 dark:bg-slate-700/50 rounded-lg p-2 mb-3 text-xs dark:text-gray-300">
+                                    <div className="bg-amber-200/70 dark:bg-slate-700/50 rounded-lg p-2 mb-3 text-xs text-amber-900 dark:text-gray-300 font-medium">
                                         <div className="flex justify-between">
                                             <span>👾 {getTotalEnemies(stage)}</span>
                                             <span>🌊 {stage.enemyWaves.length}</span>
