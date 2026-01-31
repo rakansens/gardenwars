@@ -430,6 +430,49 @@ export class BattleScene extends Phaser.Scene {
         this.load.atlas('ur_sea_leviathan_atlas', '/assets/sprites/ur_sea_leviathan_sheet.webp', '/assets/sprites/ur_sea_leviathan_sheet.json');
         this.load.atlas('ur_stone_golem_cat_atlas', '/assets/sprites/ur_stone_golem_cat_sheet.webp', '/assets/sprites/ur_stone_golem_cat_sheet.json');
         this.load.atlas('ur_thunder_phoenix_atlas', '/assets/sprites/ur_thunder_phoenix_sheet.webp', '/assets/sprites/ur_thunder_phoenix_sheet.json');
+
+        // New Anime Units (Batch 3 - 2026-01-31)
+        // UR Units
+        this.load.image('ur_overlord_rose', '/assets/sprites/ur_overlord_rose.webp');
+        this.load.image('ur_fairy_knight', '/assets/sprites/ur_fairy_knight.webp');
+        this.load.image('ur_golden_paladin', '/assets/sprites/ur_golden_paladin.webp');
+        this.load.image('ur_cosmic_tiger', '/assets/sprites/ur_cosmic_tiger.webp');
+        this.load.image('ur_botanical_gundam', '/assets/sprites/ur_botanical_gundam.webp');
+
+        // SSR Units
+        this.load.image('ssr_sakura_samurai', '/assets/sprites/ssr_sakura_samurai.webp');
+        this.load.image('ssr_higanbana_mage', '/assets/sprites/ssr_higanbana_mage.webp');
+        this.load.image('ssr_frost_empress', '/assets/sprites/ssr_frost_empress.webp');
+        this.load.image('ssr_rose_gunslinger', '/assets/sprites/ssr_rose_gunslinger.webp');
+        this.load.image('ssr_rainbow_storm', '/assets/sprites/ssr_rainbow_storm.webp');
+        this.load.image('ssr_phantom_masquerade', '/assets/sprites/ssr_phantom_masquerade.webp');
+        this.load.image('ssr_carnivore_mask', '/assets/sprites/ssr_carnivore_mask.webp');
+        this.load.image('ssr_psychedelic_bloom', '/assets/sprites/ssr_psychedelic_bloom.webp');
+        this.load.image('ssr_cyber_rose', '/assets/sprites/ssr_cyber_rose.webp');
+        this.load.image('ssr_galaxy_slime', '/assets/sprites/ssr_galaxy_slime.webp');
+        this.load.image('ssr_poinsettia_wild', '/assets/sprites/ssr_poinsettia_wild.webp');
+
+        // SR Units
+        this.load.image('sr_bamboo_ninja', '/assets/sprites/sr_bamboo_ninja.webp');
+        this.load.image('sr_vine_warlock', '/assets/sprites/sr_vine_warlock.webp');
+        this.load.image('sr_celtic_warrior', '/assets/sprites/sr_celtic_warrior.webp');
+        this.load.image('sr_mecha_gunner', '/assets/sprites/sr_mecha_gunner.webp');
+        this.load.image('sr_scout_corps', '/assets/sprites/sr_scout_corps.webp');
+        this.load.image('sr_cyber_swordsman', '/assets/sprites/sr_cyber_swordsman.webp');
+        this.load.image('sr_shadow_ninja', '/assets/sprites/sr_shadow_ninja.webp');
+        this.load.image('sr_flora_hero', '/assets/sprites/sr_flora_hero.webp');
+        this.load.image('sr_demon_mage', '/assets/sprites/sr_demon_mage.webp');
+        this.load.image('sr_banchou_brawler', '/assets/sprites/sr_banchou_brawler.webp');
+        this.load.image('sr_wasteland_merc', '/assets/sprites/sr_wasteland_merc.webp');
+
+        // R Units
+        this.load.image('r_garden_hero', '/assets/sprites/r_garden_hero.webp');
+        this.load.image('r_sprout_knight', '/assets/sprites/r_sprout_knight.webp');
+        this.load.image('r_chainsaw_gardener', '/assets/sprites/r_chainsaw_gardener.webp');
+        this.load.image('r_wisteria_swordsman', '/assets/sprites/r_wisteria_swordsman.webp');
+        this.load.image('r_apple_scholar', '/assets/sprites/r_apple_scholar.webp');
+        this.load.image('r_plant_dealer', '/assets/sprites/r_plant_dealer.webp');
+        this.load.image('r_sailor_rose', '/assets/sprites/r_sailor_rose.webp');
     }
 
     private summonUIButtons: {

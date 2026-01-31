@@ -98,22 +98,13 @@ export default function GachaPage() {
         }, 100);
     };
 
-    // レアリティで重み付けしてランダム選択（URは個別重み）
+    // レアリティで重み付けしてランダム選択
     const pickRandomUnit = (): UnitDefinition => {
-        // 基本レアリティ確率: N=51%, R=30%, SR=15%, SSR=2%, UR=1%(ベース)
-        const rarityWeights = { N: 51, R: 30, SR: 15, SSR: 1, UR: 1 };
+        // 基本レアリティ確率: N=51%, R=30%, SR=15%, SSR=1%, UR=0.33%（300連で1体）
+        const rarityWeights = { N: 51, R: 30, SR: 15, SSR: 1, UR: 0.33 };
 
-        // URユニットの合計重みを計算
-        const urUnits = gachaPool.filter(u => u.rarity === "UR");
-        const totalUrWeight = urUnits.reduce((sum, u) => sum + (u.gachaWeight ?? 1), 0);
-
-        // 各ユニットの実効重みを計算
+        // 各ユニットの実効重みを計算（レアリティ内で均等配分）
         const getUnitWeight = (unit: UnitDefinition): number => {
-            if (unit.rarity === "UR") {
-                // URの個別重み: (個別weight / 合計URweight) * URベース確率
-                return ((unit.gachaWeight ?? 1) / totalUrWeight) * rarityWeights.UR;
-            }
-            // 他のレアリティは均等配分
             const unitsInRarity = gachaPool.filter(u => u.rarity === unit.rarity).length;
             return rarityWeights[unit.rarity] / unitsInRarity;
         };
@@ -130,14 +121,8 @@ export default function GachaPage() {
 
     // ユニットの排出率を計算（%表示用）
     const getDropRate = (unit: UnitDefinition): number => {
-        const rarityWeights = { N: 51, R: 30, SR: 15, SSR: 1, UR: 1 };
-
-        if (unit.rarity === "UR") {
-            const urUnits = gachaPool.filter(u => u.rarity === "UR");
-            const totalUrWeight = urUnits.reduce((sum, u) => sum + (u.gachaWeight ?? 1), 0);
-            return ((unit.gachaWeight ?? 1) / totalUrWeight) * rarityWeights.UR;
-        }
-
+        // 基本レアリティ確率: UR=0.33%（300連で1体）、レアリティ内で均等配分
+        const rarityWeights = { N: 51, R: 30, SR: 15, SSR: 1, UR: 0.33 };
         const unitsInRarity = gachaPool.filter(u => u.rarity === unit.rarity).length;
         return rarityWeights[unit.rarity] / unitsInRarity;
     };
