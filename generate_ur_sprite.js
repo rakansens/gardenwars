@@ -1,3 +1,33 @@
+/**
+ * generate_ur_sprite.js - UR/SSRスプライトシート生成スクリプト
+ *
+ * 用途: キャラクター画像からアニメーションスプライトシートを生成
+ *
+ * 使い方:
+ *   node generate_ur_sprite.js <入力画像> <出力パス> [アタックスタイル]
+ *
+ * アタックスタイル:
+ *   - mech    : ロボット、メカ（レーザー、爆発）
+ *   - knight  : 剣士（剣斬撃、エネルギーアーク）
+ *   - paladin : 聖騎士（神聖光、聖なる力）
+ *   - nature  : 植物系（つる、花びら、とげ）
+ *   - beast   : 動物（爪、牙、野性の力）
+ *   - magic   : 魔法使い（魔法、アーケインエネルギー）
+ *   - default : 汎用
+ *
+ * 例:
+ *   node generate_ur_sprite.js public/assets/sprites/allies/SSR/ssr_frost_empress.webp public/assets/sprites/sheets/ssr_frost_empress_sheet.png magic
+ *
+ * 出力仕様:
+ *   - サイズ: 1376 x 768 ピクセル
+ *   - グリッド: 4列 x 2行（8フレーム）
+ *   - 背景: クロマキーグリーン（#00FF00）
+ *
+ * 次のステップ:
+ *   node remove_green.js <出力パス>  # 背景除去
+ *   cwebp -q 90 <PNG> -o <WebP>      # WebP変換
+ */
+
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config({ path: '.env.local' });
@@ -61,7 +91,7 @@ Create a sprite sheet with:
 - 4 columns x 2 rows (8 frames total)
 - Size: 1376 x 768 pixels
 - Each frame: 344 x 384 pixels
-- Transparent background (NO white, NO checkerboard)
+- SOLID BRIGHT GREEN background (#00FF00) - chroma key green for easy removal
 
 Row 1: idle, walk_1, walk_2, walk_3
 Row 2: ${attackDesc}

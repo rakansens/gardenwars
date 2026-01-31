@@ -14,6 +14,10 @@ export const ANIMATED_UNITS = [
     'sr_cappuccino_assassin', 'sr_capybara_ninja', 'sr_capybara_shaman', 'sr_odindindun', 'sr_traffarella',
     // SSR ユニット
     'flame_knight', 'ice_samurai', 'shadow_assassin', 'thunder_golem',
+    // New SSR units (2025-01)
+    'ssr_frost_empress', 'ssr_galaxy_slime', 'ssr_carnivore_mask', 'ssr_higanbana_mage',
+    'ssr_poinsettia_wild', 'ssr_psychedelic_bloom', 'ssr_rainbow_storm', 'ssr_sakura_samurai',
+    'ssr_rose_gunslinger', 'ssr_phantom_masquerade', 'ssr_cyber_rose',
     // UR ユニット
     'ur_knight', 'ur_mage', 'ur_archer', 'ur_tank', 'ur_ninja', 'ur_healer',
     'ur_dragon', 'ur_spirit', 'ur_phoenix', 'ur_golem', 'ur_angel', 'ur_ancient_treant',
