@@ -15,6 +15,7 @@ const PhaserGame = dynamic(() => import("@/components/game/PhaserGame"), { ssr: 
 
 const allUnits = unitsData as UnitDefinition[];
 const playableUnits = allUnits.filter(u => !u.id.startsWith("enemy_") && !u.id.startsWith("boss_") && !u.isBoss);
+const SURVIVAL_UNIT_KEY = "gardenwars_survival_unit";
 
 export default function SurvivalPage() {
   const { t } = useLanguage();
@@ -25,6 +26,21 @@ export default function SurvivalPage() {
 
   useEffect(() => {
     if (!isLoaded) return;
+
+    try {
+      const storedId = localStorage.getItem(SURVIVAL_UNIT_KEY);
+      if (storedId) {
+        const storedUnit = playableUnits.find(u => u.id === storedId);
+        if (storedUnit && (unitInventory[storedUnit.id] ?? 0) > 0) {
+          setPlayerUnit(storedUnit);
+          return;
+        }
+      }
+    } catch {}
+
+    if (playerUnit && playableUnits.some(u => u.id === playerUnit.id)) {
+      if ((unitInventory[playerUnit.id] ?? 0) > 0) return;
+    }
 
     let picked: UnitDefinition | undefined;
     if (selectedTeam.length > 0) {
@@ -40,8 +56,14 @@ export default function SurvivalPage() {
       picked = playableUnits[0];
     }
 
-    setPlayerUnit(picked ?? null);
-  }, [isLoaded, selectedTeam, unitInventory]);
+    const chosen = picked ?? null;
+    setPlayerUnit(chosen);
+    if (chosen) {
+      try {
+        localStorage.setItem(SURVIVAL_UNIT_KEY, chosen.id);
+      } catch {}
+    }
+  }, [isLoaded, selectedTeam, unitInventory, playerUnit]);
 
   const ownedUnits = playableUnits.filter((unit) => (unitInventory[unit.id] ?? 0) > 0);
   const selectableUnits = ownedUnits.length > 0 ? ownedUnits : playableUnits;
@@ -158,12 +180,15 @@ export default function SurvivalPage() {
               {selectableUnits.map((unit) => {
                 const isSelected = playerUnit?.id === unit.id;
                 return (
-                  <button
-                    key={unit.id}
-                    onClick={() => {
-                      setPlayerUnit(unit);
-                      setIsUnitModalOpen(false);
-                    }}
+                <button
+                  key={unit.id}
+                  onClick={() => {
+                    setPlayerUnit(unit);
+                    try {
+                      localStorage.setItem(SURVIVAL_UNIT_KEY, unit.id);
+                    } catch {}
+                    setIsUnitModalOpen(false);
+                  }}
                     className={`flex flex-col items-center gap-2 p-2 rounded-xl border transition-all ${
                       isSelected ? "border-amber-400 bg-amber-50" : "border-transparent hover:border-slate-300 hover:bg-slate-50"
                     }`}

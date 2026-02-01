@@ -1,8 +1,8 @@
 [
   {
     "id": "forward_shot",
-    "name": "前方ショット",
-    "description": "正面に弾を発射",
+    "name": "survival_weapon_forward_shot",
+    "description": "survival_weapon_forward_shot_desc",
     "type": "weapon",
     "maxLevel": 5,
     "levels": [
@@ -15,8 +15,8 @@
   },
   {
     "id": "fire_rate",
-    "name": "連射速度",
-    "description": "たまの発射間隔を短縮",
+    "name": "survival_weapon_fire_rate",
+    "description": "survival_weapon_fire_rate_desc",
     "type": "passive",
     "maxLevel": 5,
     "levels": [
@@ -29,8 +29,8 @@
   },
   {
     "id": "spin_blade",
-    "name": "回転刃",
-    "description": "周囲を回る攻撃",
+    "name": "survival_weapon_spin_blade",
+    "description": "survival_weapon_spin_blade_desc",
     "type": "weapon",
     "maxLevel": 5,
     "levels": [
@@ -43,8 +43,8 @@
   },
   {
     "id": "aoe_burst",
-    "name": "範囲爆発",
-    "description": "定期的にAOE",
+    "name": "survival_weapon_aoe_burst",
+    "description": "survival_weapon_aoe_burst_desc",
     "type": "weapon",
     "maxLevel": 5,
     "levels": [
@@ -57,8 +57,8 @@
   },
   {
     "id": "move_speed",
-    "name": "移動速度UP",
-    "description": "回避しやすく",
+    "name": "survival_weapon_move_speed",
+    "description": "survival_weapon_move_speed_desc",
     "type": "passive",
     "maxLevel": 5,
     "levels": [
@@ -71,8 +71,8 @@
   },
   {
     "id": "hp_regen",
-    "name": "HP回復",
-    "description": "少しずつ回復",
+    "name": "survival_weapon_hp_regen",
+    "description": "survival_weapon_hp_regen_desc",
     "type": "passive",
     "maxLevel": 5,
     "levels": [

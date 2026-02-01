@@ -9,6 +9,8 @@ import { SurvivalSpawner, SurvivalDifficultyModifiers } from '../systems/Surviva
 import { WeaponSystem } from '../systems/WeaponSystem';
 import { ExperienceSystem } from '../systems/ExperienceSystem';
 import { CannonSystem, CannonTarget } from '../systems/CannonSystem';
+import enTranslations from '@/data/locales/en.json';
+import jaTranslations from '@/data/locales/ja.json';
 
 export interface SurvivalSceneData {
     player: UnitDefinition;
@@ -91,6 +93,7 @@ export class SurvivalScene extends Phaser.Scene {
     private continueCount: number = 0;
     private maxContinues: number = 3;
     private difficulty: SurvivalDifficulty = 'normal';
+    private translations: Record<string, string> = enTranslations;
 
     constructor() {
         super({ key: 'SurvivalScene' });
@@ -149,6 +152,7 @@ export class SurvivalScene extends Phaser.Scene {
 
     create() {
         const { width, height } = this.scale;
+        this.translations = this.getTranslations();
 
         this.add.rectangle(width / 2, height / 2, width, height, 0x1a1a2e).setDepth(0);
         this.bgFar = this.add.tileSprite(width / 2, height / 2, width, height, 'survival_bg');
@@ -300,6 +304,18 @@ export class SurvivalScene extends Phaser.Scene {
         this.bgNear.tilePositionY += drift * 0.7;
     }
 
+    private getTranslations(): Record<string, string> {
+        try {
+            const stored = localStorage.getItem('gardenwars_language');
+            if (stored === 'ja') return jaTranslations;
+        } catch {}
+        return enTranslations;
+    }
+
+    private t(key: string): string {
+        return this.translations[key] || key;
+    }
+
     private updateProjectiles(delta: number) {
         for (let i = this.projectiles.length - 1; i >= 0; i--) {
             const projectile = this.projectiles[i];
@@ -444,7 +460,7 @@ export class SurvivalScene extends Phaser.Scene {
             card.setInteractive({ useHandCursor: true });
 
             const level = this.weaponSystem.getLevel(option.id);
-            const name = this.add.text(x, y - 24, option.name, {
+            const name = this.add.text(x, y - 24, this.t(option.name), {
                 fontSize: '18px',
                 color: '#ffffff',
                 stroke: '#000000',
@@ -452,7 +468,7 @@ export class SurvivalScene extends Phaser.Scene {
             });
             name.setOrigin(0.5, 0.5);
 
-            const desc = this.add.text(x, y + 6, option.description, {
+            const desc = this.add.text(x, y + 6, this.t(option.description), {
                 fontSize: '14px',
                 color: '#cbd5f5',
             });
