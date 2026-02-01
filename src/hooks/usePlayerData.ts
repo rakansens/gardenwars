@@ -192,6 +192,23 @@ export function usePlayerData() {
                             });
                         }
 
+                        // clearedStagesをマージ（和集合 - クリア履歴は追加のみ）
+                        const mergedStages = new Set([...mergedData.clearedStages, ...localData.clearedStages]);
+                        mergedData.clearedStages = Array.from(mergedStages);
+
+                        // loadoutsをマージ（ローカルがより充実していれば保持）
+                        const remoteLoadoutCount = mergedData.loadouts.filter(l => l.length > 0).length;
+                        const localLoadoutCount = localData.loadouts.filter(l => l.length > 0).length;
+                        if (localLoadoutCount > remoteLoadoutCount) {
+                            mergedData.loadouts = localData.loadouts;
+                            mergedData.activeLoadoutIndex = localData.activeLoadoutIndex;
+                        }
+
+                        // gardenUnitsをマージ（ローカルが存在しリモートが空なら保持）
+                        if (localData.gardenUnits.length > 0 && mergedData.gardenUnits.length === 0) {
+                            mergedData.gardenUnits = localData.gardenUnits;
+                        }
+
                         // selectedTeam を activeLoadoutIndex から設定
                         mergedData.selectedTeam = mergedData.loadouts[mergedData.activeLoadoutIndex] || [];
 
