@@ -607,6 +607,11 @@ export class RealtimeBattleScene extends Phaser.Scene {
       // クリックで召喚
       bg.on('pointerdown', () => {
         if (!this.networkManager.isPlaying()) return;
+        const myPlayer = this.networkManager.getMyPlayer();
+        const cost = def?.cost ?? 0;
+        if (myPlayer && myPlayer.cost >= cost) {
+          this.playSfx('sfx_unit_spawn', 0.3);
+        }
         this.onSummon(unitId);
       });
 
@@ -891,12 +896,6 @@ export class RealtimeBattleScene extends Phaser.Scene {
     this.ensureUnitAnimations(unitState.definitionId);
     this.playUnitAnimationForState(realtimeUnit, unitState.state);
 
-    if (unitState.state === 'SPAWN') {
-      const mySide = this.networkManager.getMySide();
-      if (mySide && unitState.side === mySide) {
-        this.playSfx('sfx_unit_spawn', 0.3);
-      }
-    }
   }
 
   private updateUnit(unitState: NetworkUnitState) {
