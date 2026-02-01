@@ -474,7 +474,7 @@ export default function TeamPage() {
     }
 
     return (
-        <main className="min-h-screen">
+        <main className="min-h-screen overscroll-contain">
             {/* スティッキーヘッダー */}
             <PageHeader
                 title={t("team_title")}
