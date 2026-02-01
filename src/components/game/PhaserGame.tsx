@@ -17,6 +17,7 @@ interface PhaserGameProps {
     onBattleEnd?: (win: boolean, coinsGained: number) => void;
     // Garden props
     gardenUnits?: UnitDefinition[]; // unitsだとallUnitsと混同するので明示的に
+    gardenBackgroundId?: string; // 背景ID
     // Arena props
     arenaStage?: ArenaStageDefinition;
 }
@@ -30,6 +31,7 @@ export default function PhaserGame({
     activeLoadoutIndex,
     onBattleEnd,
     gardenUnits,
+    gardenBackgroundId,
     arenaStage,
 }: PhaserGameProps) {
     const gameRef = useRef<HTMLDivElement>(null);
@@ -93,7 +95,7 @@ export default function PhaserGame({
                 const { GardenScene } = await import("@/game/scenes/GardenScene");
                 SceneClass = GardenScene;
                 startKey = "GardenScene";
-                startData = { units: gardenUnits || [] };
+                startData = { units: gardenUnits || [], backgroundId: gardenBackgroundId };
             } else if (mode === 'arena') {
                 const { ArenaScene } = await import("@/game/scenes/ArenaScene");
                 SceneClass = ArenaScene;

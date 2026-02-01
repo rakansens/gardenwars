@@ -63,6 +63,12 @@ export class RealtimeBattleScene extends Phaser.Scene {
   private costBarFill!: Phaser.GameObjects.Rectangle;
   private phaseText!: Phaser.GameObjects.Text;
   private countdownText!: Phaser.GameObjects.Text;
+  private costUpBtnBg!: Phaser.GameObjects.Arc;
+  private costUpBtnText!: Phaser.GameObjects.Text;
+  private costUpBtnCostText!: Phaser.GameObjects.Text;
+  private costUpBtnZone!: Phaser.GameObjects.Zone;
+  private costUpPulse?: Phaser.Tweens.Tween;
+  private bgm?: Phaser.Sound.BaseSound;
 
   // ユニット定義マップ
   private unitDefinitions: Map<string, UnitDefinition> = new Map();
@@ -74,6 +80,8 @@ export class RealtimeBattleScene extends Phaser.Scene {
   private deckKey = '';
   private lastAllyCastleHp?: number;
   private lastEnemyCastleHp?: number;
+
+  private readonly COST_UPGRADE_COSTS = [500, 1200, 2500, 4500, 8000, 12000, 20000];
 
   constructor() {
     super({ key: 'RealtimeBattleScene' });
@@ -108,6 +116,15 @@ export class RealtimeBattleScene extends Phaser.Scene {
   }
 
   preload() {
+    // BGM
+    this.load.audio('battle_bgm_1', '/assets/audio/bgm/battle_1.mp3');
+    this.load.audio('battle_bgm_2', '/assets/audio/bgm/battle_2.mp3');
+    this.load.audio('boss_bgm_1', '/assets/audio/bgm/boss_1.mp3');
+    this.load.audio('boss_bgm_2', '/assets/audio/bgm/boss_2.mp3');
+    this.load.audio('boss_bgm_3', '/assets/audio/bgm/boss_3.mp3');
+    this.load.audio('victory_bgm', '/assets/audio/bgm/victory.mp3');
+    this.load.audio('defeat_bgm', '/assets/audio/bgm/defeat.mp3');
+
     // 城スプライト
     this.load.image('castle_ally', getSpritePath('castle_ally'));
     this.load.image('castle_enemy', getSpritePath('castle_enemy'));
@@ -370,21 +387,36 @@ export class RealtimeBattleScene extends Phaser.Scene {
   private createUpgradeButton() {
     const { height } = this.scale;
     const buttonY = height - 85;
+    const buttonX = this.scale.width - 60;
+    const radius = 30;
 
-    const btn = this.add.circle(this.scale.width - 60, buttonY, 30, 0xffe066);
-    btn.setStrokeStyle(3, 0x3b2a1a);
-    btn.setScrollFactor(0);
-    btn.setDepth(100);
-    btn.setInteractive({ useHandCursor: true });
+    this.costUpBtnBg = this.add.circle(buttonX, buttonY, radius, 0xffe066);
+    this.costUpBtnBg.setStrokeStyle(3, 0x3b2a1a);
+    this.costUpBtnBg.setScrollFactor(0);
+    this.costUpBtnBg.setDepth(100);
 
-    const text = this.add.text(this.scale.width - 60, buttonY, '⬆️', {
+    this.costUpBtnText = this.add.text(buttonX, buttonY - 4, '⬆️', {
       fontSize: '24px',
     });
-    text.setOrigin(0.5, 0.5);
-    text.setScrollFactor(0);
-    text.setDepth(101);
+    this.costUpBtnText.setOrigin(0.5, 0.5);
+    this.costUpBtnText.setScrollFactor(0);
+    this.costUpBtnText.setDepth(101);
 
-    btn.on('pointerdown', () => {
+    this.costUpBtnCostText = this.add.text(buttonX, buttonY + 16, '¥0', {
+      fontSize: '10px',
+      color: '#3b2a1a',
+      fontStyle: 'bold',
+    });
+    this.costUpBtnCostText.setOrigin(0.5, 0.5);
+    this.costUpBtnCostText.setScrollFactor(0);
+    this.costUpBtnCostText.setDepth(101);
+
+    this.costUpBtnZone = this.add.zone(buttonX, buttonY, radius * 2 + 10, radius * 2 + 10);
+    this.costUpBtnZone.setScrollFactor(0);
+    this.costUpBtnZone.setDepth(102);
+    this.costUpBtnZone.setInteractive({ useHandCursor: true });
+
+    this.costUpBtnZone.on('pointerdown', () => {
       if (!this.networkManager.isPlaying()) return;
       this.onUpgradeCost();
     });
@@ -441,6 +473,7 @@ export class RealtimeBattleScene extends Phaser.Scene {
       case 'playing':
         this.phaseText.setText('BATTLE!');
         this.countdownText.setVisible(false);
+        this.startBattleBgm();
         this.time.delayedCall(1000, () => {
           this.phaseText.setVisible(false);
         });
@@ -460,6 +493,44 @@ export class RealtimeBattleScene extends Phaser.Scene {
       const clampedRatio = Phaser.Math.Clamp(ratio, 0, 1);
       this.costBarFill.width = 130 * clampedRatio;
       this.costText.setText(`${Math.floor(Math.max(0, myPlayer.cost))}/${Math.max(0, myPlayer.maxCost)}`);
+
+      const levelIndex = Math.max(0, myPlayer.costLevel - 1);
+      const upgradeCost = this.COST_UPGRADE_COSTS[levelIndex];
+      if (upgradeCost === undefined) {
+        this.costUpBtnCostText.setText('MAX');
+        this.costUpBtnBg.setFillStyle(0xd7bf8a);
+        this.costUpBtnZone.disableInteractive();
+        if (this.costUpPulse) {
+          this.costUpPulse.stop();
+          this.costUpPulse = undefined;
+        }
+      } else {
+        this.costUpBtnCostText.setText(`¥${upgradeCost}`);
+        const canUpgrade = myPlayer.cost >= upgradeCost;
+        this.costUpBtnBg.setFillStyle(canUpgrade ? 0xffe066 : 0xd7bf8a);
+        if (canUpgrade) {
+          this.costUpBtnZone.setInteractive({ useHandCursor: true });
+          if (!this.costUpPulse) {
+            this.costUpPulse = this.tweens.add({
+              targets: [this.costUpBtnBg, this.costUpBtnText, this.costUpBtnCostText],
+              scaleX: 1.1,
+              scaleY: 1.1,
+              duration: 400,
+              yoyo: true,
+              repeat: -1,
+            });
+          }
+        } else {
+          this.costUpBtnZone.disableInteractive();
+          if (this.costUpPulse) {
+            this.costUpPulse.stop();
+            this.costUpPulse = undefined;
+            this.costUpBtnBg.setScale(1);
+            this.costUpBtnText.setScale(1);
+            this.costUpBtnCostText.setScale(1);
+          }
+        }
+      }
 
       // 自分の城HPバー更新
       const mySide = this.networkManager.getMySide();
@@ -703,13 +774,35 @@ export class RealtimeBattleScene extends Phaser.Scene {
   private handleGameOver(isWinner: boolean, reason: string) {
     const { width, height } = this.scale;
 
+    // BGM停止して結果BGM再生
+    this.bgm?.stop();
+    const resultBgmKey = isWinner ? 'victory_bgm' : 'defeat_bgm';
+    if (this.cache.audio.exists(resultBgmKey)) {
+      const resultBgm = this.sound.add(resultBgmKey, { volume: 0.5 });
+      resultBgm.play();
+    }
+
     this.phaseText.setVisible(true);
-    this.phaseText.setText(isWinner ? '🎉 VICTORY! 🎉' : '💀 DEFEAT 💀');
+    this.phaseText.setText(isWinner ? '🎉 勝利！' : '💀 敗北...');
     this.phaseText.setY(height / 2 - 50);
-    this.phaseText.setFontSize(48);
+    this.phaseText.setFontSize(52);
     this.phaseText.setColor(isWinner ? '#ffff00' : '#ff0000');
 
-    const reasonText = this.add.text(width / 2, height / 2 + 20,
+    const opponentName = this.networkManager.getOpponent()?.displayName || 'Opponent';
+    const resultDetail = this.add.text(width / 2, height / 2 + 6,
+      `${opponentName}に${isWinner ? '勝ちました' : '負けました'}`,
+      {
+        fontSize: '28px',
+        color: '#ffffff',
+        stroke: '#000000',
+        strokeThickness: 4,
+      }
+    );
+    resultDetail.setOrigin(0.5, 0.5);
+    resultDetail.setScrollFactor(0);
+    resultDetail.setDepth(200);
+
+    const reasonText = this.add.text(width / 2, height / 2 + 46,
       reason === 'castle_destroyed' ? '城が破壊された！' : '相手が切断した',
       {
         fontSize: '24px',
@@ -721,6 +814,15 @@ export class RealtimeBattleScene extends Phaser.Scene {
     reasonText.setOrigin(0.5, 0.5);
     reasonText.setScrollFactor(0);
     reasonText.setDepth(200);
+  }
+
+  private startBattleBgm() {
+    if (this.bgm) return;
+    const bgmKey = Math.random() < 0.5 ? 'battle_bgm_1' : 'battle_bgm_2';
+    if (this.cache.audio.exists(bgmKey)) {
+      this.bgm = this.sound.add(bgmKey, { loop: true, volume: 0.3 });
+      this.bgm.play();
+    }
   }
 
   private syncDeckFromPlayer() {
@@ -789,5 +891,6 @@ export class RealtimeBattleScene extends Phaser.Scene {
     // イベントリスナー削除
     this.networkManager.removeAllListeners();
     this.units.clear();
+    this.bgm?.stop();
   }
 }

@@ -2,16 +2,20 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import dynamic from 'next/dynamic';
 import { usePlayerData } from "@/hooks/usePlayerData";
 import unitsData from "@/data/units";
-import type { UnitDefinition } from "@/data/types";
+import type { UnitDefinition, Rarity } from "@/data/types";
 import RarityFrame from "@/components/ui/RarityFrame";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { eventBus, GameEvents } from "@/game/utils/EventBus";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { incrementGardenVisits } from "@/lib/supabase";
+import { GARDEN_BACKGROUNDS, type GardenBackgroundId } from "@/game/constants/gardenBackgrounds";
+
+const GARDEN_BG_KEY = "garden_background";
 
 const PhaserGame = dynamic(() => import('@/components/game/PhaserGame'), {
     ssr: false,
@@ -31,6 +35,37 @@ export default function GardenPage() {
     const [isSelectModalOpen, setIsSelectModalOpen] = useState(false);
     const [editUnits, setEditUnits] = useState<string[]>([]);
     const [coinEffect, setCoinEffect] = useState(false);
+    const [isBgSelectorOpen, setIsBgSelectorOpen] = useState(false);
+    const [currentBgId, setCurrentBgId] = useState<GardenBackgroundId>('garden_main');
+    const [modalRarityFilter, setModalRarityFilter] = useState<Rarity | "ALL">("ALL");
+
+    // レアリティタブ設定
+    const rarityTabs: { key: Rarity | "ALL"; label: string; color: string }[] = [
+        { key: "ALL", label: "ALL", color: "bg-gradient-to-r from-gray-500 to-gray-600" },
+        { key: "N", label: "N", color: "bg-gradient-to-r from-gray-400 to-gray-500" },
+        { key: "R", label: "R", color: "bg-gradient-to-r from-blue-400 to-blue-600" },
+        { key: "SR", label: "SR", color: "bg-gradient-to-r from-purple-400 to-purple-600" },
+        { key: "SSR", label: "SSR", color: "bg-gradient-to-r from-amber-400 to-yellow-500" },
+        { key: "UR", label: "UR", color: "bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500" },
+    ];
+
+    // 背景設定をローカルストレージから読み込み
+    useEffect(() => {
+        try {
+            const saved = localStorage.getItem(GARDEN_BG_KEY);
+            if (saved && GARDEN_BACKGROUNDS.some(bg => bg.id === saved)) {
+                setCurrentBgId(saved as GardenBackgroundId);
+            }
+        } catch {}
+    }, []);
+
+    // 背景を変更
+    const changeBackground = (bgId: GardenBackgroundId) => {
+        setCurrentBgId(bgId);
+        localStorage.setItem(GARDEN_BG_KEY, bgId);
+        eventBus.emit(GameEvents.GARDEN_BG_CHANGE, { bgId });
+        setIsBgSelectorOpen(false);
+    };
 
     // Helper
     const getUnitName = (unit: UnitDefinition) => {
@@ -134,10 +169,20 @@ export default function GardenPage() {
     };
 
     const handleAutoPickInModal = () => {
-        // Clear saved selection and auto-pick
-        saveGardenUnits([]);
-        autoPickUnits();
-        setIsSelectModalOpen(false);
+        // フィルターされたレアリティ内でオートピック
+        const ownedIds = Object.keys(unitInventory).filter(id => unitInventory[id] > 0);
+        let candidates = allUnits.filter(u => ownedIds.includes(u.id));
+
+        // レアリティフィルター適用
+        if (modalRarityFilter !== "ALL") {
+            candidates = candidates.filter(u => u.rarity === modalRarityFilter);
+        }
+
+        // シャッフルして最大20体選択
+        const shuffled = [...candidates].sort(() => Math.random() - 0.5);
+        const picked = shuffled.slice(0, 20);
+
+        setEditUnits(picked.map(u => u.id));
     };
 
     const showCoinEffect = () => {
@@ -173,6 +218,11 @@ export default function GardenPage() {
     const ownedUnitIds = Object.keys(unitInventory).filter(id => unitInventory[id] > 0);
     const ownedUnits = allUnits.filter(u => ownedUnitIds.includes(u.id));
 
+    // モーダル用にレアリティでフィルター
+    const filteredOwnedUnits = modalRarityFilter === "ALL"
+        ? ownedUnits
+        : ownedUnits.filter(u => u.rarity === modalRarityFilter);
+
     return (
         <main className="min-h-screen bg-[#87CEEB] dark:bg-slate-900 relative overflow-hidden">
             {/* Header */}
@@ -193,7 +243,14 @@ export default function GardenPage() {
                         {coinEffect && <span className="text-green-500 text-sm animate-bounce">+1</span>}
                     </div>
                 </div>
-                <div className="pointer-events-auto">
+                <div className="pointer-events-auto flex gap-2">
+                    <button
+                        onClick={() => setIsBgSelectorOpen(true)}
+                        className="btn bg-green-500/80 hover:bg-green-600 dark:bg-green-600/80 dark:hover:bg-green-500 text-white border-green-400 dark:border-green-500 font-bold shadow-md"
+                        title="背景を変更"
+                    >
+                        🎨
+                    </button>
                     <button
                         onClick={openEditModal}
                         className="btn bg-blue-500/80 hover:bg-blue-600 dark:bg-blue-600/80 dark:hover:bg-blue-500 text-white border-blue-400 dark:border-blue-500 font-bold shadow-md"
@@ -208,6 +265,7 @@ export default function GardenPage() {
                 <PhaserGame
                     mode="garden"
                     gardenUnits={displayUnits}
+                    gardenBackgroundId={currentBgId}
                 />
             </div>
 
@@ -232,18 +290,88 @@ export default function GardenPage() {
                 </div>
             </div>
 
+            {/* Background Selector Modal */}
+            {isBgSelectorOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 animate-in fade-in zoom-in duration-200">
+                    <div className="bg-slate-900 border-4 border-green-500 rounded-3xl p-6 w-full max-w-2xl shadow-2xl">
+                        <h2 className="text-2xl font-bold text-white mb-4 text-center">🎨 背景を選択</h2>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+                            {GARDEN_BACKGROUNDS.map(bg => (
+                                <button
+                                    key={bg.id}
+                                    onClick={() => changeBackground(bg.id)}
+                                    className={`relative aspect-video rounded-xl overflow-hidden border-4 transition-all hover:scale-105 ${
+                                        currentBgId === bg.id
+                                            ? 'border-green-400 shadow-[0_0_15px_#4ade80]'
+                                            : 'border-slate-600 hover:border-slate-400'
+                                    }`}
+                                >
+                                    <Image
+                                        src={`/assets/backgrounds/${bg.id}.webp`}
+                                        alt={bg.name}
+                                        fill
+                                        className="object-cover"
+                                        sizes="(max-width: 640px) 50vw, 33vw"
+                                    />
+                                    <div className="absolute bottom-0 left-0 right-0 bg-black/60 py-1 px-2">
+                                        <span className="text-white text-sm font-bold">{bg.name}</span>
+                                    </div>
+                                    {currentBgId === bg.id && (
+                                        <div className="absolute top-2 right-2 bg-green-500 rounded-full w-6 h-6 flex items-center justify-center">
+                                            <span className="text-white text-sm">✓</span>
+                                        </div>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+
+                        <div className="flex justify-center">
+                            <button
+                                onClick={() => setIsBgSelectorOpen(false)}
+                                className="btn btn-secondary"
+                            >
+                                閉じる
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Selection Modal */}
             {isSelectModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/80 p-2 sm:p-4 overflow-y-auto animate-in fade-in zoom-in duration-200">
                     <div className="bg-slate-900 border-4 border-green-500 rounded-3xl p-4 sm:p-6 w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] flex flex-col shadow-2xl relative my-2 sm:my-4">
                         <h2 className="text-2xl font-bold text-white mb-2 text-center">{t("select_garden_friends")}</h2>
-                        <p className="text-center text-gray-400 mb-4">
+                        <p className="text-center text-gray-400 mb-2">
                             {t("select_hint").replace("20", `${editUnits.length}/20`)}
                         </p>
 
+                        {/* Rarity Filter Tabs */}
+                        <div className="flex justify-center gap-1 sm:gap-2 mb-4 flex-wrap">
+                            {rarityTabs.map(tab => {
+                                const count = tab.key === "ALL"
+                                    ? ownedUnits.length
+                                    : ownedUnits.filter(u => u.rarity === tab.key).length;
+                                return (
+                                    <button
+                                        key={tab.key}
+                                        onClick={() => setModalRarityFilter(tab.key)}
+                                        className={`px-3 py-1.5 rounded-full text-sm font-bold transition-all ${
+                                            modalRarityFilter === tab.key
+                                                ? `${tab.color} text-white shadow-lg scale-105`
+                                                : 'bg-slate-700 text-gray-300 hover:bg-slate-600'
+                                        }`}
+                                    >
+                                        {tab.label} ({count})
+                                    </button>
+                                );
+                            })}
+                        </div>
+
                         {/* Unit Grid */}
                         <div className="flex-1 overflow-y-auto p-4 bg-black/30 rounded-xl mb-4 grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-3 content-start">
-                            {ownedUnits.map(unit => {
+                            {filteredOwnedUnits.map(unit => {
                                 const isSelected = editUnits.includes(unit.id);
                                 return (
                                     <div

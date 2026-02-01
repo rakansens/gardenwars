@@ -3,14 +3,22 @@ import { GardenPet } from '../entities/GardenPet';
 import type { UnitDefinition, Rarity } from '@/data/types';
 import { eventBus, GameEvents } from '../utils/EventBus';
 import { getSpritePath, getSheetPath, ANIMATED_UNITS } from '@/lib/sprites';
+import { GARDEN_BACKGROUNDS, type GardenBackgroundId } from '../constants/gardenBackgrounds';
+
+// Re-export for convenience
+export { GARDEN_BACKGROUNDS, type GardenBackgroundId };
 
 export interface GardenSceneData {
     units: UnitDefinition[];
+    backgroundId?: GardenBackgroundId;
 }
 
 export class GardenScene extends Phaser.Scene {
     private units: GardenPet[] = [];
     private unitsData: UnitDefinition[] = [];
+    private currentBgId: GardenBackgroundId = 'garden_main';
+    private bgImage?: Phaser.GameObjects.Image;
+    private isSceneReady = false;
 
     // Public for pets to access
     public foodGroup!: Phaser.GameObjects.Group;
@@ -22,11 +30,15 @@ export class GardenScene extends Phaser.Scene {
 
     init(data: GardenSceneData) {
         this.unitsData = data.units || [];
+        this.currentBgId = data.backgroundId || 'garden_main';
+        this.isSceneReady = false;
     }
 
     preload() {
-        // 背景 - 森のステージ画像を使用
-        this.load.image('bg_garden', '/assets/stages/stage_1.webp');
+        // 全ての背景画像をロード
+        GARDEN_BACKGROUNDS.forEach(bg => {
+            this.load.image(bg.id, `/assets/backgrounds/${bg.id}.webp`);
+        });
         this.load.image('castle_ally', getSpritePath('castle_ally'));
 
         // ガーデンに表示するユニットのスプライトをロード
@@ -58,17 +70,8 @@ export class GardenScene extends Phaser.Scene {
     create() {
         const { width, height } = this.scale;
 
-        // 背景画像をタイル表示
-        const bgTexture = this.textures.get('bg_garden');
-        if (bgTexture && bgTexture.key !== '__MISSING') {
-            const bg = this.add.tileSprite(0, 0, width, height, 'bg_garden');
-            bg.setOrigin(0, 0);
-            bg.setTileScale(0.5); // 適度なスケール
-        } else {
-            // フォールバック: 空と地面
-            this.add.rectangle(0, 0, width, height, 0x87CEEB).setOrigin(0);
-            this.add.rectangle(0, height - 100, width, 200, 0x4caf50).setOrigin(0);
-        }
+        // 背景画像を表示
+        this.setBackground(this.currentBgId);
 
         // Groups - 明示的に初期化
         this.foodGroup = this.add.group({ runChildUpdate: false });
@@ -91,17 +94,59 @@ export class GardenScene extends Phaser.Scene {
         // Need to bind context since EventBus doesn't take context arg
         this.handleFeed = this.handleFeed.bind(this);
         this.handleClean = this.handleClean.bind(this);
+        this.handleBgChange = this.handleBgChange.bind(this);
 
         eventBus.on(GameEvents.GARDEN_FEED, this.handleFeed as any);
         eventBus.on(GameEvents.GARDEN_CLEAN, this.handleClean);
+        eventBus.on(GameEvents.GARDEN_BG_CHANGE, this.handleBgChange as any);
 
-        console.log('GardenScene: Listeners attached');
+        this.isSceneReady = true;
+        console.log('GardenScene: Listeners attached, scene ready');
 
         this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
             console.log('GardenScene: Shutdown');
+            this.isSceneReady = false;
             eventBus.off(GameEvents.GARDEN_FEED, this.handleFeed as any);
             eventBus.off(GameEvents.GARDEN_CLEAN, this.handleClean);
+            eventBus.off(GameEvents.GARDEN_BG_CHANGE, this.handleBgChange as any);
         });
+    }
+
+    private setBackground(bgId: GardenBackgroundId) {
+        // シーンが破棄されている場合は何もしない
+        if (!this.add || !this.scale) return;
+
+        const { width, height } = this.scale;
+
+        // 既存の背景を削除
+        if (this.bgImage) {
+            this.bgImage.destroy();
+            this.bgImage = undefined;
+        }
+
+        const bgTexture = this.textures.get(bgId);
+        if (bgTexture && bgTexture.key !== '__MISSING') {
+            this.bgImage = this.add.image(width / 2, height / 2, bgId);
+            // キャンバスにフィットするようにスケール調整
+            const scaleX = width / this.bgImage.width;
+            const scaleY = height / this.bgImage.height;
+            const scale = Math.max(scaleX, scaleY);
+            this.bgImage.setScale(scale);
+            this.bgImage.setDepth(-1); // 最背面に
+        }
+        // フォールバックは初回のcreate()でのみ使用するため、ここでは省略
+
+        this.currentBgId = bgId;
+    }
+
+    private handleBgChange(args: unknown) {
+        // シーンが準備完了していない場合は何もしない
+        if (!this.isSceneReady) return;
+
+        const data = args as { bgId: GardenBackgroundId };
+        if (data?.bgId && GARDEN_BACKGROUNDS.some(bg => bg.id === data.bgId)) {
+            this.setBackground(data.bgId);
+        }
     }
 
     private handleFeed(args: unknown) {
