@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import unitsData from "@/data/units";
@@ -64,8 +64,13 @@ export default function GachaPage() {
     const [urViewMode, setUrViewMode] = useState<"carousel" | "grid">("carousel");
     const [newViewMode, setNewViewMode] = useState<"carousel" | "grid">("carousel");
 
-    // NEWユニット判定（1週間以内に追加されたユニット）
+    // NEWユニット判定（addedDateがあるユニット）
     const isNewUnit = (unit: UnitDefinition): boolean => {
+        return !!unit.addedDate;
+    };
+
+    // 1週間以内に追加されたかどうか（バッジ用）
+    const isRecentlyAdded = (unit: UnitDefinition): boolean => {
         if (!unit.addedDate) return false;
         const addedDate = new Date(unit.addedDate);
         const now = new Date();
@@ -81,6 +86,24 @@ export default function GachaPage() {
             const dateB = new Date(b.addedDate || "2000-01-01").getTime();
             return dateB - dateA;
         });
+
+    // 日付ごとにグループ化
+    const unitsByDate = useMemo(() => {
+        const groups = new Map<string, UnitDefinition[]>();
+        newUnits.forEach(unit => {
+            const date = unit.addedDate || "unknown";
+            if (!groups.has(date)) {
+                groups.set(date, []);
+            }
+            groups.get(date)!.push(unit);
+        });
+        // 日付の降順でソート
+        return Array.from(groups.entries()).sort((a, b) => {
+            if (a[0] === "unknown") return 1;
+            if (b[0] === "unknown") return -1;
+            return new Date(b[0]).getTime() - new Date(a[0]).getTime();
+        });
+    }, [newUnits]);
 
     // レアリティフィルタータブの定義
     const rarityTabs: { key: Rarity | "ALL"; label: string; color: string }[] = [
@@ -474,15 +497,15 @@ export default function GachaPage() {
                     )}
                 </div>
 
-                {/* NEWユニット一覧 */}
-                {newUnits.length > 0 && (
+                {/* NEWユニット一覧（日付ごとにグループ化） */}
+                {unitsByDate.length > 0 && (
                     <div className="card mb-6 bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 border-2 border-green-400/50">
                         <div className="flex items-center gap-2 mb-4">
-                            <span className="px-3 py-1 rounded-full bg-green-500 text-white text-sm font-bold animate-pulse">
-                                NEW
+                            <span className="px-3 py-1 rounded-full bg-green-500 text-white text-sm font-bold">
+                                📅 UPDATE
                             </span>
                             <h3 className="text-xl font-bold text-green-800 dark:text-green-300">
-                                {t("new_units") || "新キャラクター"} ({newUnits.length})
+                                {t("new_units") || "追加キャラクター"} ({newUnits.length})
                             </h3>
                             <div className="flex-1 flex justify-end">
                                 <div className="flex gap-1 bg-green-700/50 rounded-lg p-1">
@@ -528,103 +551,131 @@ export default function GachaPage() {
                             })}
                         </div>
 
-                        {newViewMode === "carousel" ? (
-                            <>
-                                <p className="text-green-600/60 dark:text-green-300/50 text-center text-xs mb-3">← スワイプで確認 →</p>
-                                <div className="overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide">
-                                    <div className="flex gap-4" style={{ width: 'max-content' }}>
-                                        {newUnits
-                                            .filter(u => newRarityFilter === "ALL" || u.rarity === newRarityFilter)
-                                            .map((unit) => {
-                                                const count = unitInventory[unit.id] || 0;
-                                                const isOwned = count > 0;
-                                                const rarityColors: Record<string, string> = {
-                                                    UR: "from-purple-600/60 to-pink-600/60 border-pink-400/50",
-                                                    SSR: "from-amber-500/60 to-orange-600/60 border-amber-400/50",
-                                                    SR: "from-purple-500/60 to-indigo-600/60 border-purple-400/50",
-                                                    R: "from-blue-400/60 to-cyan-500/60 border-blue-400/50",
-                                                    N: "from-gray-400/60 to-slate-500/60 border-gray-400/50",
-                                                };
-                                                return (
-                                                    <div
-                                                        key={unit.id}
-                                                        className={`
-                                                            relative flex-shrink-0 w-36 p-3 rounded-2xl cursor-pointer transition-all
-                                                            bg-gradient-to-br ${rarityColors[unit.rarity] || rarityColors.N}
-                                                            border-2 hover:shadow-xl hover:scale-105
-                                                            ${isOwned ? "ring-2 ring-green-400/50" : "opacity-80"}
-                                                        `}
-                                                        onClick={() => openModal(unit)}
-                                                    >
-                                                        <div className="absolute -top-2 -right-2 px-2 py-1 rounded-full text-xs font-bold z-10 bg-green-500 text-white animate-pulse shadow-lg">
-                                                            NEW
-                                                        </div>
-                                                        {isOwned && (
-                                                            <div className="absolute -top-2 -left-2 w-6 h-6 rounded-full bg-blue-500 text-white text-xs font-bold flex items-center justify-center z-10 shadow-lg">{count}</div>
-                                                        )}
-                                                        {unit.isFlying && (
-                                                            <div className="absolute top-8 -left-2 w-6 h-6 rounded-full bg-sky-500 text-white text-xs flex items-center justify-center z-10 shadow-lg">🪽</div>
-                                                        )}
-                                                        <div className="flex justify-center mb-2">
-                                                            <RarityFrame unitId={unit.id} unitName={unit.name} rarity={unit.rarity} size="lg" showLabel={false} baseUnitId={unit.baseUnitId} grayscale={!isOwned} />
-                                                        </div>
-                                                        <div className="text-sm text-center text-white font-bold truncate drop-shadow-md">{unit.name}</div>
-                                                        <div className="mt-2 text-[10px] text-white/70 text-center space-y-0.5">
-                                                            <div>HP: {unit.maxHp.toLocaleString()}</div>
-                                                            <div>ATK: {unit.attackDamage}</div>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
-                                    </div>
-                                </div>
-                            </>
-                        ) : (
-                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-                                {newUnits
-                                    .filter(u => newRarityFilter === "ALL" || u.rarity === newRarityFilter)
-                                    .map((unit) => {
-                                        const count = unitInventory[unit.id] || 0;
-                                        const isOwned = count > 0;
-                                        return (
-                                            <div
-                                                key={unit.id}
-                                                className={`
-                                                    relative p-2 rounded-lg cursor-pointer transition-all
-                                                    hover:bg-green-200/50 dark:hover:bg-green-800/30
-                                                    ${!isOwned ? "opacity-70" : ""}
-                                                `}
-                                                onClick={() => openModal(unit)}
-                                            >
-                                                {/* NEWバッジ */}
-                                                <div className="absolute -top-1 -right-1 px-1.5 py-0.5 rounded-full bg-green-500 text-white text-[10px] font-bold z-10">
-                                                    NEW
-                                                </div>
-                                                {/* 所持バッジ */}
-                                                {isOwned && (
-                                                    <div className="absolute -top-1 -left-1 w-5 h-5 rounded-full bg-blue-500 text-white text-[10px] font-bold flex items-center justify-center z-10">
-                                                        {count}
-                                                    </div>
-                                                )}
-                                                <div className="flex justify-center">
-                                                    <RarityFrame
-                                                        unitId={unit.id}
-                                                        unitName={unit.name}
-                                                        rarity={unit.rarity}
-                                                        size="md"
-                                                        showLabel={true}
-                                                        baseUnitId={unit.baseUnitId}
-                                                        grayscale={!isOwned}
-                                                    />
-                                                </div>
-                                                <div className={`text-xs text-center truncate mt-1 ${isOwned ? "text-green-900 dark:text-green-200" : "text-gray-500"}`}>
-                                                    {unit.name}
+                        {/* 日付ごとのグループ表示 */}
+                        <div className="space-y-6">
+                            {unitsByDate.map(([date, units]) => {
+                                const filteredUnits = units.filter(u => newRarityFilter === "ALL" || u.rarity === newRarityFilter);
+                                if (filteredUnits.length === 0) return null;
+
+                                // 日付フォーマット
+                                const dateLabel = date === "unknown" ? "日付不明" : (() => {
+                                    const d = new Date(date);
+                                    const now = new Date();
+                                    const diffDays = Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24));
+                                    if (diffDays === 0) return "🆕 今日";
+                                    if (diffDays === 1) return "昨日";
+                                    if (diffDays <= 7) return `${diffDays}日前`;
+                                    return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
+                                })();
+
+                                const isRecent = date !== "unknown" && (() => {
+                                    const d = new Date(date);
+                                    const now = new Date();
+                                    const diffDays = (now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24);
+                                    return diffDays <= 7;
+                                })();
+
+                                return (
+                                    <div key={date} className="border-t border-green-300/50 pt-4 first:border-0 first:pt-0">
+                                        {/* 日付ヘッダー */}
+                                        <div className="flex items-center gap-2 mb-3">
+                                            <span className={`px-2 py-1 rounded-full text-xs font-bold ${isRecent ? "bg-green-500 text-white animate-pulse" : "bg-green-700/30 text-green-800 dark:text-green-300"}`}>
+                                                {dateLabel}
+                                            </span>
+                                            <span className="text-sm text-green-600 dark:text-green-400">
+                                                {filteredUnits.length}体追加
+                                            </span>
+                                        </div>
+
+                                        {newViewMode === "carousel" ? (
+                                            <div className="overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+                                                <div className="flex gap-3" style={{ width: 'max-content' }}>
+                                                    {filteredUnits.map((unit) => {
+                                                        const count = unitInventory[unit.id] || 0;
+                                                        const isOwned = count > 0;
+                                                        const rarityColors: Record<string, string> = {
+                                                            UR: "from-purple-600/60 to-pink-600/60 border-pink-400/50",
+                                                            SSR: "from-amber-500/60 to-orange-600/60 border-amber-400/50",
+                                                            SR: "from-purple-500/60 to-indigo-600/60 border-purple-400/50",
+                                                            R: "from-blue-400/60 to-cyan-500/60 border-blue-400/50",
+                                                            N: "from-gray-400/60 to-slate-500/60 border-gray-400/50",
+                                                        };
+                                                        return (
+                                                            <div
+                                                                key={unit.id}
+                                                                className={`
+                                                                    relative flex-shrink-0 w-32 p-2 rounded-xl cursor-pointer transition-all
+                                                                    bg-gradient-to-br ${rarityColors[unit.rarity] || rarityColors.N}
+                                                                    border-2 hover:shadow-xl hover:scale-105
+                                                                    ${isOwned ? "ring-2 ring-green-400/50" : "opacity-80"}
+                                                                `}
+                                                                onClick={() => openModal(unit)}
+                                                            >
+                                                                {isRecent && (
+                                                                    <div className="absolute -top-2 -right-2 px-1.5 py-0.5 rounded-full text-[10px] font-bold z-10 bg-green-500 text-white animate-pulse shadow-lg">
+                                                                        NEW
+                                                                    </div>
+                                                                )}
+                                                                {isOwned && (
+                                                                    <div className="absolute -top-2 -left-2 w-5 h-5 rounded-full bg-blue-500 text-white text-[10px] font-bold flex items-center justify-center z-10 shadow-lg">{count}</div>
+                                                                )}
+                                                                <div className="flex justify-center mb-1">
+                                                                    <RarityFrame unitId={unit.id} unitName={unit.name} rarity={unit.rarity} size="md" showLabel={false} baseUnitId={unit.baseUnitId} grayscale={!isOwned} />
+                                                                </div>
+                                                                <div className="text-xs text-center text-white font-bold truncate drop-shadow-md">{unit.name}</div>
+                                                            </div>
+                                                        );
+                                                    })}
                                                 </div>
                                             </div>
-                                        );
-                                    })}
-                            </div>
-                        )}
+                                        ) : (
+                                            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2">
+                                                {filteredUnits.map((unit) => {
+                                                    const count = unitInventory[unit.id] || 0;
+                                                    const isOwned = count > 0;
+                                                    return (
+                                                        <div
+                                                            key={unit.id}
+                                                            className={`
+                                                                relative p-1.5 rounded-lg cursor-pointer transition-all
+                                                                hover:bg-green-200/50 dark:hover:bg-green-800/30
+                                                                ${!isOwned ? "opacity-70" : ""}
+                                                            `}
+                                                            onClick={() => openModal(unit)}
+                                                        >
+                                                            {isRecent && (
+                                                                <div className="absolute -top-1 -right-1 px-1 py-0.5 rounded-full bg-green-500 text-white text-[8px] font-bold z-10">
+                                                                    NEW
+                                                                </div>
+                                                            )}
+                                                            {isOwned && (
+                                                                <div className="absolute -top-1 -left-1 w-4 h-4 rounded-full bg-blue-500 text-white text-[8px] font-bold flex items-center justify-center z-10">
+                                                                    {count}
+                                                                </div>
+                                                            )}
+                                                            <div className="flex justify-center">
+                                                                <RarityFrame
+                                                                    unitId={unit.id}
+                                                                    unitName={unit.name}
+                                                                    rarity={unit.rarity}
+                                                                    size="sm"
+                                                                    showLabel={false}
+                                                                    baseUnitId={unit.baseUnitId}
+                                                                    grayscale={!isOwned}
+                                                                />
+                                                            </div>
+                                                            <div className={`text-[10px] text-center truncate mt-0.5 ${isOwned ? "text-green-900 dark:text-green-200" : "text-gray-500"}`}>
+                                                                {unit.name}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
                 )}
 

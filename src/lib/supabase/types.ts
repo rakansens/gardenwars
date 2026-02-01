@@ -25,7 +25,7 @@ export interface ShopItem {
 
 /**
  * ガチャ履歴エントリ
- * ローカルストレージのみ保存（DBには保存しない）
+ * Supabase + localStorage に保存
  */
 export interface GachaHistoryEntry {
     timestamp: number;
@@ -64,6 +64,7 @@ export interface DBPlayerData {
     cleared_stages: string[] | null;
     garden_units: string[] | null;
     shop_items: ShopItem[] | null;
+    gacha_history: GachaHistoryEntry[] | null;  // ガチャ履歴（最大100件）
     active_loadout_index: number | null;  // DEFAULT 0
     updated_at: string | null;
 }
@@ -113,7 +114,7 @@ export interface FrontendPlayerData {
     loadouts: [string[], string[], string[]];  // 固定長3のタプル
     activeLoadoutIndex: number;
     shopItems: ShopItem[];
-    gachaHistory: GachaHistoryEntry[];  // ローカルのみ
+    gachaHistory: GachaHistoryEntry[];  // Supabase同期
     clearedStages: string[];
     gardenUnits: string[];
 }
@@ -129,6 +130,7 @@ export interface SupabaseSaveData {
     loadouts?: string[][];
     active_loadout_index?: number;
     shop_items?: ShopItem[];
+    gacha_history?: GachaHistoryEntry[];
     cleared_stages?: string[];
     garden_units?: string[];
 }
@@ -153,10 +155,12 @@ export interface LocalStorageMigrationData {
 
 /**
  * DBPlayerData → FrontendPlayerData 変換
+ * @param db - DBから取得したプレイヤーデータ
+ * @param localGachaHistory - ローカルのガチャ履歴（マージ用、省略可）
  */
 export function toFrontendPlayerData(
     db: DBPlayerData,
-    gachaHistory: GachaHistoryEntry[] = []
+    localGachaHistory: GachaHistoryEntry[] = []
 ): FrontendPlayerData {
     // loadoutsが3要素未満の場合は空配列で埋める
     const loadouts = db.loadouts || [];
@@ -166,6 +170,20 @@ export function toFrontendPlayerData(
         loadouts[2] || [],
     ];
 
+    // ガチャ履歴をマージ（DBとローカルの両方から、timestampでユニーク化）
+    const dbHistory = db.gacha_history || [];
+    const mergedHistoryMap = new Map<number, GachaHistoryEntry>();
+
+    // DBの履歴を先に追加
+    dbHistory.forEach(entry => mergedHistoryMap.set(entry.timestamp, entry));
+    // ローカルの履歴で上書き（より新しい可能性があるため）
+    localGachaHistory.forEach(entry => mergedHistoryMap.set(entry.timestamp, entry));
+
+    // timestampで降順ソートして最大100件
+    const mergedHistory = Array.from(mergedHistoryMap.values())
+        .sort((a, b) => b.timestamp - a.timestamp)
+        .slice(0, 100);
+
     return {
         coins: db.coins ?? INITIAL_COINS,  // null の場合は初期値
         unitInventory: db.unit_inventory || {},
@@ -173,7 +191,7 @@ export function toFrontendPlayerData(
         loadouts: normalizedLoadouts,
         activeLoadoutIndex: db.active_loadout_index ?? 0,
         shopItems: db.shop_items || [],
-        gachaHistory,
+        gachaHistory: mergedHistory,
         clearedStages: db.cleared_stages || [],
         gardenUnits: db.garden_units || [],
     };
@@ -190,6 +208,7 @@ export function toSupabaseSaveData(frontend: FrontendPlayerData): SupabaseSaveDa
         loadouts: frontend.loadouts,
         active_loadout_index: frontend.activeLoadoutIndex,
         shop_items: frontend.shopItems,
+        gacha_history: frontend.gachaHistory.slice(0, 100),  // 最大100件
         cleared_stages: frontend.clearedStages,
         garden_units: frontend.gardenUnits,
     };

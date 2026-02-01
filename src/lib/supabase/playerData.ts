@@ -1,5 +1,5 @@
 import { supabase } from "./client";
-import { DBPlayerData, ShopItem, SupabaseSaveData } from "./types";
+import { DBPlayerData, ShopItem, GachaHistoryEntry, SupabaseSaveData } from "./types";
 
 // Use DBPlayerData internally but alias for function signatures
 type PlayerData = DBPlayerData;
@@ -20,6 +20,7 @@ export async function savePlayerData(
     if (data.cleared_stages !== undefined) updateData.cleared_stages = data.cleared_stages;
     if (data.garden_units !== undefined) updateData.garden_units = data.garden_units;
     if (data.shop_items !== undefined) updateData.shop_items = data.shop_items;
+    if (data.gacha_history !== undefined) updateData.gacha_history = data.gacha_history;
     if (data.active_loadout_index !== undefined) updateData.active_loadout_index = data.active_loadout_index;
 
     const { error } = await supabase
@@ -61,6 +62,7 @@ export async function getPlayerData(playerId: string): Promise<PlayerData | null
         cleared_stages: (data.cleared_stages as unknown as string[]) || [],
         garden_units: (data.garden_units as unknown as string[]) || [],
         shop_items: (data.shop_items as unknown as ShopItem[]) || [],
+        gacha_history: ((data as any).gacha_history as GachaHistoryEntry[]) || [],
     };
 }
 

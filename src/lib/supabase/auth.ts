@@ -4,6 +4,7 @@ import {
     DBPlayer,
     DBPlayerData,
     ShopItem,
+    GachaHistoryEntry,
     FullPlayerData,
     LocalStorageMigrationData,
     INITIAL_COINS,
@@ -94,6 +95,7 @@ export async function registerPlayer(
                 cleared_stages: (playerData.cleared_stages as unknown as string[]) || [],
                 garden_units: (playerData.garden_units as unknown as string[]) || [],
                 shop_items: (playerData.shop_items as unknown as ShopItem[]) || [],
+                gacha_history: ((playerData as any).gacha_history as GachaHistoryEntry[]) || [],
             },
         },
     };
@@ -136,6 +138,7 @@ export async function loginWithPIN(pin: string): Promise<FullPlayerData | null> 
             cleared_stages: (playerData.cleared_stages as unknown as string[]) || [],
             garden_units: (playerData.garden_units as unknown as string[]) || [],
             shop_items: (playerData.shop_items as unknown as ShopItem[]) || [],
+            gacha_history: ((playerData as any).gacha_history as GachaHistoryEntry[]) || [],
         },
     };
 }

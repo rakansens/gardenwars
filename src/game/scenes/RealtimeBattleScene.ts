@@ -21,6 +21,8 @@ interface UnitDefinition {
 // シーン上のユニットエンティティ
 interface RealtimeUnit {
   instanceId: string;
+  definitionId: string;
+  side: 'player1' | 'player2';
   container: Phaser.GameObjects.Container;
   sprite: Phaser.GameObjects.Sprite | Phaser.GameObjects.Image;
   hpBar: Phaser.GameObjects.Rectangle;
@@ -29,6 +31,7 @@ interface RealtimeUnit {
   lastX: number;  // 補間用
   targetX: number;
   lastHp: number;
+  lastState?: NetworkUnitState['state'];
   hitstunTimer?: Phaser.Time.TimerEvent;
   deathTimer?: Phaser.Time.TimerEvent;
   isRemoving?: boolean;
@@ -69,6 +72,8 @@ export class RealtimeBattleScene extends Phaser.Scene {
   private costUpBtnZone!: Phaser.GameObjects.Zone;
   private costUpPulse?: Phaser.Tweens.Tween;
   private bgm?: Phaser.Sound.BaseSound;
+  private pendingAtlasLoads: Map<string, string> = new Map();
+  private atlasLoadInFlight = false;
 
   // ユニット定義マップ
   private unitDefinitions: Map<string, UnitDefinition> = new Map();
@@ -124,6 +129,14 @@ export class RealtimeBattleScene extends Phaser.Scene {
     this.load.audio('boss_bgm_3', '/assets/audio/bgm/boss_3.mp3');
     this.load.audio('victory_bgm', '/assets/audio/bgm/victory.mp3');
     this.load.audio('defeat_bgm', '/assets/audio/bgm/defeat.mp3');
+
+    // 効果音
+    this.load.audio('sfx_unit_spawn', '/assets/audio/sfx/unit_spawn.mp3');
+    this.load.audio('sfx_unit_death', '/assets/audio/sfx/unit_death.mp3');
+    this.load.audio('sfx_attack_hit', '/assets/audio/sfx/attack_hit.mp3');
+    this.load.audio('sfx_attack_hit_sr', '/assets/audio/sfx/attack_hit_sr.mp3');
+    this.load.audio('sfx_cannon_fire', '/assets/audio/sfx/cannon_fire.mp3');
+    this.load.audio('sfx_cost_upgrade', '/assets/audio/sfx/cost_upgrade.mp3');
 
     // 城スプライト
     this.load.image('castle_ally', getSpritePath('castle_ally'));
@@ -208,6 +221,226 @@ export class RealtimeBattleScene extends Phaser.Scene {
     this.enemyCastleHpBar = this.add.rectangle(0, -this.enemyCastleSprite.displayHeight - 20, 80, 10, 0xff0000);
     this.enemyCastle.add(enemyHpBg);
     this.enemyCastle.add(this.enemyCastleHpBar);
+  }
+
+  private layoutUnitVisuals(
+    unit: RealtimeUnit,
+    sprite: Phaser.GameObjects.Sprite | Phaser.GameObjects.Image,
+    def?: UnitDefinition
+  ) {
+    const targetHeight = 120;
+    const customScale = def?.scale ?? 1.0;
+    const baseScale = (targetHeight / sprite.height) * customScale;
+    sprite.setScale(baseScale);
+    sprite.setOrigin(0.5, 1);
+
+    if (unit.side === 'player2') {
+      sprite.setFlipX(true);
+    }
+
+    const barY = -sprite.displayHeight - 10;
+    unit.hpBarBg.setY(barY);
+    unit.hpBar.setY(barY);
+    unit.nameText.setY(barY - 10);
+  }
+
+  private queueAtlasForUnit(unitId: string) {
+    if (!ANIMATED_UNITS.includes(unitId as any)) return;
+    const atlasKey = `${unitId}_atlas`;
+    if (this.textures.exists(atlasKey) || this.pendingAtlasLoads.has(atlasKey)) return;
+    this.pendingAtlasLoads.set(atlasKey, unitId);
+  }
+
+  private flushPendingAtlasLoads() {
+    if (this.pendingAtlasLoads.size === 0 || this.atlasLoadInFlight) return;
+    const batch = Array.from(this.pendingAtlasLoads.entries());
+    this.pendingAtlasLoads.clear();
+    batch.forEach(([atlasKey, unitId]) => {
+      if (this.textures.exists(atlasKey)) return;
+      const sheetPath = getSheetPath(unitId);
+      this.load.atlas(atlasKey, sheetPath.image, sheetPath.json);
+    });
+    this.atlasLoadInFlight = true;
+    this.load.once('complete', () => {
+      this.atlasLoadInFlight = false;
+      this.units.forEach(unit => {
+        this.tryUpgradeUnitSprite(unit);
+      });
+      this.flushPendingAtlasLoads();
+    });
+    this.load.start();
+  }
+
+  private ensureUnitAnimations(unitId: string) {
+    const atlasKey = `${unitId}_atlas`;
+    if (!this.textures.exists(atlasKey)) return;
+
+    const texture = this.textures.get(atlasKey);
+    const idleFrame = `${unitId}_idle.png`;
+    const idleKey = `${unitId}_idle`;
+    if (texture.has(idleFrame) && !this.anims.exists(idleKey)) {
+      this.anims.create({
+        key: idleKey,
+        frames: [{ key: atlasKey, frame: idleFrame }],
+        frameRate: 1,
+        repeat: -1,
+      });
+    }
+
+    const buildFrames = (prefix: string, max: number) => {
+      const frames: { key: string; frame: string }[] = [];
+      for (let i = 1; i <= max; i += 1) {
+        const frame = `${unitId}_${prefix}_${i}.png`;
+        if (texture.has(frame)) {
+          frames.push({ key: atlasKey, frame });
+        }
+      }
+      return frames;
+    };
+
+    const walkKey = `${unitId}_walk`;
+    if (!this.anims.exists(walkKey)) {
+      const walkFrames = buildFrames('walk', 4);
+      if (walkFrames.length >= 2) {
+        this.anims.create({
+          key: walkKey,
+          frames: walkFrames,
+          frameRate: 8,
+          repeat: -1,
+        });
+      }
+    }
+
+    const attackKey = `${unitId}_attack`;
+    if (!this.anims.exists(attackKey)) {
+      const attackFrames = buildFrames('attack', 4);
+      if (attackFrames.length >= 1) {
+        this.anims.create({
+          key: attackKey,
+          frames: attackFrames,
+          frameRate: 10,
+          repeat: 0,
+        });
+      }
+    }
+  }
+
+  private playUnitAnimationForState(unit: RealtimeUnit, state: NetworkUnitState['state']) {
+    if (!(unit.sprite instanceof Phaser.GameObjects.Sprite)) return;
+    const unitId = unit.definitionId;
+    this.ensureUnitAnimations(unitId);
+
+    const sprite = unit.sprite;
+    const idleKey = `${unitId}_idle`;
+    const walkKey = `${unitId}_walk`;
+    const attackKey = `${unitId}_attack`;
+
+    if (state !== 'HITSTUN' && sprite.anims.isPaused) {
+      sprite.anims.resume();
+    }
+
+    const playIfExists = (key: string) => {
+      if (!this.anims.exists(key)) return false;
+      if (sprite.anims.currentAnim?.key === key) return true;
+      sprite.play(key, true);
+      return true;
+    };
+
+    switch (state) {
+      case 'ATTACK_WINDUP':
+      case 'ATTACK_COOLDOWN':
+        if (!playIfExists(attackKey)) {
+          playIfExists(idleKey);
+        }
+        break;
+      case 'WALK':
+        if (!playIfExists(walkKey)) {
+          playIfExists(idleKey);
+        }
+        break;
+      case 'SPAWN':
+      case 'HITSTUN':
+      case 'DIE':
+      default:
+        playIfExists(idleKey);
+        break;
+    }
+
+    if (state === 'HITSTUN') {
+      sprite.anims.pause();
+    }
+    if (state === 'DIE') {
+      sprite.anims.stop();
+    }
+  }
+
+  private applyStateVisuals(unit: RealtimeUnit, state: NetworkUnitState['state']) {
+    if (state === 'DIE') {
+      unit.sprite.setAlpha(0.3);
+    } else {
+      unit.sprite.setAlpha(1);
+    }
+
+    if (state === 'HITSTUN') {
+      if (!unit.hitstunTimer) {
+        unit.sprite.setTint(0xff0000);
+        unit.hitstunTimer = this.time.delayedCall(100, () => {
+          unit.sprite.clearTint();
+          unit.hitstunTimer = undefined;
+        });
+      }
+    } else {
+      if (unit.hitstunTimer) {
+        unit.hitstunTimer.remove(false);
+        unit.hitstunTimer = undefined;
+      }
+      unit.sprite.clearTint();
+    }
+  }
+
+  private playSfx(key: string, volume = 0.3) {
+    if (!this.cache.audio.exists(key)) return;
+    this.sound.play(key, { volume });
+  }
+
+  private getHitSfxKey(unitId: string) {
+    const rarity = this.unitDefinitions.get(unitId)?.rarity;
+    if (rarity === 'SR' || rarity === 'SSR' || rarity === 'UR') {
+      return 'sfx_attack_hit_sr';
+    }
+    return 'sfx_attack_hit';
+  }
+
+  private tryUpgradeUnitSprite(unit: RealtimeUnit) {
+    const unitId = unit.definitionId;
+    const atlasKey = `${unitId}_atlas`;
+    if (!this.textures.exists(atlasKey)) return;
+
+    const texture = this.textures.get(atlasKey);
+    const idleFrame = `${unitId}_idle.png`;
+    if (!texture.has(idleFrame)) return;
+
+    if (unit.sprite instanceof Phaser.GameObjects.Sprite && unit.sprite.texture.key === atlasKey) {
+      this.ensureUnitAnimations(unitId);
+      if (unit.lastState) {
+        this.playUnitAnimationForState(unit, unit.lastState);
+        this.applyStateVisuals(unit, unit.lastState);
+      }
+      return;
+    }
+
+    const newSprite = this.add.sprite(0, 0, atlasKey, idleFrame);
+    const oldSprite = unit.sprite;
+    unit.container.remove(oldSprite, true);
+    unit.sprite = newSprite;
+    unit.container.addAt(newSprite, 0);
+    const def = this.unitDefinitions.get(unitId);
+    this.layoutUnitVisuals(unit, newSprite, def);
+    this.ensureUnitAnimations(unitId);
+    if (unit.lastState) {
+      this.playUnitAnimationForState(unit, unit.lastState);
+      this.applyStateVisuals(unit, unit.lastState);
+    }
   }
 
   private syncStageLength(nextLength: number) {
@@ -418,6 +651,12 @@ export class RealtimeBattleScene extends Phaser.Scene {
 
     this.costUpBtnZone.on('pointerdown', () => {
       if (!this.networkManager.isPlaying()) return;
+      const myPlayer = this.networkManager.getMyPlayer();
+      if (!myPlayer) return;
+      const levelIndex = Math.max(0, myPlayer.costLevel - 1);
+      const upgradeCost = this.COST_UPGRADE_COSTS[levelIndex];
+      if (upgradeCost === undefined || myPlayer.cost < upgradeCost) return;
+      this.playSfx('sfx_cost_upgrade', 0.3);
       this.onUpgradeCost();
     });
   }
@@ -590,6 +829,9 @@ export class RealtimeBattleScene extends Phaser.Scene {
     let sprite: Phaser.GameObjects.Sprite | Phaser.GameObjects.Image;
     const atlasKey = `${unitState.definitionId}_atlas`;
 
+    this.queueAtlasForUnit(unitState.definitionId);
+    this.flushPendingAtlasLoads();
+
     if (this.textures.exists(atlasKey)) {
       sprite = this.add.sprite(0, 0, atlasKey, `${unitState.definitionId}_idle.png`);
     } else if (this.textures.exists(unitState.definitionId)) {
@@ -606,17 +848,6 @@ export class RealtimeBattleScene extends Phaser.Scene {
       container.add(graphics);
       sprite = this.add.image(0, 0, '__DEFAULT') as any;
       sprite.setVisible(false);
-    }
-
-    const targetHeight = 120;
-    const customScale = def?.scale ?? 1.0;
-    const baseScale = (targetHeight / sprite.height) * customScale;
-    sprite.setScale(baseScale);
-    sprite.setOrigin(0.5, 1);
-
-    // player2側のユニットは左向き
-    if (unitState.side === 'player2') {
-      sprite.setFlipX(true);
     }
 
     container.add(sprite);
@@ -638,8 +869,10 @@ export class RealtimeBattleScene extends Phaser.Scene {
     nameText.setOrigin(0.5, 0.5);
     container.add(nameText);
 
-    this.units.set(unitState.instanceId, {
+    const realtimeUnit: RealtimeUnit = {
       instanceId: unitState.instanceId,
+      definitionId: unitState.definitionId,
+      side: unitState.side,
       container,
       sprite,
       hpBar,
@@ -648,7 +881,22 @@ export class RealtimeBattleScene extends Phaser.Scene {
       lastX: unitState.x,
       targetX: unitState.x,
       lastHp: unitState.hp,
-    });
+      lastState: unitState.state,
+    };
+
+    this.layoutUnitVisuals(realtimeUnit, sprite, def);
+
+    this.units.set(unitState.instanceId, realtimeUnit);
+
+    this.ensureUnitAnimations(unitState.definitionId);
+    this.playUnitAnimationForState(realtimeUnit, unitState.state);
+
+    if (unitState.state === 'SPAWN') {
+      const mySide = this.networkManager.getMySide();
+      if (mySide && unitState.side === mySide) {
+        this.playSfx('sfx_unit_spawn', 0.3);
+      }
+    }
   }
 
   private updateUnit(unitState: NetworkUnitState) {
@@ -656,6 +904,9 @@ export class RealtimeBattleScene extends Phaser.Scene {
     if (!unit) return;
 
     if ((unitState.hp <= 0 || unitState.state === 'DIE') && !unit.isRemoving && !unit.deathTimer) {
+      if (unit.lastState !== 'DIE') {
+        this.playSfx('sfx_unit_death', 0.3);
+      }
       unit.deathTimer = this.time.delayedCall(200, () => {
         this.removeUnit(unitState.instanceId);
       });
@@ -673,6 +924,7 @@ export class RealtimeBattleScene extends Phaser.Scene {
     if (unitState.hp < unit.lastHp) {
       const damage = Math.max(0, unit.lastHp - unitState.hp);
       if (damage > 0) {
+        this.playSfx(this.getHitSfxKey(unit.definitionId), 0.25);
         this.showDamageNumber(unit.container.x, unit.container.y - unit.sprite.displayHeight - 20, damage);
       }
     }
@@ -688,27 +940,12 @@ export class RealtimeBattleScene extends Phaser.Scene {
     }
 
     // 状態に応じた見た目
-    if (unitState.state === 'DIE') {
-      unit.sprite.setAlpha(0.3);
-    } else {
-      unit.sprite.setAlpha(1);
+    const prevState = unit.lastState;
+    unit.lastState = unitState.state;
+    if (prevState !== unitState.state) {
+      this.playUnitAnimationForState(unit, unitState.state);
     }
-
-    if (unitState.state === 'HITSTUN') {
-      if (!unit.hitstunTimer) {
-        unit.sprite.setTint(0xff0000);
-        unit.hitstunTimer = this.time.delayedCall(100, () => {
-          unit.sprite.clearTint();
-          unit.hitstunTimer = undefined;
-        });
-      }
-    } else {
-      if (unit.hitstunTimer) {
-        unit.hitstunTimer.remove(false);
-        unit.hitstunTimer = undefined;
-      }
-      unit.sprite.clearTint();
-    }
+    this.applyStateVisuals(unit, unitState.state);
   }
 
   private removeUnit(instanceId: string) {
@@ -765,6 +1002,7 @@ export class RealtimeBattleScene extends Phaser.Scene {
     if (typeof prevHp === 'number' && nextHp < prevHp) {
       const damage = prevHp - nextHp;
       if (damage > 0) {
+        this.playSfx('sfx_attack_hit', 0.25);
         this.showDamageNumber(castle.x, castle.y - sprite.displayHeight - 50, damage);
       }
     }
