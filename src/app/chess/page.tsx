@@ -46,6 +46,7 @@ export default function ChessPage() {
   const [aiLevel, setAiLevel] = useState<ChessAiLevel>("normal");
   const [aiThinking, setAiThinking] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [pendingPromotion, setPendingPromotion] = useState<{ from: { x: number; y: number }; to: { x: number; y: number } } | null>(null);
 
   const ownedUnits = useMemo(
     () => playableUnits.filter((unit) => (unitInventory[unit.id] ?? 0) > 0),
@@ -155,12 +156,17 @@ export default function ChessPage() {
   const handleSquareClick = (x: number, y: number) => {
     if (status.checkmate || status.stalemate) return;
     if (turn !== "w") return;
+    if (pendingPromotion) return;
     const piece = board[y][x];
     if (selected) {
       const move = legalMoveTargets.get(`${x}-${y}`);
       if (move) {
-        const promotion: ChessPieceType = "q";
-        const result = gameRef.current.move(selected.x, selected.y, x, y, promotion);
+        // Check if this is a pawn promotion
+        if (move.promotion) {
+          setPendingPromotion({ from: { x: selected.x, y: selected.y }, to: { x, y } });
+          return;
+        }
+        const result = gameRef.current.move(selected.x, selected.y, x, y);
         if (result.ok) {
           setSelected(null);
           setLegalMoves([]);
@@ -176,6 +182,36 @@ export default function ChessPage() {
     } else {
       setSelected(null);
       setLegalMoves([]);
+    }
+  };
+
+  const handlePromotion = (pieceType: ChessPieceType) => {
+    if (!pendingPromotion) return;
+    const result = gameRef.current.move(
+      pendingPromotion.from.x,
+      pendingPromotion.from.y,
+      pendingPromotion.to.x,
+      pendingPromotion.to.y,
+      pieceType
+    );
+    if (result.ok) {
+      setSelected(null);
+      setLegalMoves([]);
+      setVersion((v) => v + 1);
+    }
+    setPendingPromotion(null);
+  };
+
+  const handleUndo = () => {
+    // Undo twice to undo both player and AI move
+    if (gameRef.current.canUndo()) {
+      gameRef.current.undo();
+      if (gameRef.current.canUndo() && gameRef.current.getTurn() === "b") {
+        gameRef.current.undo();
+      }
+      setSelected(null);
+      setLegalMoves([]);
+      setVersion((v) => v + 1);
     }
   };
 
@@ -387,9 +423,18 @@ export default function ChessPage() {
           ← {t("back_to_home")}
         </Link>
         <h1 className="text-2xl font-bold text-amber-600 dark:text-amber-400">♟️ {t("menu_chess")}</h1>
-        <button onClick={handleReset} className="btn btn-primary text-sm py-2 px-3">
-          {t("chess_reset")}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={handleUndo}
+            disabled={!gameRef.current.canUndo() || turn === "b"}
+            className="btn btn-secondary text-sm py-2 px-3 disabled:opacity-40"
+          >
+            ↩ {t("chess_undo")}
+          </button>
+          <button onClick={handleReset} className="btn btn-primary text-sm py-2 px-3">
+            {t("chess_reset")}
+          </button>
+        </div>
       </div>
 
       <div className="text-center mb-6 text-amber-900/70 dark:text-gray-400">
@@ -408,7 +453,9 @@ export default function ChessPage() {
               row.map((piece, x) => {
                 const isLight = (x + y) % 2 === 0;
                 const isSelected = selected?.x === x && selected?.y === y;
-                const legalMove = legalMoveTargets.has(`${x}-${y}`);
+                const moveData = legalMoveTargets.get(`${x}-${y}`);
+                const legalMove = !!moveData;
+                const isCapture = moveData?.capture || moveData?.enPassant;
                 const isLast =
                   lastMove &&
                   ((lastMove.from.x === x && lastMove.from.y === y) ||
@@ -420,9 +467,11 @@ export default function ChessPage() {
                     onClick={() => handleSquareClick(x, y)}
                     className={`relative aspect-square flex items-center justify-center transition-colors ${
                       isLight ? "bg-amber-100/80" : "bg-amber-300/70"
-                    } ${isSelected ? "ring-4 ring-emerald-400" : ""} ${isLast ? "outline outline-2 outline-orange-300" : ""}`}
+                    } ${isSelected ? "ring-4 ring-emerald-400" : ""} ${isLast ? "outline outline-2 outline-orange-300" : ""} ${
+                      isCapture ? "ring-4 ring-rose-500 bg-rose-200/50" : ""
+                    }`}
                   >
-                    {legalMove && (
+                    {legalMove && !isCapture && (
                       <div className="absolute w-3 h-3 rounded-full bg-emerald-500/80" />
                     )}
                     {piece && (
@@ -441,6 +490,11 @@ export default function ChessPage() {
                         <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white/90 text-amber-900 text-sm font-bold flex items-center justify-center shadow">
                           {getPieceSymbol(piece.type as PieceRole, piece.color)}
                         </span>
+                        {isCapture && (
+                          <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[10px] font-bold text-rose-600 bg-white/90 px-1 rounded">
+                            ⚔️
+                          </span>
+                        )}
                       </div>
                     )}
                   </button>
@@ -596,6 +650,38 @@ export default function ChessPage() {
               <span className="inline-block w-3 h-3 rounded-sm bg-emerald-400 mr-2" />
               = {t("chess_hint_body")}
             </p>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal isOpen={!!pendingPromotion} onClose={() => setPendingPromotion(null)} size="sm">
+        <div className="p-5">
+          <h2 className="text-xl font-bold text-amber-900 dark:text-white mb-4 text-center">{t("chess_promotion_title")}</h2>
+          <div className="grid grid-cols-4 gap-3">
+            {(["q", "r", "b", "n"] as const).map((pieceType) => {
+              const skin = getPieceSkin(pieceType);
+              return (
+                <button
+                  key={pieceType}
+                  onClick={() => handlePromotion(pieceType)}
+                  className="flex flex-col items-center gap-2 p-3 rounded-xl bg-amber-50 dark:bg-slate-800 hover:bg-amber-100 dark:hover:bg-slate-700 transition-colors"
+                >
+                  <div className="relative">
+                    <img
+                      src={getSpritePath(skin.baseUnitId || skin.unitId, skin.rarity)}
+                      alt={pieceType}
+                      className="w-12 h-12 object-contain"
+                    />
+                    <span className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-white/90 text-amber-900 text-sm font-bold flex items-center justify-center shadow">
+                      {getPieceSymbol(pieceType, "w")}
+                    </span>
+                  </div>
+                  <span className="text-xs text-amber-900/80 dark:text-slate-300">
+                    {t(PIECE_ROLES.find((r) => r.id === pieceType)?.labelKey || "")}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </Modal>

@@ -52,12 +52,20 @@ const createInitialBoard = (): Board => {
   return board;
 };
 
+interface GameState {
+  board: Board;
+  turn: ChessColor;
+  castling: { wK: boolean; wQ: boolean; bK: boolean; bQ: boolean };
+  enPassant: ChessPosition | null;
+}
+
 export class ChessGame {
   private board: Board = createInitialBoard();
   private turn: ChessColor = "w";
   private castling = { wK: true, wQ: true, bK: true, bQ: true };
   private enPassant: ChessPosition | null = null;
   private history: ChessMove[] = [];
+  private stateHistory: GameState[] = [];
 
   reset() {
     this.board = createInitialBoard();
@@ -65,6 +73,26 @@ export class ChessGame {
     this.castling = { wK: true, wQ: true, bK: true, bQ: true };
     this.enPassant = null;
     this.history = [];
+    this.stateHistory = [];
+  }
+
+  canUndo(): boolean {
+    return this.stateHistory.length > 0;
+  }
+
+  undo(): boolean {
+    if (this.stateHistory.length === 0) return false;
+    const prevState = this.stateHistory.pop()!;
+    this.board = prevState.board;
+    this.turn = prevState.turn;
+    this.castling = prevState.castling;
+    this.enPassant = prevState.enPassant;
+    this.history.pop();
+    return true;
+  }
+
+  getHistory(): ChessMove[] {
+    return this.history;
   }
 
   getBoard() {
@@ -129,6 +157,14 @@ export class ChessGame {
     if (!selected) {
       return { ok: false as const };
     }
+
+    // Save state for undo
+    this.stateHistory.push({
+      board: cloneBoard(this.board),
+      turn: this.turn,
+      castling: { ...this.castling },
+      enPassant: this.enPassant ? { ...this.enPassant } : null,
+    });
 
     const move: ChessMove = { ...selected };
     if (move.promotion) {
