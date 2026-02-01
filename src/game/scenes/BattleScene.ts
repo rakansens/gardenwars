@@ -99,6 +99,10 @@ export class BattleScene extends Phaser.Scene {
     private gameSpeed: number = 1;
     private speedBtn!: Phaser.GameObjects.Container;
 
+    // ボス出現管理（城攻撃時にボス出現）
+    private bossSpawned: boolean = false;
+    private lastEnemyCastleHp: number = 0;
+
     constructor() {
         super({ key: 'BattleScene' });
     }
@@ -290,6 +294,10 @@ export class BattleScene extends Phaser.Scene {
         // 城を配置
         this.allyCastle = new Castle(this, 50, this.groundY, 'ally', this.stageData.baseCastleHp);
         this.enemyCastle = new Castle(this, this.stageData.length, this.groundY, 'enemy', this.stageData.enemyCastleHp);
+
+        // ボス出現管理の初期化
+        this.bossSpawned = false;
+        this.lastEnemyCastleHp = this.stageData.enemyCastleHp;
 
         // カメラ設定
         this.cameras.main.setBounds(0, 0, this.stageData.length + 100, height);
@@ -1315,6 +1323,9 @@ export class BattleScene extends Phaser.Scene {
             this.enemyCastle
         );
 
+        // ボス出現チェック（敵城が初めてダメージを受けたら）
+        this.checkBossSpawn();
+
         // 死亡ユニットの除去
         this.cleanupDeadUnits();
 
@@ -1349,6 +1360,111 @@ export class BattleScene extends Phaser.Scene {
         } else {
             this.bossHpContainer.setVisible(false);
         }
+    }
+
+    /**
+     * ボス出現チェック - 敵城が初めてダメージを受けたらボス登場
+     */
+    private checkBossSpawn(): void {
+        // 既にボスが出現済み、またはボスがいないステージは無視
+        if (this.bossSpawned || !this.waveSystem.hasBoss()) {
+            return;
+        }
+
+        // 敵城がダメージを受けたかチェック
+        if (this.enemyCastle.hp < this.lastEnemyCastleHp) {
+            this.bossSpawned = true;
+            this.spawnBossWithKnockback();
+        }
+    }
+
+    /**
+     * ボス出現演出 - 全ユニットノックバック + ボス登場
+     */
+    private spawnBossWithKnockback(): void {
+        const { width, height } = this.scale;
+
+        // 画面を一瞬暗くする
+        const overlay = this.add.rectangle(width / 2, height / 2, width * 2, height * 2, 0x000000, 0.7);
+        overlay.setScrollFactor(0);
+        overlay.setDepth(200);
+
+        // 警告テキスト
+        const warningText = this.add.text(width / 2, height / 2 - 50, '⚠️ BOSS INCOMING ⚠️', {
+            fontSize: '48px',
+            color: '#ff0000',
+            fontStyle: 'bold',
+            stroke: '#000000',
+            strokeThickness: 6,
+        });
+        warningText.setOrigin(0.5);
+        warningText.setScrollFactor(0);
+        warningText.setDepth(201);
+        warningText.setScale(0);
+
+        // 警告テキストのアニメーション
+        this.tweens.add({
+            targets: warningText,
+            scale: 1,
+            duration: 300,
+            ease: 'Back.Out',
+            onComplete: () => {
+                // 点滅
+                this.tweens.add({
+                    targets: warningText,
+                    alpha: 0.5,
+                    duration: 100,
+                    yoyo: true,
+                    repeat: 3,
+                });
+            }
+        });
+
+        // 画面シェイク
+        this.cameras.main.shake(500, 0.02);
+
+        // 全味方ユニットを大きくノックバック
+        const knockbackDistance = 300;
+        for (const unit of this.allyUnits) {
+            if (!unit.isDead()) {
+                // 左方向にノックバック
+                this.tweens.add({
+                    targets: unit,
+                    x: Math.max(100, unit.x - knockbackDistance),
+                    duration: 400,
+                    ease: 'Power2',
+                });
+            }
+        }
+
+        // 全敵ユニットも少しノックバック（衝撃波）
+        for (const unit of this.enemyUnits) {
+            if (!unit.isDead()) {
+                this.tweens.add({
+                    targets: unit,
+                    x: unit.x + 100,
+                    duration: 400,
+                    ease: 'Power2',
+                });
+            }
+        }
+
+        // 遅延してボス出現
+        this.time.delayedCall(800, () => {
+            // ボスをスポーン
+            this.waveSystem.spawnBoss();
+
+            // オーバーレイをフェードアウト
+            this.tweens.add({
+                targets: [overlay, warningText],
+                alpha: 0,
+                duration: 500,
+                onComplete: () => {
+                    overlay.destroy();
+                    warningText.destroy();
+                }
+            });
+        });
     }
 
     private updateUnits(delta: number) {

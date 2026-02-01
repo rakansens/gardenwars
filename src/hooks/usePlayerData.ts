@@ -339,14 +339,15 @@ export function usePlayerData() {
         const newItems: ShopItem[] = [];
 
         const pickRandom = () => {
-            const weights = { N: 50, R: 30, SR: 15, SSR: 4, UR: 0 };
+            // SSR/URはショップに出現しない
+            const weights = { N: 50, R: 30, SR: 15, SSR: 0, UR: 0 };
 
             let totalWeight = 0;
-            for (const u of allUnits) totalWeight += weights[u.rarity] || 1;
+            for (const u of allUnits) totalWeight += weights[u.rarity] || 0;
 
             let r = Math.random() * totalWeight;
             for (const u of allUnits) {
-                r -= weights[u.rarity] || 1;
+                r -= weights[u.rarity] || 0;
                 if (r <= 0) return u;
             }
             return allUnits[0];
@@ -355,13 +356,14 @@ export function usePlayerData() {
         for (let i = 0; i < 30; i++) {
             const unit = pickRandom();
 
-            let basePrice = 20;
+            // 価格設定（全体的に高め）
+            let basePrice = 100;
             switch (unit.rarity) {
-                case 'N': basePrice = 20; break;
-                case 'R': basePrice = 100; break;
-                case 'SR': basePrice = 1200; break;
-                case 'SSR': basePrice = 3000; break;
-                case 'UR': basePrice = 10000; break;
+                case 'N': basePrice = 100; break;
+                case 'R': basePrice = 800; break;
+                case 'SR': basePrice = 5000; break;
+                case 'SSR': basePrice = 15000; break;  // 出現しないが念のため
+                case 'UR': basePrice = 50000; break;   // 出現しないが念のため
             }
 
             const isDiscount = Math.random() < 0.3;

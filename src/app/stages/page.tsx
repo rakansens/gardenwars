@@ -1,13 +1,13 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import stagesData from "@/data/stages";
 import unitsData from "@/data/units";
 import type { StageDefinition, UnitDefinition, StageDifficulty } from "@/data/types";
-import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import PageHeader from "@/components/layout/PageHeader";
 import { getSpritePath } from "@/lib/sprites";
 import { useStageUnlock } from "@/hooks/useStageUnlock";
 
@@ -111,22 +111,15 @@ export default function StagesPage() {
         : stages.filter(s => s.difficulty === selectedDifficulty);
 
     return (
-        <main className="min-h-screen p-4 md:p-8">
-            {/* ヘッダー */}
-            <div className="page-header mb-4">
-                <div className="flex items-center justify-between flex-wrap gap-3">
-                    <Link href="/" className="btn btn-secondary">
-                        ← {t("back_to_home")}
-                    </Link>
-                    <h1 className="text-2xl md:text-3xl font-bold">{t("stage_select")}</h1>
-                    <div className="flex items-center gap-2">
-                        <LanguageSwitch />
-                        <Link href="/team" className="btn btn-primary">
-                            🎮 {t("team")}
-                        </Link>
-                    </div>
-                </div>
-            </div>
+        <main className="min-h-screen">
+            <PageHeader
+                title={t("stage_select")}
+                rightButton={{
+                    href: "/team",
+                    label: t("team"),
+                    icon: "🎮",
+                }}
+            />
 
             {/* 難易度タブ - ビジュアルカード */}
             <div className="mb-6">

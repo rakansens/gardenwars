@@ -11,6 +11,7 @@ import UnitCard from "@/components/ui/UnitCard";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { useUnitDetailModal } from "@/hooks/useUnitDetailModal";
 import { useLanguage } from "@/contexts/LanguageContext";
+import PageHeader from "@/components/layout/PageHeader";
 import { useAuth } from "@/contexts/AuthContext";
 import { incrementGachaCount } from "@/lib/supabase";
 
@@ -162,19 +163,15 @@ export default function GachaPage() {
     }
 
     return (
-        <main className="min-h-screen p-4 md:p-8">
-            {/* ヘッダー */}
-            <div className="page-header mb-6">
-                <div className="flex items-center justify-between flex-wrap gap-3">
-                    <Link href="/" className="btn btn-secondary">
-                        {t("back_to_home")}
-                    </Link>
-                    <h1 className="text-2xl md:text-3xl font-bold">{t("gacha_title")}</h1>
-                    <div className="btn btn-primary pointer-events-none">
-                        💰 {coins.toLocaleString()}
-                    </div>
+        <main className="min-h-screen">
+            <PageHeader
+                title={t("gacha_title")}
+                showLanguageSwitch={false}
+            >
+                <div className="btn btn-primary pointer-events-none">
+                    💰 {coins.toLocaleString()}
                 </div>
-            </div>
+            </PageHeader>
 
             <div className="container max-w-2xl mx-auto">
                 {/* ガチャマシン */}

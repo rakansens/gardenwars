@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import PageHeader from "@/components/layout/PageHeader";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { getAsyncOpponents, type AsyncOpponent } from "@/lib/supabase";
 import unitsData from "@/data/units";
@@ -64,13 +65,12 @@ export default function AsyncBattlePage() {
     // Not logged in
     if (status === "unauthenticated") {
         return (
-            <main className="min-h-screen p-4 md:p-8">
-                <div className="page-header mb-6">
-                    <Link href="/" className="btn btn-secondary">
-                        ← {t("back_to_home")}
-                    </Link>
-                </div>
-                <div className="container max-w-4xl mx-auto">
+            <main className="min-h-screen">
+                <PageHeader
+                    title={`⚔️ ${t("async_battle_title")}`}
+                    showLanguageSwitch={false}
+                />
+                <div className="container max-w-4xl mx-auto px-4 md:px-8">
                     <div className="text-center py-12">
                         <div className="text-6xl mb-4">🔒</div>
                         <p className="text-gray-600 dark:text-gray-400 text-xl">{t("login_required")}</p>
@@ -82,25 +82,19 @@ export default function AsyncBattlePage() {
     }
 
     return (
-        <main className="min-h-screen p-4 md:p-8">
-            {/* Header */}
-            <div className="page-header mb-6">
-                <div className="flex items-center justify-between flex-wrap gap-3">
-                    <Link href="/" className="btn btn-secondary">
-                        ← {t("back_to_home")}
-                    </Link>
-                    <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
-                        ⚔️ {t("async_battle_title")}
-                    </h1>
-                    <button
-                        onClick={refreshOpponents}
-                        className="btn btn-secondary"
-                        disabled={isLoading}
-                    >
-                        🔄 {t("refresh")}
-                    </button>
-                </div>
-            </div>
+        <main className="min-h-screen">
+            <PageHeader
+                title={`⚔️ ${t("async_battle_title")}`}
+                showLanguageSwitch={false}
+            >
+                <button
+                    onClick={refreshOpponents}
+                    className="btn btn-secondary"
+                    disabled={isLoading}
+                >
+                    🔄 {t("refresh")}
+                </button>
+            </PageHeader>
 
             <div className="container max-w-4xl mx-auto">
                 {/* My Team Display */}

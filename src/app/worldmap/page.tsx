@@ -7,7 +7,8 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import stagesData from "@/data/stages";
 import unitsData from "@/data/units";
 import type { StageDefinition, UnitDefinition, StageDifficulty } from "@/data/types";
-import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import PageHeader from "@/components/layout/PageHeader";
 import { getSpritePath } from "@/lib/sprites";
 import { useStageUnlock } from "@/hooks/useStageUnlock";
 
@@ -176,25 +177,15 @@ export default function WorldMapPage() {
     const currentAreaTab = AREA_TABS.find((tab) => tab.key === activeArea) || AREA_TABS[0];
 
     return (
-        <main className="min-h-screen p-4 md:p-8 pb-32">
-            {/* ヘッダー */}
-            <div className="page-header mb-4">
-                <div className="flex items-center justify-between flex-wrap gap-3">
-                    <Link href="/" className="btn btn-secondary">
-                        ← {t("back_to_home")}
-                    </Link>
-                    <h1 className="text-2xl md:text-3xl font-bold">🗺️ {t("world_map")}</h1>
-                    <div className="flex items-center gap-2">
-                        <LanguageSwitch />
-                        <Link href="/stages" className="btn btn-secondary">
-                            📋 {t("list")}
-                        </Link>
-                        <Link href="/team" className="btn btn-primary">
-                            🎮 {t("team")}
-                        </Link>
-                    </div>
-                </div>
-            </div>
+        <main className="min-h-screen pb-32">
+            <PageHeader title={`🗺️ ${t("world_map")}`}>
+                <Link href="/stages" className="btn btn-secondary">
+                    📋 {t("list")}
+                </Link>
+                <Link href="/team" className="btn btn-primary">
+                    🎮 {t("team")}
+                </Link>
+            </PageHeader>
 
             {/* プログレスバー */}
             <div className="card mb-4 p-4">

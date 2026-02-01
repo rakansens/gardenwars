@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import Link from "next/link";
 import unitsData from "@/data/units";
 import type { UnitDefinition, Rarity } from "@/data/types";
 import RarityFrame from "@/components/ui/RarityFrame";
@@ -9,7 +8,8 @@ import UnitDetailModal from "@/components/ui/UnitDetailModal";
 import { hasAnimation } from "@/components/ui/UnitAnimationPreview";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { useUnitDetailModal } from "@/hooks/useUnitDetailModal";
-import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import PageHeader from "@/components/layout/PageHeader";
 
 const allUnits = unitsData as UnitDefinition[];
 // 味方ユニットのみ（敵ユニット、ボスは除外）
@@ -119,24 +119,15 @@ export default function CollectionPage() {
     const progressPercent = stats.total > 0 ? Math.round((stats.collected / stats.total) * 100) : 0;
 
     return (
-        <main className="min-h-screen p-4 md:p-6 lg:p-8 bg-gradient-to-b from-amber-50 to-orange-50 dark:from-slate-900 dark:to-slate-800">
-            {/* ヘッダー */}
-            <div className="page-header mb-6">
-                <div className="flex items-center justify-between flex-wrap gap-3">
-                    <Link href="/" className="btn btn-secondary">
-                        ← {t("back_to_home")}
-                    </Link>
-                    <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
-                        📖 {t("collection_title")}
-                    </h1>
-                    <div className="flex items-center gap-2">
-                        <LanguageSwitch />
-                        <Link href="/team" className="btn btn-primary">
-                            🎖️ {t("team")}
-                        </Link>
-                    </div>
-                </div>
-            </div>
+        <main className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50 dark:from-slate-900 dark:to-slate-800">
+            <PageHeader
+                title={`📖 ${t("collection_title")}`}
+                rightButton={{
+                    href: "/team",
+                    label: t("team"),
+                    icon: "🎖️",
+                }}
+            />
 
             <div className="max-w-7xl mx-auto">
                 {/* コレクション進捗カード */}

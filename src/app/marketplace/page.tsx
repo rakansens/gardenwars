@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useUnitDetailModal } from "@/hooks/useUnitDetailModal";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { useMarketplace } from "@/hooks/useMarketplace";
-import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import PageHeader from "@/components/layout/PageHeader";
 import {
     ListingCard,
     CreateListingModal,
@@ -177,25 +178,13 @@ export default function MarketplacePage() {
     }
 
     return (
-        <main className="min-h-screen p-4 md:p-8">
-            {/* ヘッダー */}
-            <div className="page-header mb-6">
-                <div className="flex items-center justify-between flex-wrap gap-3">
-                    <Link href="/" className="btn btn-secondary">
-                        ← {t("back_to_home")}
-                    </Link>
-                    <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2 text-gray-800 dark:text-white">
-                        🏪 {t("marketplace_title")}
-                    </h1>
-                    <div className="flex items-center gap-2">
-                        <LanguageSwitch />
-                        <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 rounded-xl font-bold shadow-lg flex items-center gap-2 text-white">
-                            <span className="text-xl">💰</span>
-                            <span className="text-lg">{coins.toLocaleString()}</span>
-                        </div>
-                    </div>
+        <main className="min-h-screen">
+            <PageHeader title={`🏪 ${t("marketplace_title")}`}>
+                <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 rounded-xl font-bold shadow-lg flex items-center gap-2 text-white">
+                    <span className="text-xl">💰</span>
+                    <span className="text-lg">{coins.toLocaleString()}</span>
                 </div>
-            </div>
+            </PageHeader>
 
             <div className="container">
                 {/* タブ */}

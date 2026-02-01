@@ -124,7 +124,7 @@ export default function Home() {
     { href: "/stages", icon: "⚔️", label: t("menu_stages"), type: "primary" },
     { href: "/worldmap", icon: "🗺️", label: t("world_map"), type: "primary" },
     { href: "/arena", icon: "🏟️", label: t("menu_arena"), type: "primary" },
-    { href: "/async-battle", icon: "🆚", label: t("menu_async_battle"), type: "primary" },
+    { href: "/battle", icon: "⚔️", label: t("menu_battle"), type: "primary" },
     { href: "/team", icon: "🎖️", label: t("menu_team"), type: "secondary" },
     { href: "/collection", icon: "📖", label: t("menu_collection"), type: "secondary" },
     { href: "/gacha", icon: "🎰", label: t("menu_gacha"), type: "primary" },

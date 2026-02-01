@@ -177,10 +177,20 @@ body {
   transform: scale(1.02);
 }
 
-/* ヘッダー */
+/* ヘッダー（スティッキー） */
 .page-header {
-  padding: 20px;
-  background: linear-gradient(180deg, rgba(255, 241, 201, 0.9), transparent);
+  padding: 16px 20px;
+  background: linear-gradient(180deg, rgba(255, 241, 201, 0.95), rgba(255, 241, 201, 0.85));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(251, 191, 36, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* ダークモード対応 */
+.dark .page-header {
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.95), rgba(30, 41, 59, 0.85));
+  border-bottom: 1px solid rgba(251, 191, 36, 0.15);
 }
 
 /* コンテナ */

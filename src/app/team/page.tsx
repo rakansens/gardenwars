@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import unitsData from "@/data/units";
 import type { UnitDefinition, Rarity } from "@/data/types";
 import RarityFrame from "@/components/ui/RarityFrame";
@@ -9,7 +8,8 @@ import UnitDetailModal from "@/components/ui/UnitDetailModal";
 import { hasAnimation } from "@/components/ui/UnitAnimationPreview";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { useUnitDetailModal } from "@/hooks/useUnitDetailModal";
-import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import PageHeader from "@/components/layout/PageHeader";
 
 const allUnits = unitsData as UnitDefinition[];
 // 味方ユニットのみフィルタ
@@ -184,24 +184,18 @@ export default function TeamPage() {
     }
 
     return (
-        <main className="min-h-screen p-4 md:p-8">
-            {/* ヘッダー */}
-            <div className="page-header mb-6">
-                <div className="flex items-center justify-between flex-wrap gap-3">
-                    <Link href="/" className="btn btn-secondary">
-                        ← {t("back_to_home")}
-                    </Link>
-                    <h1 className="text-2xl md:text-3xl font-bold">{t("team_title")}</h1>
-                    <div className="flex items-center gap-2">
-                        <LanguageSwitch />
-                        <Link href="/stages" className="btn btn-primary">
-                            ⚔️ {t("to_stages")}
-                        </Link>
-                    </div>
-                </div>
-            </div>
+        <main className="min-h-screen">
+            {/* スティッキーヘッダー */}
+            <PageHeader
+                title={t("team_title")}
+                rightButton={{
+                    href: "/stages",
+                    label: t("to_stages"),
+                    icon: "⚔️",
+                }}
+            />
 
-            <div className="container">
+            <div className="container px-4 md:px-8 pb-8">
                 {/* 現在の編成 */}
                 <section className="mb-8">
                     {/* ロードアウト切り替えタブ */}

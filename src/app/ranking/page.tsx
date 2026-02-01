@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { getRankings, type RankingEntry, type RankingSortBy } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import PageHeader from "@/components/layout/PageHeader";
 import unitsData from "@/data/units";
 import type { UnitDefinition } from "@/data/types";
 import { getSpritePath } from "@/lib/sprites";
@@ -73,19 +73,11 @@ export default function RankingPage() {
     };
 
     return (
-        <main className="min-h-screen p-4 md:p-8">
-            {/* ヘッダー */}
-            <div className="page-header mb-6">
-                <div className="flex items-center justify-between flex-wrap gap-3">
-                    <Link href="/" className="btn btn-secondary">
-                        ← {t("back_to_home")}
-                    </Link>
-                    <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
-                        {t("ranking_title")}
-                    </h1>
-                    <div className="w-24" /> {/* スペーサー */}
-                </div>
-            </div>
+        <main className="min-h-screen">
+            <PageHeader
+                title={t("ranking_title")}
+                showLanguageSwitch={false}
+            />
 
             <div className="container max-w-4xl mx-auto">
                 {/* ソート選択 */}
