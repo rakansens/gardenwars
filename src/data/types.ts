@@ -233,3 +233,67 @@ export interface ArenaStageDefinition {
     image?: string;           // 背景画像パス（オプション）
   };
 }
+
+// ============================================
+// Survival Mode Types
+// ============================================
+
+export interface SurvivalWeaponLevel {
+  damage?: number;
+  cooldownMs?: number;
+  cooldownMultiplier?: number;
+  count?: number;
+  speed?: number;
+  spread?: number;
+  radius?: number;
+  bladeCount?: number;
+  rotationSpeed?: number;
+  moveSpeedPct?: number;
+  healPerSecond?: number;
+}
+
+export interface SurvivalWeaponDefinition {
+  id: string;
+  name: string;
+  description: string;
+  type: 'weapon' | 'passive';
+  maxLevel: number;
+  levels: SurvivalWeaponLevel[];
+}
+
+export interface SurvivalEnemyPool {
+  startMs: number;
+  unitIds: string[];
+}
+
+export interface SurvivalSpawnConfig {
+  baseIntervalMs: number;
+  minIntervalMs: number;
+  intervalDecayPerMinute: number;
+  extraSpawnChancePerMinute: number;
+}
+
+export interface SurvivalScalingConfig {
+  hpPerMinute: number;
+  damagePerMinute: number;
+  speedPerMinute: number;
+}
+
+export interface SurvivalBossConfig {
+  intervalMs: number;
+  unitIds: string[];
+  baseHpFactor: number;
+  baseDamageFactor: number;
+  baseSpeedFactor: number;
+  hpPerMinute: number;
+  damagePerMinute: number;
+}
+
+export interface SurvivalWavesConfig {
+  spawn: SurvivalSpawnConfig;
+  scaling: SurvivalScalingConfig;
+  enemyPools: SurvivalEnemyPool[];
+  boss: SurvivalBossConfig;
+}
+
+export type SurvivalDifficulty = 'easy' | 'normal' | 'hard';

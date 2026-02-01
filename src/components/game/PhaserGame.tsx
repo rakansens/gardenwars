@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import type { StageDefinition, UnitDefinition, ArenaStageDefinition } from "@/data/types";
+import type { StageDefinition, UnitDefinition, ArenaStageDefinition, SurvivalDifficulty } from "@/data/types";
 
 // グローバルなゲームインスタンス参照（重複防止）
 let globalPhaserGame: Phaser.Game | null = null;
 
 interface PhaserGameProps {
-    mode?: 'battle' | 'garden' | 'arena';
+    mode?: 'battle' | 'garden' | 'arena' | 'survival';
     // Battle props
     stage?: StageDefinition;
     team?: UnitDefinition[];
@@ -20,6 +20,9 @@ interface PhaserGameProps {
     gardenBackgroundId?: string; // 背景ID
     // Arena props
     arenaStage?: ArenaStageDefinition;
+    // Survival props
+    survivalPlayer?: UnitDefinition;
+    survivalDifficulty?: SurvivalDifficulty;
 }
 
 export default function PhaserGame({
@@ -33,6 +36,8 @@ export default function PhaserGame({
     gardenUnits,
     gardenBackgroundId,
     arenaStage,
+    survivalPlayer,
+    survivalDifficulty,
 }: PhaserGameProps) {
     const gameRef = useRef<HTMLDivElement>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -96,6 +101,14 @@ export default function PhaserGame({
                 SceneClass = GardenScene;
                 startKey = "GardenScene";
                 startData = { units: gardenUnits || [], backgroundId: gardenBackgroundId };
+            } else if (mode === 'survival') {
+                const { SurvivalScene } = await import("@/game/scenes/SurvivalScene");
+                SceneClass = SurvivalScene;
+                startKey = "SurvivalScene";
+                const fallbackPlayer = survivalPlayer
+                    || team?.[0]
+                    || (allUnits || []).find(u => !u.id.startsWith("enemy_") && !u.id.startsWith("boss_") && !u.isBoss);
+                startData = { player: fallbackPlayer, allUnits, difficulty: survivalDifficulty };
             } else if (mode === 'arena') {
                 const { ArenaScene } = await import("@/game/scenes/ArenaScene");
                 SceneClass = ArenaScene;
@@ -200,7 +213,7 @@ export default function PhaserGame({
                 globalPhaserGame = null;
             }
         };
-    }, [mode, stage, team, allUnits, gardenUnits, arenaStage, handleBattleEnd]);
+    }, [mode, stage, team, allUnits, gardenUnits, arenaStage, survivalPlayer, survivalDifficulty, handleBattleEnd]);
 
     return (
         <div className="relative w-full h-full">

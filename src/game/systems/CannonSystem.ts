@@ -140,6 +140,53 @@ export class CannonSystem {
         return true;
     }
 
+    fireArea(
+        centerX: number,
+        centerY: number,
+        targets: CannonTarget[],
+        radius: number,
+        options?: { damage?: number; knockback?: number }
+    ): boolean {
+        if (this.charge < this.chargeMax) return false;
+
+        const damage = options?.damage ?? this.damage;
+        const knockback = options?.knockback ?? this.knockback;
+
+        // 画面シェイク
+        this.scene.cameras.main.shake(350, 0.012);
+
+        // キャノン発射SE（存在する場合のみ）
+        if (this.scene.cache.audio.exists('sfx_cannon_fire')) {
+            this.scene.sound.play('sfx_cannon_fire', { volume: 0.5 });
+        }
+
+        // 衝撃波
+        this.createRadialShockwave(centerX, centerY, radius);
+
+        const livingTargets = targets.filter(t => t && typeof t.x === 'number' && typeof t.y === 'number');
+        const targetsInRange = livingTargets.filter(t => {
+            const dx = t.x - centerX;
+            const dy = t.y - centerY;
+            return Math.sqrt(dx * dx + dy * dy) <= radius;
+        });
+
+        if (targetsInRange.length > 0) {
+            targetsInRange.forEach((target, index) => {
+                this.scene.time.delayedCall(120 + index * 60, () => {
+                    this.createExplosion(target.x, target.y);
+                    target.takeDamage(damage, knockback);
+                });
+            });
+        } else {
+            this.scene.time.delayedCall(200, () => {
+                this.createExplosion(centerX, centerY);
+            });
+        }
+
+        this.charge = 0;
+        return true;
+    }
+
     private createShockwave(x: number, y: number, range: number) {
         const wave = this.scene.add.circle(x, y, 20, 0xffff00, 0.7);
         wave.setStrokeStyle(6, 0xff6600);
@@ -182,6 +229,44 @@ export class CannonSystem {
             duration: 1000,
             ease: 'Power1',
             onComplete: () => rangeText.destroy(),
+        });
+    }
+
+    private createRadialShockwave(x: number, y: number, radius: number) {
+        const wave = this.scene.add.circle(x, y, 20, 0xffff00, 0.6);
+        wave.setStrokeStyle(6, 0xff6600);
+        wave.setDepth(50);
+
+        this.scene.tweens.add({
+            targets: wave,
+            radius,
+            alpha: 0,
+            duration: 550,
+            ease: 'Power2',
+            onComplete: () => wave.destroy(),
+        });
+
+        const inner = this.scene.add.circle(x, y, 12, 0xffdd66, 0.5);
+        inner.setDepth(51);
+        this.scene.tweens.add({
+            targets: inner,
+            radius: radius * 0.6,
+            alpha: 0,
+            duration: 450,
+            ease: 'Power2',
+            onComplete: () => inner.destroy(),
+        });
+
+        const boom = this.scene.add.text(x, y - 30, '💥', { fontSize: '64px' });
+        boom.setOrigin(0.5, 0.5);
+        boom.setDepth(52);
+        this.scene.tweens.add({
+            targets: boom,
+            y: y - 90,
+            alpha: 0,
+            duration: 600,
+            ease: 'Power2',
+            onComplete: () => boom.destroy(),
         });
     }
 

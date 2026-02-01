@@ -1,0 +1,86 @@
+[
+  {
+    "id": "forward_shot",
+    "name": "前方ショット",
+    "description": "正面に弾を発射",
+    "type": "weapon",
+    "maxLevel": 5,
+    "levels": [
+      { "damage": 18, "cooldownMs": 250, "count": 1, "speed": 945 },
+      { "damage": 24, "cooldownMs": 230, "count": 1, "speed": 990 },
+      { "damage": 30, "cooldownMs": 210, "count": 2, "speed": 1035, "spread": 12 },
+      { "damage": 38, "cooldownMs": 200, "count": 2, "speed": 1080, "spread": 10 },
+      { "damage": 48, "cooldownMs": 180, "count": 3, "speed": 1125, "spread": 14 }
+    ]
+  },
+  {
+    "id": "fire_rate",
+    "name": "連射速度",
+    "description": "たまの発射間隔を短縮",
+    "type": "passive",
+    "maxLevel": 5,
+    "levels": [
+      { "cooldownMultiplier": 0.9 },
+      { "cooldownMultiplier": 0.8 },
+      { "cooldownMultiplier": 0.7 },
+      { "cooldownMultiplier": 0.6 },
+      { "cooldownMultiplier": 0.5 }
+    ]
+  },
+  {
+    "id": "spin_blade",
+    "name": "回転刃",
+    "description": "周囲を回る攻撃",
+    "type": "weapon",
+    "maxLevel": 5,
+    "levels": [
+      { "damage": 12, "bladeCount": 1, "radius": 70, "rotationSpeed": 2.2 },
+      { "damage": 16, "bladeCount": 2, "radius": 80, "rotationSpeed": 2.3 },
+      { "damage": 20, "bladeCount": 2, "radius": 90, "rotationSpeed": 2.5 },
+      { "damage": 24, "bladeCount": 3, "radius": 95, "rotationSpeed": 2.7 },
+      { "damage": 30, "bladeCount": 4, "radius": 110, "rotationSpeed": 3.0 }
+    ]
+  },
+  {
+    "id": "aoe_burst",
+    "name": "範囲爆発",
+    "description": "定期的にAOE",
+    "type": "weapon",
+    "maxLevel": 5,
+    "levels": [
+      { "damage": 40, "radius": 140, "cooldownMs": 3000 },
+      { "damage": 55, "radius": 150, "cooldownMs": 2800 },
+      { "damage": 75, "radius": 170, "cooldownMs": 2600 },
+      { "damage": 95, "radius": 190, "cooldownMs": 2400 },
+      { "damage": 120, "radius": 220, "cooldownMs": 2200 }
+    ]
+  },
+  {
+    "id": "move_speed",
+    "name": "移動速度UP",
+    "description": "回避しやすく",
+    "type": "passive",
+    "maxLevel": 5,
+    "levels": [
+      { "moveSpeedPct": 0.08 },
+      { "moveSpeedPct": 0.16 },
+      { "moveSpeedPct": 0.24 },
+      { "moveSpeedPct": 0.32 },
+      { "moveSpeedPct": 0.4 }
+    ]
+  },
+  {
+    "id": "hp_regen",
+    "name": "HP回復",
+    "description": "少しずつ回復",
+    "type": "passive",
+    "maxLevel": 5,
+    "levels": [
+      { "healPerSecond": 1.5 },
+      { "healPerSecond": 3 },
+      { "healPerSecond": 4.5 },
+      { "healPerSecond": 6 },
+      { "healPerSecond": 8 }
+    ]
+  }
+]

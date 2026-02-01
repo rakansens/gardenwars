@@ -1,0 +1,36 @@
+{
+  "spawn": {
+    "baseIntervalMs": 900,
+    "minIntervalMs": 280,
+    "intervalDecayPerMinute": 0.12,
+    "extraSpawnChancePerMinute": 0.08
+  },
+  "scaling": {
+    "hpPerMinute": 0.12,
+    "damagePerMinute": 0.1,
+    "speedPerMinute": 0.04
+  },
+  "enemyPools": [
+    {
+      "startMs": 0,
+      "unitIds": ["enemy_dog", "enemy_cat_warrior", "enemy_archer", "enemy_crow"]
+    },
+    {
+      "startMs": 45000,
+      "unitIds": ["enemy_wolf", "enemy_cat_tank", "enemy_archer", "enemy_crow"]
+    },
+    {
+      "startMs": 90000,
+      "unitIds": ["enemy_wolf", "enemy_cat_tank", "enemy_archer", "enemy_crow", "enemy_dog"]
+    }
+  ],
+  "boss": {
+    "intervalMs": 30000,
+    "unitIds": ["boss_giant_king", "boss_dragon", "boss_death_titan"],
+    "baseHpFactor": 0.025,
+    "baseDamageFactor": 0.08,
+    "baseSpeedFactor": 0.5,
+    "hpPerMinute": 0.2,
+    "damagePerMinute": 0.15
+  }
+}
