@@ -41,7 +41,7 @@
       "die": "die"
     },
     "scale": 1.4,
-    "role": "balanced"
+    "role": "tank"
   },
   {
     "id": "cat_archer",
@@ -63,7 +63,7 @@
       "die": "die"
     },
     "scale": 0.95,
-    "role": "ranger"
+    "role": "attacker"
   },
   {
     "id": "cat_mage",
@@ -110,7 +110,7 @@
       "die": "die"
     },
     "scale": 1,
-    "role": "speedster"
+    "role": "attacker"
   },
   {
     "id": "ice_flower",
@@ -132,7 +132,7 @@
       "die": "die"
     },
     "scale": 1.15,
-    "role": "ranger"
+    "role": "tank"
   },
   {
     "id": "corn_fighter",
@@ -154,7 +154,7 @@
       "die": "die"
     },
     "scale": 1.25,
-    "role": "balanced"
+    "role": "tank"
   },
   {
     "id": "block_slime",
@@ -198,7 +198,7 @@
       "die": "die"
     },
     "scale": 1.1,
-    "role": "balanced"
+    "role": "tank"
   },
   {
     "id": "watermelon",
@@ -220,7 +220,7 @@
       "die": "die"
     },
     "scale": 1.3,
-    "role": "balanced"
+    "role": "tank"
   },
   {
     "id": "corn_kid",
@@ -242,7 +242,7 @@
       "die": "die"
     },
     "scale": 0.95,
-    "role": "speedster"
+    "role": "attacker"
   },
   {
     "id": "ribbon_girl",
@@ -265,7 +265,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "ranger"
+    "role": "balanced"
   },
   {
     "id": "penguin_boy",
@@ -288,7 +288,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "balanced"
+    "role": "tank"
   },
   {
     "id": "cinnamon_girl",
@@ -334,7 +334,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "ranger"
+    "role": "speedster"
   },
   {
     "id": "lennon",
@@ -357,7 +357,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "ranger"
+    "role": "speedster"
   },
   {
     "id": "ur_knight",
@@ -380,7 +380,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "balanced"
+    "role": "tank"
   },
   {
     "id": "ur_mage",
@@ -499,7 +499,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "ranger"
+    "role": "attacker"
   },
   {
     "id": "ur_dragon",
@@ -647,7 +647,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "balanced",
+    "role": "speedster",
     "attackType": "area",
     "areaRadius": 70
   },
@@ -672,7 +672,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "balanced",
+    "role": "attacker",
     "attackType": "area",
     "areaRadius": 80
   },
@@ -697,7 +697,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "balanced"
+    "role": "attacker"
   },
   {
     "id": "shadow_assassin",
@@ -720,7 +720,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "speedster"
+    "role": "attacker"
   },
   {
     "id": "n_mushroom",
@@ -810,7 +810,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "balanced"
+    "role": "tank"
   },
   {
     "id": "n_acorn",
@@ -854,7 +854,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "balanced"
+    "role": "ranger"
   },
   {
     "id": "n_onion",
@@ -944,7 +944,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "balanced"
+    "role": "speedster"
   },
   {
     "id": "r_broccoli",
@@ -1032,7 +1032,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "balanced"
+    "role": "ranger"
   },
   {
     "id": "r_radish",
@@ -1099,7 +1099,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "balanced"
+    "role": "tank"
   },
   {
     "id": "n_cherry_bomb",
@@ -1121,7 +1121,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "speedster",
+    "role": "attacker",
     "attackType": "area",
     "areaRadius": 60
   },
@@ -1145,7 +1145,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "balanced"
+    "role": "speedster"
   },
   {
     "id": "n_hibiscus",
@@ -1189,7 +1189,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "speedster",
+    "role": "attacker",
     "attackType": "area",
     "areaRadius": 50
   },
@@ -1213,7 +1213,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "attacker"
+    "role": "speedster"
   },
   {
     "id": "r_solar_spike",
@@ -1235,7 +1235,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "speedster"
+    "role": "ranger"
   },
   {
     "id": "r_leaf_ninja",
@@ -1257,7 +1257,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "speedster"
+    "role": "attacker"
   },
   {
     "id": "sr_corn_tank",
@@ -1327,7 +1327,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "balanced"
+    "role": "speedster"
   },
   {
     "id": "sr_tulip_idol",
@@ -1441,7 +1441,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "balanced"
+    "role": "ranger"
   },
   {
     "id": "n_capybara",
@@ -1530,7 +1530,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "speedster"
+    "role": "attacker"
   },
   {
     "id": "sr_capybara_shaman",
@@ -1568,7 +1568,7 @@
     "attackWindupMs": 600,
     "knockback": 20,
     "scale": 1.1,
-    "role": "balanced"
+    "role": "tank"
   },
   {
     "id": "n_octopus",
@@ -1583,7 +1583,7 @@
     "attackWindupMs": 400,
     "knockback": 15,
     "scale": 1,
-    "role": "balanced"
+    "role": "ranger"
   },
   {
     "id": "n_dolphin",
@@ -1690,7 +1690,7 @@
     "knockback": 40,
     "spawnCooldownMs": 5500,
     "scale": 1,
-    "role": "speedster"
+    "role": "attacker"
   },
   {
     "id": "sr_cappuccino_assassin",
@@ -1713,7 +1713,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "speedster"
+    "role": "attacker"
   },
   {
     "id": "sr_odindindun",
@@ -1759,7 +1759,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "speedster"
+    "role": "attacker"
   },
   {
     "id": "ur_rose_queen",
@@ -1782,7 +1782,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "ranger"
+    "role": "attacker"
   },
   {
     "id": "ur_galaxy_butterfly",
@@ -1829,7 +1829,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "balanced"
+    "role": "tank"
   },
   {
     "id": "ur_cosmic_dragon",
@@ -1927,7 +1927,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "balanced"
+    "role": "tank"
   },
   {
     "id": "ur_chrono_sage",
@@ -1950,7 +1950,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "ranger"
+    "role": "attacker"
   },
   {
     "id": "ur_jade_dragon",
@@ -1973,7 +1973,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "balanced",
+    "role": "tank",
     "attackType": "area",
     "areaRadius": 90
   },
@@ -2024,7 +2024,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "ranger"
+    "role": "attacker"
   },
   {
     "id": "ur_ancient_treant",
@@ -2070,7 +2070,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "balanced"
+    "role": "tank"
   },
   {
     "id": "ur_stone_golem_cat",
@@ -2093,7 +2093,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "balanced"
+    "role": "tank"
   },
   {
     "id": "ur_fire_lotus_cat",
@@ -2168,7 +2168,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "balanced"
+    "role": "tank"
   },
   {
     "id": "ur_frost_giant",
@@ -2191,7 +2191,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "balanced",
+    "role": "tank",
     "attackType": "area",
     "areaRadius": 80
   },
@@ -2216,7 +2216,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "ranger"
+    "role": "speedster"
   },
   {
     "id": "ur_crystal_griffin",
@@ -2287,7 +2287,7 @@
       "attack": "attack",
       "die": "die"
     },
-    "role": "ranger"
+    "role": "attacker"
   },
   {
     "id": "ur_thunder_phoenix",
@@ -2345,7 +2345,7 @@
     "knockback": 35,
     "spawnCooldownMs": 8000,
     "scale": 1.3,
-    "role": "balanced"
+    "role": "speedster"
   },
   {
     "id": "n_ladybug_cat",
@@ -2360,7 +2360,7 @@
     "attackWindupMs": 300,
     "knockback": 10,
     "scale": 0.9,
-    "role": "balanced"
+    "role": "speedster"
   },
   {
     "id": "n_autumn_leaf_cat",
@@ -2375,7 +2375,7 @@
     "attackWindupMs": 350,
     "knockback": 12,
     "scale": 0.95,
-    "role": "attacker"
+    "role": "ranger"
   },
   {
     "id": "n_frog_cat",
@@ -2390,7 +2390,7 @@
     "attackWindupMs": 280,
     "knockback": 8,
     "scale": 0.85,
-    "role": "balanced"
+    "role": "speedster"
   },
   {
     "id": "n_succulent_cat",
@@ -2450,7 +2450,7 @@
     "attackWindupMs": 320,
     "knockback": 10,
     "scale": 0.85,
-    "role": "attacker"
+    "role": "ranger"
   },
   {
     "id": "n_ivy_harvest_cat",
@@ -2465,7 +2465,7 @@
     "attackWindupMs": 300,
     "knockback": 10,
     "scale": 1,
-    "role": "balanced"
+    "role": "speedster"
   },
   {
     "id": "n_sunflower_cat",
@@ -2480,7 +2480,7 @@
     "attackWindupMs": 280,
     "knockback": 8,
     "scale": 0.9,
-    "role": "balanced"
+    "role": "speedster"
   },
   {
     "id": "r_cactus_guardian",
@@ -2495,7 +2495,7 @@
     "attackWindupMs": 500,
     "knockback": 25,
     "scale": 1.2,
-    "role": "balanced"
+    "role": "tank"
   },
   {
     "id": "r_dandelion_cat",
@@ -2557,7 +2557,7 @@
     "attackWindupMs": 320,
     "knockback": 14,
     "scale": 0.9,
-    "role": "balanced"
+    "role": "speedster"
   },
   {
     "id": "r_bamboo_samurai_cat",
@@ -2572,7 +2572,7 @@
     "attackWindupMs": 450,
     "knockback": 22,
     "scale": 1.1,
-    "role": "balanced"
+    "role": "attacker"
   },
   {
     "id": "r_hydrangea_cat",
@@ -2587,7 +2587,7 @@
     "attackWindupMs": 380,
     "knockback": 16,
     "scale": 1.05,
-    "role": "balanced"
+    "role": "speedster"
   },
   {
     "id": "sr_cloud_angel_cat",
@@ -2652,7 +2652,7 @@
     "knockback": 20,
     "spawnCooldownMs": 8000,
     "scale": 1,
-    "role": "balanced"
+    "role": "speedster"
   },
   {
     "id": "n_sprout_cat",
@@ -2718,7 +2718,7 @@
     "spawnCooldownMs": 10000,
     "scale": 1.5,
     "addedDate": "2026-01-30",
-    "role": "balanced"
+    "role": "tank"
   },
   {
     "id": "r_rake_rock_cat",
@@ -2768,7 +2768,7 @@
     "spawnCooldownMs": 9000,
     "scale": 1.35,
     "addedDate": "2026-01-30",
-    "role": "balanced"
+    "role": "speedster"
   },
   {
     "id": "sr_bamboo_blaster",
@@ -2818,7 +2818,7 @@
     "spawnCooldownMs": 7500,
     "scale": 1.25,
     "addedDate": "2026-01-30",
-    "role": "balanced"
+    "role": "speedster"
   },
   {
     "id": "r_steam_gardener",
@@ -2885,7 +2885,7 @@
     "spawnCooldownMs": 10000,
     "scale": 1.4,
     "addedDate": "2026-01-30",
-    "role": "balanced"
+    "role": "tank"
   },
   {
     "id": "sr_bonsai_samurai",
@@ -2955,7 +2955,7 @@
     "knockback": 20,
     "scale": 1.1,
     "addedDate": "2026-01-30",
-    "role": "balanced"
+    "role": "ranger"
   },
   {
     "id": "r_grape_gladiator",
@@ -2987,7 +2987,7 @@
     "knockback": 25,
     "scale": 1.1,
     "addedDate": "2026-01-30",
-    "role": "balanced"
+    "role": "speedster"
   },
   {
     "id": "r_space_botanist",
@@ -3020,7 +3020,7 @@
     "knockback": 22,
     "scale": 1.1,
     "addedDate": "2026-01-30",
-    "role": "balanced"
+    "role": "speedster"
   },
   {
     "id": "r_herb_alchemist",
@@ -3036,7 +3036,7 @@
     "knockback": 20,
     "scale": 1.05,
     "addedDate": "2026-01-30",
-    "role": "balanced"
+    "role": "ranger"
   },
   {
     "id": "r_harvest_viking",
@@ -3052,7 +3052,7 @@
     "knockback": 35,
     "scale": 1.2,
     "addedDate": "2026-01-30",
-    "role": "balanced"
+    "role": "attacker"
   },
   {
     "id": "n_plant_detective",
@@ -3068,7 +3068,7 @@
     "knockback": 10,
     "scale": 0.95,
     "addedDate": "2026-01-30",
-    "role": "balanced"
+    "role": "ranger"
   },
   {
     "id": "n_leaf_punk",
@@ -3084,7 +3084,7 @@
     "knockback": 12,
     "scale": 1,
     "addedDate": "2026-01-30",
-    "role": "attacker"
+    "role": "ranger"
   },
   {
     "id": "n_cactus_luchador",
@@ -3116,7 +3116,7 @@
     "knockback": 8,
     "scale": 0.9,
     "addedDate": "2026-01-30",
-    "role": "balanced"
+    "role": "ranger"
   },
   {
     "id": "n_veggie_chef",
@@ -3149,7 +3149,7 @@
     "spawnCooldownMs": 21000,
     "addedDate": "2026-01-31",
     "scale": 1.4,
-    "role": "ranger"
+    "role": "speedster"
   },
   {
     "id": "ur_fairy_knight",
@@ -3184,7 +3184,7 @@
     "spawnCooldownMs": 23000,
     "addedDate": "2026-01-31",
     "scale": 1.5,
-    "role": "balanced"
+    "role": "speedster"
   },
   {
     "id": "ur_cosmic_tiger",
@@ -3235,7 +3235,7 @@
     "spawnCooldownMs": 11000,
     "addedDate": "2026-01-31",
     "scale": 1.25,
-    "role": "balanced"
+    "role": "speedster"
   },
   {
     "id": "ssr_higanbana_mage",
@@ -3361,7 +3361,7 @@
     "spawnCooldownMs": 11000,
     "addedDate": "2026-01-31",
     "scale": 1.2,
-    "role": "ranger"
+    "role": "balanced"
   },
   {
     "id": "ssr_cyber_rose",
@@ -3378,7 +3378,7 @@
     "spawnCooldownMs": 11000,
     "addedDate": "2026-01-31",
     "scale": 1.15,
-    "role": "ranger"
+    "role": "speedster"
   },
   {
     "id": "ssr_galaxy_slime",
@@ -3395,7 +3395,7 @@
     "spawnCooldownMs": 11000,
     "addedDate": "2026-01-31",
     "scale": 1.35,
-    "role": "ranger"
+    "role": "balanced"
   },
   {
     "id": "ssr_poinsettia_wild",
@@ -3412,7 +3412,7 @@
     "spawnCooldownMs": 11000,
     "addedDate": "2026-01-31",
     "scale": 1.25,
-    "role": "balanced"
+    "role": "speedster"
   },
   {
     "id": "sr_bamboo_ninja",
@@ -3429,7 +3429,7 @@
     "spawnCooldownMs": 7000,
     "addedDate": "2026-01-31",
     "scale": 1.1,
-    "role": "balanced"
+    "role": "attacker"
   },
   {
     "id": "sr_vine_warlock",
@@ -3446,7 +3446,7 @@
     "spawnCooldownMs": 9000,
     "addedDate": "2026-01-31",
     "scale": 1.15,
-    "role": "ranger"
+    "role": "tank"
   },
   {
     "id": "sr_celtic_warrior",
@@ -3463,7 +3463,7 @@
     "spawnCooldownMs": 8000,
     "addedDate": "2026-01-31",
     "scale": 1.2,
-    "role": "balanced"
+    "role": "tank"
   },
   {
     "id": "sr_mecha_gunner",
@@ -3480,7 +3480,7 @@
     "spawnCooldownMs": 10000,
     "addedDate": "2026-01-31",
     "scale": 1.25,
-    "role": "ranger"
+    "role": "tank"
   },
   {
     "id": "sr_scout_corps",
@@ -3514,7 +3514,7 @@
     "spawnCooldownMs": 8000,
     "addedDate": "2026-01-31",
     "scale": 1.15,
-    "role": "balanced"
+    "role": "attacker"
   },
   {
     "id": "sr_shadow_ninja",
@@ -3531,7 +3531,7 @@
     "spawnCooldownMs": 6000,
     "addedDate": "2026-01-31",
     "scale": 1.05,
-    "role": "speedster"
+    "role": "attacker"
   },
   {
     "id": "sr_flora_hero",
@@ -3548,7 +3548,7 @@
     "spawnCooldownMs": 9000,
     "addedDate": "2026-01-31",
     "scale": 1.15,
-    "role": "ranger"
+    "role": "tank"
   },
   {
     "id": "sr_demon_mage",
@@ -3584,7 +3584,7 @@
     "spawnCooldownMs": 8000,
     "addedDate": "2026-01-31",
     "scale": 1.15,
-    "role": "balanced"
+    "role": "tank"
   },
   {
     "id": "sr_wasteland_merc",
@@ -3601,7 +3601,7 @@
     "spawnCooldownMs": 9000,
     "addedDate": "2026-01-31",
     "scale": 1.2,
-    "role": "ranger"
+    "role": "tank"
   },
   {
     "id": "r_garden_hero",
@@ -3617,7 +3617,7 @@
     "knockback": 22,
     "addedDate": "2026-01-31",
     "scale": 1.1,
-    "role": "balanced"
+    "role": "attacker"
   },
   {
     "id": "r_sprout_knight",
@@ -3633,7 +3633,7 @@
     "knockback": 20,
     "addedDate": "2026-01-31",
     "scale": 1,
-    "role": "balanced"
+    "role": "tank"
   },
   {
     "id": "r_chainsaw_gardener",
@@ -3649,7 +3649,7 @@
     "knockback": 30,
     "addedDate": "2026-01-31",
     "scale": 1.15,
-    "role": "attacker"
+    "role": "tank"
   },
   {
     "id": "r_wisteria_swordsman",
@@ -3697,7 +3697,7 @@
     "knockback": 12,
     "addedDate": "2026-01-31",
     "scale": 1.1,
-    "role": "balanced"
+    "role": "tank"
   },
   {
     "id": "r_sailor_rose",
