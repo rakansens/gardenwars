@@ -29,6 +29,8 @@ interface RealtimeUnit {
   lastX: number;  // 補間用
   targetX: number;
   hitstunTimer?: Phaser.Time.TimerEvent;
+  deathTimer?: Phaser.Time.TimerEvent;
+  isRemoving?: boolean;
 }
 
 export interface RealtimeBattleSceneData {
@@ -51,6 +53,7 @@ export class RealtimeBattleScene extends Phaser.Scene {
   private allyCastleHpBar!: Phaser.GameObjects.Rectangle;
   private enemyCastleHpBar!: Phaser.GameObjects.Rectangle;
   private ground!: Phaser.GameObjects.Rectangle;
+  private summonUi?: Phaser.GameObjects.Container;
 
   // UI
   private costText!: Phaser.GameObjects.Text;
@@ -65,6 +68,7 @@ export class RealtimeBattleScene extends Phaser.Scene {
   private readonly GROUND_Y = 470;
   private stageLength = 1200;
   private readonly CASTLE_PADDING = 80;
+  private deckKey = '';
 
   constructor() {
     super({ key: 'RealtimeBattleScene' });
@@ -84,6 +88,7 @@ export class RealtimeBattleScene extends Phaser.Scene {
   init(data: RealtimeBattleSceneData) {
     this.networkManager = data.networkManager;
     this.deck = data.deck || [];
+    this.deckKey = this.deck.join('|');
     this.onSummon = data.onSummon || (() => {});
     this.onUpgradeCost = data.onUpgradeCost || (() => {});
 
@@ -273,6 +278,11 @@ export class RealtimeBattleScene extends Phaser.Scene {
   }
 
   private createSummonButtons() {
+    if (this.summonUi) {
+      this.summonUi.destroy(true);
+    }
+    this.summonUi = this.add.container(0, 0);
+
     const { height } = this.scale;
     const buttonY = height - 85;
     const buttonWidth = 90;
@@ -284,10 +294,12 @@ export class RealtimeBattleScene extends Phaser.Scene {
     const bar = this.add.rectangle(this.scale.width / 2, height - 75, this.scale.width, 150, 0x6b4a2b, 0.95);
     bar.setScrollFactor(0);
     bar.setDepth(90);
+    this.summonUi.add(bar);
 
     this.deck.forEach((unitId, index) => {
       const x = startX + index * (buttonWidth + gap);
       const def = this.unitDefinitions.get(unitId);
+      const uiItems: Phaser.GameObjects.GameObject[] = [];
 
       // ボタン背景
       const bg = this.add.rectangle(x, buttonY, buttonWidth, buttonHeight, 0xf8e7b6);
@@ -295,6 +307,7 @@ export class RealtimeBattleScene extends Phaser.Scene {
       bg.setDepth(100);
       bg.setInteractive({ useHandCursor: true });
       bg.setStrokeStyle(3, 0x3b2a1a);
+      uiItems.push(bg);
 
       // ユニット画像
       if (this.textures.exists(unitId)) {
@@ -304,6 +317,7 @@ export class RealtimeBattleScene extends Phaser.Scene {
         // サイズ調整
         const scale = Math.min(60 / unitImg.width, 60 / unitImg.height);
         unitImg.setScale(scale * (def?.scale || 1));
+        uiItems.push(unitImg);
       }
 
       // ユニット名
@@ -315,12 +329,14 @@ export class RealtimeBattleScene extends Phaser.Scene {
       nameText.setOrigin(0.5, 0.5);
       nameText.setScrollFactor(0);
       nameText.setDepth(101);
+      uiItems.push(nameText);
 
       // コスト表示
       const costBg = this.add.rectangle(x, buttonY + 43, 40, 16, 0xffcc00);
       costBg.setScrollFactor(0);
       costBg.setDepth(101);
       costBg.setStrokeStyle(1, 0x3b2a1a);
+      uiItems.push(costBg);
 
       const costText = this.add.text(x, buttonY + 43, `¥${def?.cost || 0}`, {
         fontSize: '10px',
@@ -330,6 +346,7 @@ export class RealtimeBattleScene extends Phaser.Scene {
       costText.setOrigin(0.5, 0.5);
       costText.setScrollFactor(0);
       costText.setDepth(102);
+      uiItems.push(costText);
 
       // クリックで召喚
       bg.on('pointerdown', () => {
@@ -339,6 +356,8 @@ export class RealtimeBattleScene extends Phaser.Scene {
 
       bg.on('pointerover', () => bg.setFillStyle(0xfff3cf));
       bg.on('pointerout', () => bg.setFillStyle(0xf8e7b6));
+
+      this.summonUi.add(uiItems);
     });
   }
 
@@ -379,6 +398,7 @@ export class RealtimeBattleScene extends Phaser.Scene {
     // プレイヤー更新
     this.networkManager.on(NetworkManager.Events.PLAYER_UPDATED, () => {
       this.updatePlayerUI();
+      this.syncDeckFromPlayer();
     });
 
     // ユニット追加
@@ -533,6 +553,12 @@ export class RealtimeBattleScene extends Phaser.Scene {
     const unit = this.units.get(unitState.instanceId);
     if (!unit) return;
 
+    if ((unitState.hp <= 0 || unitState.state === 'DIE') && !unit.isRemoving && !unit.deathTimer) {
+      unit.deathTimer = this.time.delayedCall(200, () => {
+        this.removeUnit(unitState.instanceId);
+      });
+    }
+
     // 位置補間のターゲット更新
     unit.lastX = unit.container.x;
     unit.targetX = unitState.x;
@@ -577,12 +603,17 @@ export class RealtimeBattleScene extends Phaser.Scene {
 
   private removeUnit(instanceId: string) {
     const unit = this.units.get(instanceId);
-    if (!unit) return;
+    if (!unit || unit.isRemoving) return;
+    unit.isRemoving = true;
 
     // フェードアウト
     if (unit.hitstunTimer) {
       unit.hitstunTimer.remove(false);
       unit.hitstunTimer = undefined;
+    }
+    if (unit.deathTimer) {
+      unit.deathTimer.remove(false);
+      unit.deathTimer = undefined;
     }
     this.tweens.add({
       targets: unit.container,
@@ -617,6 +648,17 @@ export class RealtimeBattleScene extends Phaser.Scene {
     reasonText.setOrigin(0.5, 0.5);
     reasonText.setScrollFactor(0);
     reasonText.setDepth(200);
+  }
+
+  private syncDeckFromPlayer() {
+    const myPlayer = this.networkManager.getMyPlayer();
+    if (!myPlayer || !Array.isArray(myPlayer.deck)) return;
+    const nextDeck = myPlayer.deck.filter(Boolean);
+    const nextKey = nextDeck.join('|');
+    if (nextKey === this.deckKey) return;
+    this.deck = nextDeck;
+    this.deckKey = nextKey;
+    this.createSummonButtons();
   }
 
   private setupCameraDrag() {

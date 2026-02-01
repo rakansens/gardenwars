@@ -105,6 +105,16 @@ export function useRealtime(): [RealtimeState, RealtimeActions] {
   }, []);
 
   const buildPlayerState = useCallback((p: any, existing?: PlayerState): PlayerState => {
+    const deck = (() => {
+      if (Array.isArray(p?.deck)) return p.deck;
+      if (p?.deck && typeof p.deck.forEach === 'function') {
+        const deckArray: string[] = [];
+        p.deck.forEach((d: string) => deckArray.push(d));
+        return deckArray;
+      }
+      return existing?.deck ?? [];
+    })();
+
     return {
       odeyoId: p?.odeyoId || existing?.odeyoId || '',
       sessionId: p?.sessionId || existing?.sessionId || '',
@@ -115,7 +125,7 @@ export function useRealtime(): [RealtimeState, RealtimeActions] {
       castleHp: typeof p?.castleHp === 'number' ? p.castleHp : (existing?.castleHp ?? 5000),
       maxCastleHp: typeof p?.maxCastleHp === 'number' ? p.maxCastleHp : (existing?.maxCastleHp ?? 5000),
       ready: typeof p?.ready === 'boolean' ? p.ready : (existing?.ready ?? false),
-      deck: Array.isArray(p?.deck) ? p.deck : (existing?.deck ?? []),
+      deck,
       side: p?.side === 'player1' || p?.side === 'player2' ? p.side : existing?.side
     };
   }, []);
