@@ -65,7 +65,7 @@
 body {
   background: linear-gradient(180deg, #f9efd9 0%, #f1dfbd 100%);
   color: var(--foreground);
-  font-family: "Hiragino Maru Gothic ProN", "Hiragino Sans", var(--font-noto-sans-jp), Arial, sans-serif;
+  font-family: "Hiragino Maru Gothic ProN", "Hiragino Sans", "Noto Sans JP", Arial, sans-serif;
   min-height: 100vh;
   transition: background 0.3s ease, color 0.3s ease;
   /* モバイル最適化 */

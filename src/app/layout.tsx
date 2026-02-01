@@ -1,13 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
-
-const notoSansJP = Noto_Sans_JP({
-  variable: "--font-noto-sans-jp",
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
-});
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -33,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${notoSansJP.variable} antialiased`}>
+      <body className="antialiased">
         <Providers>{children}</Providers>
       </body>
     </html>
