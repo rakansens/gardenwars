@@ -165,9 +165,31 @@ export function usePlayerData() {
                             localData.gachaHistory // ガチャ履歴はローカルのみ
                         );
 
-                        // shopItemsがリモートにない場合はローカルを使用
+                        // unitInventoryをマージ（ローカルとリモートの最大値を取る）
+                        // これにより、Supabase保存前のローカル購入が失われない
+                        const mergedInventory: Record<string, number> = { ...mergedData.unitInventory };
+                        for (const [unitId, count] of Object.entries(localData.unitInventory)) {
+                            mergedInventory[unitId] = Math.max(mergedInventory[unitId] || 0, count);
+                        }
+                        mergedData.unitInventory = mergedInventory;
+
+                        // coinsもローカルが少ない場合はローカルを使用（購入後の状態を保持）
+                        if (localData.coins < mergedData.coins) {
+                            mergedData.coins = localData.coins;
+                        }
+
+                        // shopItemsをマージ（soldOut状態はローカルを優先）
                         if (mergedData.shopItems.length === 0 && localData.shopItems.length > 0) {
                             mergedData.shopItems = localData.shopItems;
+                        } else if (mergedData.shopItems.length > 0 && localData.shopItems.length > 0) {
+                            // 同じUIDのアイテムはローカルのsoldOut状態を優先
+                            mergedData.shopItems = mergedData.shopItems.map(remoteItem => {
+                                const localItem = localData.shopItems.find(l => l.uid === remoteItem.uid);
+                                if (localItem && localItem.soldOut) {
+                                    return { ...remoteItem, soldOut: true };
+                                }
+                                return remoteItem;
+                            });
                         }
 
                         // selectedTeam を activeLoadoutIndex から設定
