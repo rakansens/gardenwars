@@ -386,11 +386,223 @@ export class Unit extends Phaser.GameObjects.Container {
 
         // 単体攻撃
         if (this.target && !this.target.isDead()) {
-            this.target.takeDamage(this.definition.attackDamage, this.definition.knockback);
+            // 遠距離ユニット（射程100以上）は弾丸エフェクト付き
+            if (this.definition.attackRange >= 100) {
+                this.performRangedAttack(this.target);
+            } else {
+                this.target.takeDamage(this.definition.attackDamage, this.definition.knockback);
+            }
             return;
         }
         if (this.castleTarget) {
-            this.castleTarget.takeDamage(this.definition.attackDamage);
+            // 城への遠距離攻撃もエフェクト付き
+            if (this.definition.attackRange >= 100) {
+                this.performRangedAttackOnCastle();
+            } else {
+                this.castleTarget.takeDamage(this.definition.attackDamage);
+            }
+        }
+    }
+
+    /**
+     * 遠距離攻撃（弾丸エフェクト付き）
+     */
+    private performRangedAttack(target: Unit): void {
+        const startX = this.x;
+        const startY = this.y - 50 - this.flyingOffset;
+        const endX = target.x;
+        const endY = target.y - 50;
+
+        // 弾丸の見た目（レアリティとロールで変える）
+        const projectile = this.createProjectile(startX, startY);
+
+        // 飛行時間（距離に応じて）
+        const distance = Math.abs(endX - startX);
+        const duration = Math.min(300, Math.max(100, distance * 0.8));
+
+        // 弾道（軽い弧を描く）
+        const midY = Math.min(startY, endY) - 30;
+
+        this.scene.tweens.add({
+            targets: projectile,
+            x: endX,
+            y: { value: endY, ease: 'Sine.easeIn' },
+            duration: duration,
+            onUpdate: (tween) => {
+                // 軌跡パーティクル
+                const progress = tween.progress;
+                if (Math.random() < 0.3) {
+                    this.createTrailParticle(projectile.x, projectile.y);
+                }
+            },
+            onComplete: () => {
+                projectile.destroy();
+                // ヒット時にダメージ
+                if (!target.isDead()) {
+                    target.takeDamage(this.definition.attackDamage, this.definition.knockback);
+                    this.createRangedHitEffect(endX, endY);
+                }
+            },
+        });
+    }
+
+    /**
+     * 城への遠距離攻撃
+     */
+    private performRangedAttackOnCastle(): void {
+        if (!this.castleTarget) return;
+
+        const startX = this.x;
+        const startY = this.y - 50 - this.flyingOffset;
+        const endX = this.castleTarget.getX();
+        const endY = this.castleTarget.y - 50;
+
+        const projectile = this.createProjectile(startX, startY);
+
+        const distance = Math.abs(endX - startX);
+        const duration = Math.min(300, Math.max(100, distance * 0.8));
+
+        this.scene.tweens.add({
+            targets: projectile,
+            x: endX,
+            y: endY,
+            duration: duration,
+            onUpdate: () => {
+                if (Math.random() < 0.3) {
+                    this.createTrailParticle(projectile.x, projectile.y);
+                }
+            },
+            onComplete: () => {
+                projectile.destroy();
+                if (this.castleTarget) {
+                    this.castleTarget.takeDamage(this.definition.attackDamage);
+                    this.createRangedHitEffect(endX, endY);
+                }
+            },
+        });
+    }
+
+    /**
+     * 弾丸オブジェクト生成
+     */
+    private createProjectile(x: number, y: number): Phaser.GameObjects.Container {
+        const container = this.scene.add.container(x, y);
+        container.setDepth(60);
+
+        const rarity = this.definition.rarity;
+        const role = this.definition.role;
+
+        // 弾丸の色とサイズ（レアリティベース）
+        let color = 0xffcc00;
+        let size = 8;
+        let glowColor = 0xffff88;
+
+        if (rarity === 'UR') {
+            color = 0xff00ff;
+            glowColor = 0xff88ff;
+            size = 12;
+        } else if (rarity === 'SSR') {
+            color = 0xffaa00;
+            glowColor = 0xffdd88;
+            size = 11;
+        } else if (rarity === 'SR') {
+            color = 0x9933ff;
+            glowColor = 0xcc88ff;
+            size = 10;
+        } else if (rarity === 'R') {
+            color = 0x00aaff;
+            glowColor = 0x88ddff;
+            size = 9;
+        }
+
+        // 弾丸の形状（ロールで変える）
+        if (role === 'ranger') {
+            // レンジャー: 矢のような形
+            const arrow = this.scene.add.triangle(0, 0, 0, -size, size * 2, 0, 0, size, color);
+            arrow.setRotation(this.direction > 0 ? 0 : Math.PI);
+            container.add(arrow);
+
+            // グロー
+            const glow = this.scene.add.circle(0, 0, size * 0.8, glowColor, 0.5);
+            container.addAt(glow, 0);
+        } else {
+            // その他: 球形
+            const bullet = this.scene.add.circle(0, 0, size, color, 1);
+            container.add(bullet);
+
+            // グロー
+            const glow = this.scene.add.circle(0, 0, size * 1.5, glowColor, 0.3);
+            container.addAt(glow, 0);
+        }
+
+        return container;
+    }
+
+    /**
+     * 軌跡パーティクル
+     */
+    private createTrailParticle(x: number, y: number): void {
+        const rarity = this.definition.rarity;
+        let color = 0xffcc00;
+
+        if (rarity === 'UR') color = 0xff00ff;
+        else if (rarity === 'SSR') color = 0xffaa00;
+        else if (rarity === 'SR') color = 0x9933ff;
+        else if (rarity === 'R') color = 0x00aaff;
+
+        const particle = this.scene.add.circle(x, y, 4, color, 0.6);
+        particle.setDepth(59);
+
+        this.scene.tweens.add({
+            targets: particle,
+            scale: 0.1,
+            alpha: 0,
+            duration: 150,
+            onComplete: () => particle.destroy(),
+        });
+    }
+
+    /**
+     * 遠距離攻撃ヒットエフェクト
+     */
+    private createRangedHitEffect(x: number, y: number): void {
+        const rarity = this.definition.rarity;
+        let color = 0xffcc00;
+
+        if (rarity === 'UR') color = 0xff00ff;
+        else if (rarity === 'SSR') color = 0xffaa00;
+        else if (rarity === 'SR') color = 0x9933ff;
+        else if (rarity === 'R') color = 0x00aaff;
+
+        // インパクトフラッシュ
+        const flash = this.scene.add.circle(x, y, 15, 0xffffff, 0.8);
+        flash.setDepth(61);
+
+        this.scene.tweens.add({
+            targets: flash,
+            scale: 2,
+            alpha: 0,
+            duration: 100,
+            onComplete: () => flash.destroy(),
+        });
+
+        // スパーク
+        for (let i = 0; i < 4; i++) {
+            const angle = (i / 4) * Math.PI * 2 + Math.random() * 0.5;
+            const dist = 20 + Math.random() * 15;
+
+            const spark = this.scene.add.circle(x, y, 5, color, 0.9);
+            spark.setDepth(62);
+
+            this.scene.tweens.add({
+                targets: spark,
+                x: x + Math.cos(angle) * dist,
+                y: y + Math.sin(angle) * dist,
+                scale: 0.2,
+                alpha: 0,
+                duration: 200,
+                onComplete: () => spark.destroy(),
+            });
         }
     }
 
