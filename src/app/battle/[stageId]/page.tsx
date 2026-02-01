@@ -46,7 +46,7 @@ export default function BattlePage() {
     const stageId = params.stageId as string;
     const { t } = useLanguage();
     const { playerId } = useAuth();
-    const { selectedTeam, isLoaded, refreshShop, loadouts, activeLoadoutIndex, addCoins, addClearedStage, addUnit } = usePlayerData();
+    const { selectedTeam, isLoaded, refreshShop, loadouts, activeLoadoutIndex, executeBattleReward } = usePlayerData();
 
     const [stage, setStage] = useState<StageDefinition | null>(null);
     const [team, setTeam] = useState<UnitDefinition[]>([]);
@@ -99,17 +99,12 @@ export default function BattlePage() {
         }
 
         if (win && stage) {
-            // コイン加算（usePlayerData経由で状態管理）
-            addCoins(coinsGained);
-
-            // ステージクリア保存（バトル終了時に即保存）
-            addClearedStage(stageId);
-
-            // ドロップ処理（バトル終了時に即処理）
+            // ドロップ処理
             droppedUnitIds = processDrops(stage, allUnits);
-            droppedUnitIds.forEach(unitId => {
-                addUnit(unitId, 1);
-            });
+
+            // アトミック操作: コイン + ステージクリア + ドロップを同時に実行
+            // これにより報酬の一部だけ反映されるケースを防ぐ
+            executeBattleReward(coinsGained, stageId, droppedUnitIds);
 
             refreshShop();
         }

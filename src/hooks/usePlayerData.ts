@@ -204,10 +204,9 @@ export function usePlayerData() {
                             mergedData.activeLoadoutIndex = localData.activeLoadoutIndex;
                         }
 
-                        // gardenUnitsをマージ（ローカルが存在しリモートが空なら保持）
-                        if (localData.gardenUnits.length > 0 && mergedData.gardenUnits.length === 0) {
-                            mergedData.gardenUnits = localData.gardenUnits;
-                        }
+                        // gardenUnitsをマージ（和集合 - 両方のユニットを保持）
+                        const mergedGardenUnits = new Set([...mergedData.gardenUnits, ...localData.gardenUnits]);
+                        mergedData.gardenUnits = Array.from(mergedGardenUnits);
 
                         // selectedTeam を activeLoadoutIndex から設定
                         mergedData.selectedTeam = mergedData.loadouts[mergedData.activeLoadoutIndex] || [];
@@ -422,22 +421,17 @@ export function usePlayerData() {
         setData(prev => ({ ...prev, shopItems: newItems }));
     }, []);
 
-    // アイテム購入
+    // アイテム購入（アトミック操作 - 依存配列を空にしてレースコンディションを防止）
     const buyShopItem = useCallback((index: number): boolean => {
-        // 事前チェック（同期的に結果を返すため）
-        const item = data.shopItems[index];
-        if (!item || item.soldOut || data.coins < item.price) {
-            return false;
-        }
-
-        // 状態更新（競合対策で再チェック）
+        let success = false;
         setData(prev => {
             const items = [...prev.shopItems];
             const currentItem = items[index];
             if (!currentItem || currentItem.soldOut || prev.coins < currentItem.price) {
-                return prev;
+                return prev; // 購入失敗 - 状態変更なし
             }
 
+            success = true;
             items[index] = { ...currentItem, soldOut: true };
 
             const newInventory = { ...prev.unitInventory };
@@ -450,8 +444,8 @@ export function usePlayerData() {
                 unitInventory: newInventory
             };
         });
-        return true;
-    }, [data.shopItems, data.coins]);
+        return success;
+    }, []); // 依存配列を空に - setData内でprevを使用するため安全
 
     // ガチャ履歴を追加
     const addGachaHistory = useCallback((unitIds: string[]) => {
@@ -560,6 +554,32 @@ export function usePlayerData() {
         return success;
     }, []);
 
+    // バトル報酬用アトミック操作（コイン + ステージクリア + ドロップユニットを1つのsetData内で実行）
+    // これにより、報酬の一部だけ反映されるケースを防ぐ
+    const executeBattleReward = useCallback((
+        coinsGained: number,
+        stageId: string,
+        droppedUnitIds: string[]
+    ): void => {
+        setData((prev) => {
+            const newInventory = { ...prev.unitInventory };
+            for (const unitId of droppedUnitIds) {
+                newInventory[unitId] = (newInventory[unitId] || 0) + 1;
+            }
+
+            const newClearedStages = prev.clearedStages.includes(stageId)
+                ? prev.clearedStages
+                : [...prev.clearedStages, stageId];
+
+            return {
+                ...prev,
+                coins: prev.coins + coinsGained,
+                unitInventory: newInventory,
+                clearedStages: newClearedStages,
+            };
+        });
+    }, []);
+
     // 初期ロード時にショップが空なら更新
     useEffect(() => {
         if (isLoaded && data.shopItems.length === 0) {
@@ -598,5 +618,6 @@ export function usePlayerData() {
         setGardenUnits,
         executeGacha,
         executeFusion,
+        executeBattleReward,
     };
 }
