@@ -165,8 +165,14 @@ export class SurvivalScene extends Phaser.Scene {
         this.bgNear.setAlpha(0.12);
         this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.12).setDepth(3);
 
-        this.cursors = this.input.keyboard.createCursorKeys();
-        this.wasd = this.input.keyboard.addKeys('W,A,S,D') as any;
+        const keyboard = this.input.keyboard;
+        const emptyKey = { isDown: false } as Phaser.Input.Keyboard.Key;
+        this.cursors = keyboard
+            ? keyboard.createCursorKeys()
+            : ({ left: emptyKey, right: emptyKey, up: emptyKey, down: emptyKey } as Phaser.Types.Input.Keyboard.CursorKeys);
+        this.wasd = keyboard
+            ? (keyboard.addKeys('W,A,S,D') as any)
+            : ({ W: emptyKey, A: emptyKey, S: emptyKey, D: emptyKey } as any);
 
         const playerSpriteId = this.playerDef.baseUnitId || this.playerDef.atlasKey || this.playerDef.id;
         this.player = new SurvivalPlayer(this, width / 2, height / 2, this.playerDef, {
@@ -493,24 +499,27 @@ export class SurvivalScene extends Phaser.Scene {
 
         this.levelUpOverlay = overlay;
 
-        const keys = this.input.keyboard.addKeys('ONE,TWO,THREE') as any;
-        const handleKey = (index: number) => {
-            const option = options[index];
-            if (!option) return;
-            this.weaponSystem.applyUpgrade(option.id);
-            this.closeLevelUp();
-        };
+        const keyboard = this.input.keyboard;
+        if (keyboard) {
+            const keys = keyboard.addKeys('ONE,TWO,THREE') as any;
+            const handleKey = (index: number) => {
+                const option = options[index];
+                if (!option) return;
+                this.weaponSystem.applyUpgrade(option.id);
+                this.closeLevelUp();
+            };
 
-        const onKey = () => {
-            if (keys.ONE.isDown) handleKey(0);
-            if (keys.TWO.isDown) handleKey(1);
-            if (keys.THREE.isDown) handleKey(2);
-        };
+            const onKey = () => {
+                if (keys.ONE.isDown) handleKey(0);
+                if (keys.TWO.isDown) handleKey(1);
+                if (keys.THREE.isDown) handleKey(2);
+            };
 
-        this.input.keyboard.on('keydown', onKey);
-        overlay.once('destroy', () => {
-            this.input.keyboard.off('keydown', onKey);
-        });
+            keyboard.on('keydown', onKey);
+            overlay.once('destroy', () => {
+                keyboard.off('keydown', onKey);
+            });
+        }
     }
 
     private closeLevelUp() {
