@@ -15,6 +15,7 @@ import {
 } from "@/components/marketplace";
 import RarityFrame from "@/components/ui/RarityFrame";
 import UnitDetailModal from "@/components/ui/UnitDetailModal";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { ConfirmModal, SuccessModal } from "@/components/ui/Modal";
 import unitsData from "@/data/units";
 import type { UnitDefinition, Rarity } from "@/data/types";
@@ -151,11 +152,7 @@ export default function MarketplacePage() {
 
     // ローディング状態
     if (!isLoaded) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-xl animate-pulse">🏪 {t("loading")}</div>
-            </div>
-        );
+        return <LoadingSpinner icon="🏪" fullScreen />;
     }
 
     // 未認証の場合

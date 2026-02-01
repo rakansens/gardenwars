@@ -9,6 +9,7 @@ import RarityFrame, { getRarityStars, getRarityGradientClass } from "@/component
 import GachaReveal from "@/components/ui/GachaReveal";
 import UnitDetailModal from "@/components/ui/UnitDetailModal";
 import UnitCard from "@/components/ui/UnitCard";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { useUnitDetailModal } from "@/hooks/useUnitDetailModal";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -171,11 +172,7 @@ export default function GachaPage() {
     };
 
     if (!isLoaded) {
-        return (
-            <main className="min-h-screen flex items-center justify-center">
-                <div className="text-xl">{t("loading")}</div>
-            </main>
-        );
+        return <LoadingSpinner icon="🎰" fullScreen />;
     }
 
     return (

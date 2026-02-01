@@ -7,6 +7,7 @@ import unitsData from "@/data/units";
 import type { UnitDefinition, Rarity } from "@/data/types";
 import RarityFrame from "@/components/ui/RarityFrame";
 import UnitDetailModal from "@/components/ui/UnitDetailModal";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import PageHeader from "@/components/layout/PageHeader";
 
@@ -33,11 +34,7 @@ export default function ShopPage() {
     const [purchaseSuccess, setPurchaseSuccess] = useState(false);
 
     if (!isLoaded) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-xl animate-pulse">🛒 {t("loading")}</div>
-            </div>
-        );
+        return <LoadingSpinner icon="🛒" fullScreen />;
     }
 
     const handleItemClick = (index: number) => {

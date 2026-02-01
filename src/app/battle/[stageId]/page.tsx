@@ -11,6 +11,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { useAuth } from "@/contexts/AuthContext";
 import { incrementBattleStats } from "@/lib/supabase";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 // ドロップ処理用のユーティリティ
 function processDrops(stage: StageDefinition, allUnits: UnitDefinition[]): string[] {
@@ -117,11 +118,7 @@ export default function BattlePage() {
     };
 
     if (!stage) {
-        return (
-            <main className="min-h-screen flex items-center justify-center">
-                <div className="text-xl">{t("loading")}</div>
-            </main>
-        );
+        return <LoadingSpinner icon="⚔️" fullScreen />;
     }
 
     return (

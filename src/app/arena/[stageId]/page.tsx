@@ -9,6 +9,7 @@ import unitsData from "@/data/units";
 import type { ArenaStageDefinition, UnitDefinition } from "@/data/types";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePlayerData } from "@/hooks/usePlayerData";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 // 横向き検出フック
 function useIsLandscape() {
@@ -78,11 +79,7 @@ export default function ArenaBattlePage() {
     };
 
     if (!stage) {
-        return (
-            <main className="min-h-screen flex items-center justify-center">
-                <div className="text-xl">{t("loading")}</div>
-            </main>
-        );
+        return <LoadingSpinner icon="🏟️" fullScreen />;
     }
 
     return (

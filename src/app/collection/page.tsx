@@ -6,6 +6,7 @@ import type { UnitDefinition, Rarity } from "@/data/types";
 import RarityFrame from "@/components/ui/RarityFrame";
 import UnitDetailModal from "@/components/ui/UnitDetailModal";
 import VirtualizedGrid from "@/components/ui/VirtualizedGrid";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { hasAnimation } from "@/components/ui/UnitAnimationPreview";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { useUnitDetailModal } from "@/hooks/useUnitDetailModal";
@@ -119,11 +120,7 @@ export default function CollectionPage() {
     };
 
     if (!isLoaded) {
-        return (
-            <main className="min-h-screen flex items-center justify-center">
-                <div className="text-xl animate-pulse">📖 {t("loading")}</div>
-            </main>
-        );
+        return <LoadingSpinner icon="📖" fullScreen />;
     }
 
     const progressPercent = stats.total > 0 ? Math.round((stats.collected / stats.total) * 100) : 0;

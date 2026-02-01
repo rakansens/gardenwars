@@ -7,6 +7,7 @@ import { usePlayerData } from "@/hooks/usePlayerData";
 import unitsData from "@/data/units";
 import type { UnitDefinition } from "@/data/types";
 import RarityFrame from "@/components/ui/RarityFrame";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { eventBus, GameEvents } from "@/game/utils/EventBus";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -161,7 +162,11 @@ export default function GardenPage() {
     };
 
     if (!isLoaded || !ready) {
-        return <div className="min-h-screen bg-[#87CEEB] dark:bg-slate-900 flex items-center justify-center text-white text-2xl font-bold">{t("loading")}</div>;
+        return (
+            <div className="min-h-screen bg-[#87CEEB] dark:bg-slate-900">
+                <LoadingSpinner icon="🌱" fullScreen />
+            </div>
+        );
     }
 
     // Filter owned units for modal list
