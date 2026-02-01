@@ -52,6 +52,10 @@ export class Unit extends Phaser.GameObjects.Container {
     public verticalMode: boolean = false;
     private screenHeight: number = 600;
 
+    // ボス範囲攻撃用
+    private isEnraged: boolean = false;
+    private lastAoeTime: number = 0;
+
     constructor(
         scene: Phaser.Scene,
         x: number,
@@ -354,6 +358,19 @@ export class Unit extends Phaser.GameObjects.Container {
     }
 
     private dealDamage(): void {
+        // ボス範囲攻撃判定（怒り状態時にランダム発動）
+        if (this.isEnraged && this.definition.bossAoe?.enabled) {
+            const aoe = this.definition.bossAoe;
+            const now = Date.now();
+            const canAoe = (now - this.lastAoeTime) >= aoe.cooldownMs;
+
+            if (canAoe && Math.random() < aoe.probability) {
+                this.performAoeAttack();
+                this.lastAoeTime = now;
+                return;
+            }
+        }
+
         // 攻撃ヒットSE（レアリティによって変更）
         const rarity = this.definition.rarity;
         const hitSfx = (rarity === 'SR' || rarity === 'SSR' || rarity === 'UR')
@@ -380,6 +397,15 @@ export class Unit extends Phaser.GameObjects.Container {
             this.hp = 0;
             this.die();
             return;
+        }
+
+        // ボスの怒りモードチェック（HP閾値以下で発動）
+        if (this.definition.isBoss && this.definition.bossAoe?.enabled) {
+            const hpRatio = this.hp / this.maxHp;
+            if (!this.isEnraged && hpRatio <= this.definition.bossAoe.hpThreshold) {
+                this.isEnraged = true;
+                this.onEnrage();
+            }
         }
 
         // 蓄積ダメージ加算
@@ -520,5 +546,262 @@ export class Unit extends Phaser.GameObjects.Container {
         if (enabled) {
             this.direction = this.side === 'ally' ? -1 : 1;
         }
+    }
+
+    // ============================================
+    // ボス範囲攻撃システム
+    // ============================================
+
+    /**
+     * 怒りモード突入演出
+     */
+    private onEnrage(): void {
+        // 怒りモード突入SE
+        this.scene.sound.play('sfx_attack_hit_sr', { volume: 0.6 });
+
+        // 画面シェイク
+        this.scene.cameras.main.shake(400, 0.015);
+
+        // 赤オーラ
+        const aura = this.scene.add.circle(this.x, this.y - this.flyingOffset, 100, 0xff0000, 0.4);
+        aura.setDepth(45);
+        this.scene.tweens.add({
+            targets: aura,
+            scale: 2.5,
+            alpha: 0,
+            duration: 1000,
+            ease: 'Power2',
+            onComplete: () => aura.destroy(),
+        });
+
+        // 警告テキスト
+        const warning = this.scene.add.text(this.x, this.y - this.sprite.displayHeight - 80 - this.flyingOffset, '⚠️ ENRAGED ⚠️', {
+            fontSize: '28px',
+            color: '#ff0000',
+            fontStyle: 'bold',
+            stroke: '#000000',
+            strokeThickness: 4,
+        });
+        warning.setOrigin(0.5);
+        warning.setDepth(100);
+        this.scene.tweens.add({
+            targets: warning,
+            y: warning.y - 60,
+            alpha: 0,
+            duration: 2000,
+            ease: 'Power1',
+            onComplete: () => warning.destroy(),
+        });
+
+        // スプライトを赤く点滅
+        this.scene.tweens.add({
+            targets: this.sprite,
+            alpha: 0.5,
+            duration: 100,
+            yoyo: true,
+            repeat: 5,
+            onStart: () => this.sprite.setTint(0xff4444),
+            onComplete: () => this.sprite.clearTint(),
+        });
+    }
+
+    /**
+     * 範囲攻撃実行
+     */
+    private performAoeAttack(): void {
+        const aoe = this.definition.bossAoe!;
+
+        // 範囲攻撃SE
+        this.scene.sound.play('sfx_cannon_fire', { volume: 0.5 });
+
+        // 画面シェイク
+        this.scene.cameras.main.shake(300, 0.025);
+
+        // 範囲内のターゲットを取得
+        const targets = this.getAoeTargets(aoe.range);
+
+        // ビジュアルエフェクト
+        this.createAoeEffect(aoe.range);
+
+        // ダメージ適用（遅延付き）
+        targets.forEach((target, index) => {
+            this.scene.time.delayedCall(100 + index * 80, () => {
+                if (!target.isDead()) {
+                    target.takeDamage(aoe.damage, aoe.knockback);
+                    this.createHitEffect(target.x, target.y);
+                }
+            });
+        });
+
+        // ターゲットがいない場合でも前方にエフェクト
+        if (targets.length === 0) {
+            const effectX = this.x + (this.direction * -1) * (aoe.range / 2);
+            this.scene.time.delayedCall(200, () => {
+                this.createHitEffect(effectX, this.y);
+            });
+        }
+    }
+
+    /**
+     * 範囲内のターゲットを取得
+     */
+    private getAoeTargets(range: number): Unit[] {
+        // シーンから味方ユニットリストを取得（ボスは敵側なので味方を攻撃）
+        const scene = this.scene as any;
+        const targetUnits: Unit[] = this.side === 'enemy' ? scene.allyUnits : scene.enemyUnits;
+
+        if (!targetUnits) return [];
+
+        return targetUnits.filter((unit: Unit) => {
+            if (unit.isDead()) return false;
+
+            if (this.verticalMode) {
+                const distance = Math.abs(this.y - unit.y);
+                return distance <= range;
+            } else {
+                const distance = Math.abs(this.x - unit.x);
+                return distance <= range;
+            }
+        });
+    }
+
+    /**
+     * 範囲攻撃エフェクト
+     */
+    private createAoeEffect(range: number): void {
+        const centerX = this.x;
+        const centerY = this.y - this.flyingOffset;
+
+        // 衝撃波（円形に広がる）
+        const wave = this.scene.add.circle(centerX, centerY, 30, 0xff4400, 0.6);
+        wave.setStrokeStyle(6, 0xff0000);
+        wave.setDepth(50);
+
+        this.scene.tweens.add({
+            targets: wave,
+            radius: range,
+            alpha: 0,
+            duration: 500,
+            ease: 'Power2',
+            onComplete: () => wave.destroy(),
+        });
+
+        // 内側の波
+        const innerWave = this.scene.add.circle(centerX, centerY, 20, 0xffaa00, 0.4);
+        innerWave.setDepth(51);
+
+        this.scene.tweens.add({
+            targets: innerWave,
+            radius: range * 0.7,
+            alpha: 0,
+            duration: 400,
+            ease: 'Power2',
+            onComplete: () => innerWave.destroy(),
+        });
+
+        // 爆発絵文字
+        const emoji = this.scene.add.text(centerX, centerY - 30, '🔥', {
+            fontSize: '72px',
+        });
+        emoji.setOrigin(0.5);
+        emoji.setDepth(52);
+        this.scene.tweens.add({
+            targets: emoji,
+            y: centerY - 100,
+            scale: 1.5,
+            alpha: 0,
+            duration: 700,
+            ease: 'Power2',
+            onComplete: () => emoji.destroy(),
+        });
+
+        // 範囲表示ライン（左右）
+        const leftLine = this.scene.add.rectangle(centerX - range, centerY - 50, 6, 150, 0xff4444, 0.7);
+        const rightLine = this.scene.add.rectangle(centerX + range, centerY - 50, 6, 150, 0xff4444, 0.7);
+        leftLine.setDepth(49);
+        rightLine.setDepth(49);
+
+        this.scene.tweens.add({
+            targets: [leftLine, rightLine],
+            alpha: 0,
+            duration: 600,
+            ease: 'Power1',
+            onComplete: () => {
+                leftLine.destroy();
+                rightLine.destroy();
+            },
+        });
+
+        // 警告テキスト
+        const aoeText = this.scene.add.text(centerX, centerY - 150, '💥 AOE ATTACK 💥', {
+            fontSize: '22px',
+            color: '#ff6600',
+            fontStyle: 'bold',
+            stroke: '#000000',
+            strokeThickness: 3,
+        });
+        aoeText.setOrigin(0.5);
+        aoeText.setDepth(53);
+
+        this.scene.tweens.add({
+            targets: aoeText,
+            y: aoeText.y - 40,
+            alpha: 0,
+            duration: 1200,
+            ease: 'Power1',
+            onComplete: () => aoeText.destroy(),
+        });
+    }
+
+    /**
+     * ヒットエフェクト（個別ターゲット）
+     */
+    private createHitEffect(x: number, y: number): void {
+        // 中心フラッシュ
+        const flash = this.scene.add.circle(x, y - 40, 30, 0xffffff, 0.9);
+        flash.setDepth(55);
+        this.scene.tweens.add({
+            targets: flash,
+            scale: 2,
+            alpha: 0,
+            duration: 150,
+            onComplete: () => flash.destroy(),
+        });
+
+        // 炎パーティクル
+        const colors = [0xff4400, 0xff8800, 0xffcc00];
+        for (let i = 0; i < 6; i++) {
+            const angle = (i / 6) * Math.PI * 2;
+            const dist = 30 + Math.random() * 40;
+            const size = 10 + Math.random() * 15;
+            const color = colors[Math.floor(Math.random() * colors.length)];
+
+            const particle = this.scene.add.circle(x, y - 40, size, color, 0.8);
+            particle.setDepth(54);
+
+            this.scene.tweens.add({
+                targets: particle,
+                x: x + Math.cos(angle) * dist,
+                y: y - 40 + Math.sin(angle) * dist - 20,
+                scale: 0.1,
+                alpha: 0,
+                duration: 300 + Math.random() * 200,
+                ease: 'Power2',
+                onComplete: () => particle.destroy(),
+            });
+        }
+
+        // ヒット絵文字
+        const hit = this.scene.add.text(x, y - 60, '💥', { fontSize: '36px' });
+        hit.setOrigin(0.5);
+        hit.setDepth(56);
+        this.scene.tweens.add({
+            targets: hit,
+            y: y - 100,
+            alpha: 0,
+            duration: 400,
+            ease: 'Power2',
+            onComplete: () => hit.destroy(),
+        });
     }
 }

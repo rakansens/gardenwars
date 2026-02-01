@@ -1557,7 +1557,13 @@ export class BattleScene extends Phaser.Scene {
         // BGMを停止して結果BGMを再生
         this.bgm?.stop();
         const resultBgmKey = win ? 'victory_bgm' : 'defeat_bgm';
-        this.sound.play(resultBgmKey, { volume: 0.5 });
+        try {
+            console.log(`[BattleScene] Playing result BGM: ${resultBgmKey}`);
+            const resultBgm = this.sound.add(resultBgmKey, { volume: 0.5 });
+            resultBgm.play();
+        } catch (err) {
+            console.error('[BattleScene] Failed to play result BGM:', err);
+        }
 
         // 結果を通知
         const result = {

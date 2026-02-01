@@ -16,6 +16,15 @@
     "flipSprite": true,
     "scale": 5.0,
     "isBoss": true,
+    "bossAoe": {
+      "enabled": true,
+      "hpThreshold": 0.5,
+      "probability": 0.25,
+      "damage": 800,
+      "range": 180,
+      "cooldownMs": 3000,
+      "knockback": 80
+    },
     "animKeys": {
       "idle": "idle",
       "walk": "walk",
@@ -41,6 +50,15 @@
     "scale": 6.0,
     "isBoss": true,
     "isFlying": true,
+    "bossAoe": {
+      "enabled": true,
+      "hpThreshold": 0.5,
+      "probability": 0.3,
+      "damage": 1200,
+      "range": 220,
+      "cooldownMs": 2500,
+      "knockback": 100
+    },
     "animKeys": {
       "idle": "idle",
       "walk": "walk",
@@ -65,6 +83,15 @@
     "flipSprite": true,
     "scale": 7.0,
     "isBoss": true,
+    "bossAoe": {
+      "enabled": true,
+      "hpThreshold": 0.4,
+      "probability": 0.35,
+      "damage": 1800,
+      "range": 250,
+      "cooldownMs": 2000,
+      "knockback": 120
+    },
     "animKeys": {
       "idle": "idle",
       "walk": "walk",
@@ -89,6 +116,15 @@
     "flipSprite": true,
     "scale": 6.5,
     "isBoss": true,
+    "bossAoe": {
+      "enabled": true,
+      "hpThreshold": 0.5,
+      "probability": 0.3,
+      "damage": 1500,
+      "range": 200,
+      "cooldownMs": 2200,
+      "knockback": 100
+    },
     "animKeys": {
       "idle": "idle",
       "walk": "walk",
@@ -113,6 +149,15 @@
     "flipSprite": true,
     "scale": 7.5,
     "isBoss": true,
+    "bossAoe": {
+      "enabled": true,
+      "hpThreshold": 0.3,
+      "probability": 0.4,
+      "damage": 2500,
+      "range": 300,
+      "cooldownMs": 1500,
+      "knockback": 150
+    },
     "animKeys": {
       "idle": "idle",
       "walk": "walk",
@@ -137,6 +182,15 @@
     "flipSprite": true,
     "scale": 5.0,
     "isBoss": true,
+    "bossAoe": {
+      "enabled": true,
+      "hpThreshold": 0.5,
+      "probability": 0.15,
+      "damage": 150,
+      "range": 120,
+      "cooldownMs": 4000,
+      "knockback": 50
+    },
     "animKeys": {
       "idle": "idle",
       "walk": "walk",
@@ -161,6 +215,15 @@
     "flipSprite": false,
     "scale": 5.5,
     "isBoss": true,
+    "bossAoe": {
+      "enabled": true,
+      "hpThreshold": 0.5,
+      "probability": 0.2,
+      "damage": 300,
+      "range": 150,
+      "cooldownMs": 3500,
+      "knockback": 60
+    },
     "animKeys": {
       "idle": "idle",
       "walk": "walk",
@@ -185,6 +248,15 @@
     "flipSprite": true,
     "scale": 6.0,
     "isBoss": true,
+    "bossAoe": {
+      "enabled": true,
+      "hpThreshold": 0.5,
+      "probability": 0.25,
+      "damage": 500,
+      "range": 180,
+      "cooldownMs": 3000,
+      "knockback": 80
+    },
     "animKeys": {
       "idle": "idle",
       "walk": "walk",
@@ -209,6 +281,15 @@
     "flipSprite": true,
     "scale": 7.0,
     "isBoss": true,
+    "bossAoe": {
+      "enabled": true,
+      "hpThreshold": 0.5,
+      "probability": 0.3,
+      "damage": 800,
+      "range": 220,
+      "cooldownMs": 2500,
+      "knockback": 100
+    },
     "animKeys": {
       "idle": "idle",
       "walk": "walk",
@@ -234,6 +315,15 @@
     "scale": 8.0,
     "isBoss": true,
     "isFlying": true,
+    "bossAoe": {
+      "enabled": true,
+      "hpThreshold": 0.4,
+      "probability": 0.35,
+      "damage": 1500,
+      "range": 280,
+      "cooldownMs": 2000,
+      "knockback": 120
+    },
     "animKeys": {
       "idle": "idle",
       "walk": "walk",

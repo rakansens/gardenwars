@@ -43,6 +43,20 @@ export interface UnitDefinition {
   flipSprite?: boolean;       // スプライトを左右反転するか
   isBoss?: boolean;           // ボスユニットか
   isFlying?: boolean;         // 飛行ユニットか（近接攻撃を受けにくい等の特性）
+  bossAoe?: BossAoeConfig;    // ボス範囲攻撃設定（ボスのみ）
+}
+
+/**
+ * ボス範囲攻撃設定
+ */
+export interface BossAoeConfig {
+  enabled: boolean;              // 範囲攻撃有効化
+  hpThreshold: number;           // 発動HP閾値（0.5 = 50%以下）
+  probability: number;           // 発動確率（0.3 = 30%）
+  damage: number;                // 範囲攻撃ダメージ
+  range: number;                 // 攻撃範囲（pixels）
+  cooldownMs: number;            // 範囲攻撃後の追加クールダウン
+  knockback: number;             // ノックバック
 }
 
 /**

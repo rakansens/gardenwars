@@ -115,15 +115,24 @@ export default function GameContainer({ state, selectedTeam, onSummon, onUpgrade
 
     gameRef.current = new Phaser.Game(config);
 
-    // シーン開始
-    gameRef.current.events.once("ready", () => {
-      gameRef.current?.scene.start("RealtimeBattleScene", {
+    // シーン開始（ready前にイベントが発火するケースに備える）
+    let started = false;
+    const startScene = () => {
+      if (started || !gameRef.current) return;
+      started = true;
+      gameRef.current.scene.start("RealtimeBattleScene", {
         networkManager,
         deck: selectedTeam,
         onSummon,
         onUpgradeCost,
       });
-    });
+    };
+
+    if (gameRef.current.isBooted) {
+      startScene();
+    } else {
+      gameRef.current.events.once(Phaser.Core.Events.READY, startScene);
+    }
 
     return () => {
       if (gameRef.current) {
