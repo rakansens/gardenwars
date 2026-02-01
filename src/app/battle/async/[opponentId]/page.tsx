@@ -177,9 +177,8 @@ export default function AsyncBattlePage() {
                 <div className="btn bg-red-500 text-white pointer-events-none text-xs sm:text-sm py-1 px-2 sm:py-2 sm:px-3 shadow-lg border-2 border-white/20">
                     🆚 <span className="hidden sm:inline">VS {opponent.name}</span><span className="sm:hidden">{opponent.name.slice(0, 6)}</span>
                 </div>
-                <Link href="/async-battle" className="btn btn-secondary text-xs sm:text-sm py-1 px-2 sm:py-2 sm:px-3 pointer-events-auto shadow-lg border-2 border-white/20 opacity-70 hover:opacity-100">
-                    <span className="sm:hidden">←</span>
-                    <span className="hidden sm:inline">← {t("back")}</span>
+                <Link href="/async-battle" className="btn btn-secondary text-xs sm:text-sm py-1 px-2 sm:py-2 sm:px-3 pointer-events-auto">
+                    ← <span className="hidden sm:inline">{t("back")}</span>
                 </Link>
             </div>
 

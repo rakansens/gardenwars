@@ -131,9 +131,8 @@ export default function BattlePage() {
                 <div className="btn btn-primary pointer-events-none text-xs sm:text-sm py-1 px-2 sm:py-2 sm:px-3 shadow-lg border-2 border-white/20">
                     🎮 {team.length}
                 </div>
-                <Link href="/stages" className="btn btn-secondary text-xs sm:text-sm py-1 px-2 sm:py-2 sm:px-3 pointer-events-auto shadow-lg border-2 border-white/20 opacity-70 hover:opacity-100">
-                    <span className="sm:hidden">←</span>
-                    <span className="hidden sm:inline">← {t("back_to_stages")}</span>
+                <Link href="/stages" className="btn btn-secondary text-xs sm:text-sm py-1 px-2 sm:py-2 sm:px-3 pointer-events-auto">
+                    ← <span className="hidden sm:inline">{t("back_to_stages")}</span>
                 </Link>
             </div>
 

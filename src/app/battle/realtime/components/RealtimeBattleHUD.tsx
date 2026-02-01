@@ -71,9 +71,9 @@ export function RealtimeBattleHUD({
           </p>
           <button
             onClick={onLeave}
-            className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xl"
+            className="btn btn-secondary text-xl"
           >
-            戻る
+            ← 戻る
           </button>
         </div>
       </div>

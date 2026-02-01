@@ -174,7 +174,7 @@ function LobbyView({
       {/* 戻るボタン */}
       <button
         onClick={onBack}
-        className="mt-8 px-6 py-3 text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-200 font-medium transition-all"
+        className="mt-8 btn btn-secondary"
       >
         ← {t("back") || "戻る"}
       </button>
