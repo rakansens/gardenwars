@@ -119,6 +119,93 @@ export default function CollectionPage() {
         }
     };
 
+    // VirtualizedGrid用のコールバック（トップレベルで定義）
+    const getItemKey = useCallback((unit: UnitDefinition) => unit.id, []);
+
+    const renderItem = useCallback((unit: UnitDefinition) => {
+        const isOwned = (unitInventory[unit.id] || 0) > 0;
+        const count = unitInventory[unit.id] || 0;
+        const unitHasAnimation = getUnitHasAnimation(unit);
+        const config = rarityConfig[unit.rarity];
+
+        return (
+            <div
+                className={`
+                    relative rounded-2xl p-3 md:p-4 shadow-md h-full
+                    cursor-pointer transition-all duration-200
+                    ${isOwned
+                        ? `bg-white dark:bg-slate-800 border-2 ${config.border} hover:scale-105 hover:shadow-xl`
+                        : "bg-gray-100 dark:bg-slate-700 border-2 border-gray-200 dark:border-slate-700 opacity-60 grayscale"
+                    }
+                `}
+                onClick={() => handleUnitClick(unit)}
+            >
+                {/* 所持数バッジ */}
+                {isOwned && (
+                    <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-green-500 text-white text-sm font-bold flex items-center justify-center border-2 border-white shadow-lg z-10">
+                        {count > 99 ? "99+" : count}
+                    </div>
+                )}
+
+                {/* 未所持マーク */}
+                {!isOwned && (
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl z-10 opacity-60">
+                        🔒
+                    </div>
+                )}
+
+                {/* アニメーションバッジ */}
+                {unitHasAnimation && isOwned && (
+                    <div className="absolute -top-2 -left-2 w-8 h-8 rounded-full bg-purple-500 text-white text-sm flex items-center justify-center border-2 border-white shadow-lg z-10">
+                        🎬
+                    </div>
+                )}
+
+                {/* 飛行バッジ */}
+                {unit.isFlying && isOwned && (
+                    <div className={`absolute ${unitHasAnimation ? "top-6" : "-top-2"} -left-2 w-8 h-8 rounded-full bg-sky-500 text-white text-sm flex items-center justify-center border-2 border-white shadow-lg z-10`}>
+                        🪽
+                    </div>
+                )}
+
+                <div className="flex justify-center mb-2">
+                    <RarityFrame
+                        unitId={unit.id}
+                        unitName={unit.name}
+                        rarity={unit.rarity}
+                        size="lg"
+                        showLabel={true}
+                        baseUnitId={unit.baseUnitId}
+                        grayscale={!isOwned}
+                    />
+                </div>
+
+                <div className="text-center">
+                    <div className={`text-sm font-bold leading-tight min-h-[2.5rem] flex items-center justify-center ${!isOwned ? "text-gray-400" : ""}`}>
+                        {unit.name}
+                    </div>
+                    <div className="flex items-center justify-center gap-1 mt-1 text-xs flex-wrap">
+                        <span className={`font-bold ${config.text}`}>
+                            {unit.rarity}
+                        </span>
+                        <span className="text-gray-400 dark:text-gray-500">|</span>
+                        <span className={isOwned ? "text-gray-600 dark:text-gray-400" : "text-gray-400 dark:text-gray-500"}>
+                            {t(getSizeCategory(unit.scale ?? 1))}
+                        </span>
+                        {unit.isFlying && (
+                            <>
+                                <span className="text-gray-400 dark:text-gray-500">|</span>
+                                <span className={isOwned ? "text-sky-500" : "text-gray-400 dark:text-gray-500"}>
+                                    {t("flying")}
+                                </span>
+                            </>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
+    }, [unitInventory, t, handleUnitClick]);
+
     if (!isLoaded) {
         return <LoadingSpinner icon="📖" fullScreen />;
     }
@@ -253,94 +340,12 @@ export default function CollectionPage() {
                 <section className="mb-8">
                     <VirtualizedGrid
                         items={sortedUnits}
-                        getItemKey={useCallback((unit: UnitDefinition) => unit.id, [])}
+                        getItemKey={getItemKey}
                         columnConfig={{ default: 2, sm: 3, md: 4, lg: 5, xl: 6 }}
                         rowHeight={220}
                         gap={16}
                         containerHeight={600}
-                        renderItem={useCallback((unit: UnitDefinition) => {
-                            const isOwned = (unitInventory[unit.id] || 0) > 0;
-                            const count = unitInventory[unit.id] || 0;
-                            const unitHasAnimation = getUnitHasAnimation(unit);
-                            const config = rarityConfig[unit.rarity];
-
-                            return (
-                                <div
-                                    className={`
-                                        relative rounded-2xl p-3 md:p-4 shadow-md h-full
-                                        cursor-pointer transition-all duration-200
-                                        ${isOwned
-                                            ? `bg-white dark:bg-slate-800 border-2 ${config.border} hover:scale-105 hover:shadow-xl`
-                                            : "bg-gray-100 dark:bg-slate-700 border-2 border-gray-200 dark:border-slate-700 opacity-60 grayscale"
-                                        }
-                                    `}
-                                    onClick={() => handleUnitClick(unit)}
-                                >
-                                    {/* 所持数バッジ */}
-                                    {isOwned && (
-                                        <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-green-500 text-white text-sm font-bold flex items-center justify-center border-2 border-white shadow-lg z-10">
-                                            {count > 99 ? "99+" : count}
-                                        </div>
-                                    )}
-
-                                    {/* 未所持マーク */}
-                                    {!isOwned && (
-                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl z-10 opacity-60">
-                                            🔒
-                                        </div>
-                                    )}
-
-                                    {/* アニメーションバッジ */}
-                                    {unitHasAnimation && isOwned && (
-                                        <div className="absolute -top-2 -left-2 w-8 h-8 rounded-full bg-purple-500 text-white text-sm flex items-center justify-center border-2 border-white shadow-lg z-10">
-                                            🎬
-                                        </div>
-                                    )}
-
-                                    {/* 飛行バッジ */}
-                                    {unit.isFlying && isOwned && (
-                                        <div className={`absolute ${unitHasAnimation ? "top-6" : "-top-2"} -left-2 w-8 h-8 rounded-full bg-sky-500 text-white text-sm flex items-center justify-center border-2 border-white shadow-lg z-10`}>
-                                            🪽
-                                        </div>
-                                    )}
-
-                                    <div className="flex justify-center mb-2">
-                                        <RarityFrame
-                                            unitId={unit.id}
-                                            unitName={unit.name}
-                                            rarity={unit.rarity}
-                                            size="lg"
-                                            showLabel={true}
-                                            baseUnitId={unit.baseUnitId}
-                                            grayscale={!isOwned}
-                                        />
-                                    </div>
-
-                                    <div className="text-center">
-                                        <div className={`text-sm font-bold leading-tight min-h-[2.5rem] flex items-center justify-center ${!isOwned ? "text-gray-400" : ""}`}>
-                                            {unit.name}
-                                        </div>
-                                        <div className="flex items-center justify-center gap-1 mt-1 text-xs flex-wrap">
-                                            <span className={`font-bold ${config.text}`}>
-                                                {unit.rarity}
-                                            </span>
-                                            <span className="text-gray-400 dark:text-gray-500">|</span>
-                                            <span className={isOwned ? "text-gray-600 dark:text-gray-400" : "text-gray-400 dark:text-gray-500"}>
-                                                {t(getSizeCategory(unit.scale ?? 1))}
-                                            </span>
-                                            {unit.isFlying && (
-                                                <>
-                                                    <span className="text-gray-400 dark:text-gray-500">|</span>
-                                                    <span className={isOwned ? "text-sky-500" : "text-gray-400 dark:text-gray-500"}>
-                                                        {t("flying")}
-                                                    </span>
-                                                </>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        }, [unitInventory, t, handleUnitClick])}
+                        renderItem={renderItem}
                         emptyContent={
                             <div className="text-center py-16 bg-white dark:bg-slate-800 rounded-2xl shadow-md">
                                 <div className="text-5xl mb-4">🔍</div>

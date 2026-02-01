@@ -28,6 +28,7 @@ interface RealtimeUnit {
   nameText: Phaser.GameObjects.Text;
   lastX: number;  // 補間用
   targetX: number;
+  lastHp: number;
   hitstunTimer?: Phaser.Time.TimerEvent;
   deathTimer?: Phaser.Time.TimerEvent;
   isRemoving?: boolean;
@@ -52,6 +53,8 @@ export class RealtimeBattleScene extends Phaser.Scene {
   private enemyCastle!: Phaser.GameObjects.Container;
   private allyCastleHpBar!: Phaser.GameObjects.Rectangle;
   private enemyCastleHpBar!: Phaser.GameObjects.Rectangle;
+  private allyCastleSprite!: Phaser.GameObjects.Image;
+  private enemyCastleSprite!: Phaser.GameObjects.Image;
   private ground!: Phaser.GameObjects.Rectangle;
   private summonUi?: Phaser.GameObjects.Container;
 
@@ -69,6 +72,8 @@ export class RealtimeBattleScene extends Phaser.Scene {
   private stageLength = 1200;
   private readonly CASTLE_PADDING = 80;
   private deckKey = '';
+  private lastAllyCastleHp?: number;
+  private lastEnemyCastleHp?: number;
 
   constructor() {
     super({ key: 'RealtimeBattleScene' });
@@ -161,29 +166,29 @@ export class RealtimeBattleScene extends Phaser.Scene {
 
     // 味方城（player1 = 左）
     this.allyCastle = this.add.container(castlePositions.player1, this.GROUND_Y);
-    const allySprite = this.add.image(0, 0, 'castle_ally');
-    allySprite.setOrigin(0.5, 1);
-    const allyScale = targetHeight / allySprite.height;
-    allySprite.setScale(allyScale);
-    this.allyCastle.add(allySprite);
+    this.allyCastleSprite = this.add.image(0, 0, 'castle_ally');
+    this.allyCastleSprite.setOrigin(0.5, 1);
+    const allyScale = targetHeight / this.allyCastleSprite.height;
+    this.allyCastleSprite.setScale(allyScale);
+    this.allyCastle.add(this.allyCastleSprite);
 
     // 味方城HPバー
-    const allyHpBg = this.add.rectangle(0, -allySprite.displayHeight - 20, 80, 10, 0x333333);
-    this.allyCastleHpBar = this.add.rectangle(0, -allySprite.displayHeight - 20, 80, 10, 0x00ff00);
+    const allyHpBg = this.add.rectangle(0, -this.allyCastleSprite.displayHeight - 20, 80, 10, 0x333333);
+    this.allyCastleHpBar = this.add.rectangle(0, -this.allyCastleSprite.displayHeight - 20, 80, 10, 0x00ff00);
     this.allyCastle.add(allyHpBg);
     this.allyCastle.add(this.allyCastleHpBar);
 
     // 敵城（player2 = 右）
     this.enemyCastle = this.add.container(castlePositions.player2, this.GROUND_Y);
-    const enemySprite = this.add.image(0, 0, 'castle_enemy');
-    enemySprite.setOrigin(0.5, 1);
-    const enemyScale = targetHeight / enemySprite.height;
-    enemySprite.setScale(enemyScale);
-    this.enemyCastle.add(enemySprite);
+    this.enemyCastleSprite = this.add.image(0, 0, 'castle_enemy');
+    this.enemyCastleSprite.setOrigin(0.5, 1);
+    const enemyScale = targetHeight / this.enemyCastleSprite.height;
+    this.enemyCastleSprite.setScale(enemyScale);
+    this.enemyCastle.add(this.enemyCastleSprite);
 
     // 敵城HPバー
-    const enemyHpBg = this.add.rectangle(0, -enemySprite.displayHeight - 20, 80, 10, 0x333333);
-    this.enemyCastleHpBar = this.add.rectangle(0, -enemySprite.displayHeight - 20, 80, 10, 0xff0000);
+    const enemyHpBg = this.add.rectangle(0, -this.enemyCastleSprite.displayHeight - 20, 80, 10, 0x333333);
+    this.enemyCastleHpBar = this.add.rectangle(0, -this.enemyCastleSprite.displayHeight - 20, 80, 10, 0xff0000);
     this.enemyCastle.add(enemyHpBg);
     this.enemyCastle.add(this.enemyCastleHpBar);
   }
@@ -461,9 +466,21 @@ export class RealtimeBattleScene extends Phaser.Scene {
       if (mySide === 'player1') {
         const hpRatio = myPlayer.maxCastleHp > 0 ? myPlayer.castleHp / myPlayer.maxCastleHp : 0;
         this.allyCastleHpBar.width = 80 * Phaser.Math.Clamp(hpRatio, 0, 1);
+        this.lastAllyCastleHp = this.updateCastleDamage(
+          this.allyCastle,
+          this.allyCastleSprite,
+          this.lastAllyCastleHp,
+          myPlayer.castleHp
+        );
       } else if (mySide === 'player2') {
         const hpRatio = myPlayer.maxCastleHp > 0 ? myPlayer.castleHp / myPlayer.maxCastleHp : 0;
         this.enemyCastleHpBar.width = 80 * Phaser.Math.Clamp(hpRatio, 0, 1);
+        this.lastEnemyCastleHp = this.updateCastleDamage(
+          this.enemyCastle,
+          this.enemyCastleSprite,
+          this.lastEnemyCastleHp,
+          myPlayer.castleHp
+        );
       }
     }
 
@@ -473,9 +490,21 @@ export class RealtimeBattleScene extends Phaser.Scene {
       if (mySide === 'player1') {
         const hpRatio = opponent.maxCastleHp > 0 ? opponent.castleHp / opponent.maxCastleHp : 0;
         this.enemyCastleHpBar.width = 80 * Phaser.Math.Clamp(hpRatio, 0, 1);
+        this.lastEnemyCastleHp = this.updateCastleDamage(
+          this.enemyCastle,
+          this.enemyCastleSprite,
+          this.lastEnemyCastleHp,
+          opponent.castleHp
+        );
       } else if (mySide === 'player2') {
         const hpRatio = opponent.maxCastleHp > 0 ? opponent.castleHp / opponent.maxCastleHp : 0;
         this.allyCastleHpBar.width = 80 * Phaser.Math.Clamp(hpRatio, 0, 1);
+        this.lastAllyCastleHp = this.updateCastleDamage(
+          this.allyCastle,
+          this.allyCastleSprite,
+          this.lastAllyCastleHp,
+          opponent.castleHp
+        );
       }
     }
   }
@@ -547,6 +576,7 @@ export class RealtimeBattleScene extends Phaser.Scene {
       nameText,
       lastX: unitState.x,
       targetX: unitState.x,
+      lastHp: unitState.hp,
     });
   }
 
@@ -568,6 +598,14 @@ export class RealtimeBattleScene extends Phaser.Scene {
     const hpRatioRaw = unitState.maxHp > 0 ? unitState.hp / unitState.maxHp : 0;
     const hpRatio = Phaser.Math.Clamp(hpRatioRaw, 0, 1);
     unit.hpBar.width = 50 * hpRatio;
+
+    if (unitState.hp < unit.lastHp) {
+      const damage = Math.max(0, unit.lastHp - unitState.hp);
+      if (damage > 0) {
+        this.showDamageNumber(unit.container.x, unit.container.y - unit.sprite.displayHeight - 20, damage);
+      }
+    }
+    unit.lastHp = unitState.hp;
 
     // HP色
     if (hpRatio > 0.6) {
@@ -626,6 +664,40 @@ export class RealtimeBattleScene extends Phaser.Scene {
         this.units.delete(instanceId);
       }
     });
+  }
+
+  private showDamageNumber(x: number, y: number, damage: number) {
+    const text = this.add.text(x, y, `-${damage}`, {
+      fontSize: '16px',
+      color: '#ff0000',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 2,
+    });
+    text.setOrigin(0.5, 0.5);
+
+    this.tweens.add({
+      targets: text,
+      y: text.y - 30,
+      alpha: 0,
+      duration: 800,
+      onComplete: () => text.destroy(),
+    });
+  }
+
+  private updateCastleDamage(
+    castle: Phaser.GameObjects.Container,
+    sprite: Phaser.GameObjects.Image,
+    prevHp: number | undefined,
+    nextHp: number
+  ): number {
+    if (typeof prevHp === 'number' && nextHp < prevHp) {
+      const damage = prevHp - nextHp;
+      if (damage > 0) {
+        this.showDamageNumber(castle.x, castle.y - sprite.displayHeight - 50, damage);
+      }
+    }
+    return nextHp;
   }
 
   private handleGameOver(isWinner: boolean, reason: string) {
