@@ -2,7 +2,17 @@
 
 import { useState, useCallback } from "react";
 import unitsData from "@/data/units";
-import type { UnitDefinition, Rarity } from "@/data/types";
+import type { UnitDefinition, Rarity, UnitRole } from "@/data/types";
+
+// ロール別のアイコンと色
+const roleConfig: Record<UnitRole, { icon: string; color: string }> = {
+    tank: { icon: "🛡️", color: "text-slate-600 dark:text-slate-400" },
+    attacker: { icon: "⚔️", color: "text-red-600 dark:text-red-400" },
+    ranger: { icon: "🏹", color: "text-green-600 dark:text-green-400" },
+    speedster: { icon: "💨", color: "text-cyan-600 dark:text-cyan-400" },
+    flying: { icon: "🪽", color: "text-sky-600 dark:text-sky-400" },
+    balanced: { icon: "⚖️", color: "text-gray-600 dark:text-gray-400" },
+};
 import RarityFrame from "@/components/ui/RarityFrame";
 import UnitDetailModal from "@/components/ui/UnitDetailModal";
 import VirtualizedGrid from "@/components/ui/VirtualizedGrid";
@@ -101,11 +111,15 @@ function getUnitHasAnimation(unit: UnitDefinition): boolean {
 }
 
 type SortKey = "none" | "hp" | "attack" | "range" | "speed" | "move" | "dps" | "cost" | "spawn" | "droprate" | "size";
+type RoleFilter = "ALL" | UnitRole;
+type SpecialFilter = "none" | "flying" | "area" | "animation";
 
 export default function TeamPage() {
     const { selectedTeam, unitInventory, setTeam, isLoaded, activeLoadoutIndex, switchLoadout, loadouts } = usePlayerData();
     const { t } = useLanguage();
     const [rarityFilter, setRarityFilter] = useState<Rarity | "ALL">("ALL");
+    const [roleFilter, setRoleFilter] = useState<RoleFilter>("ALL");
+    const [specialFilter, setSpecialFilter] = useState<SpecialFilter>("none");
     const [sortBy, setSortBy] = useState<SortKey>("none");
     const { viewingUnit, openModal, closeModal } = useUnitDetailModal();
 
@@ -179,9 +193,35 @@ export default function TeamPage() {
         { key: "UR", label: "UR", color: "bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500" },
     ];
 
-    const filteredUnits = rarityFilter === "ALL"
-        ? allyUnits
-        : allyUnits.filter(u => u.rarity === rarityFilter);
+    const roleTabs: { key: RoleFilter; label: string; icon: string; color: string }[] = [
+        { key: "ALL", label: "ALL", icon: "🎯", color: "bg-gray-500" },
+        { key: "tank", label: t("role_tank"), icon: "🛡️", color: "bg-slate-500" },
+        { key: "attacker", label: t("role_attacker"), icon: "⚔️", color: "bg-red-500" },
+        { key: "ranger", label: t("role_ranger"), icon: "🏹", color: "bg-green-500" },
+        { key: "speedster", label: t("role_speedster"), icon: "💨", color: "bg-cyan-500" },
+        { key: "flying", label: t("role_flying"), icon: "🪽", color: "bg-sky-500" },
+        { key: "balanced", label: t("role_balanced"), icon: "⚖️", color: "bg-gray-400" },
+    ];
+
+    const specialTabs: { key: SpecialFilter; label: string; icon: string; color: string }[] = [
+        { key: "none", label: t("sort_none"), icon: "📋", color: "bg-gray-500" },
+        { key: "flying", label: t("flying"), icon: "🪽", color: "bg-sky-500" },
+        { key: "area", label: t("attack_type_area"), icon: "💥", color: "bg-orange-500" },
+        { key: "animation", label: "Anim", icon: "🎬", color: "bg-purple-500" },
+    ];
+
+    // フィルタリング処理
+    const filteredUnits = allyUnits.filter(u => {
+        // レアリティフィルター
+        if (rarityFilter !== "ALL" && u.rarity !== rarityFilter) return false;
+        // ロールフィルター
+        if (roleFilter !== "ALL" && u.role !== roleFilter) return false;
+        // 特殊フィルター
+        if (specialFilter === "flying" && !u.isFlying) return false;
+        if (specialFilter === "area" && u.attackType !== "area") return false;
+        if (specialFilter === "animation" && !getUnitHasAnimation(u)) return false;
+        return true;
+    });
     const MAX_TEAM_SIZE = 7;
 
     const handleToggleUnit = (unitId: string) => {
@@ -242,10 +282,24 @@ export default function TeamPage() {
                     </div>
                 )}
 
-                {/* 飛行バッジ */}
-                {unit.isFlying && (
-                    <div className={`absolute ${unitHasAnimation ? "-bottom-2" : "-top-2"} -left-2 w-7 h-7 rounded-full bg-sky-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10`} title="Flying Unit">
-                        🪽
+                {/* ロールバッジ */}
+                {unit.role && (
+                    <div className={`absolute ${unitHasAnimation ? "top-6" : "-top-2"} -left-2 w-7 h-7 rounded-full ${
+                        unit.role === 'tank' ? 'bg-slate-500' :
+                        unit.role === 'attacker' ? 'bg-red-500' :
+                        unit.role === 'ranger' ? 'bg-green-500' :
+                        unit.role === 'speedster' ? 'bg-cyan-500' :
+                        unit.role === 'flying' ? 'bg-sky-500' :
+                        'bg-gray-500'
+                    } text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10`} title={unit.role}>
+                        {roleConfig[unit.role].icon}
+                    </div>
+                )}
+
+                {/* 範囲攻撃バッジ */}
+                {unit.attackType === 'area' && (
+                    <div className="absolute -bottom-2 -left-2 w-7 h-7 rounded-full bg-orange-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10" title={`Area Attack (${unit.areaRadius}px)`}>
+                        💥
                     </div>
                 )}
 
@@ -278,10 +332,10 @@ export default function TeamPage() {
                             <span className="text-gray-600 dark:text-gray-400" title={`${(unit.scale ?? 1).toFixed(1)}x`}>
                                 {t(getSizeCategory(unit.scale ?? 1))}
                             </span>
-                            {unit.isFlying && (
+                            {unit.role && (
                                 <>
                                     <span className="text-gray-400 dark:text-gray-500">|</span>
-                                    <span className="text-sky-500">{t("flying")}</span>
+                                    <span className={roleConfig[unit.role].color}>{roleConfig[unit.role].icon}</span>
                                 </>
                             )}
                         </div>
@@ -377,10 +431,24 @@ export default function TeamPage() {
                     </div>
                 )}
 
-                {/* 飛行バッジ */}
-                {unit.isFlying && (
-                    <div className={`absolute ${unitHasAnimation ? "-bottom-2" : "-top-2"} -left-2 w-7 h-7 rounded-full bg-sky-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10`} title="Flying Unit">
-                        🪽
+                {/* ロールバッジ */}
+                {unit.role && (
+                    <div className={`absolute ${unitHasAnimation ? "top-6" : "-top-2"} -left-2 w-7 h-7 rounded-full ${
+                        unit.role === 'tank' ? 'bg-slate-500' :
+                        unit.role === 'attacker' ? 'bg-red-500' :
+                        unit.role === 'ranger' ? 'bg-green-500' :
+                        unit.role === 'speedster' ? 'bg-cyan-500' :
+                        unit.role === 'flying' ? 'bg-sky-500' :
+                        'bg-gray-500'
+                    } text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10`} title={unit.role}>
+                        {roleConfig[unit.role].icon}
+                    </div>
+                )}
+
+                {/* 範囲攻撃バッジ */}
+                {unit.attackType === 'area' && (
+                    <div className="absolute -bottom-2 -left-2 w-7 h-7 rounded-full bg-orange-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10" title={`Area Attack (${unit.areaRadius}px)`}>
+                        💥
                     </div>
                 )}
 
@@ -414,10 +482,10 @@ export default function TeamPage() {
                             <span className="text-gray-400" title={`${(unit.scale ?? 1).toFixed(1)}x`}>
                                 {t(getSizeCategory(unit.scale ?? 1))}
                             </span>
-                            {unit.isFlying && (
+                            {unit.role && (
                                 <>
                                     <span className="text-gray-300">|</span>
-                                    <span className="text-gray-400">{t("flying")}</span>
+                                    <span className="text-gray-400">{roleConfig[unit.role].icon}</span>
                                 </>
                             )}
                         </div>
@@ -549,7 +617,7 @@ export default function TeamPage() {
                 </section>
 
                 {/* レアリティフィルタータブ */}
-                <section className="mb-4">
+                <section className="mb-3">
                     <div className="flex gap-2 md:gap-3 flex-wrap">
                         {rarityTabs.map(tab => (
                             <button
@@ -571,6 +639,61 @@ export default function TeamPage() {
                                 </span>
                             </button>
                         ))}
+                    </div>
+                </section>
+
+                {/* ロールフィルター */}
+                <section className="mb-3">
+                    <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+                        <span className="text-sm md:text-base font-bold text-gray-600 dark:text-gray-400">{t("role")}:</span>
+                        {roleTabs.map(tab => (
+                            <button
+                                key={tab.key}
+                                onClick={() => setRoleFilter(tab.key)}
+                                className={`
+                                    px-3 py-2 md:px-4 md:py-2.5 rounded-xl text-sm md:text-base transition-all flex items-center gap-1 min-h-[40px] md:min-h-[44px]
+                                    ${roleFilter === tab.key
+                                        ? `${tab.color} text-white shadow-md scale-105`
+                                        : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-600 active:scale-95"
+                                    }
+                                `}
+                            >
+                                <span>{tab.icon}</span>
+                                <span className="hidden sm:inline">{tab.label}</span>
+                            </button>
+                        ))}
+                    </div>
+                </section>
+
+                {/* 特殊フィルター */}
+                <section className="mb-4">
+                    <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+                        <span className="text-sm md:text-base font-bold text-gray-600 dark:text-gray-400">{t("filter")}:</span>
+                        {specialTabs.map(tab => (
+                            <button
+                                key={tab.key}
+                                onClick={() => setSpecialFilter(tab.key)}
+                                className={`
+                                    px-3 py-2 md:px-4 md:py-2.5 rounded-xl text-sm md:text-base transition-all flex items-center gap-1 min-h-[40px] md:min-h-[44px]
+                                    ${specialFilter === tab.key
+                                        ? `${tab.color} text-white shadow-md scale-105`
+                                        : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-600 active:scale-95"
+                                    }
+                                `}
+                            >
+                                <span>{tab.icon}</span>
+                                <span>{tab.label}</span>
+                            </button>
+                        ))}
+                        {/* フィルタークリアボタン */}
+                        {(roleFilter !== "ALL" || specialFilter !== "none") && (
+                            <button
+                                onClick={() => { setRoleFilter("ALL"); setSpecialFilter("none"); }}
+                                className="px-3 py-2 rounded-xl text-sm transition-all bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 active:scale-95"
+                            >
+                                ✕ {t("clear_filter")}
+                            </button>
+                        )}
                     </div>
                 </section>
 

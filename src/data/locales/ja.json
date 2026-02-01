@@ -491,5 +491,21 @@
   "battle_castle_destroyed": "城が破壊されました",
   "battle_opponent_disconnected": "相手が切断しました",
   "battle_waiting_for_opponent": "対戦相手を待っています...",
-  "battle_waiting_message": "もう一人のプレイヤーが参加するまでお待ちください"
+  "battle_waiting_message": "もう一人のプレイヤーが参加するまでお待ちください",
+
+  "role": "ロール",
+  "role_tank": "タンク",
+  "role_attacker": "アタッカー",
+  "role_ranger": "レンジャー",
+  "role_speedster": "スピードスター",
+  "role_flying": "フライング",
+  "role_balanced": "バランス",
+
+  "attack_type": "攻撃タイプ",
+  "attack_type_single": "単体",
+  "attack_type_area": "範囲",
+  "attack_type_piercing": "貫通",
+  "area_radius": "範囲半径",
+  "filter": "フィルター",
+  "clear_filter": "クリア"
 }

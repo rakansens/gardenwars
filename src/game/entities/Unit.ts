@@ -378,12 +378,176 @@ export class Unit extends Phaser.GameObjects.Container {
             : 'sfx_attack_hit';
         this.scene.sound.play(hitSfx, { volume: 0.25 });
 
+        // 通常ユニットの範囲攻撃
+        if (this.definition.attackType === 'area' && this.definition.areaRadius) {
+            this.performUnitAreaAttack();
+            return;
+        }
+
+        // 単体攻撃
         if (this.target && !this.target.isDead()) {
             this.target.takeDamage(this.definition.attackDamage, this.definition.knockback);
             return;
         }
         if (this.castleTarget) {
             this.castleTarget.takeDamage(this.definition.attackDamage);
+        }
+    }
+
+    /**
+     * 通常ユニットの範囲攻撃
+     */
+    private performUnitAreaAttack(): void {
+        const areaRadius = this.definition.areaRadius!;
+        const damage = this.definition.attackDamage;
+        const knockback = this.definition.knockback;
+
+        // ターゲット位置を基準に範囲攻撃
+        let centerX = this.x;
+        let centerY = this.y;
+
+        if (this.target && !this.target.isDead()) {
+            centerX = this.target.x;
+            centerY = this.target.y;
+        } else if (this.castleTarget) {
+            centerX = this.castleTarget.getX();
+            centerY = this.castleTarget.y;
+        }
+
+        // 範囲内の敵を取得
+        const targets = this.getAreaTargets(centerX, centerY, areaRadius);
+
+        // エフェクト表示
+        this.createUnitAreaEffect(centerX, centerY, areaRadius);
+
+        // ダメージ適用
+        let hitCount = 0;
+        targets.forEach((target, index) => {
+            // メインターゲット以外は80%ダメージ
+            const isMainTarget = target === this.target;
+            const actualDamage = isMainTarget ? damage : Math.floor(damage * 0.8);
+            const actualKnockback = isMainTarget ? knockback : Math.floor(knockback * 0.5);
+
+            this.scene.time.delayedCall(index * 50, () => {
+                if (!target.isDead()) {
+                    target.takeDamage(actualDamage, actualKnockback);
+                    hitCount++;
+                }
+            });
+        });
+
+        // 城へのダメージ（範囲内なら）
+        if (this.castleTarget) {
+            const castleDistance = this.verticalMode
+                ? Math.abs(centerY - this.castleTarget.y)
+                : Math.abs(centerX - this.castleTarget.getX());
+
+            if (castleDistance <= areaRadius) {
+                this.castleTarget.takeDamage(Math.floor(damage * 0.5));
+            }
+        }
+    }
+
+    /**
+     * 範囲内の敵ユニットを取得
+     */
+    private getAreaTargets(centerX: number, centerY: number, radius: number): Unit[] {
+        const scene = this.scene as any;
+        const targetUnits: Unit[] = this.side === 'ally' ? scene.enemyUnits : scene.allyUnits;
+
+        if (!targetUnits) return [];
+
+        return targetUnits.filter((unit: Unit) => {
+            if (unit.isDead()) return false;
+
+            const distance = this.verticalMode
+                ? Math.abs(centerY - unit.y)
+                : Math.abs(centerX - unit.x);
+
+            return distance <= radius;
+        });
+    }
+
+    /**
+     * 通常ユニットの範囲攻撃エフェクト
+     */
+    private createUnitAreaEffect(centerX: number, centerY: number, radius: number): void {
+        // 衝撃波（レアリティで色を変える）
+        const rarity = this.definition.rarity;
+        const waveColor = rarity === 'UR' ? 0xff00ff :
+                          rarity === 'SSR' ? 0xffaa00 :
+                          rarity === 'SR' ? 0x9933ff :
+                          0xff6600;
+
+        // メイン衝撃波
+        const wave = this.scene.add.circle(centerX, centerY - 40, 20, waveColor, 0.5);
+        wave.setStrokeStyle(3, waveColor);
+        wave.setDepth(50);
+
+        this.scene.tweens.add({
+            targets: wave,
+            radius: radius,
+            alpha: 0,
+            duration: 300,
+            ease: 'Power2',
+            onComplete: () => wave.destroy(),
+        });
+
+        // 内側の光
+        const innerGlow = this.scene.add.circle(centerX, centerY - 40, 15, 0xffffff, 0.6);
+        innerGlow.setDepth(51);
+
+        this.scene.tweens.add({
+            targets: innerGlow,
+            radius: radius * 0.5,
+            alpha: 0,
+            duration: 200,
+            ease: 'Power2',
+            onComplete: () => innerGlow.destroy(),
+        });
+
+        // 爆発絵文字（レアリティで変更）
+        const emoji = rarity === 'UR' || rarity === 'SSR' ? '✨' :
+                      rarity === 'SR' ? '💫' : '💥';
+        const emojiText = this.scene.add.text(centerX, centerY - 60, emoji, {
+            fontSize: rarity === 'UR' || rarity === 'SSR' ? '48px' : '36px',
+        });
+        emojiText.setOrigin(0.5);
+        emojiText.setDepth(52);
+
+        this.scene.tweens.add({
+            targets: emojiText,
+            y: centerY - 100,
+            scale: 1.3,
+            alpha: 0,
+            duration: 500,
+            ease: 'Power2',
+            onComplete: () => emojiText.destroy(),
+        });
+
+        // パーティクル（小さな光）
+        for (let i = 0; i < 5; i++) {
+            const angle = (i / 5) * Math.PI * 2;
+            const dist = radius * 0.6;
+            const particle = this.scene.add.circle(
+                centerX,
+                centerY - 40,
+                6,
+                waveColor,
+                0.8
+            );
+            particle.setDepth(53);
+
+            this.scene.tweens.add({
+                targets: particle,
+                x: centerX + Math.cos(angle) * dist,
+                y: centerY - 40 + Math.sin(angle) * dist,
+                scale: 0.2,
+                alpha: 0,
+                duration: 250,
+                ease: 'Power2',
+                onComplete: () => particle.destroy(),
+            });
         }
     }
 

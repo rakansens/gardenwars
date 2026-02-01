@@ -8,6 +8,16 @@
 export type Rarity = 'N' | 'R' | 'SR' | 'SSR' | 'UR';
 
 /**
+ * ユニットロール
+ */
+export type UnitRole = 'tank' | 'attacker' | 'ranger' | 'speedster' | 'flying' | 'balanced';
+
+/**
+ * 攻撃タイプ
+ */
+export type AttackType = 'single' | 'area' | 'piercing';
+
+/**
  * ステージ難易度
  */
 export type StageDifficulty = 'tutorial' | 'easy' | 'normal' | 'hard' | 'extreme' | 'boss' | 'special';
@@ -44,6 +54,9 @@ export interface UnitDefinition {
   isBoss?: boolean;           // ボスユニットか
   isFlying?: boolean;         // 飛行ユニットか（近接攻撃を受けにくい等の特性）
   bossAoe?: BossAoeConfig;    // ボス範囲攻撃設定（ボスのみ）
+  role?: UnitRole;            // ユニットロール
+  attackType?: AttackType;    // 攻撃タイプ（デフォルト: single）
+  areaRadius?: number;        // 範囲攻撃の半径（attackType: area時）
 }
 
 /**

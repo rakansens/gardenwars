@@ -488,5 +488,21 @@
   "battle_castle_destroyed": "Castle was destroyed",
   "battle_opponent_disconnected": "Opponent disconnected",
   "battle_waiting_for_opponent": "Waiting for opponent...",
-  "battle_waiting_message": "Please wait for another player to join"
+  "battle_waiting_message": "Please wait for another player to join",
+
+  "role": "Role",
+  "role_tank": "Tank",
+  "role_attacker": "Attacker",
+  "role_ranger": "Ranger",
+  "role_speedster": "Speedster",
+  "role_flying": "Flying",
+  "role_balanced": "Balanced",
+
+  "attack_type": "Attack Type",
+  "attack_type_single": "Single",
+  "attack_type_area": "Area",
+  "attack_type_piercing": "Piercing",
+  "area_radius": "Area Radius",
+  "filter": "Filter",
+  "clear_filter": "Clear"
 }

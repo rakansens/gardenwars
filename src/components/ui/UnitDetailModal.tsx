@@ -2,10 +2,20 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import type { UnitDefinition, Rarity } from "@/data/types";
+import type { UnitDefinition, Rarity, UnitRole } from "@/data/types";
 import RarityFrame from "./RarityFrame";
 import { useLanguage } from "@/contexts/LanguageContext";
 import UnitAnimationPreview, { hasAnimation } from "./UnitAnimationPreview";
+
+// ロール別のアイコンと色
+const roleConfig: Record<UnitRole, { icon: string; color: string; bgColor: string }> = {
+    tank: { icon: "🛡️", color: "text-slate-600", bgColor: "from-slate-50 to-slate-100 border-slate-200" },
+    attacker: { icon: "⚔️", color: "text-red-600", bgColor: "from-red-50 to-red-100 border-red-200" },
+    ranger: { icon: "🏹", color: "text-green-600", bgColor: "from-green-50 to-green-100 border-green-200" },
+    speedster: { icon: "💨", color: "text-cyan-600", bgColor: "from-cyan-50 to-cyan-100 border-cyan-200" },
+    flying: { icon: "🪽", color: "text-sky-600", bgColor: "from-sky-50 to-sky-100 border-sky-200" },
+    balanced: { icon: "⚖️", color: "text-gray-600", bgColor: "from-gray-50 to-gray-100 border-gray-200" },
+};
 
 // レアリティ別デフォルト召喚クールダウン
 const DEFAULT_SPAWN_COOLDOWN: Record<Rarity, number> = {
@@ -109,9 +119,9 @@ export default function UnitDetailModal({
                                 🎬
                             </div>
                         )}
-                        {unit.isFlying && (
-                            <div className="bg-sky-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
-                                🪽
+                        {unit.role && (
+                            <div className="bg-white/30 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+                                {roleConfig[unit.role].icon}
                             </div>
                         )}
                         <button
@@ -240,6 +250,22 @@ export default function UnitDetailModal({
                                             {getSizeCategory(unit.scale ?? 1).emoji} {t(getSizeCategory(unit.scale ?? 1).key)}
                                         </div>
                                     </div>
+                                    {unit.role && (
+                                        <div className={`bg-gradient-to-br ${roleConfig[unit.role].bgColor} rounded-lg p-2.5 border shadow-sm`}>
+                                            <div className={`text-[10px] ${roleConfig[unit.role].color} mb-0.5`}>{t("role")}</div>
+                                            <div className={`text-base font-bold ${roleConfig[unit.role].color}`}>
+                                                {roleConfig[unit.role].icon} {t(`role_${unit.role}`)}
+                                            </div>
+                                        </div>
+                                    )}
+                                    {unit.attackType === 'area' && (
+                                        <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-lg p-2.5 border border-orange-200 shadow-sm">
+                                            <div className="text-[10px] text-orange-600 mb-0.5">{t("attack_type")}</div>
+                                            <div className="text-base font-bold text-orange-500">
+                                                💥 {t("attack_type_area")} ({unit.areaRadius}px)
+                                            </div>
+                                        </div>
+                                    )}
                                     {dropRate !== undefined ? (
                                         <div className="bg-gradient-to-br from-pink-50 to-purple-50 rounded-lg p-2.5 border border-pink-200 shadow-sm">
                                             <div className="text-[10px] text-pink-600 mb-0.5">{t("drop_rate")}</div>
@@ -250,11 +276,6 @@ export default function UnitDetailModal({
                                             }`}>
                                                 🎰 {dropRate < 0.1 ? dropRate.toFixed(3) : dropRate.toFixed(2)}%
                                             </div>
-                                        </div>
-                                    ) : unit.isFlying ? (
-                                        <div className="bg-gradient-to-br from-sky-50 to-blue-50 rounded-lg p-2.5 border border-sky-200 shadow-sm">
-                                            <div className="text-[10px] text-sky-600 mb-0.5">{t("flying")}</div>
-                                            <div className="text-base font-bold text-sky-500">🪽 Yes</div>
                                         </div>
                                     ) : (
                                         <div className="bg-white rounded-lg p-2.5 border border-gray-200 shadow-sm">

@@ -1,8 +1,18 @@
 "use client";
 
 import { memo } from "react";
-import type { UnitDefinition, Rarity } from "@/data/types";
+import type { UnitDefinition, Rarity, UnitRole } from "@/data/types";
 import RarityFrame from "./RarityFrame";
+
+// ロール別のアイコンと色
+const roleConfig: Record<UnitRole, { icon: string; color: string }> = {
+    tank: { icon: "🛡️", color: "bg-slate-500" },
+    attacker: { icon: "⚔️", color: "bg-red-500" },
+    ranger: { icon: "🏹", color: "bg-green-500" },
+    speedster: { icon: "💨", color: "bg-cyan-500" },
+    flying: { icon: "🪽", color: "bg-sky-500" },
+    balanced: { icon: "⚖️", color: "bg-gray-500" },
+};
 
 // レアリティ別のカード背景色
 const rarityCardColors: Record<Rarity, string> = {
@@ -114,10 +124,10 @@ const UnitCard = memo(function UnitCard({
                     </div>
                 )}
 
-                {/* 飛行バッジ */}
-                {unit.isFlying && (
-                    <div className="absolute top-8 -left-2 w-6 h-6 rounded-full bg-sky-500 text-white text-xs flex items-center justify-center z-10 shadow-lg">
-                        🪽
+                {/* ロールバッジ */}
+                {unit.role && (
+                    <div className={`absolute top-8 -left-2 w-6 h-6 rounded-full ${roleConfig[unit.role].color} text-white text-xs flex items-center justify-center z-10 shadow-lg`}>
+                        {roleConfig[unit.role].icon}
                     </div>
                 )}
 
