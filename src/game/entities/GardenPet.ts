@@ -17,6 +17,9 @@ export class GardenPet extends Phaser.GameObjects.Container {
 
     private targetFood: Phaser.GameObjects.Text | null = null;
 
+    // Forced motion mode
+    private forcedMotionMode: 'normal' | 'attack' = 'normal';
+
     constructor(
         scene: Phaser.Scene,
         x: number,
@@ -165,6 +168,9 @@ export class GardenPet extends Phaser.GameObjects.Container {
 
     private playAnim(key: string) {
         if (!this.hasAnimation || !(this.sprite instanceof Phaser.GameObjects.Sprite)) return;
+        // シーンが破棄されている場合は何もしない
+        if (!this.scene || !this.scene.anims) return;
+
         const spriteUnitId = this.definition.baseUnitId || this.definition.id;
         const animKey = `${spriteUnitId}_${key}`;
 
@@ -259,5 +265,57 @@ export class GardenPet extends Phaser.GameObjects.Container {
         const time = this.scene.time.now;
         this.sprite.y = -Math.abs(Math.sin(time * 0.008)) * 8;
         this.sprite.rotation = Math.sin(time * 0.01) * 0.05;
+    }
+
+    /**
+     * Set forced motion mode (called from GardenScene)
+     */
+    public setMotionMode(mode: 'normal' | 'attack') {
+        // シーンが破棄されている場合は何もしない
+        if (!this.scene || !this.scene.anims) return;
+
+        this.forcedMotionMode = mode;
+
+        if (mode === 'attack') {
+            // Play attack animation with looping
+            this.playAttackLoop();
+        } else {
+            // Return to normal idle/walk based on AI state
+            if (this.aiState === 'IDLE') {
+                this.playAnim('idle');
+            } else {
+                this.playAnim('walk');
+            }
+        }
+    }
+
+    private playAttackLoop() {
+        if (!this.hasAnimation || !(this.sprite instanceof Phaser.GameObjects.Sprite)) return;
+        // シーンが破棄されている場合は何もしない
+        if (!this.scene || !this.scene.time) return;
+
+        this.playAnim('attack');
+
+        // Remove any previous listeners to avoid duplicates
+        this.sprite.off(Phaser.Animations.Events.ANIMATION_COMPLETE);
+
+        // Loop attack animation
+        this.sprite.on(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
+            if (this.forcedMotionMode === 'attack' && this.hasAnimation && this.scene && this.scene.time) {
+                // Small delay before next attack for visual effect
+                this.scene.time.delayedCall(200, () => {
+                    if (this.forcedMotionMode === 'attack') {
+                        this.playAnim('attack');
+                    }
+                });
+            }
+        });
+    }
+
+    /**
+     * Check if this pet has animation support
+     */
+    public getHasAnimation(): boolean {
+        return this.hasAnimation;
     }
 }

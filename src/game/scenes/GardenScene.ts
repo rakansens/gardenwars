@@ -19,6 +19,7 @@ export class GardenScene extends Phaser.Scene {
     private currentBgId: GardenBackgroundId = 'garden_main';
     private bgImage?: Phaser.GameObjects.Image;
     private isSceneReady = false;
+    private currentMotionMode: 'normal' | 'attack' = 'normal';
 
     // Public for pets to access
     public foodGroup!: Phaser.GameObjects.Group;
@@ -95,10 +96,12 @@ export class GardenScene extends Phaser.Scene {
         this.handleFeed = this.handleFeed.bind(this);
         this.handleClean = this.handleClean.bind(this);
         this.handleBgChange = this.handleBgChange.bind(this);
+        this.handleMotionMode = this.handleMotionMode.bind(this);
 
         eventBus.on(GameEvents.GARDEN_FEED, this.handleFeed as any);
         eventBus.on(GameEvents.GARDEN_CLEAN, this.handleClean);
         eventBus.on(GameEvents.GARDEN_BG_CHANGE, this.handleBgChange as any);
+        eventBus.on(GameEvents.GARDEN_MOTION_MODE, this.handleMotionMode as any);
 
         this.isSceneReady = true;
         console.log('GardenScene: Listeners attached, scene ready');
@@ -109,6 +112,7 @@ export class GardenScene extends Phaser.Scene {
             eventBus.off(GameEvents.GARDEN_FEED, this.handleFeed as any);
             eventBus.off(GameEvents.GARDEN_CLEAN, this.handleClean);
             eventBus.off(GameEvents.GARDEN_BG_CHANGE, this.handleBgChange as any);
+            eventBus.off(GameEvents.GARDEN_MOTION_MODE, this.handleMotionMode as any);
         });
     }
 
@@ -146,6 +150,17 @@ export class GardenScene extends Phaser.Scene {
         const data = args as { bgId: GardenBackgroundId };
         if (data?.bgId && GARDEN_BACKGROUNDS.some(bg => bg.id === data.bgId)) {
             this.setBackground(data.bgId);
+        }
+    }
+
+    private handleMotionMode(args: unknown) {
+        if (!this.isSceneReady) return;
+
+        const data = args as { mode: 'normal' | 'attack' };
+        if (data?.mode && (data.mode === 'normal' || data.mode === 'attack')) {
+            this.currentMotionMode = data.mode;
+            // Notify all pets
+            this.units.forEach(pet => pet.setMotionMode(data.mode));
         }
     }
 

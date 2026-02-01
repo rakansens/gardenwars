@@ -66,4 +66,5 @@ export const GameEvents = {
     GARDEN_FEED: 'garden:feed',
     GARDEN_CLEAN: 'garden:clean',
     GARDEN_BG_CHANGE: 'garden:bg_change',
+    GARDEN_MOTION_MODE: 'garden:motion_mode',
 } as const;

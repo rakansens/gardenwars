@@ -14,6 +14,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { incrementGardenVisits } from "@/lib/supabase";
 import { GARDEN_BACKGROUNDS, type GardenBackgroundId } from "@/game/constants/gardenBackgrounds";
+import { hasAnimation } from "@/lib/sprites";
 
 const GARDEN_BG_KEY = "garden_background";
 
@@ -37,11 +38,13 @@ export default function GardenPage() {
     const [coinEffect, setCoinEffect] = useState(false);
     const [isBgSelectorOpen, setIsBgSelectorOpen] = useState(false);
     const [currentBgId, setCurrentBgId] = useState<GardenBackgroundId>('garden_main');
-    const [modalRarityFilter, setModalRarityFilter] = useState<Rarity | "ALL">("ALL");
+    const [modalRarityFilter, setModalRarityFilter] = useState<Rarity | "ALL" | "ANIMATED">("ALL");
+    const [motionMode, setMotionMode] = useState<'normal' | 'attack'>('normal');
 
     // レアリティタブ設定
-    const rarityTabs: { key: Rarity | "ALL"; label: string; color: string }[] = [
+    const rarityTabs: { key: Rarity | "ALL" | "ANIMATED"; label: string; color: string }[] = [
         { key: "ALL", label: "ALL", color: "bg-gradient-to-r from-gray-500 to-gray-600" },
+        { key: "ANIMATED", label: "🎬", color: "bg-gradient-to-r from-emerald-400 to-teal-500" },
         { key: "N", label: "N", color: "bg-gradient-to-r from-gray-400 to-gray-500" },
         { key: "R", label: "R", color: "bg-gradient-to-r from-blue-400 to-blue-600" },
         { key: "SR", label: "SR", color: "bg-gradient-to-r from-purple-400 to-purple-600" },
@@ -173,8 +176,15 @@ export default function GardenPage() {
         const ownedIds = Object.keys(unitInventory).filter(id => unitInventory[id] > 0);
         let candidates = allUnits.filter(u => ownedIds.includes(u.id));
 
-        // レアリティフィルター適用
-        if (modalRarityFilter !== "ALL") {
+        // フィルター適用
+        if (modalRarityFilter === "ANIMATED") {
+            // アニメーション有りキャラのみ
+            candidates = candidates.filter(u => {
+                const spriteId = u.baseUnitId || u.id;
+                return hasAnimation(spriteId);
+            });
+        } else if (modalRarityFilter !== "ALL") {
+            // レアリティフィルター
             candidates = candidates.filter(u => u.rarity === modalRarityFilter);
         }
 
@@ -206,6 +216,12 @@ export default function GardenPage() {
         showCoinEffect();
     };
 
+    const toggleMotionMode = () => {
+        const newMode = motionMode === 'normal' ? 'attack' : 'normal';
+        setMotionMode(newMode);
+        eventBus.emit(GameEvents.GARDEN_MOTION_MODE, { mode: newMode });
+    };
+
     if (!isLoaded || !ready) {
         return (
             <div className="min-h-screen bg-[#87CEEB] dark:bg-slate-900">
@@ -218,10 +234,15 @@ export default function GardenPage() {
     const ownedUnitIds = Object.keys(unitInventory).filter(id => unitInventory[id] > 0);
     const ownedUnits = allUnits.filter(u => ownedUnitIds.includes(u.id));
 
-    // モーダル用にレアリティでフィルター
+    // モーダル用にフィルター
     const filteredOwnedUnits = modalRarityFilter === "ALL"
         ? ownedUnits
-        : ownedUnits.filter(u => u.rarity === modalRarityFilter);
+        : modalRarityFilter === "ANIMATED"
+            ? ownedUnits.filter(u => {
+                const spriteId = u.baseUnitId || u.id;
+                return hasAnimation(spriteId);
+            })
+            : ownedUnits.filter(u => u.rarity === modalRarityFilter);
 
     return (
         <main className="min-h-screen bg-[#87CEEB] dark:bg-slate-900 relative overflow-hidden">
@@ -287,6 +308,20 @@ export default function GardenPage() {
                     <button onClick={handleClean} className="w-20 h-20 rounded-full bg-sky-500 hover:bg-sky-600 dark:bg-sky-600 dark:hover:bg-sky-500 border-4 border-white dark:border-slate-300 shadow-lg flex items-center justify-center text-4xl transition-transform hover:scale-110 active:scale-95" title="Clean Garden">
                         🧹
                     </button>
+
+                    <div className="ml-4 border-l-2 border-white/50 dark:border-slate-600 pl-4">
+                        <button
+                            onClick={toggleMotionMode}
+                            className={`w-16 h-16 rounded-full border-4 border-white dark:border-slate-300 shadow-lg flex items-center justify-center text-2xl transition-all hover:scale-110 active:scale-95 ${
+                                motionMode === 'attack'
+                                    ? 'bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-500 animate-pulse'
+                                    : 'bg-indigo-400 hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400'
+                            }`}
+                            title={motionMode === 'attack' ? '通常モードに戻す' : 'アタックモード'}
+                        >
+                            {motionMode === 'attack' ? '⚔️' : '😊'}
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -352,7 +387,12 @@ export default function GardenPage() {
                             {rarityTabs.map(tab => {
                                 const count = tab.key === "ALL"
                                     ? ownedUnits.length
-                                    : ownedUnits.filter(u => u.rarity === tab.key).length;
+                                    : tab.key === "ANIMATED"
+                                        ? ownedUnits.filter(u => {
+                                            const spriteId = u.baseUnitId || u.id;
+                                            return hasAnimation(spriteId);
+                                        }).length
+                                        : ownedUnits.filter(u => u.rarity === tab.key).length;
                                 return (
                                     <button
                                         key={tab.key}
