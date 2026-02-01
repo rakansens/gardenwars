@@ -256,6 +256,13 @@
   "gacha_count_100": "100x",
   "gacha_owned_units": "📦 Owned Units",
   "gacha_to_team": "📋 To Team",
+  "gacha_new_units": "Added Characters",
+  "gacha_date_today": "🆕 Today",
+  "gacha_date_yesterday": "Yesterday",
+  "gacha_date_days_ago": "{{days}} days ago",
+  "gacha_date_unknown": "Unknown date",
+  "gacha_units_added": "{{count}} units added",
+  "gacha_swipe_hint": "← Swipe to browse →",
 
   "fusion_tap_remove": "Tap to remove",
   "fusion_10_execute": "✨ Super Fusion Execute! ✨",
@@ -457,5 +464,29 @@
   "async_castle_hp": "Castle HP",
   "async_kills": "Kills",
   "async_duration": "Duration",
-  "back": "Back"
+  "back": "Back",
+
+  "garden_change_bg": "Change Background",
+  "garden_motion_normal": "Return to Normal Mode",
+  "garden_motion_attack": "Attack Mode",
+  "garden_select_bg": "🎨 Select Background",
+
+  "worldmap_progress": "🏆 Adventure Progress",
+  "worldmap_cleared": "{{cleared}} / {{total}} Cleared",
+
+  "connection_disconnected": "Disconnected",
+  "connection_connecting": "Connecting...",
+  "connection_connected": "Connected",
+  "connection_waiting": "Waiting for opponent...",
+  "connection_countdown": "Starting soon!",
+  "connection_playing": "In Battle",
+  "connection_finished": "Battle Finished",
+  "connection_error": "Error",
+  "connection_retry": "Retry",
+  "connection_server_sleep": "If the server is sleeping, it may take up to 30 seconds to start. Please wait...",
+
+  "battle_castle_destroyed": "Castle was destroyed",
+  "battle_opponent_disconnected": "Opponent disconnected",
+  "battle_waiting_for_opponent": "Waiting for opponent...",
+  "battle_waiting_message": "Please wait for another player to join"
 }

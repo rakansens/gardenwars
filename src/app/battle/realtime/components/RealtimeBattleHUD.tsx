@@ -1,6 +1,7 @@
 "use client";
 
 import type { PlayerState } from "@/lib/colyseus/types";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Props {
   myPlayer: PlayerState | null;
@@ -21,22 +22,24 @@ export function RealtimeBattleHUD({
   winReason,
   onLeave,
 }: Props) {
+  const { t } = useLanguage();
+
   if (phase === "waiting") {
     return (
       <div className="absolute inset-0 flex items-center justify-center bg-black/70 z-50">
         <div className="text-center p-8 bg-gray-800 rounded-xl">
           <div className="text-3xl mb-4 animate-bounce">⏳</div>
           <h2 className="text-2xl font-bold text-white mb-4">
-            対戦相手を待っています...
+            {t("battle_waiting_for_opponent")}
           </h2>
           <p className="text-gray-400 mb-6">
-            もう一人のプレイヤーが参加するまでお待ちください
+            {t("battle_waiting_message")}
           </p>
           <button
             onClick={onLeave}
             className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
           >
-            キャンセル
+            {t("cancel")}
           </button>
         </div>
       </div>
@@ -64,16 +67,16 @@ export function RealtimeBattleHUD({
             {isWinner ? "🎉" : "💀"}
           </div>
           <h2 className={`text-4xl font-bold mb-4 ${isWinner ? "text-yellow-400" : "text-red-500"}`}>
-            {isWinner ? "VICTORY!" : "DEFEAT"}
+            {isWinner ? t("victory") : t("defeat")}
           </h2>
           <p className="text-gray-300 mb-6">
-            {winReason === "castle_destroyed" ? "城が破壊されました" : "相手が切断しました"}
+            {winReason === "castle_destroyed" ? t("battle_castle_destroyed") : t("battle_opponent_disconnected")}
           </p>
           <button
             onClick={onLeave}
             className="btn btn-secondary text-xl"
           >
-            ← 戻る
+            ← {t("back")}
           </button>
         </div>
       </div>

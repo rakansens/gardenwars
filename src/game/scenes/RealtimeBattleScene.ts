@@ -3,6 +3,15 @@ import { NetworkManager } from '../systems/NetworkManager';
 import { getSpritePath, getSheetPath, ANIMATED_UNITS } from '@/lib/sprites';
 import type { UnitState as NetworkUnitState } from '@/lib/colyseus/types';
 import type { Rarity } from '@/data/types';
+
+// レアリティ別デフォルトクールダウン時間（ミリ秒）
+const COOLDOWN_BY_RARITY: Record<Rarity, number> = {
+  N: 2000,
+  R: 4000,
+  SR: 8000,
+  SSR: 12000,
+  UR: 15000,
+};
 import { allies } from '@/data/units';
 
 // ============================================
@@ -16,6 +25,11 @@ interface UnitDefinition {
   rarity: Rarity;
   cost: number;
   scale?: number;
+  spawnCooldownMs?: number;
+}
+
+function getSpawnCooldown(unit: UnitDefinition): number {
+  return unit.spawnCooldownMs ?? COOLDOWN_BY_RARITY[unit.rarity];
 }
 
 // シーン上のユニットエンティティ
@@ -72,6 +86,22 @@ export class RealtimeBattleScene extends Phaser.Scene {
   private costUpBtnZone!: Phaser.GameObjects.Zone;
   private costUpPulse?: Phaser.Tweens.Tween;
   private bgm?: Phaser.Sound.BaseSound;
+  private summonButtons: {
+    unitId: string;
+    cost: number;
+    rarity: Rarity;
+    bg: Phaser.GameObjects.Rectangle;
+    icon?: Phaser.GameObjects.Image | Phaser.GameObjects.Sprite;
+    nameText: Phaser.GameObjects.Text;
+    costTag: Phaser.GameObjects.Rectangle;
+    costText: Phaser.GameObjects.Text;
+    originalColor: number;
+    cooldownOverlay: Phaser.GameObjects.Rectangle;
+    cooldownText: Phaser.GameObjects.Text;
+    cooldownDuration: number;
+    buttonHeight: number;
+  }[] = [];
+  private unitCooldowns: Map<string, number> = new Map();
   private pendingAtlasLoads: Map<string, string> = new Map();
   private atlasLoadInFlight = false;
 
@@ -98,7 +128,8 @@ export class RealtimeBattleScene extends Phaser.Scene {
         name: unit.name,
         rarity: unit.rarity,
         cost: unit.cost,
-        scale: unit.scale
+        scale: unit.scale,
+        spawnCooldownMs: unit.spawnCooldownMs,
       });
     });
   }
@@ -115,6 +146,7 @@ export class RealtimeBattleScene extends Phaser.Scene {
 
     // 前回のユニットをクリア
     this.units.clear();
+    this.unitCooldowns.clear();
 
     console.log("[RealtimeBattleScene] init with deck:", this.deck);
     console.log("[RealtimeBattleScene] networkManager:", this.networkManager ? 'OK' : 'MISSING!');
@@ -181,6 +213,8 @@ export class RealtimeBattleScene extends Phaser.Scene {
 
     // NetworkManagerイベントリスナー
     this.setupNetworkListeners();
+    // 既に進行中のフェーズを反映（BGM/表示の取りこぼし防止）
+    this.handlePhaseChange(this.networkManager.getPhase());
 
     // カメラドラッグ
     this.setupCameraDrag();
@@ -536,6 +570,7 @@ export class RealtimeBattleScene extends Phaser.Scene {
     if (this.summonUi) {
       this.summonUi.destroy(true);
     }
+    this.summonButtons = [];
     const summonUi = this.add.container(0, 0);
     this.summonUi = summonUi;
 
@@ -555,6 +590,7 @@ export class RealtimeBattleScene extends Phaser.Scene {
     this.deck.forEach((unitId, index) => {
       const x = startX + index * (buttonWidth + gap);
       const def = this.unitDefinitions.get(unitId);
+      if (!def) return;
       const uiItems: Phaser.GameObjects.GameObject[] = [];
 
       // ボタン背景
@@ -566,8 +602,9 @@ export class RealtimeBattleScene extends Phaser.Scene {
       uiItems.push(bg);
 
       // ユニット画像
+      let unitImg: Phaser.GameObjects.Image | Phaser.GameObjects.Sprite | undefined;
       if (this.textures.exists(unitId)) {
-        const unitImg = this.add.image(x, buttonY - 15, unitId);
+        unitImg = this.add.image(x, buttonY - 15, unitId);
         unitImg.setScrollFactor(0);
         unitImg.setDepth(101);
         // サイズ調整
@@ -588,11 +625,11 @@ export class RealtimeBattleScene extends Phaser.Scene {
       uiItems.push(nameText);
 
       // コスト表示
-      const costBg = this.add.rectangle(x, buttonY + 43, 40, 16, 0xffcc00);
-      costBg.setScrollFactor(0);
-      costBg.setDepth(101);
-      costBg.setStrokeStyle(1, 0x3b2a1a);
-      uiItems.push(costBg);
+      const costTag = this.add.rectangle(x, buttonY + 43, 40, 16, 0xffcc00);
+      costTag.setScrollFactor(0);
+      costTag.setDepth(101);
+      costTag.setStrokeStyle(1, 0x3b2a1a);
+      uiItems.push(costTag);
 
       const costText = this.add.text(x, buttonY + 43, `¥${def?.cost || 0}`, {
         fontSize: '10px',
@@ -604,15 +641,55 @@ export class RealtimeBattleScene extends Phaser.Scene {
       costText.setDepth(102);
       uiItems.push(costText);
 
+      // クールダウンオーバーレイ
+      const cooldownOverlay = this.add.rectangle(x, buttonY - buttonHeight / 2 + 2, buttonWidth - 4, buttonHeight - 4, 0x000000, 0.75);
+      cooldownOverlay.setOrigin(0.5, 0);
+      cooldownOverlay.setScrollFactor(0);
+      cooldownOverlay.setDepth(105);
+      cooldownOverlay.setVisible(false);
+      uiItems.push(cooldownOverlay);
+
+      const cooldownText = this.add.text(x, buttonY - 10, '', {
+        fontSize: '18px',
+        color: '#ffffff',
+        fontStyle: 'bold',
+        stroke: '#000000',
+        strokeThickness: 3,
+      });
+      cooldownText.setOrigin(0.5, 0.5);
+      cooldownText.setScrollFactor(0);
+      cooldownText.setDepth(106);
+      cooldownText.setVisible(false);
+      uiItems.push(cooldownText);
+
+      this.summonButtons.push({
+        unitId,
+        cost: def.cost,
+        rarity: def.rarity,
+        bg,
+        icon: unitImg,
+        nameText,
+        costTag,
+        costText,
+        originalColor: 0xf8e7b6,
+        cooldownOverlay,
+        cooldownText,
+        cooldownDuration: getSpawnCooldown(def),
+        buttonHeight,
+      });
+
       // クリックで召喚
       bg.on('pointerdown', () => {
         if (!this.networkManager.isPlaying()) return;
         const myPlayer = this.networkManager.getMyPlayer();
-        const cost = def?.cost ?? 0;
-        if (myPlayer && myPlayer.cost >= cost) {
-          this.playSfx('sfx_unit_spawn', 0.3);
-        }
+        if (!myPlayer) return;
+        const remainingCooldown = this.unitCooldowns.get(unitId) ?? 0;
+        if (remainingCooldown > 0) return;
+        if (myPlayer.cost < def.cost) return;
+        this.unitCooldowns.set(unitId, getSpawnCooldown(def));
+        this.playSfx('sfx_unit_spawn', 0.3);
         this.onSummon(unitId);
+        this.updateSummonButtonsUI();
       });
 
       bg.on('pointerover', () => bg.setFillStyle(0xfff3cf));
@@ -620,6 +697,8 @@ export class RealtimeBattleScene extends Phaser.Scene {
 
       summonUi.add(uiItems);
     });
+
+    this.updateSummonButtonsUI();
   }
 
   private createUpgradeButton() {
@@ -824,6 +903,65 @@ export class RealtimeBattleScene extends Phaser.Scene {
     }
   }
 
+  private updateCooldowns(delta: number) {
+    if (!this.networkManager.isPlaying()) return;
+    if (this.unitCooldowns.size === 0) return;
+    for (const [unitId, cooldown] of this.unitCooldowns.entries()) {
+      if (cooldown > 0) {
+        this.unitCooldowns.set(unitId, Math.max(0, cooldown - delta));
+      }
+    }
+  }
+
+  private updateSummonButtonsUI() {
+    const myPlayer = this.networkManager.getMyPlayer();
+    const currentCost = myPlayer ? myPlayer.cost : 0;
+    const now = this.time.now;
+
+    this.summonButtons.forEach(btn => {
+      const remainingCooldown = this.unitCooldowns.get(btn.unitId) ?? 0;
+      const isOnCooldown = remainingCooldown > 0;
+      const canAfford = currentCost >= btn.cost;
+      const canSummon = canAfford && !isOnCooldown;
+
+      if (isOnCooldown && btn.cooldownDuration > 0) {
+        const remainingSec = Math.ceil(remainingCooldown / 1000);
+        const progress = remainingCooldown / btn.cooldownDuration;
+        const maxHeight = btn.buttonHeight - 4;
+        btn.cooldownOverlay.setVisible(true);
+        btn.cooldownOverlay.height = maxHeight * progress;
+        const alpha = 0.3 + (progress * 0.45);
+        btn.cooldownOverlay.setAlpha(alpha);
+        btn.cooldownText.setVisible(true);
+        btn.cooldownText.setText(`${remainingSec}s`);
+        if (remainingSec <= 1) {
+          btn.cooldownText.setAlpha(now % 200 < 100 ? 1 : 0.5);
+        } else {
+          btn.cooldownText.setAlpha(1);
+        }
+      } else {
+        btn.cooldownOverlay.setVisible(false);
+        btn.cooldownText.setVisible(false);
+      }
+
+      if (canSummon) {
+        btn.bg.setFillStyle(btn.originalColor);
+        btn.bg.setAlpha(1);
+        if (btn.icon) {
+          btn.icon.clearTint();
+          btn.icon.setAlpha(1);
+        }
+      } else {
+        btn.bg.setFillStyle(0x888888);
+        btn.bg.setAlpha(0.8);
+        if (btn.icon) {
+          btn.icon.setTint(0x555555);
+          btn.icon.setAlpha(0.7);
+        }
+      }
+    });
+  }
+
   private createUnit(unitState: NetworkUnitState) {
     if (this.units.has(unitState.instanceId)) return;
 
@@ -1002,6 +1140,17 @@ export class RealtimeBattleScene extends Phaser.Scene {
       const damage = prevHp - nextHp;
       if (damage > 0) {
         this.playSfx('sfx_attack_hit', 0.25);
+        this.tweens.add({
+          targets: sprite,
+          scaleX: sprite.scaleX * 0.9,
+          scaleY: sprite.scaleY * 0.9,
+          duration: 100,
+          yoyo: true,
+        });
+        sprite.setTint(0xff0000);
+        this.time.delayedCall(100, () => {
+          sprite.clearTint();
+        });
         this.showDamageNumber(castle.x, castle.y - sprite.displayHeight - 50, damage);
       }
     }
@@ -1055,6 +1204,14 @@ export class RealtimeBattleScene extends Phaser.Scene {
 
   private startBattleBgm() {
     if (this.bgm) return;
+    if (this.sound.locked) {
+      this.sound.once(Phaser.Sound.Events.UNLOCKED, () => {
+        if (this.networkManager.isPlaying()) {
+          this.startBattleBgm();
+        }
+      });
+      return;
+    }
     const bgmKey = Math.random() < 0.5 ? 'battle_bgm_1' : 'battle_bgm_2';
     if (this.cache.audio.exists(bgmKey)) {
       this.bgm = this.sound.add(bgmKey, { loop: true, volume: 0.3 });
@@ -1122,6 +1279,10 @@ export class RealtimeBattleScene extends Phaser.Scene {
 
     // プレイヤーUI更新
     this.updatePlayerUI();
+
+    // クールダウン更新 & ボタンUI更新
+    this.updateCooldowns(delta);
+    this.updateSummonButtonsUI();
   }
 
   shutdown() {

@@ -190,9 +190,9 @@ export default function WorldMapPage() {
             {/* プログレスバー */}
             <div className="card mb-4 p-4">
                 <div className="flex justify-between items-center mb-2">
-                    <span className="font-bold text-amber-900">🏆 冒険の進行度</span>
+                    <span className="font-bold text-amber-900">{t("worldmap_progress")}</span>
                     <span className="font-extrabold text-amber-600">
-                        {clearedCount} / {totalStages} クリア
+                        {t("worldmap_cleared").replace("{{cleared}}", String(clearedCount)).replace("{{total}}", String(totalStages))}
                     </span>
                 </div>
                 <div className="h-3 bg-amber-200 rounded-full overflow-hidden">

@@ -256,6 +256,13 @@
   "gacha_count_100": "100回",
   "gacha_owned_units": "📦 所持ユニット",
   "gacha_to_team": "📋 編成へ",
+  "gacha_new_units": "追加キャラクター",
+  "gacha_date_today": "🆕 今日",
+  "gacha_date_yesterday": "昨日",
+  "gacha_date_days_ago": "{{days}}日前",
+  "gacha_date_unknown": "日付不明",
+  "gacha_units_added": "{{count}}体追加",
+  "gacha_swipe_hint": "← スワイプで確認 →",
 
   "fusion_tap_remove": "タップで外す",
   "fusion_10_execute": "✨ 超合成実行！ ✨",
@@ -460,5 +467,29 @@
   "async_castle_hp": "城HP",
   "async_kills": "撃破数",
   "async_duration": "時間",
-  "back": "戻る"
+  "back": "戻る",
+
+  "garden_change_bg": "背景を変更",
+  "garden_motion_normal": "通常モードに戻す",
+  "garden_motion_attack": "アタックモード",
+  "garden_select_bg": "🎨 背景を選択",
+
+  "worldmap_progress": "🏆 冒険の進行度",
+  "worldmap_cleared": "{{cleared}} / {{total}} クリア",
+
+  "connection_disconnected": "未接続",
+  "connection_connecting": "接続中...",
+  "connection_connected": "接続完了",
+  "connection_waiting": "対戦相手を待っています...",
+  "connection_countdown": "まもなく開始！",
+  "connection_playing": "対戦中",
+  "connection_finished": "対戦終了",
+  "connection_error": "エラー",
+  "connection_retry": "再接続",
+  "connection_server_sleep": "サーバーがスリープ状態の場合、起動に最大30秒かかることがあります。しばらくお待ちください...",
+
+  "battle_castle_destroyed": "城が破壊されました",
+  "battle_opponent_disconnected": "相手が切断しました",
+  "battle_waiting_for_opponent": "対戦相手を待っています...",
+  "battle_waiting_message": "もう一人のプレイヤーが参加するまでお待ちください"
 }

@@ -268,7 +268,7 @@ export default function GardenPage() {
                     <button
                         onClick={() => setIsBgSelectorOpen(true)}
                         className="btn bg-green-500/80 hover:bg-green-600 dark:bg-green-600/80 dark:hover:bg-green-500 text-white border-green-400 dark:border-green-500 font-bold shadow-md"
-                        title="背景を変更"
+                        title={t("garden_change_bg")}
                     >
                         🎨
                     </button>
@@ -317,7 +317,7 @@ export default function GardenPage() {
                                     ? 'bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-500 animate-pulse'
                                     : 'bg-indigo-400 hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400'
                             }`}
-                            title={motionMode === 'attack' ? '通常モードに戻す' : 'アタックモード'}
+                            title={motionMode === 'attack' ? t("garden_motion_normal") : t("garden_motion_attack")}
                         >
                             {motionMode === 'attack' ? '⚔️' : '😊'}
                         </button>
@@ -329,7 +329,7 @@ export default function GardenPage() {
             {isBgSelectorOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 animate-in fade-in zoom-in duration-200">
                     <div className="bg-slate-900 border-4 border-green-500 rounded-3xl p-6 w-full max-w-2xl shadow-2xl">
-                        <h2 className="text-2xl font-bold text-white mb-4 text-center">🎨 背景を選択</h2>
+                        <h2 className="text-2xl font-bold text-white mb-4 text-center">{t("garden_select_bg")}</h2>
 
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
                             {GARDEN_BACKGROUNDS.map(bg => (

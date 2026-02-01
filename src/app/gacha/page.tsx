@@ -325,7 +325,7 @@ export default function GachaPage() {
 
                     {urViewMode === "carousel" ? (
                         <>
-                            <p className="text-pink-300/50 text-center text-xs mb-3">← スワイプで確認 →</p>
+                            <p className="text-pink-300/50 text-center text-xs mb-3">{t("gacha_swipe_hint")}</p>
                             <div className="overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide">
                                 <div className="flex gap-4" style={{ width: 'max-content' }}>
                                     {gachaPool
@@ -505,7 +505,7 @@ export default function GachaPage() {
                                 📅 UPDATE
                             </span>
                             <h3 className="text-xl font-bold text-green-800 dark:text-green-300">
-                                {t("new_units") || "追加キャラクター"} ({newUnits.length})
+                                {t("gacha_new_units")} ({newUnits.length})
                             </h3>
                             <div className="flex-1 flex justify-end">
                                 <div className="flex gap-1 bg-green-700/50 rounded-lg p-1">
@@ -558,13 +558,13 @@ export default function GachaPage() {
                                 if (filteredUnits.length === 0) return null;
 
                                 // 日付フォーマット
-                                const dateLabel = date === "unknown" ? "日付不明" : (() => {
+                                const dateLabel = date === "unknown" ? t("gacha_date_unknown") : (() => {
                                     const d = new Date(date);
                                     const now = new Date();
                                     const diffDays = Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24));
-                                    if (diffDays === 0) return "🆕 今日";
-                                    if (diffDays === 1) return "昨日";
-                                    if (diffDays <= 7) return `${diffDays}日前`;
+                                    if (diffDays === 0) return t("gacha_date_today");
+                                    if (diffDays === 1) return t("gacha_date_yesterday");
+                                    if (diffDays <= 7) return t("gacha_date_days_ago").replace("{{days}}", String(diffDays));
                                     return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
                                 })();
 
@@ -583,7 +583,7 @@ export default function GachaPage() {
                                                 {dateLabel}
                                             </span>
                                             <span className="text-sm text-green-600 dark:text-green-400">
-                                                {filteredUnits.length}体追加
+                                                {t("gacha_units_added").replace("{{count}}", String(filteredUnits.length))}
                                             </span>
                                         </div>
 
