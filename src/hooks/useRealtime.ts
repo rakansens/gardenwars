@@ -30,6 +30,8 @@ export interface RealtimeState {
   winnerId: string | null;
   winReason: string | null;
   isWinner: boolean | null;
+  gameSpeed: number;
+  speedVotes: Record<string, boolean>;
   // ロビー関連
   lobbyRooms: LobbyRoom[];
   isLoadingRooms: boolean;
@@ -46,6 +48,7 @@ export interface RealtimeActions {
   sendReady: () => void;
   sendSummon: (unitId: string) => void;
   sendUpgradeCost: () => void;
+  sendSpeedVote: (enabled: boolean) => void;
 }
 
 export function useRealtime(): [RealtimeState, RealtimeActions] {
@@ -61,6 +64,8 @@ export function useRealtime(): [RealtimeState, RealtimeActions] {
   const [units, setUnits] = useState<UnitState[]>([]);
   const [winnerId, setWinnerId] = useState<string | null>(null);
   const [winReason, setWinReason] = useState<string | null>(null);
+  const [gameSpeed, setGameSpeed] = useState<number>(1);
+  const [speedVotes, setSpeedVotes] = useState<Record<string, boolean>>({});
   // 部屋ID
   const [roomId, setRoomId] = useState<string | null>(null);
   // ロビー関連
@@ -102,6 +107,8 @@ export function useRealtime(): [RealtimeState, RealtimeActions] {
     setUnits([]);
     setWinnerId(null);
     setWinReason(null);
+    setGameSpeed(1);
+    setSpeedVotes({});
   }, []);
 
   const buildPlayerState = useCallback((p: any, existing?: PlayerState): PlayerState => {
@@ -340,6 +347,12 @@ export function useRealtime(): [RealtimeState, RealtimeActions] {
             setConnectionStatus(message.phase as ConnectionStatus);
           }
         }
+        if (typeof message?.gameSpeed === 'number') {
+          setGameSpeed(message.gameSpeed);
+        }
+        if (message?.speedVotes && typeof message.speedVotes === 'object') {
+          setSpeedVotes(message.speedVotes);
+        }
         if (message.mySide === 'player1' || message.mySide === 'player2') {
           commitMySide(message.mySide, true);
         }
@@ -426,6 +439,16 @@ export function useRealtime(): [RealtimeState, RealtimeActions] {
         }
       });
 
+      // 速度更新メッセージ（2x合意）
+      room.onMessage("speed_update", (message: any) => {
+        if (typeof message?.gameSpeed === 'number') {
+          setGameSpeed(message.gameSpeed);
+        }
+        if (message?.speedVotes && typeof message.speedVotes === 'object') {
+          setSpeedVotes(message.speedVotes);
+        }
+      });
+
       // エラーメッセージ
       room.onMessage("error", (message: ServerErrorMessage) => {
         // 空のエラーオブジェクトは無視
@@ -482,6 +505,10 @@ export function useRealtime(): [RealtimeState, RealtimeActions] {
     colyseusClient.sendUpgradeCost();
   }, []);
 
+  const sendSpeedVote = useCallback((enabled: boolean) => {
+    colyseusClient.sendSpeedVote(enabled);
+  }, []);
+
   // クリーンアップ
   useEffect(() => {
     return () => {
@@ -518,6 +545,12 @@ export function useRealtime(): [RealtimeState, RealtimeActions] {
         if (['waiting', 'countdown', 'playing', 'finished'].includes(message.phase)) {
           setConnectionStatus(message.phase as ConnectionStatus);
         }
+      }
+      if (typeof message?.gameSpeed === 'number') {
+        setGameSpeed(message.gameSpeed);
+      }
+      if (message?.speedVotes && typeof message.speedVotes === 'object') {
+        setSpeedVotes(message.speedVotes);
       }
       if (message.mySide === 'player1' || message.mySide === 'player2') {
         commitMySide(message.mySide, true);
@@ -581,6 +614,15 @@ export function useRealtime(): [RealtimeState, RealtimeActions] {
           setPlayersFromList(message.players, sessionId);
         }
         applyStageLength(message.stageLength);
+      }
+    });
+
+    room.onMessage("speed_update", (message: any) => {
+      if (typeof message?.gameSpeed === 'number') {
+        setGameSpeed(message.gameSpeed);
+      }
+      if (message?.speedVotes && typeof message.speedVotes === 'object') {
+        setSpeedVotes(message.speedVotes);
       }
     });
 
@@ -660,6 +702,8 @@ export function useRealtime(): [RealtimeState, RealtimeActions] {
     winnerId,
     winReason,
     isWinner,
+    gameSpeed,
+    speedVotes,
     lobbyRooms,
     isLoadingRooms
   };
@@ -672,8 +716,9 @@ export function useRealtime(): [RealtimeState, RealtimeActions] {
     disconnect,
     sendReady,
     sendSummon,
-    sendUpgradeCost
-  }), [fetchRooms, createRoom, joinRoom, connect, disconnect, sendReady, sendSummon, sendUpgradeCost]);
+    sendUpgradeCost,
+    sendSpeedVote
+  }), [fetchRooms, createRoom, joinRoom, connect, disconnect, sendReady, sendSummon, sendUpgradeCost, sendSpeedVote]);
 
   return [state, actions];
 }

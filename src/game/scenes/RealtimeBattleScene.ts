@@ -46,6 +46,8 @@ interface RealtimeUnit {
   targetX: number;
   lastHp: number;
   lastState?: NetworkUnitState['state'];
+  baseScale: number;
+  stateTween?: Phaser.Tweens.Tween;
   hitstunTimer?: Phaser.Time.TimerEvent;
   deathTimer?: Phaser.Time.TimerEvent;
   isRemoving?: boolean;
@@ -56,6 +58,7 @@ export interface RealtimeBattleSceneData {
   deck: string[];
   onSummon: (unitId: string) => void;
   onUpgradeCost: () => void;
+  onSpeedVote: (enabled: boolean) => void;
 }
 
 export class RealtimeBattleScene extends Phaser.Scene {
@@ -63,6 +66,7 @@ export class RealtimeBattleScene extends Phaser.Scene {
   private deck: string[] = [];
   private onSummon!: (unitId: string) => void;
   private onUpgradeCost!: () => void;
+  private onSpeedVote!: (enabled: boolean) => void;
 
   // エンティティ
   private units: Map<string, RealtimeUnit> = new Map();
@@ -80,12 +84,19 @@ export class RealtimeBattleScene extends Phaser.Scene {
   private costBarFill!: Phaser.GameObjects.Rectangle;
   private phaseText!: Phaser.GameObjects.Text;
   private countdownText!: Phaser.GameObjects.Text;
+  private castleLevelText!: Phaser.GameObjects.Text;
+  private currentCastleLevel?: number;
   private costUpBtnBg!: Phaser.GameObjects.Arc;
   private costUpBtnText!: Phaser.GameObjects.Text;
   private costUpBtnCostText!: Phaser.GameObjects.Text;
   private costUpBtnZone!: Phaser.GameObjects.Zone;
   private costUpPulse?: Phaser.Tweens.Tween;
   private bgm?: Phaser.Sound.BaseSound;
+  private lastBgmAttemptAt = 0;
+  private speedBtn?: Phaser.GameObjects.Container;
+  private speedBtnBg?: Phaser.GameObjects.Rectangle;
+  private speedBtnText?: Phaser.GameObjects.Text;
+  private localSpeedVote?: boolean;
   private summonButtons: {
     unitId: string;
     cost: number;
@@ -140,6 +151,7 @@ export class RealtimeBattleScene extends Phaser.Scene {
     this.deckKey = this.deck.join('|');
     this.onSummon = data.onSummon || (() => {});
     this.onUpgradeCost = data.onUpgradeCost || (() => {});
+    this.onSpeedVote = data.onSpeedVote || (() => {});
 
     // サーバーのステージ長を反映
     this.stageLength = this.networkManager?.getState().stageLength ?? 1200;
@@ -193,6 +205,9 @@ export class RealtimeBattleScene extends Phaser.Scene {
 
   create() {
     const { width, height } = this.scale;
+
+    // タブ切り替えでのBGM停止を防ぐ
+    this.sound.pauseOnBlur = false;
 
     // 背景
     this.add.rectangle(width / 2, height / 2, width, height, 0x87ceeb);
@@ -265,6 +280,7 @@ export class RealtimeBattleScene extends Phaser.Scene {
     const targetHeight = 120;
     const customScale = def?.scale ?? 1.0;
     const baseScale = (targetHeight / sprite.height) * customScale;
+    unit.baseScale = baseScale;
     sprite.setScale(baseScale);
     sprite.setOrigin(0.5, 1);
 
@@ -359,6 +375,24 @@ export class RealtimeBattleScene extends Phaser.Scene {
     }
   }
 
+  private createUnitIcon(x: number, y: number, unitId: string) {
+    const atlasKey = `${unitId}_atlas`;
+    const idleFrame = `${unitId}_idle.png`;
+    if (this.textures.exists(atlasKey)) {
+      const atlasTexture = this.textures.get(atlasKey);
+      if (atlasTexture && atlasTexture.has(idleFrame)) {
+        return this.add.image(x, y, atlasKey, idleFrame);
+      }
+    }
+    if (this.textures.exists(unitId)) {
+      return this.add.image(x, y, unitId);
+    }
+    if (this.textures.exists('cat_warrior')) {
+      return this.add.image(x, y, 'cat_warrior');
+    }
+    return this.add.image(x, y, '__DEFAULT');
+  }
+
   private playUnitAnimationForState(unit: RealtimeUnit, state: NetworkUnitState['state']) {
     if (!(unit.sprite instanceof Phaser.GameObjects.Sprite)) return;
     const unitId = unit.definitionId;
@@ -408,11 +442,48 @@ export class RealtimeBattleScene extends Phaser.Scene {
     }
   }
 
-  private applyStateVisuals(unit: RealtimeUnit, state: NetworkUnitState['state']) {
+  private applyStateVisuals(
+    unit: RealtimeUnit,
+    state: NetworkUnitState['state'],
+    prevState?: NetworkUnitState['state']
+  ) {
     if (state === 'DIE') {
       unit.sprite.setAlpha(0.3);
     } else {
       unit.sprite.setAlpha(1);
+    }
+
+    if (prevState !== state) {
+      if (state === 'SPAWN') {
+        if (unit.stateTween) {
+          unit.stateTween.stop();
+        }
+        unit.sprite.setScale(0);
+        unit.stateTween = this.tweens.add({
+          targets: unit.sprite,
+          scaleX: unit.baseScale,
+          scaleY: unit.baseScale,
+          duration: 200,
+          ease: 'Back.easeOut',
+        });
+      } else if (state === 'ATTACK_WINDUP') {
+        if (unit.stateTween) {
+          unit.stateTween.stop();
+        }
+        unit.stateTween = this.tweens.add({
+          targets: unit.sprite,
+          scaleX: unit.baseScale * 1.1,
+          scaleY: unit.baseScale * 1.1,
+          duration: 100,
+        });
+      } else if (state === 'ATTACK_COOLDOWN') {
+        if (unit.stateTween) {
+          unit.stateTween.stop();
+        }
+        unit.sprite.setScale(unit.baseScale);
+      } else {
+        unit.sprite.setScale(unit.baseScale);
+      }
     }
 
     if (state === 'HITSTUN') {
@@ -498,10 +569,12 @@ export class RealtimeBattleScene extends Phaser.Scene {
   private createUI() {
     const { width, height } = this.scale;
 
-    // コストパネル
+    // コストパネル（通常バトルと同サイズ）
     const panelX = 18;
     const panelY = 40;
-    const panel = this.add.rectangle(panelX, panelY, 200, 50, 0xf8e7b6);
+    const panelW = 260;
+    const panelH = 54;
+    const panel = this.add.rectangle(panelX, panelY, panelW, panelH, 0xf8e7b6);
     panel.setOrigin(0, 0);
     panel.setStrokeStyle(3, 0x3b2a1a);
     panel.setScrollFactor(0);
@@ -512,6 +585,15 @@ export class RealtimeBattleScene extends Phaser.Scene {
       color: '#4b2a10',
       fontStyle: 'bold',
     }).setScrollFactor(0).setDepth(101);
+
+    // 城レベル表示
+    this.castleLevelText = this.add.text(panelX + 70, panelY + 6, '🏰 Lv.1', {
+      fontSize: '12px',
+      color: '#b8860b',
+      fontStyle: 'bold',
+    });
+    this.castleLevelText.setScrollFactor(0);
+    this.castleLevelText.setDepth(101);
 
     // コストバー
     const costBarBg = this.add.rectangle(panelX + 12, panelY + 30, 130, 14, 0xd7bf8a);
@@ -562,8 +644,11 @@ export class RealtimeBattleScene extends Phaser.Scene {
     // 召喚ボタン
     this.createSummonButtons();
 
-    // コストアップグレードボタン
-    this.createUpgradeButton();
+    // コストアップグレードボタン（通常バトル位置）
+    this.createUpgradeButton(panelX + 35, panelY + 100);
+
+    // 速度切り替えボタン（2x合意）
+    this.createSpeedToggle();
   }
 
   private createSummonButtons() {
@@ -578,14 +663,8 @@ export class RealtimeBattleScene extends Phaser.Scene {
     const buttonY = height - 85;
     const buttonWidth = 90;
     const buttonHeight = 100;
-    const startX = 100;
+    const startX = 225;
     const gap = 8;
-
-    // 下部バー
-    const bar = this.add.rectangle(this.scale.width / 2, height - 75, this.scale.width, 150, 0x6b4a2b, 0.95);
-    bar.setScrollFactor(0);
-    bar.setDepth(90);
-    summonUi.add(bar);
 
     this.deck.forEach((unitId, index) => {
       const x = startX + index * (buttonWidth + gap);
@@ -601,22 +680,24 @@ export class RealtimeBattleScene extends Phaser.Scene {
       bg.setStrokeStyle(3, 0x3b2a1a);
       uiItems.push(bg);
 
-      // ユニット画像
+      // ユニット画像（通常バトルと同じ処理）
       let unitImg: Phaser.GameObjects.Image | Phaser.GameObjects.Sprite | undefined;
-      if (this.textures.exists(unitId)) {
-        unitImg = this.add.image(x, buttonY - 15, unitId);
+      unitImg = this.createUnitIcon(x, buttonY - 22, unitId);
+      if (unitImg) {
+        const iconHeight = unitImg.height > 0 ? unitImg.height : 45;
+        const iconScale = 45 / iconHeight;
+        unitImg.setScale(iconScale);
         unitImg.setScrollFactor(0);
         unitImg.setDepth(101);
-        // サイズ調整
-        const scale = Math.min(60 / unitImg.width, 60 / unitImg.height);
-        unitImg.setScale(scale * (def?.scale || 1));
         uiItems.push(unitImg);
       }
 
       // ユニット名
-      const nameText = this.add.text(x, buttonY + 28, def?.name?.slice(0, 8) || unitId.slice(0, 8), {
-        fontSize: '10px',
+      const nameText = this.add.text(x, buttonY + 16, def?.name?.slice(0, 5) || unitId.slice(0, 5), {
+        fontSize: '13px',
         color: '#3b2a1a',
+        stroke: '#ffffff',
+        strokeThickness: 1,
         fontStyle: 'bold',
       });
       nameText.setOrigin(0.5, 0.5);
@@ -625,15 +706,17 @@ export class RealtimeBattleScene extends Phaser.Scene {
       uiItems.push(nameText);
 
       // コスト表示
-      const costTag = this.add.rectangle(x, buttonY + 43, 40, 16, 0xffcc00);
+      const costTag = this.add.rectangle(x, buttonY + 38, 54, 20, 0xffd45a);
       costTag.setScrollFactor(0);
       costTag.setDepth(101);
-      costTag.setStrokeStyle(1, 0x3b2a1a);
+      costTag.setStrokeStyle(2, 0x3b2a1a);
       uiItems.push(costTag);
 
-      const costText = this.add.text(x, buttonY + 43, `¥${def?.cost || 0}`, {
-        fontSize: '10px',
+      const costText = this.add.text(x, buttonY + 38, `¥${def?.cost || 0}`, {
+        fontSize: '13px',
         color: '#3b2a1a',
+        stroke: '#ffffff',
+        strokeThickness: 1,
         fontStyle: 'bold',
       });
       costText.setOrigin(0.5, 0.5);
@@ -650,11 +733,11 @@ export class RealtimeBattleScene extends Phaser.Scene {
       uiItems.push(cooldownOverlay);
 
       const cooldownText = this.add.text(x, buttonY - 10, '', {
-        fontSize: '18px',
+        fontSize: '20px',
         color: '#ffffff',
         fontStyle: 'bold',
         stroke: '#000000',
-        strokeThickness: 3,
+        strokeThickness: 4,
       });
       cooldownText.setOrigin(0.5, 0.5);
       cooldownText.setScrollFactor(0);
@@ -701,11 +784,8 @@ export class RealtimeBattleScene extends Phaser.Scene {
     this.updateSummonButtonsUI();
   }
 
-  private createUpgradeButton() {
-    const { height } = this.scale;
-    const buttonY = height - 85;
-    const buttonX = this.scale.width - 60;
-    const radius = 30;
+  private createUpgradeButton(buttonX: number, buttonY: number) {
+    const radius = 28;
 
     this.costUpBtnBg = this.add.circle(buttonX, buttonY, radius, 0xffe066);
     this.costUpBtnBg.setStrokeStyle(3, 0x3b2a1a);
@@ -713,7 +793,7 @@ export class RealtimeBattleScene extends Phaser.Scene {
     this.costUpBtnBg.setDepth(100);
 
     this.costUpBtnText = this.add.text(buttonX, buttonY - 4, '⬆️', {
-      fontSize: '24px',
+      fontSize: '22px',
     });
     this.costUpBtnText.setOrigin(0.5, 0.5);
     this.costUpBtnText.setScrollFactor(0);
@@ -743,6 +823,44 @@ export class RealtimeBattleScene extends Phaser.Scene {
       this.playSfx('sfx_cost_upgrade', 0.3);
       this.onUpgradeCost();
     });
+  }
+
+  private createSpeedToggle() {
+    this.speedBtn = this.add.container(390, 55);
+    this.speedBtn.setScrollFactor(0);
+    this.speedBtn.setDepth(100);
+
+    const bg = this.add.rectangle(0, 0, 60, 32, 0x3b82f6);
+    bg.setStrokeStyle(2, 0x1e40af);
+    bg.setScrollFactor(0);
+    bg.setInteractive({ useHandCursor: true });
+
+    const text = this.add.text(0, 0, '▶ 1x', {
+      fontSize: '14px',
+      color: '#ffffff',
+      fontStyle: 'bold',
+    });
+    text.setOrigin(0.5, 0.5);
+    text.setScrollFactor(0);
+
+    this.speedBtn.add([bg, text]);
+    this.speedBtnBg = bg;
+    this.speedBtnText = text;
+
+    bg.on('pointerdown', () => {
+      const mySessionId = this.networkManager.getMySessionId();
+      if (!mySessionId) return;
+      const votes = this.networkManager.getSpeedVotes();
+      const currentVote = votes.has(mySessionId)
+        ? votes.get(mySessionId) === true
+        : this.localSpeedVote === true;
+      const nextVote = !currentVote;
+      this.localSpeedVote = nextVote;
+      this.onSpeedVote(nextVote);
+    });
+
+    bg.on('pointerover', () => bg.setAlpha(0.8));
+    bg.on('pointerout', () => bg.setAlpha(1));
   }
 
   private setupNetworkListeners() {
@@ -816,6 +934,20 @@ export class RealtimeBattleScene extends Phaser.Scene {
       const clampedRatio = Phaser.Math.Clamp(ratio, 0, 1);
       this.costBarFill.width = 130 * clampedRatio;
       this.costText.setText(`${Math.floor(Math.max(0, myPlayer.cost))}/${Math.max(0, myPlayer.maxCost)}`);
+
+      if (this.castleLevelText) {
+        const nextLevel = Math.max(1, myPlayer.costLevel || 1);
+        if (this.currentCastleLevel !== nextLevel) {
+          this.currentCastleLevel = nextLevel;
+          this.castleLevelText.setText(`🏰 Lv.${nextLevel}`);
+          this.tweens.add({
+            targets: this.castleLevelText,
+            scale: 1.5,
+            duration: 150,
+            yoyo: true,
+          });
+        }
+      }
 
       const levelIndex = Math.max(0, myPlayer.costLevel - 1);
       const upgradeCost = this.COST_UPGRADE_COSTS[levelIndex];
@@ -962,6 +1094,42 @@ export class RealtimeBattleScene extends Phaser.Scene {
     });
   }
 
+  private updateSpeedToggle() {
+    if (!this.speedBtnBg || !this.speedBtnText) return;
+    const gameSpeed = this.networkManager.getGameSpeed() || 1;
+    const mySessionId = this.networkManager.getMySessionId();
+    const votes = this.networkManager.getSpeedVotes();
+    let myVote = false;
+    if (mySessionId) {
+      if (votes.has(mySessionId)) {
+        myVote = votes.get(mySessionId) === true;
+        this.localSpeedVote = myVote;
+      } else if (this.localSpeedVote !== undefined) {
+        myVote = this.localSpeedVote === true;
+      }
+    }
+    let opponentVote = false;
+    if (mySessionId) {
+      for (const [sid, vote] of votes.entries()) {
+        if (sid !== mySessionId) {
+          opponentVote = vote === true;
+          break;
+        }
+      }
+    }
+
+    if (gameSpeed >= 2) {
+      this.speedBtnText.setText('▶▶ 2x');
+      this.speedBtnBg.setFillStyle(0xf59e0b);
+    } else if (myVote && !opponentVote) {
+      this.speedBtnText.setText('⏳ 2x?');
+      this.speedBtnBg.setFillStyle(0x6b7280);
+    } else {
+      this.speedBtnText.setText('▶ 1x');
+      this.speedBtnBg.setFillStyle(0x3b82f6);
+    }
+  }
+
   private createUnit(unitState: NetworkUnitState) {
     if (this.units.has(unitState.instanceId)) return;
 
@@ -1025,6 +1193,7 @@ export class RealtimeBattleScene extends Phaser.Scene {
       targetX: unitState.x,
       lastHp: unitState.hp,
       lastState: unitState.state,
+      baseScale: 1,
     };
 
     this.layoutUnitVisuals(realtimeUnit, sprite, def);
@@ -1033,6 +1202,7 @@ export class RealtimeBattleScene extends Phaser.Scene {
 
     this.ensureUnitAnimations(unitState.definitionId);
     this.playUnitAnimationForState(realtimeUnit, unitState.state);
+    this.applyStateVisuals(realtimeUnit, unitState.state);
 
   }
 
@@ -1082,7 +1252,7 @@ export class RealtimeBattleScene extends Phaser.Scene {
     if (prevState !== unitState.state) {
       this.playUnitAnimationForState(unit, unitState.state);
     }
-    this.applyStateVisuals(unit, unitState.state);
+    this.applyStateVisuals(unit, unitState.state, prevState);
   }
 
   private removeUnit(instanceId: string) {
@@ -1203,13 +1373,18 @@ export class RealtimeBattleScene extends Phaser.Scene {
   }
 
   private startBattleBgm() {
-    if (this.bgm) return;
     if (this.sound.locked) {
       this.sound.once(Phaser.Sound.Events.UNLOCKED, () => {
         if (this.networkManager.isPlaying()) {
           this.startBattleBgm();
         }
       });
+      return;
+    }
+    if (this.bgm) {
+      if (!this.bgm.isPlaying) {
+        this.bgm.play();
+      }
       return;
     }
     const bgmKey = Math.random() < 0.5 ? 'battle_bgm_1' : 'battle_bgm_2';
@@ -1268,6 +1443,12 @@ export class RealtimeBattleScene extends Phaser.Scene {
     if (state.phase === 'countdown') {
       this.countdownText.setText(String(state.countdown));
     }
+    if (state.phase === 'playing') {
+      if ((!this.bgm || !this.bgm.isPlaying) && time - this.lastBgmAttemptAt > 1000) {
+        this.lastBgmAttemptAt = time;
+        this.startBattleBgm();
+      }
+    }
 
     // ユニット位置の補間
     const lerpFactor = 0.2;
@@ -1281,8 +1462,10 @@ export class RealtimeBattleScene extends Phaser.Scene {
     this.updatePlayerUI();
 
     // クールダウン更新 & ボタンUI更新
-    this.updateCooldowns(delta);
+    const gameSpeed = this.networkManager.getGameSpeed() || 1;
+    this.updateCooldowns(delta * gameSpeed);
     this.updateSummonButtonsUI();
+    this.updateSpeedToggle();
   }
 
   shutdown() {

@@ -15,9 +15,10 @@ interface Props {
   selectedTeam: string[];
   onSummon: (unitId: string) => void;
   onUpgradeCost: () => void;
+  onSpeedVote: (enabled: boolean) => void;
 }
 
-export default function GameContainer({ state, selectedTeam, onSummon, onUpgradeCost }: Props) {
+export default function GameContainer({ state, selectedTeam, onSummon, onUpgradeCost, onSpeedVote }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const gameRef = useRef<Phaser.Game | null>(null);
 
@@ -43,6 +44,8 @@ export default function GameContainer({ state, selectedTeam, onSummon, onUpgrade
     networkManager.setCountdown(state.countdown);
     networkManager.setGameTime(state.gameTime);
     networkManager.setStageLength(state.stageLength);
+    networkManager.setGameSpeed(state.gameSpeed);
+    networkManager.setSpeedVotes(state.speedVotes);
 
     // プレイヤー
     if (state.myPlayer) {
@@ -125,6 +128,7 @@ export default function GameContainer({ state, selectedTeam, onSummon, onUpgrade
         deck: selectedTeam,
         onSummon,
         onUpgradeCost,
+        onSpeedVote,
       });
     };
 
@@ -140,7 +144,7 @@ export default function GameContainer({ state, selectedTeam, onSummon, onUpgrade
         gameRef.current = null;
       }
     };
-  }, [networkManager, selectedTeam, onSummon, onUpgradeCost]);
+  }, [networkManager, selectedTeam, onSummon, onUpgradeCost, onSpeedVote]);
 
   return (
     <div

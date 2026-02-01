@@ -42,6 +42,8 @@ export interface BattleRoomState {
   units: Map<string, UnitState>;
   winnerId: string;
   winReason: string;
+  gameSpeed?: number;
+  speedVotes?: Record<string, boolean>;
 }
 
 /**

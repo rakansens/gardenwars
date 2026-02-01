@@ -430,6 +430,7 @@ export default function RealtimeBattlePage() {
           selectedTeam={selectedTeam}
           onSummon={actions.sendSummon}
           onUpgradeCost={actions.sendUpgradeCost}
+          onSpeedVote={actions.sendSpeedVote}
         />
       )}
 

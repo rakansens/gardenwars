@@ -17,6 +17,8 @@ export interface NetworkState {
   units: Map<string, UnitState>;
   winnerId: string | null;
   winReason: string | null;
+  gameSpeed: number;
+  speedVotes: Map<string, boolean>;
 }
 
 export class NetworkManager extends Phaser.Events.EventEmitter {
@@ -45,7 +47,9 @@ export class NetworkManager extends Phaser.Events.EventEmitter {
       opponent: null,
       units: new Map(),
       winnerId: null,
-      winReason: null
+      winReason: null,
+      gameSpeed: 1,
+      speedVotes: new Map()
     };
   }
 
@@ -86,6 +90,34 @@ export class NetworkManager extends Phaser.Events.EventEmitter {
    */
   setStageLength(length: number): void {
     this.state.stageLength = length;
+  }
+
+  /**
+   * ゲーム速度更新
+   */
+  setGameSpeed(speed: number): void {
+    if (typeof speed === 'number' && speed > 0) {
+      this.state.gameSpeed = speed;
+    }
+  }
+
+  /**
+   * 速度投票更新
+   */
+  setSpeedVotes(votes: Record<string, boolean> | Map<string, boolean>): void {
+    if (votes instanceof Map) {
+      this.state.speedVotes = new Map(votes);
+      return;
+    }
+    const next = new Map<string, boolean>();
+    if (votes && typeof votes === 'object') {
+      Object.entries(votes).forEach(([key, value]) => {
+        if (typeof value === 'boolean') {
+          next.set(key, value);
+        }
+      });
+    }
+    this.state.speedVotes = next;
   }
 
   /**
@@ -164,6 +196,10 @@ export class NetworkManager extends Phaser.Events.EventEmitter {
     return this.state.mySide;
   }
 
+  getMySessionId(): string | null {
+    return this.state.mySessionId;
+  }
+
   getUnit(instanceId: string): UnitState | undefined {
     return this.state.units.get(instanceId);
   }
@@ -178,6 +214,14 @@ export class NetworkManager extends Phaser.Events.EventEmitter {
 
   getStageLength(): number {
     return this.state.stageLength;
+  }
+
+  getGameSpeed(): number {
+    return this.state.gameSpeed;
+  }
+
+  getSpeedVotes(): Map<string, boolean> {
+    return this.state.speedVotes;
   }
 
   isPlaying(): boolean {
@@ -199,7 +243,9 @@ export class NetworkManager extends Phaser.Events.EventEmitter {
       opponent: null,
       units: new Map(),
       winnerId: null,
-      winReason: null
+      winReason: null,
+      gameSpeed: 1,
+      speedVotes: new Map()
     };
   }
 }

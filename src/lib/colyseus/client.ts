@@ -185,6 +185,15 @@ class ColyseusClient {
       this.room.send("upgrade_cost");
     }
   }
+
+  /**
+   * 速度変更リクエストを送信（2x合意用）
+   */
+  sendSpeedVote(enabled: boolean): void {
+    if (this.room) {
+      this.room.send("speed_vote", { enabled });
+    }
+  }
 }
 
 // シングルトンエクスポート
