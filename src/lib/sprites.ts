@@ -34,10 +34,16 @@ export const ANIMATED_UNITS = [
 export type AnimatedUnitId = (typeof ANIMATED_UNITS)[number];
 
 /**
+ * アニメーション対応ユニットのSet（O(1)検索用）
+ */
+const ANIMATED_UNITS_SET = new Set<string>(ANIMATED_UNITS);
+
+/**
  * ユニットがアニメーション対応かどうかをチェック
+ * Set を使用して O(1) で検索
  */
 export function hasAnimation(unitId: string): boolean {
-    return ANIMATED_UNITS.includes(unitId as AnimatedUnitId);
+    return ANIMATED_UNITS_SET.has(unitId);
 }
 
 /**

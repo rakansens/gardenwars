@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import type { UnitDefinition, Rarity } from "@/data/types";
 import RarityFrame from "./RarityFrame";
 
@@ -32,7 +33,7 @@ interface UnitCardProps {
 }
 
 /**
- * 共通ユニットカードコンポーネント
+ * 共通ユニットカードコンポーネント（React.memoで最適化）
  *
  * 使用例:
  * - ガチャURカルーセル: variant="carousel" badge={{ type: "rate", value: "0.02%" }} showStats
@@ -40,7 +41,7 @@ interface UnitCardProps {
  * - グリッド表示: variant="grid" ownedCount={3}
  * - コンパクト表示: variant="compact"
  */
-export default function UnitCard({
+const UnitCard = memo(function UnitCard({
     unit,
     onClick,
     variant = "grid",
@@ -203,4 +204,15 @@ export default function UnitCard({
             </div>
         </div>
     );
-}
+}, (prevProps, nextProps) => {
+    // カスタム比較関数: 重要なプロパティのみ比較して不要な再レンダリングを防止
+    return prevProps.unit.id === nextProps.unit.id
+        && prevProps.isOwned === nextProps.isOwned
+        && prevProps.ownedCount === nextProps.ownedCount
+        && prevProps.variant === nextProps.variant
+        && prevProps.grayscale === nextProps.grayscale
+        && prevProps.badge?.type === nextProps.badge?.type
+        && prevProps.badge?.value === nextProps.badge?.value;
+});
+
+export default UnitCard;

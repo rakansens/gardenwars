@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import unitsData from "@/data/units";
 import type { UnitDefinition, Rarity } from "@/data/types";
 import RarityFrame from "@/components/ui/RarityFrame";
 import UnitDetailModal from "@/components/ui/UnitDetailModal";
+import VirtualizedGrid from "@/components/ui/VirtualizedGrid";
 import { hasAnimation } from "@/components/ui/UnitAnimationPreview";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { useUnitDetailModal } from "@/hooks/useUnitDetailModal";
@@ -16,6 +17,15 @@ const allUnits = unitsData as UnitDefinition[];
 const collectableUnits = allUnits.filter(
     (u) => !u.id.startsWith("enemy_") && !u.id.startsWith("boss_")
 );
+
+// hasAnimationの結果を事前計算してキャッシュ
+const animationCache = new Map<string, boolean>();
+collectableUnits.forEach(unit => {
+    animationCache.set(unit.id, hasAnimation(unit.atlasKey || unit.id));
+});
+function getUnitHasAnimation(unit: UnitDefinition): boolean {
+    return animationCache.get(unit.id) ?? false;
+}
 
 // サイズカテゴリを取得
 function getSizeCategory(scale: number): string {
@@ -242,101 +252,105 @@ export default function CollectionPage() {
                     </div>
                 </section>
 
-                {/* ユニットグリッド */}
+                {/* ユニットグリッド（仮想化） */}
                 <section className="mb-8">
-                    {sortedUnits.length > 0 ? (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
-                            {sortedUnits.map((unit) => {
-                                const isOwned = (unitInventory[unit.id] || 0) > 0;
-                                const count = unitInventory[unit.id] || 0;
-                                const unitHasAnimation = hasAnimation(unit.atlasKey || unit.id);
-                                const config = rarityConfig[unit.rarity];
+                    <VirtualizedGrid
+                        items={sortedUnits}
+                        getItemKey={useCallback((unit: UnitDefinition) => unit.id, [])}
+                        columnConfig={{ default: 2, sm: 3, md: 4, lg: 5, xl: 6 }}
+                        rowHeight={220}
+                        gap={16}
+                        containerHeight={600}
+                        renderItem={useCallback((unit: UnitDefinition) => {
+                            const isOwned = (unitInventory[unit.id] || 0) > 0;
+                            const count = unitInventory[unit.id] || 0;
+                            const unitHasAnimation = getUnitHasAnimation(unit);
+                            const config = rarityConfig[unit.rarity];
 
-                                return (
-                                    <div
-                                        key={unit.id}
-                                        className={`
-                                            relative rounded-2xl p-3 md:p-4 shadow-md
-                                            cursor-pointer transition-all duration-200
-                                            ${isOwned
-                                                ? `bg-white dark:bg-slate-800 border-2 ${config.border} hover:scale-105 hover:shadow-xl`
-                                                : "bg-gray-100 dark:bg-slate-700 border-2 border-gray-200 dark:border-slate-700 opacity-60 grayscale"
-                                            }
-                                        `}
-                                        onClick={() => handleUnitClick(unit)}
-                                    >
-                                        {/* 所持数バッジ */}
-                                        {isOwned && (
-                                            <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-green-500 text-white text-sm font-bold flex items-center justify-center border-2 border-white shadow-lg z-10">
-                                                {count > 99 ? "99+" : count}
-                                            </div>
-                                        )}
-
-                                        {/* 未所持マーク */}
-                                        {!isOwned && (
-                                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl z-10 opacity-60">
-                                                🔒
-                                            </div>
-                                        )}
-
-                                        {/* アニメーションバッジ */}
-                                        {unitHasAnimation && isOwned && (
-                                            <div className="absolute -top-2 -left-2 w-8 h-8 rounded-full bg-purple-500 text-white text-sm flex items-center justify-center border-2 border-white shadow-lg z-10">
-                                                🎬
-                                            </div>
-                                        )}
-
-                                        {/* 飛行バッジ */}
-                                        {unit.isFlying && isOwned && (
-                                            <div className={`absolute ${unitHasAnimation ? "top-6" : "-top-2"} -left-2 w-8 h-8 rounded-full bg-sky-500 text-white text-sm flex items-center justify-center border-2 border-white shadow-lg z-10`}>
-                                                🪽
-                                            </div>
-                                        )}
-
-                                        <div className="flex justify-center mb-2">
-                                            <RarityFrame
-                                                unitId={unit.id}
-                                                unitName={unit.name}
-                                                rarity={unit.rarity}
-                                                size="lg"
-                                                showLabel={true}
-                                                baseUnitId={unit.baseUnitId}
-                                                grayscale={!isOwned}
-                                            />
+                            return (
+                                <div
+                                    className={`
+                                        relative rounded-2xl p-3 md:p-4 shadow-md h-full
+                                        cursor-pointer transition-all duration-200
+                                        ${isOwned
+                                            ? `bg-white dark:bg-slate-800 border-2 ${config.border} hover:scale-105 hover:shadow-xl`
+                                            : "bg-gray-100 dark:bg-slate-700 border-2 border-gray-200 dark:border-slate-700 opacity-60 grayscale"
+                                        }
+                                    `}
+                                    onClick={() => handleUnitClick(unit)}
+                                >
+                                    {/* 所持数バッジ */}
+                                    {isOwned && (
+                                        <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-green-500 text-white text-sm font-bold flex items-center justify-center border-2 border-white shadow-lg z-10">
+                                            {count > 99 ? "99+" : count}
                                         </div>
+                                    )}
 
-                                        <div className="text-center">
-                                            <div className={`text-sm font-bold leading-tight min-h-[2.5rem] flex items-center justify-center ${!isOwned ? "text-gray-400" : ""}`}>
-                                                {unit.name}
-                                            </div>
-                                            <div className="flex items-center justify-center gap-1 mt-1 text-xs flex-wrap">
-                                                <span className={`font-bold ${config.text}`}>
-                                                    {unit.rarity}
-                                                </span>
-                                                <span className="text-gray-400 dark:text-gray-500">|</span>
-                                                <span className={isOwned ? "text-gray-600 dark:text-gray-400" : "text-gray-400 dark:text-gray-500"}>
-                                                    {t(getSizeCategory(unit.scale ?? 1))}
-                                                </span>
-                                                {unit.isFlying && (
-                                                    <>
-                                                        <span className="text-gray-400 dark:text-gray-500">|</span>
-                                                        <span className={isOwned ? "text-sky-500" : "text-gray-400 dark:text-gray-500"}>
-                                                            {t("flying")}
-                                                        </span>
-                                                    </>
-                                                )}
-                                            </div>
+                                    {/* 未所持マーク */}
+                                    {!isOwned && (
+                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl z-10 opacity-60">
+                                            🔒
+                                        </div>
+                                    )}
+
+                                    {/* アニメーションバッジ */}
+                                    {unitHasAnimation && isOwned && (
+                                        <div className="absolute -top-2 -left-2 w-8 h-8 rounded-full bg-purple-500 text-white text-sm flex items-center justify-center border-2 border-white shadow-lg z-10">
+                                            🎬
+                                        </div>
+                                    )}
+
+                                    {/* 飛行バッジ */}
+                                    {unit.isFlying && isOwned && (
+                                        <div className={`absolute ${unitHasAnimation ? "top-6" : "-top-2"} -left-2 w-8 h-8 rounded-full bg-sky-500 text-white text-sm flex items-center justify-center border-2 border-white shadow-lg z-10`}>
+                                            🪽
+                                        </div>
+                                    )}
+
+                                    <div className="flex justify-center mb-2">
+                                        <RarityFrame
+                                            unitId={unit.id}
+                                            unitName={unit.name}
+                                            rarity={unit.rarity}
+                                            size="lg"
+                                            showLabel={true}
+                                            baseUnitId={unit.baseUnitId}
+                                            grayscale={!isOwned}
+                                        />
+                                    </div>
+
+                                    <div className="text-center">
+                                        <div className={`text-sm font-bold leading-tight min-h-[2.5rem] flex items-center justify-center ${!isOwned ? "text-gray-400" : ""}`}>
+                                            {unit.name}
+                                        </div>
+                                        <div className="flex items-center justify-center gap-1 mt-1 text-xs flex-wrap">
+                                            <span className={`font-bold ${config.text}`}>
+                                                {unit.rarity}
+                                            </span>
+                                            <span className="text-gray-400 dark:text-gray-500">|</span>
+                                            <span className={isOwned ? "text-gray-600 dark:text-gray-400" : "text-gray-400 dark:text-gray-500"}>
+                                                {t(getSizeCategory(unit.scale ?? 1))}
+                                            </span>
+                                            {unit.isFlying && (
+                                                <>
+                                                    <span className="text-gray-400 dark:text-gray-500">|</span>
+                                                    <span className={isOwned ? "text-sky-500" : "text-gray-400 dark:text-gray-500"}>
+                                                        {t("flying")}
+                                                    </span>
+                                                </>
+                                            )}
                                         </div>
                                     </div>
-                                );
-                            })}
-                        </div>
-                    ) : (
-                        <div className="text-center py-16 bg-white dark:bg-slate-800 rounded-2xl shadow-md">
-                            <div className="text-5xl mb-4">🔍</div>
-                            <p className="text-gray-500 dark:text-gray-500 text-lg">{t("no_units_in_filter")}</p>
-                        </div>
-                    )}
+                                </div>
+                            );
+                        }, [unitInventory, t, handleUnitClick])}
+                        emptyContent={
+                            <div className="text-center py-16 bg-white dark:bg-slate-800 rounded-2xl shadow-md">
+                                <div className="text-5xl mb-4">🔍</div>
+                                <p className="text-gray-500 dark:text-gray-500 text-lg">{t("no_units_in_filter")}</p>
+                            </div>
+                        }
+                    />
                 </section>
 
                 {/* ヒント */}

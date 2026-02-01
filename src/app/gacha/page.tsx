@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import unitsData from "@/data/units";
 import type { UnitDefinition, Rarity } from "@/data/types";
 import RarityFrame, { getRarityStars, getRarityGradientClass } from "@/components/ui/RarityFrame";
@@ -22,6 +23,30 @@ const gachaPool = allUnits.filter((u) => !u.id.startsWith("enemy_") && !u.id.sta
 const SINGLE_COST = 10;
 const MULTI_COST = 90; // 10回で少しお得
 const SUPER_MULTI_COST = 900; // 100回 (SSR大盛り⁉️)
+
+// 事前計算: レアリティ別ユニット数とドロップレート
+const rarityWeightsConst = { N: 51, R: 30, SR: 15, SSR: 1, UR: 0.33 } as const;
+const unitsCountByRarity: Record<Rarity, number> = {
+    N: gachaPool.filter(u => u.rarity === "N").length,
+    R: gachaPool.filter(u => u.rarity === "R").length,
+    SR: gachaPool.filter(u => u.rarity === "SR").length,
+    SSR: gachaPool.filter(u => u.rarity === "SSR").length,
+    UR: gachaPool.filter(u => u.rarity === "UR").length,
+};
+
+// ドロップレートのキャッシュ
+const dropRateCache = new Map<string, number>();
+gachaPool.forEach(unit => {
+    const rate = rarityWeightsConst[unit.rarity] / unitsCountByRarity[unit.rarity];
+    dropRateCache.set(unit.id, rate);
+});
+
+// ガチャ用の重み計算キャッシュ
+const unitWeightCache = new Map<string, number>();
+gachaPool.forEach(unit => {
+    unitWeightCache.set(unit.id, rarityWeightsConst[unit.rarity] / unitsCountByRarity[unit.rarity]);
+});
+const totalGachaWeight = Array.from(unitWeightCache.values()).reduce((sum, w) => sum + w, 0);
 
 export default function GachaPage() {
     const { coins, unitInventory, spendCoins, addUnits, addGachaHistory, gachaHistory, isLoaded } = usePlayerData();
@@ -103,33 +128,20 @@ export default function GachaPage() {
         }, 100);
     };
 
-    // レアリティで重み付けしてランダム選択
+    // レアリティで重み付けしてランダム選択（キャッシュ済み重みを使用）
     const pickRandomUnit = (): UnitDefinition => {
-        // 基本レアリティ確率: N=51%, R=30%, SR=15%, SSR=1%, UR=0.33%（300連で1体）
-        const rarityWeights = { N: 51, R: 30, SR: 15, SSR: 1, UR: 0.33 };
-
-        // 各ユニットの実効重みを計算（レアリティ内で均等配分）
-        const getUnitWeight = (unit: UnitDefinition): number => {
-            const unitsInRarity = gachaPool.filter(u => u.rarity === unit.rarity).length;
-            return rarityWeights[unit.rarity] / unitsInRarity;
-        };
-
-        const totalWeight = gachaPool.reduce((sum, u) => sum + getUnitWeight(u), 0);
-        let random = Math.random() * totalWeight;
+        let random = Math.random() * totalGachaWeight;
 
         for (const unit of gachaPool) {
-            random -= getUnitWeight(unit);
+            random -= unitWeightCache.get(unit.id) ?? 0;
             if (random <= 0) return unit;
         }
         return gachaPool[0];
     };
 
-    // ユニットの排出率を計算（%表示用）
+    // ユニットの排出率を計算（キャッシュから取得）
     const getDropRate = (unit: UnitDefinition): number => {
-        // 基本レアリティ確率: UR=0.33%（300連で1体）、レアリティ内で均等配分
-        const rarityWeights = { N: 51, R: 30, SR: 15, SSR: 1, UR: 0.33 };
-        const unitsInRarity = gachaPool.filter(u => u.rarity === unit.rarity).length;
-        return rarityWeights[unit.rarity] / unitsInRarity;
+        return dropRateCache.get(unit.id) ?? 0;
     };
 
     // カード演出完了時
@@ -203,10 +215,13 @@ export default function GachaPage() {
                             onClick={() => rollGacha(1)}
                             disabled={coins < SINGLE_COST || isRolling}
                         >
-                            <img
+                            <Image
                                 src="/assets/ui/gacha_1pull.png"
                                 alt={t("gacha_1pull")}
-                                className="w-24 h-24 object-contain mb-2"
+                                width={96}
+                                height={96}
+                                className="object-contain mb-2"
+                                loading="lazy"
                             />
                             <div className="text-white font-bold text-lg">{t("gacha_1pull")}</div>
                             <div className="text-green-300 font-bold">💰 {SINGLE_COST}</div>
@@ -221,10 +236,13 @@ export default function GachaPage() {
                             onClick={() => rollGacha(10)}
                             disabled={coins < MULTI_COST || isRolling}
                         >
-                            <img
+                            <Image
                                 src="/assets/ui/gacha_10pull.png"
                                 alt={t("gacha_10pull")}
-                                className="w-28 h-28 object-contain mb-2"
+                                width={112}
+                                height={112}
+                                className="object-contain mb-2"
+                                loading="lazy"
                             />
                             <div className="text-white font-bold text-lg">{t("gacha_10pull")}</div>
                             <div className="text-yellow-300 font-bold">💰 {MULTI_COST}</div>
@@ -239,10 +257,13 @@ export default function GachaPage() {
                             onClick={() => rollGacha(100)}
                             disabled={coins < SUPER_MULTI_COST || isRolling}
                         >
-                            <img
+                            <Image
                                 src="/assets/ui/gacha_100pull.png"
                                 alt={t("gacha_100pull")}
-                                className="w-32 h-32 object-contain mb-2"
+                                width={128}
+                                height={128}
+                                className="object-contain mb-2"
+                                loading="lazy"
                             />
                             <div className="text-white font-bold text-xl">{t("gacha_100pull")}</div>
                             <div className="text-yellow-200 font-bold text-lg">💰 {SUPER_MULTI_COST}</div>

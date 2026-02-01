@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import Image from "next/image";
 import type { Rarity } from "@/data/types";
 
@@ -104,7 +105,7 @@ const sizeClasses = {
     },
 };
 
-export default function RarityFrame({
+const RarityFrame = memo(function RarityFrame({
     unitId,
     unitName,
     rarity,
@@ -153,6 +154,7 @@ export default function RarityFrame({
                     width={sizeClass.image}
                     height={sizeClass.image}
                     className="object-contain"
+                    loading="lazy"
                 />
 
                 {/* レアリティラベル */}
@@ -191,7 +193,9 @@ export default function RarityFrame({
             )}
         </div>
     );
-}
+});
+
+export default RarityFrame;
 
 // ヘルパー関数をエクスポート
 export function getRarityStars(rarity: Rarity): string {
