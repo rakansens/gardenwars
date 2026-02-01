@@ -57,7 +57,7 @@ export default function AsyncBattlePage() {
     const opponentId = params.opponentId as string;
     const { t } = useLanguage();
     const { playerId } = useAuth();
-    const { selectedTeam, isLoaded, loadouts, activeLoadoutIndex } = usePlayerData();
+    const { selectedTeam, isLoaded, loadouts, activeLoadoutIndex, addCoins } = usePlayerData();
 
     const [opponent, setOpponent] = useState<OpponentData | null>(null);
     const [stage, setStage] = useState<StageDefinition | null>(null);
@@ -128,6 +128,11 @@ export default function AsyncBattlePage() {
     const handleBattleEnd = async (win: boolean, coinsGained: number) => {
         setBattleEnded(true);
         setResult({ win, coins: coinsGained });
+
+        // 勝利時のコイン報酬を実際に付与
+        if (win && coinsGained > 0) {
+            addCoins(coinsGained);
+        }
 
         const battleDuration = Math.floor((Date.now() - battleStartTime) / 1000);
 

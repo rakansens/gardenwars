@@ -36,7 +36,7 @@ type FusionMode = 3 | 10;
 
 export default function FusionPage() {
     const { t } = useLanguage();
-    const { unitInventory, addUnit, removeUnit, isLoaded } = usePlayerData();
+    const { unitInventory, executeFusion, isLoaded } = usePlayerData();
     const [selectedUnits, setSelectedUnits] = useState<string[]>([]);
     const [fusionResult, setFusionResult] = useState<UnitDefinition | null>(null);
     const [showVideo, setShowVideo] = useState(false);
@@ -73,7 +73,7 @@ export default function FusionPage() {
     };
 
     // フュージョン実行
-    const executeFusion = () => {
+    const handleFusion = () => {
         if (selectedUnits.length !== fusionMode) return;
 
         // 選択されたユニットのレアリティ平均 → 結果レアリティ確率
@@ -144,13 +144,12 @@ export default function FusionPage() {
         const candidates = allyUnits.filter(u => u.rarity === resultRarity);
         const resultUnit = candidates[Math.floor(Math.random() * candidates.length)];
 
-        // 素材ユニットを消費（usePlayerData経由）
-        selectedUnits.forEach(id => {
-            removeUnit(id, 1);
-        });
-
-        // 結果ユニットを追加（usePlayerData経由）
-        addUnit(resultUnit.id, 1);
+        // アトミック操作: 素材消費 + 結果追加を同時に実行
+        // これにより素材だけ消費されて結果が得られないケースを防ぐ
+        const success = executeFusion(selectedUnits, resultUnit.id);
+        if (!success) {
+            return; // 素材不足などで失敗
+        }
 
         setSelectedUnits([]);
         setFusionResult(resultUnit);
@@ -290,7 +289,7 @@ export default function FusionPage() {
             {/* フュージョンボタン */}
             <div className="text-center mb-6">
                 <button
-                    onClick={executeFusion}
+                    onClick={handleFusion}
                     disabled={selectedUnits.length !== fusionMode}
                     className={`px-8 py-3 rounded-lg font-bold text-xl transition-all ${selectedUnits.length === fusionMode
                         ? fusionMode === 10

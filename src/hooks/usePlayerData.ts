@@ -498,6 +498,68 @@ export function usePlayerData() {
         }));
     }, []);
 
+    // ガチャ用アトミック操作（コイン消費 + ユニット追加を1つのsetData内で実行）
+    // これにより、ブラウザが閉じられてもデータ損失を防ぐ
+    const executeGacha = useCallback((cost: number, unitIds: string[]): boolean => {
+        let success = false;
+        setData((prev) => {
+            if (prev.coins < cost) {
+                return prev; // コイン不足
+            }
+            success = true;
+            const newInventory = { ...prev.unitInventory };
+            for (const unitId of unitIds) {
+                newInventory[unitId] = (newInventory[unitId] || 0) + 1;
+            }
+            return {
+                ...prev,
+                coins: prev.coins - cost,
+                unitInventory: newInventory,
+            };
+        });
+        return success;
+    }, []);
+
+    // フュージョン用アトミック操作（素材消費 + 結果追加を1つのsetData内で実行）
+    // これにより、素材だけ消費されて結果が得られないケースを防ぐ
+    const executeFusion = useCallback((materialIds: string[], resultUnitId: string): boolean => {
+        let success = false;
+        setData((prev) => {
+            // 素材が全て揃っているか確認
+            const materialCounts: Record<string, number> = {};
+            for (const id of materialIds) {
+                materialCounts[id] = (materialCounts[id] || 0) + 1;
+            }
+            for (const [unitId, needed] of Object.entries(materialCounts)) {
+                if ((prev.unitInventory[unitId] || 0) < needed) {
+                    return prev; // 素材不足
+                }
+            }
+
+            success = true;
+            const newInventory = { ...prev.unitInventory };
+
+            // 素材を消費
+            for (const [unitId, count] of Object.entries(materialCounts)) {
+                const newCount = (newInventory[unitId] || 0) - count;
+                if (newCount <= 0) {
+                    delete newInventory[unitId];
+                } else {
+                    newInventory[unitId] = newCount;
+                }
+            }
+
+            // 結果ユニットを追加
+            newInventory[resultUnitId] = (newInventory[resultUnitId] || 0) + 1;
+
+            return {
+                ...prev,
+                unitInventory: newInventory,
+            };
+        });
+        return success;
+    }, []);
+
     // 初期ロード時にショップが空なら更新
     useEffect(() => {
         if (isLoaded && data.shopItems.length === 0) {
@@ -534,5 +596,7 @@ export function usePlayerData() {
         clearGachaHistory,
         addClearedStage,
         setGardenUnits,
+        executeGacha,
+        executeFusion,
     };
 }

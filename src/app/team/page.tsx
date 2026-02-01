@@ -216,6 +216,255 @@ export default function TeamPage() {
         return getSelectedTeamDefs().reduce((sum, unit) => sum + unit.cost, 0);
     };
 
+    const getUnitKey = useCallback((unit: UnitDefinition) => unit.id, []);
+
+    const renderOwnedUnit = useCallback((unit: UnitDefinition) => {
+        const isSelected = selectedTeam.includes(unit.id);
+        const count = unitInventory[unit.id] || 0;
+        const unitHasAnimation = getUnitHasAnimation(unit);
+        const otherDeckIndex = getOtherDeckIndex(unit.id);
+        const isInOtherDeck = otherDeckIndex !== null;
+        const canAdd = !isSelected && !isInOtherDeck && validTeamCount < MAX_TEAM_SIZE;
+        return (
+            <div
+                className={`unit-card relative h-full ${isSelected ? "selected" : ""}`}
+            >
+                {/* 所持個数バッジ */}
+                <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-green-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10">
+                    {count}
+                </div>
+
+                {/* アニメーションバッジ */}
+                {unitHasAnimation && (
+                    <div className="absolute -top-2 -left-2 w-7 h-7 rounded-full bg-purple-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10" title="Has Animation">
+                        🎬
+                    </div>
+                )}
+
+                {/* 飛行バッジ */}
+                {unit.isFlying && (
+                    <div className={`absolute ${unitHasAnimation ? "-bottom-2" : "-top-2"} -left-2 w-7 h-7 rounded-full bg-sky-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10`} title="Flying Unit">
+                        🪽
+                    </div>
+                )}
+
+                {/* クリックで詳細表示エリア */}
+                <div
+                    className="cursor-pointer"
+                    onClick={() => handleUnitClick(unit)}
+                >
+                    <RarityFrame
+                        unitId={unit.id}
+                        unitName={unit.name}
+                        rarity={unit.rarity}
+                        size="lg"
+                        showLabel={true}
+                        baseUnitId={unit.baseUnitId}
+                    />
+                    <div className="mt-2 text-center">
+                        <div className="font-medium text-sm">{unit.name}</div>
+                        <div className="flex items-center justify-center gap-1 mt-1 text-xs">
+                            <span className={`font-bold ${
+                                unit.rarity === "UR" ? "text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500" :
+                                unit.rarity === "SSR" ? "text-amber-600" :
+                                unit.rarity === "SR" ? "text-purple-600" :
+                                unit.rarity === "R" ? "text-blue-600" :
+                                "text-gray-500"
+                            }`}>
+                                {unit.rarity}
+                            </span>
+                            <span className="text-gray-400 dark:text-gray-500">|</span>
+                            <span className="text-gray-600 dark:text-gray-400" title={`${(unit.scale ?? 1).toFixed(1)}x`}>
+                                {t(getSizeCategory(unit.scale ?? 1))}
+                            </span>
+                            {unit.isFlying && (
+                                <>
+                                    <span className="text-gray-400 dark:text-gray-500">|</span>
+                                    <span className="text-sky-500">{t("flying")}</span>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                    <div className="mt-1 text-xs text-gray-600 dark:text-gray-400 space-y-0.5">
+                        <div className="flex justify-between">
+                            <span>❤️ {t("hp")}:</span>
+                            <span className="font-bold">{unit.maxHp}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span>⚔️ {t("attack")}:</span>
+                            <span className="font-bold">{unit.attackDamage}</span>
+                        </div>
+                        <div className="flex justify-between text-red-500">
+                            <span>💥 DPS:</span>
+                            <span className="font-bold">{getUnitDPS(unit).toFixed(1)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span>📏 {t("range")}:</span>
+                            <span className="font-bold">{unit.attackRange}</span>
+                        </div>
+                        <div className="flex justify-between text-orange-500">
+                            <span>⏱️ {t("attack_speed")}:</span>
+                            <span className="font-bold">{(1000 / unit.attackCooldownMs).toFixed(1)}/s</span>
+                        </div>
+                        <div className="flex justify-between text-blue-500">
+                            <span>🏃 {t("move_speed")}:</span>
+                            <span className="font-bold">{unit.speed}</span>
+                        </div>
+                        <div className="flex justify-between text-amber-600">
+                            <span>💰 {t("cost")}:</span>
+                            <span className="font-bold">¥{unit.cost}</span>
+                        </div>
+                        <div className="flex justify-between text-purple-500">
+                            <span>⏰ {t("spawn_cooldown")}:</span>
+                            <span className="font-bold">{(getSpawnCooldown(unit) / 1000).toFixed(1)}s</span>
+                        </div>
+                        <div className={`flex justify-between ${getDropRate(unit) < 0.1 ? "text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500" : "text-pink-500"}`}>
+                            <span className={getDropRate(unit) < 0.1 ? "text-pink-500" : ""}>🎰 {t("drop_rate")}:</span>
+                            <span className="font-bold">{getDropRate(unit) < 0.1 ? getDropRate(unit).toFixed(3) : getDropRate(unit).toFixed(2)}%</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 追加/削除ボタン */}
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleUnit(unit.id);
+                    }}
+                    disabled={!isSelected && !canAdd}
+                    className={`
+                        w-full mt-3 py-3 md:py-3.5 rounded-xl font-bold text-sm md:text-base transition-all min-h-[44px] active:scale-95
+                        ${isSelected
+                            ? "bg-red-500 hover:bg-red-600 text-white shadow-md"
+                            : canAdd
+                                ? "bg-green-500 hover:bg-green-600 text-white shadow-md"
+                                : isInOtherDeck
+                                    ? "bg-orange-300 dark:bg-orange-900/50 text-orange-700 dark:text-orange-400 cursor-not-allowed"
+                                    : "bg-gray-300 dark:bg-slate-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                        }
+                    `}
+                >
+                    {isSelected
+                        ? t("remove_quick")
+                        : isInOtherDeck
+                            ? `📦 ${t("in_deck")} ${otherDeckIndex}`
+                            : canAdd
+                                ? t("add_quick")
+                                : t("team_full")}
+                </button>
+
+                {/* 選択マーク */}
+                {isSelected && (
+                    <div className="absolute top-12 left-1/2 -translate-x-1/2 text-4xl pointer-events-none">
+                        ✓
+                    </div>
+                )}
+            </div>
+        );
+    }, [selectedTeam, unitInventory, validTeamCount, t, handleUnitClick, handleToggleUnit, getOtherDeckIndex]);
+
+    const renderUnownedUnit = useCallback((unit: UnitDefinition) => {
+        const unitHasAnimation = getUnitHasAnimation(unit);
+        return (
+            <div
+                className="unit-card relative h-full"
+            >
+                {/* アニメーションバッジ */}
+                {unitHasAnimation && (
+                    <div className="absolute -top-2 -left-2 w-7 h-7 rounded-full bg-purple-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10" title="Has Animation">
+                        🎬
+                    </div>
+                )}
+
+                {/* 飛行バッジ */}
+                {unit.isFlying && (
+                    <div className={`absolute ${unitHasAnimation ? "-bottom-2" : "-top-2"} -left-2 w-7 h-7 rounded-full bg-sky-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10`} title="Flying Unit">
+                        🪽
+                    </div>
+                )}
+
+                {/* クリックで詳細表示エリア */}
+                <div
+                    className="cursor-pointer"
+                    onClick={() => handleUnitClick(unit)}
+                >
+                    <RarityFrame
+                        unitId={unit.id}
+                        unitName={unit.name}
+                        rarity={unit.rarity}
+                        size="lg"
+                        showLabel={true}
+                        baseUnitId={unit.baseUnitId}
+                        grayscale={true}
+                    />
+                    <div className="mt-2 text-center">
+                        <div className="font-medium text-sm text-gray-500 dark:text-gray-400">{unit.name}</div>
+                        <div className="flex items-center justify-center gap-1 mt-1 text-xs">
+                            <span className={`font-bold ${
+                                unit.rarity === "UR" ? "text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500" :
+                                unit.rarity === "SSR" ? "text-amber-600" :
+                                unit.rarity === "SR" ? "text-purple-600" :
+                                unit.rarity === "R" ? "text-blue-600" :
+                                "text-gray-500"
+                            }`}>
+                                {unit.rarity}
+                            </span>
+                            <span className="text-gray-300">|</span>
+                            <span className="text-gray-400" title={`${(unit.scale ?? 1).toFixed(1)}x`}>
+                                {t(getSizeCategory(unit.scale ?? 1))}
+                            </span>
+                            {unit.isFlying && (
+                                <>
+                                    <span className="text-gray-300">|</span>
+                                    <span className="text-gray-400">{t("flying")}</span>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                    <div className="mt-1 text-xs text-gray-400 space-y-0.5">
+                        <div className="flex justify-between">
+                            <span>❤️ {t("hp")}:</span>
+                            <span className="font-bold">{unit.maxHp}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span>⚔️ {t("attack")}:</span>
+                            <span className="font-bold">{unit.attackDamage}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span>💥 DPS:</span>
+                            <span className="font-bold">{getUnitDPS(unit).toFixed(1)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span>📏 {t("range")}:</span>
+                            <span className="font-bold">{unit.attackRange}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span>⏱️ {t("attack_speed")}:</span>
+                            <span className="font-bold">{(1000 / unit.attackCooldownMs).toFixed(1)}/s</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span>🏃 {t("move_speed")}:</span>
+                            <span className="font-bold">{unit.speed}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span>💰 {t("cost")}:</span>
+                            <span className="font-bold">¥{unit.cost}</span>
+                        </div>
+                        <div className={`flex justify-between ${getDropRate(unit) < 0.1 ? "text-pink-400" : "text-pink-400"}`}>
+                            <span>🎰 {t("drop_rate")}:</span>
+                            <span className="font-bold">{getDropRate(unit) < 0.1 ? getDropRate(unit).toFixed(3) : getDropRate(unit).toFixed(2)}%</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 未保有表示 */}
+                <div className="w-full mt-3 py-3 md:py-3.5 rounded-xl font-bold text-sm md:text-base bg-gray-200 dark:bg-slate-700 text-gray-500 dark:text-gray-400 text-center min-h-[44px] flex items-center justify-center">
+                    {t("not_owned")}
+                </div>
+            </div>
+        );
+    }, [t, handleUnitClick]);
+
     if (!isLoaded) {
         return (
             <main className="min-h-screen flex items-center justify-center">
@@ -371,155 +620,12 @@ export default function TeamPage() {
                                 {ownedUnits.length > 0 ? (
                                     <VirtualizedGrid
                                         items={ownedUnits}
-                                        getItemKey={useCallback((unit: UnitDefinition) => unit.id, [])}
+                                        getItemKey={getUnitKey}
                                         columnConfig={{ default: 2, sm: 2, md: 3, lg: 4, xl: 5 }}
                                         rowHeight={420}
                                         gap={20}
-                                        containerHeight={600}
-                                        renderItem={useCallback((unit: UnitDefinition) => {
-                                            const isSelected = selectedTeam.includes(unit.id);
-                                            const count = unitInventory[unit.id] || 0;
-                                            const unitHasAnimation = getUnitHasAnimation(unit);
-                                            const otherDeckIndex = getOtherDeckIndex(unit.id);
-                                            const isInOtherDeck = otherDeckIndex !== null;
-                                            const canAdd = !isSelected && !isInOtherDeck && validTeamCount < MAX_TEAM_SIZE;
-                                            return (
-                                                <div
-                                                    className={`unit-card relative h-full ${isSelected ? "selected" : ""}`}
-                                                >
-                                                    {/* 所持個数バッジ */}
-                                                    <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-green-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10">
-                                                        {count}
-                                                    </div>
-
-                                                    {/* アニメーションバッジ */}
-                                                    {unitHasAnimation && (
-                                                        <div className="absolute -top-2 -left-2 w-7 h-7 rounded-full bg-purple-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10" title="Has Animation">
-                                                            🎬
-                                                        </div>
-                                                    )}
-
-                                                    {/* 飛行バッジ */}
-                                                    {unit.isFlying && (
-                                                        <div className={`absolute ${unitHasAnimation ? "-bottom-2" : "-top-2"} -left-2 w-7 h-7 rounded-full bg-sky-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10`} title="Flying Unit">
-                                                            🪽
-                                                        </div>
-                                                    )}
-
-                                                    {/* クリックで詳細表示エリア */}
-                                                    <div
-                                                        className="cursor-pointer"
-                                                        onClick={() => handleUnitClick(unit)}
-                                                    >
-                                                        <RarityFrame
-                                                            unitId={unit.id}
-                                                            unitName={unit.name}
-                                                            rarity={unit.rarity}
-                                                            size="lg"
-                                                            showLabel={true}
-                                                            baseUnitId={unit.baseUnitId}
-                                                        />
-                                                        <div className="mt-2 text-center">
-                                                            <div className="font-medium text-sm">{unit.name}</div>
-                                                            <div className="flex items-center justify-center gap-1 mt-1 text-xs">
-                                                                <span className={`font-bold ${
-                                                                    unit.rarity === "UR" ? "text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500" :
-                                                                    unit.rarity === "SSR" ? "text-amber-600" :
-                                                                    unit.rarity === "SR" ? "text-purple-600" :
-                                                                    unit.rarity === "R" ? "text-blue-600" :
-                                                                    "text-gray-500"
-                                                                }`}>
-                                                                    {unit.rarity}
-                                                                </span>
-                                                                <span className="text-gray-400 dark:text-gray-500">|</span>
-                                                                <span className="text-gray-600 dark:text-gray-400" title={`${(unit.scale ?? 1).toFixed(1)}x`}>
-                                                                    {t(getSizeCategory(unit.scale ?? 1))}
-                                                                </span>
-                                                                {unit.isFlying && (
-                                                                    <>
-                                                                        <span className="text-gray-400 dark:text-gray-500">|</span>
-                                                                        <span className="text-sky-500">{t("flying")}</span>
-                                                                    </>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                        <div className="mt-1 text-xs text-gray-600 dark:text-gray-400 space-y-0.5">
-                                                            <div className="flex justify-between">
-                                                                <span>❤️ {t("hp")}:</span>
-                                                                <span className="font-bold">{unit.maxHp}</span>
-                                                            </div>
-                                                            <div className="flex justify-between">
-                                                                <span>⚔️ {t("attack")}:</span>
-                                                                <span className="font-bold">{unit.attackDamage}</span>
-                                                            </div>
-                                                            <div className="flex justify-between text-red-500">
-                                                                <span>💥 DPS:</span>
-                                                                <span className="font-bold">{getUnitDPS(unit).toFixed(1)}</span>
-                                                            </div>
-                                                            <div className="flex justify-between">
-                                                                <span>📏 {t("range")}:</span>
-                                                                <span className="font-bold">{unit.attackRange}</span>
-                                                            </div>
-                                                            <div className="flex justify-between text-orange-500">
-                                                                <span>⏱️ {t("attack_speed")}:</span>
-                                                                <span className="font-bold">{(1000 / unit.attackCooldownMs).toFixed(1)}/s</span>
-                                                            </div>
-                                                            <div className="flex justify-between text-blue-500">
-                                                                <span>🏃 {t("move_speed")}:</span>
-                                                                <span className="font-bold">{unit.speed}</span>
-                                                            </div>
-                                                            <div className="flex justify-between text-amber-600">
-                                                                <span>💰 {t("cost")}:</span>
-                                                                <span className="font-bold">¥{unit.cost}</span>
-                                                            </div>
-                                                            <div className="flex justify-between text-purple-500">
-                                                                <span>⏰ {t("spawn_cooldown")}:</span>
-                                                                <span className="font-bold">{(getSpawnCooldown(unit) / 1000).toFixed(1)}s</span>
-                                                            </div>
-                                                            <div className={`flex justify-between ${getDropRate(unit) < 0.1 ? "text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500" : "text-pink-500"}`}>
-                                                                <span className={getDropRate(unit) < 0.1 ? "text-pink-500" : ""}>🎰 {t("drop_rate")}:</span>
-                                                                <span className="font-bold">{getDropRate(unit) < 0.1 ? getDropRate(unit).toFixed(3) : getDropRate(unit).toFixed(2)}%</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    {/* 追加/削除ボタン */}
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleToggleUnit(unit.id);
-                                                        }}
-                                                        disabled={!isSelected && !canAdd}
-                                                        className={`
-                                                            w-full mt-3 py-3 md:py-3.5 rounded-xl font-bold text-sm md:text-base transition-all min-h-[44px] active:scale-95
-                                                            ${isSelected
-                                                                ? "bg-red-500 hover:bg-red-600 text-white shadow-md"
-                                                                : canAdd
-                                                                    ? "bg-green-500 hover:bg-green-600 text-white shadow-md"
-                                                                    : isInOtherDeck
-                                                                        ? "bg-orange-300 dark:bg-orange-900/50 text-orange-700 dark:text-orange-400 cursor-not-allowed"
-                                                                        : "bg-gray-300 dark:bg-slate-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                                                            }
-                                                        `}
-                                                    >
-                                                        {isSelected
-                                                            ? t("remove_quick")
-                                                            : isInOtherDeck
-                                                                ? `📦 ${t("in_deck")} ${otherDeckIndex}`
-                                                                : canAdd
-                                                                    ? t("add_quick")
-                                                                    : t("team_full")}
-                                                    </button>
-
-                                                    {/* 選択マーク */}
-                                                    {isSelected && (
-                                                        <div className="absolute top-12 left-1/2 -translate-x-1/2 text-4xl pointer-events-none">
-                                                            ✓
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            );
-                                        }, [selectedTeam, unitInventory, validTeamCount, t, handleUnitClick, handleToggleUnit, getOtherDeckIndex])}
+                                        containerHeight={900}
+                                        renderItem={renderOwnedUnit}
                                     />
                                 ) : (
                                     <div className="text-center py-8 text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-slate-800 rounded-lg">
@@ -540,112 +646,12 @@ export default function TeamPage() {
                                     <div className="opacity-60">
                                         <VirtualizedGrid
                                             items={unownedUnits}
-                                            getItemKey={useCallback((unit: UnitDefinition) => unit.id, [])}
+                                            getItemKey={getUnitKey}
                                             columnConfig={{ default: 2, sm: 2, md: 3, lg: 4, xl: 5 }}
                                             rowHeight={400}
                                             gap={20}
-                                            containerHeight={500}
-                                            renderItem={useCallback((unit: UnitDefinition) => {
-                                                const unitHasAnimation = getUnitHasAnimation(unit);
-                                                return (
-                                                    <div
-                                                        className="unit-card relative h-full"
-                                                    >
-                                                        {/* アニメーションバッジ */}
-                                                        {unitHasAnimation && (
-                                                            <div className="absolute -top-2 -left-2 w-7 h-7 rounded-full bg-purple-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10" title="Has Animation">
-                                                                🎬
-                                                            </div>
-                                                        )}
-
-                                                        {/* 飛行バッジ */}
-                                                        {unit.isFlying && (
-                                                            <div className={`absolute ${unitHasAnimation ? "-bottom-2" : "-top-2"} -left-2 w-7 h-7 rounded-full bg-sky-500 text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10`} title="Flying Unit">
-                                                                🪽
-                                                            </div>
-                                                        )}
-
-                                                        {/* クリックで詳細表示エリア */}
-                                                        <div
-                                                            className="cursor-pointer"
-                                                            onClick={() => handleUnitClick(unit)}
-                                                        >
-                                                            <RarityFrame
-                                                                unitId={unit.id}
-                                                                unitName={unit.name}
-                                                                rarity={unit.rarity}
-                                                                size="lg"
-                                                                showLabel={true}
-                                                                baseUnitId={unit.baseUnitId}
-                                                                grayscale={true}
-                                                            />
-                                                            <div className="mt-2 text-center">
-                                                                <div className="font-medium text-sm text-gray-500 dark:text-gray-400">{unit.name}</div>
-                                                                <div className="flex items-center justify-center gap-1 mt-1 text-xs">
-                                                                    <span className={`font-bold ${
-                                                                        unit.rarity === "UR" ? "text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500" :
-                                                                        unit.rarity === "SSR" ? "text-amber-600" :
-                                                                        unit.rarity === "SR" ? "text-purple-600" :
-                                                                        unit.rarity === "R" ? "text-blue-600" :
-                                                                        "text-gray-500"
-                                                                    }`}>
-                                                                        {unit.rarity}
-                                                                    </span>
-                                                                    <span className="text-gray-300">|</span>
-                                                                    <span className="text-gray-400" title={`${(unit.scale ?? 1).toFixed(1)}x`}>
-                                                                        {t(getSizeCategory(unit.scale ?? 1))}
-                                                                    </span>
-                                                                    {unit.isFlying && (
-                                                                        <>
-                                                                            <span className="text-gray-300">|</span>
-                                                                            <span className="text-gray-400">{t("flying")}</span>
-                                                                        </>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                            <div className="mt-1 text-xs text-gray-400 space-y-0.5">
-                                                                <div className="flex justify-between">
-                                                                    <span>❤️ {t("hp")}:</span>
-                                                                    <span className="font-bold">{unit.maxHp}</span>
-                                                                </div>
-                                                                <div className="flex justify-between">
-                                                                    <span>⚔️ {t("attack")}:</span>
-                                                                    <span className="font-bold">{unit.attackDamage}</span>
-                                                                </div>
-                                                                <div className="flex justify-between">
-                                                                    <span>💥 DPS:</span>
-                                                                    <span className="font-bold">{getUnitDPS(unit).toFixed(1)}</span>
-                                                                </div>
-                                                                <div className="flex justify-between">
-                                                                    <span>📏 {t("range")}:</span>
-                                                                    <span className="font-bold">{unit.attackRange}</span>
-                                                                </div>
-                                                                <div className="flex justify-between">
-                                                                    <span>⏱️ {t("attack_speed")}:</span>
-                                                                    <span className="font-bold">{(1000 / unit.attackCooldownMs).toFixed(1)}/s</span>
-                                                                </div>
-                                                                <div className="flex justify-between">
-                                                                    <span>🏃 {t("move_speed")}:</span>
-                                                                    <span className="font-bold">{unit.speed}</span>
-                                                                </div>
-                                                                <div className="flex justify-between">
-                                                                    <span>💰 {t("cost")}:</span>
-                                                                    <span className="font-bold">¥{unit.cost}</span>
-                                                                </div>
-                                                                <div className={`flex justify-between ${getDropRate(unit) < 0.1 ? "text-pink-400" : "text-pink-400"}`}>
-                                                                    <span>🎰 {t("drop_rate")}:</span>
-                                                                    <span className="font-bold">{getDropRate(unit) < 0.1 ? getDropRate(unit).toFixed(3) : getDropRate(unit).toFixed(2)}%</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        {/* 未保有表示 */}
-                                                        <div className="w-full mt-3 py-3 md:py-3.5 rounded-xl font-bold text-sm md:text-base bg-gray-200 dark:bg-slate-700 text-gray-500 dark:text-gray-400 text-center min-h-[44px] flex items-center justify-center">
-                                                            {t("not_owned")}
-                                                        </div>
-                                                    </div>
-                                                );
-                                            }, [t, handleUnitClick])}
+                                            containerHeight={850}
+                                            renderItem={renderUnownedUnit}
                                         />
                                     </div>
                                 ) : (

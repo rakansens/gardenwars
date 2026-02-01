@@ -49,7 +49,7 @@ gachaPool.forEach(unit => {
 const totalGachaWeight = Array.from(unitWeightCache.values()).reduce((sum, w) => sum + w, 0);
 
 export default function GachaPage() {
-    const { coins, unitInventory, spendCoins, addUnits, addGachaHistory, gachaHistory, isLoaded } = usePlayerData();
+    const { coins, unitInventory, executeGacha, addGachaHistory, gachaHistory, isLoaded } = usePlayerData();
     const { t } = useLanguage();
     const { playerId } = useAuth();
     const [results, setResults] = useState<UnitDefinition[]>([]);
@@ -101,27 +101,31 @@ export default function GachaPage() {
 
         setIsRolling(true);
 
-        // コインを消費
-        spendCoins(cost);
-
         // ランダムにユニットを選ぶ（レアリティで重み付け）
         const rolled: UnitDefinition[] = [];
         for (let i = 0; i < count; i++) {
             const unit = pickRandomUnit();
             rolled.push(unit);
         }
+        const unitIds = rolled.map(u => u.id);
 
-        // カード演出開始
+        // アトミック操作: コイン消費 + ユニット追加を同時に実行
+        // これによりブラウザが閉じられてもデータ損失を防ぐ
+        const success = executeGacha(cost, unitIds);
+        if (!success) {
+            setIsRolling(false);
+            return;
+        }
+
+        // 履歴に追加
+        addGachaHistory(unitIds);
+        // ランキング用ガチャ回数カウント
+        if (playerId) {
+            incrementGachaCount(playerId, count);
+        }
+
+        // カード演出開始（少しの遅延で演出効果）
         setTimeout(() => {
-            const unitIds = rolled.map(u => u.id);
-            // ユニットをまとめて追加
-            addUnits(unitIds);
-            // 履歴に追加
-            addGachaHistory(unitIds);
-            // ランキング用ガチャ回数カウント
-            if (playerId) {
-                incrementGachaCount(playerId, count);
-            }
             setResults(rolled);
             setIsRolling(false);
             setShowReveal(true);
