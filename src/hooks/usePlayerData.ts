@@ -385,27 +385,34 @@ export function usePlayerData() {
 
     // アイテム購入
     const buyShopItem = useCallback((index: number): boolean => {
-        let success = false;
+        // 事前チェック（同期的に結果を返すため）
+        const item = data.shopItems[index];
+        if (!item || item.soldOut || data.coins < item.price) {
+            return false;
+        }
+
+        // 状態更新（競合対策で再チェック）
         setData(prev => {
             const items = [...prev.shopItems];
-            const item = items[index];
-            if (!item || item.soldOut || prev.coins < item.price) return prev;
+            const currentItem = items[index];
+            if (!currentItem || currentItem.soldOut || prev.coins < currentItem.price) {
+                return prev;
+            }
 
-            success = true;
-            items[index] = { ...item, soldOut: true };
+            items[index] = { ...currentItem, soldOut: true };
 
             const newInventory = { ...prev.unitInventory };
-            newInventory[item.unitId] = (newInventory[item.unitId] || 0) + 1;
+            newInventory[currentItem.unitId] = (newInventory[currentItem.unitId] || 0) + 1;
 
             return {
                 ...prev,
-                coins: prev.coins - item.price,
+                coins: prev.coins - currentItem.price,
                 shopItems: items,
                 unitInventory: newInventory
             };
         });
-        return success;
-    }, []);
+        return true;
+    }, [data.shopItems, data.coins]);
 
     // ガチャ履歴を追加
     const addGachaHistory = useCallback((unitIds: string[]) => {
