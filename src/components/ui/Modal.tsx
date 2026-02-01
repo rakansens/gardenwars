@@ -117,7 +117,7 @@ export function SuccessModal({
                 {message && <p className="text-gray-600 mb-6">{message}</p>}
                 <button
                     onClick={onClose}
-                    className="px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold rounded-xl shadow-lg hover:scale-105 transition-all active:scale-95 min-h-[48px]"
+                    className="btn btn-primary px-8"
                 >
                     {buttonText}
                 </button>
@@ -165,7 +165,7 @@ export function ConfirmModal({
                 <div className="flex gap-3 justify-center">
                     <button
                         onClick={onClose}
-                        className="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-xl transition-all active:scale-95 min-h-[48px]"
+                        className="btn btn-secondary px-6"
                     >
                         {cancelText}
                     </button>
@@ -174,7 +174,7 @@ export function ConfirmModal({
                             onConfirm();
                             onClose();
                         }}
-                        className={`px-6 py-3 bg-gradient-to-r ${colorClasses[confirmColor]} text-white font-bold rounded-xl shadow-lg hover:scale-105 transition-all active:scale-95 min-h-[48px]`}
+                        className={`btn btn-primary px-6 ${confirmColor === "red" ? "bg-gradient-to-r from-red-500 to-red-600 border-red-400" : ""}`}
                     >
                         {confirmText}
                     </button>

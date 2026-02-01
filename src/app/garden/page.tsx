@@ -173,8 +173,8 @@ export default function GardenPage() {
             {/* Header */}
             <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-start z-10 pointer-events-none">
                 <div className="pointer-events-auto">
-                    <Link href="/" className="btn bg-white/50 hover:bg-white/80 dark:bg-slate-700/80 dark:hover:bg-slate-600 text-green-900 dark:text-green-300 border-green-500 dark:border-green-400 font-bold">
-                        {t("back_to_home")}
+                    <Link href="/" className="btn btn-secondary">
+                        ← {t("back_to_home")}
                     </Link>
                 </div>
                 <div className="bg-white/60 dark:bg-slate-800/80 p-4 rounded-xl backdrop-blur-sm border-2 border-white/80 dark:border-slate-600 shadow-lg text-center">
@@ -268,22 +268,22 @@ export default function GardenPage() {
                         <div className="flex justify-between gap-4">
                             <button
                                 onClick={handleAutoPickInModal}
-                                className="px-6 py-3 rounded-xl bg-orange-600/80 hover:bg-orange-600 text-white font-bold"
+                                className="btn btn-secondary"
                             >
-                                {t("auto_pick")}
+                                🔄 {t("auto_pick")}
                             </button>
                             <div className="flex gap-4">
                                 <button
                                     onClick={() => setIsSelectModalOpen(false)}
-                                    className="px-6 py-3 rounded-xl bg-gray-600 hover:bg-gray-500 text-white font-bold"
+                                    className="btn btn-secondary"
                                 >
                                     {t("cancel")}
                                 </button>
                                 <button
                                     onClick={saveSelection}
-                                    className="px-8 py-3 rounded-xl bg-green-600 hover:bg-green-500 text-white font-bold shadow-lg shadow-green-900/50"
+                                    className="btn btn-primary"
                                 >
-                                    {t("save_selection")}
+                                    ✓ {t("save_selection")}
                                 </button>
                             </div>
                         </div>

@@ -281,7 +281,8 @@ export class RealtimeBattleScene extends Phaser.Scene {
     if (this.summonUi) {
       this.summonUi.destroy(true);
     }
-    this.summonUi = this.add.container(0, 0);
+    const summonUi = this.add.container(0, 0);
+    this.summonUi = summonUi;
 
     const { height } = this.scale;
     const buttonY = height - 85;
@@ -294,7 +295,7 @@ export class RealtimeBattleScene extends Phaser.Scene {
     const bar = this.add.rectangle(this.scale.width / 2, height - 75, this.scale.width, 150, 0x6b4a2b, 0.95);
     bar.setScrollFactor(0);
     bar.setDepth(90);
-    this.summonUi.add(bar);
+    summonUi.add(bar);
 
     this.deck.forEach((unitId, index) => {
       const x = startX + index * (buttonWidth + gap);
@@ -357,7 +358,7 @@ export class RealtimeBattleScene extends Phaser.Scene {
       bg.on('pointerover', () => bg.setFillStyle(0xfff3cf));
       bg.on('pointerout', () => bg.setFillStyle(0xf8e7b6));
 
-      this.summonUi.add(uiItems);
+      summonUi.add(uiItems);
     });
   }
 

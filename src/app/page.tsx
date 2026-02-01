@@ -145,7 +145,7 @@ export default function Home() {
         {status === "authenticated" && playerName ? (
           <button
             onClick={() => setShowPinModal(true)}
-            className="bg-green-500/90 text-white px-3 py-2 rounded-full font-bold shadow-lg flex items-center gap-1 text-sm hover:bg-green-600 transition-colors"
+            className="btn btn-primary text-sm py-2 px-3"
           >
             <span>👤</span>
             <span className="max-w-[60px] truncate">{playerName}</span>
@@ -153,7 +153,7 @@ export default function Home() {
         ) : (
           <Link
             href="/auth"
-            className="bg-blue-500/90 text-white px-3 py-2 rounded-full font-bold shadow-lg flex items-center gap-1 text-sm hover:bg-blue-600 transition-colors"
+            className="btn btn-secondary text-sm py-2 px-3"
           >
             <span>🔑</span>
             <span>{language === "ja" ? "ログイン" : "Login"}</span>
@@ -285,14 +285,14 @@ export default function Home() {
                   <div className="flex gap-2 mt-2">
                     <button
                       onClick={() => setIsEditingName(false)}
-                      className="flex-1 py-2 bg-gray-200 dark:bg-slate-600 hover:bg-gray-300 dark:hover:bg-slate-500 text-gray-700 dark:text-gray-300 font-bold rounded-lg text-sm transition-all active:scale-95 min-h-[44px]"
+                      className="flex-1 btn btn-secondary text-sm py-2 disabled:opacity-50"
                       disabled={isUpdatingName}
                     >
                       {language === "ja" ? "キャンセル" : "Cancel"}
                     </button>
                     <button
                       onClick={handleSaveName}
-                      className="flex-1 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg text-sm transition-all active:scale-95 min-h-[44px] disabled:opacity-50"
+                      className="flex-1 btn btn-primary text-sm py-2 disabled:opacity-50"
                       disabled={isUpdatingName}
                     >
                       {isUpdatingName
@@ -306,7 +306,7 @@ export default function Home() {
                   <p className="text-lg font-bold text-gray-800 dark:text-white">{playerName}</p>
                   <button
                     onClick={handleEditName}
-                    className="px-3 py-1 bg-blue-100 dark:bg-blue-900 hover:bg-blue-200 dark:hover:bg-blue-800 text-blue-700 dark:text-blue-300 font-bold rounded-lg text-sm transition-all active:scale-95 min-h-[36px]"
+                    className="btn btn-secondary text-sm py-1 px-3"
                   >
                     ✏️ {language === "ja" ? "変更" : "Edit"}
                   </button>
@@ -338,7 +338,7 @@ export default function Home() {
             <div className="flex gap-3">
               <button
                 onClick={() => { setShowPinModal(false); setIsEditingName(false); }}
-                className="flex-1 py-3 bg-gray-200 dark:bg-slate-600 hover:bg-gray-300 dark:hover:bg-slate-500 text-gray-700 dark:text-gray-300 font-bold rounded-xl transition-all active:scale-95 min-h-[48px]"
+                className="flex-1 btn btn-secondary"
               >
                 {language === "ja" ? "とじる" : "Close"}
               </button>
@@ -348,7 +348,7 @@ export default function Home() {
                   setIsEditingName(false);
                   setShowLogoutConfirm(true);
                 }}
-                className="flex-1 py-3 bg-red-100 dark:bg-red-900/50 hover:bg-red-200 dark:hover:bg-red-900/70 text-red-700 dark:text-red-400 font-bold rounded-xl transition-all active:scale-95 min-h-[48px]"
+                className="flex-1 btn btn-secondary text-red-600 dark:text-red-400 border-red-300 dark:border-red-700"
               >
                 {language === "ja" ? "ログアウト" : "Logout"}
               </button>
