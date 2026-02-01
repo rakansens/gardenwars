@@ -117,6 +117,9 @@ export class CannonSystem {
         // 画面シェイク
         this.scene.cameras.main.shake(400, 0.015);
 
+        // キャノン発射SE
+        this.scene.sound.play('sfx_cannon_fire', { volume: 0.6 });
+
         // 衝撃波
         this.createShockwave(allyCastle.x, groundY, attackRange);
 

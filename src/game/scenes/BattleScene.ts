@@ -103,11 +103,17 @@ export class BattleScene extends Phaser.Scene {
     private bossSpawned: boolean = false;
     private lastEnemyCastleHp: number = 0;
 
+    // BGM
+    private bgm?: Phaser.Sound.BaseSound;
+
     constructor() {
         super({ key: 'BattleScene' });
     }
 
     shutdown() {
+        // BGMを停止
+        this.bgm?.stop();
+
         // システムのクリーンアップ
         this.quizSystem?.destroy();
         this.cannonSystem?.destroy();
@@ -142,6 +148,23 @@ export class BattleScene extends Phaser.Scene {
     }
 
     preload() {
+        // BGMをロード
+        this.load.audio('battle_bgm_1', '/assets/audio/bgm/battle_1.mp3');
+        this.load.audio('battle_bgm_2', '/assets/audio/bgm/battle_2.mp3');
+        this.load.audio('boss_bgm_1', '/assets/audio/bgm/boss_1.mp3');
+        this.load.audio('boss_bgm_2', '/assets/audio/bgm/boss_2.mp3');
+        this.load.audio('boss_bgm_3', '/assets/audio/bgm/boss_3.mp3');
+        this.load.audio('victory_bgm', '/assets/audio/bgm/victory.mp3');
+        this.load.audio('defeat_bgm', '/assets/audio/bgm/defeat.mp3');
+
+        // 効果音をロード
+        this.load.audio('sfx_unit_spawn', '/assets/audio/sfx/unit_spawn.mp3');
+        this.load.audio('sfx_unit_death', '/assets/audio/sfx/unit_death.mp3');
+        this.load.audio('sfx_attack_hit', '/assets/audio/sfx/attack_hit.mp3');
+        this.load.audio('sfx_attack_hit_sr', '/assets/audio/sfx/attack_hit_sr.mp3');
+        this.load.audio('sfx_cannon_fire', '/assets/audio/sfx/cannon_fire.mp3');
+        this.load.audio('sfx_cost_upgrade', '/assets/audio/sfx/cost_upgrade.mp3');
+
         // 城スプライトをロード
         this.load.image('castle_ally', getSpritePath('castle_ally'));
         this.load.image('castle_enemy', getSpritePath('castle_enemy'));
@@ -284,6 +307,17 @@ export class BattleScene extends Phaser.Scene {
 
         // 背景
         this.createBackground();
+
+        // BGMをランダムに選択して再生（ボスステージは専用BGM）
+        let bgmKey: string;
+        if (this.stageData.isBossStage) {
+            const bossIndex = Math.floor(Math.random() * 3) + 1;
+            bgmKey = `boss_bgm_${bossIndex}`;
+        } else {
+            bgmKey = Math.random() < 0.5 ? 'battle_bgm_1' : 'battle_bgm_2';
+        }
+        this.bgm = this.sound.add(bgmKey, { loop: true, volume: 0.3 });
+        this.bgm.play();
 
         // 地面（床を大きく）- ステージ設定から色を取得
         const worldWidth = this.stageData.length + 100;
@@ -794,7 +828,9 @@ export class BattleScene extends Phaser.Scene {
         this.costUpBtnZone.setDepth(104);
         this.costUpBtnZone.setInteractive({ useHandCursor: true });
         this.costUpBtnZone.on('pointerdown', () => {
-            this.costSystem.upgradeMax();
+            if (this.costSystem.upgradeMax()) {
+                this.sound.play('sfx_cost_upgrade', { volume: 0.5 });
+            }
         });
 
         // ゲーム状態表示
@@ -1517,6 +1553,11 @@ export class BattleScene extends Phaser.Scene {
         }
 
         this.gameState = win ? 'WIN' : 'LOSE';
+
+        // BGMを停止して結果BGMを再生
+        this.bgm?.stop();
+        const resultBgmKey = win ? 'victory_bgm' : 'defeat_bgm';
+        this.sound.play(resultBgmKey, { volume: 0.5 });
 
         // 結果を通知
         const result = {

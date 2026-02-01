@@ -243,6 +243,10 @@ export class Unit extends Phaser.GameObjects.Container {
                     duration: 200,
                     ease: 'Back.easeOut',
                 });
+                // 召喚SE（味方のみ）
+                if (this.side === 'ally') {
+                    this.scene.sound.play('sfx_unit_spawn', { volume: 0.3 });
+                }
                 break;
             case 'WALK':
                 this.sprite.setAlpha(1);
@@ -350,6 +354,13 @@ export class Unit extends Phaser.GameObjects.Container {
     }
 
     private dealDamage(): void {
+        // 攻撃ヒットSE（レアリティによって変更）
+        const rarity = this.definition.rarity;
+        const hitSfx = (rarity === 'SR' || rarity === 'SSR' || rarity === 'UR')
+            ? 'sfx_attack_hit_sr'
+            : 'sfx_attack_hit';
+        this.scene.sound.play(hitSfx, { volume: 0.25 });
+
         if (this.target && !this.target.isDead()) {
             this.target.takeDamage(this.definition.attackDamage, this.definition.knockback);
             return;
@@ -435,6 +446,9 @@ export class Unit extends Phaser.GameObjects.Container {
 
     private die(): void {
         this.setUnitState('DIE');
+
+        // 死亡SE
+        this.scene.sound.play('sfx_unit_death', { volume: 0.3 });
 
         // 死亡アニメーション
         this.scene.tweens.add({
