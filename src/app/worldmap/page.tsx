@@ -74,6 +74,39 @@ const AREA_TABS: {
         gradient: "from-purple-700 to-black",
         banner: "/assets/stages/boss_banner.webp",
     },
+    // World 2 エリア
+    {
+        key: "purgatory",
+        labelKey: "difficulty_purgatory",
+        subKey: "difficulty_purgatory_sub",
+        icon: "🔥",
+        gradient: "from-orange-700 to-red-900",
+        banner: "/assets/stages/purgatory_banner.webp",
+    },
+    {
+        key: "hellfire",
+        labelKey: "difficulty_hellfire",
+        subKey: "difficulty_hellfire_sub",
+        icon: "🌋",
+        gradient: "from-red-700 to-orange-900",
+        banner: "/assets/stages/hellfire_banner.webp",
+    },
+    {
+        key: "abyss",
+        labelKey: "difficulty_abyss",
+        subKey: "difficulty_abyss_sub",
+        icon: "🕳️",
+        gradient: "from-purple-900 to-gray-900",
+        banner: "/assets/stages/abyss_banner.webp",
+    },
+    {
+        key: "inferno_boss",
+        labelKey: "difficulty_inferno_boss",
+        subKey: "difficulty_inferno_boss_sub",
+        icon: "👹",
+        gradient: "from-red-900 to-black",
+        banner: "/assets/stages/inferno_boss_banner.webp",
+    },
 ];
 
 // ステージのテーマアイコン
@@ -106,6 +139,27 @@ const stageIcons: { [key: string]: string } = {
     boss_stage_3: "💀",
     boss_stage_4: "💃",
     boss_stage_5: "🌙",
+    // World 2 ステージ
+    purgatory_1: "🔥",
+    purgatory_2: "💨",
+    purgatory_3: "💀",
+    purgatory_4: "🌲",
+    purgatory_boss: "👹",
+    hellfire_1: "🌊",
+    hellfire_2: "🌋",
+    hellfire_3: "🔥",
+    hellfire_4: "🏰",
+    hellfire_boss: "👹",
+    abyss_1: "🕳️",
+    abyss_2: "🏚️",
+    abyss_3: "⛓️",
+    abyss_4: "🌀",
+    abyss_boss: "👹",
+    inferno_boss_1: "🏰",
+    inferno_boss_2: "⚔️",
+    inferno_boss_3: "🚪",
+    inferno_boss_4: "⛪",
+    inferno_boss_5: "👑",
 };
 
 // 難易度の星数
@@ -117,6 +171,11 @@ const difficultyStars: { [key: string]: number } = {
     extreme: 5,
     boss: 5,
     special: 5,
+    // World 2
+    purgatory: 6,
+    hellfire: 7,
+    abyss: 8,
+    inferno_boss: 9,
 };
 
 // ステージに出現する敵ユニットの種類を取得

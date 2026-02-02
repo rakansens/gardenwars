@@ -73,6 +73,27 @@ const stageIcons: { [key: string]: string } = {
     boss_stage_5: "🌙",
     stage_ur_rush: "⚔️",
     stage_sr_rush: "🔥",
+    // World 2 ステージ
+    purgatory_1: "🔥",
+    purgatory_2: "💨",
+    purgatory_3: "💀",
+    purgatory_4: "🌲",
+    purgatory_boss: "👹",
+    hellfire_1: "🌊",
+    hellfire_2: "🌋",
+    hellfire_3: "🔥",
+    hellfire_4: "🏰",
+    hellfire_boss: "👹",
+    abyss_1: "🕳️",
+    abyss_2: "🏚️",
+    abyss_3: "⛓️",
+    abyss_4: "🌀",
+    abyss_boss: "👹",
+    inferno_boss_1: "🏰",
+    inferno_boss_2: "⚔️",
+    inferno_boss_3: "🚪",
+    inferno_boss_4: "⛪",
+    inferno_boss_5: "👑",
 };
 
 // 敵の総数を計算

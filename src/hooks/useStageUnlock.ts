@@ -6,7 +6,12 @@ import { usePlayerData } from "@/hooks/usePlayerData";
 const stages = stagesData as StageDefinition[];
 
 // 難易度の順番（アンロック順）
-export const DIFFICULTY_ORDER: StageDifficulty[] = ["tutorial", "easy", "normal", "hard", "extreme", "boss", "special"];
+// World 1の難易度
+export const WORLD1_DIFFICULTY_ORDER: StageDifficulty[] = ["tutorial", "easy", "normal", "hard", "extreme", "boss", "special"];
+// World 2の難易度
+export const WORLD2_DIFFICULTY_ORDER: StageDifficulty[] = ["purgatory", "hellfire", "abyss", "inferno_boss"];
+// 全難易度
+export const DIFFICULTY_ORDER: StageDifficulty[] = [...WORLD1_DIFFICULTY_ORDER, ...WORLD2_DIFFICULTY_ORDER];
 
 // ステージの元の順序を保存するマップ（インデックス順序の保証用）
 const stageOrderMap = new Map<string, number>();
@@ -49,11 +54,32 @@ export function useStageUnlock(): StageUnlockInfo {
     // 難易度がアンロックされているかチェック
     const isDifficultyUnlocked = useMemo(() => {
         return (difficulty: StageDifficulty, worldId?: WorldId): boolean => {
-            const difficultyIndex = DIFFICULTY_ORDER.indexOf(difficulty);
+            // World 2の難易度かどうか
+            const isWorld2Difficulty = WORLD2_DIFFICULTY_ORDER.includes(difficulty);
+
+            if (isWorld2Difficulty) {
+                // World 2の難易度解放ロジック
+                const world2Index = WORLD2_DIFFICULTY_ORDER.indexOf(difficulty);
+
+                if (world2Index === 0) {
+                    // 最初のWorld 2難易度(purgatory)は、World 1のbossを全クリアで解放
+                    const world1BossStages = getStagesInDifficulty("boss", "world1");
+                    return world1BossStages.every(s => clearedStages.includes(s.id));
+                }
+
+                // 前のWorld 2難易度の全ステージをクリアしているかチェック
+                const prevDifficulty = WORLD2_DIFFICULTY_ORDER[world2Index - 1];
+                const prevStages = getStagesInDifficulty(prevDifficulty, "world2");
+                return prevStages.every(s => clearedStages.includes(s.id));
+            }
+
+            // World 1の難易度解放ロジック
+            const difficultyIndex = WORLD1_DIFFICULTY_ORDER.indexOf(difficulty);
             if (difficultyIndex === 0) return true; // tutorialは常にアンロック
+            if (difficultyIndex < 0) return false; // 不明な難易度
 
             // 前の難易度の全ステージをクリアしているかチェック
-            const prevDifficulty = DIFFICULTY_ORDER[difficultyIndex - 1];
+            const prevDifficulty = WORLD1_DIFFICULTY_ORDER[difficultyIndex - 1];
             const prevStages = getStagesInDifficulty(prevDifficulty, worldId);
             return prevStages.every(s => clearedStages.includes(s.id));
         };
