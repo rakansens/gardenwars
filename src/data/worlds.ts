@@ -30,7 +30,7 @@ export const worlds: WorldDefinition[] = [
             "boss_stage_5",
         ],
         gradient: "from-orange-500 to-red-700",
-        banner: "/assets/stages/extreme_banner.webp",
+        banner: "/assets/stages/inferno_boss_banner.webp",
     },
     {
         id: "world3",

@@ -56,12 +56,20 @@ export function getStageById(stageId: string): StageDefinition | undefined {
 }
 
 /**
+ * ワールドの総ステージ数を取得
+ */
+export function getTotalStagesInWorld(worldId: WorldId): number {
+    return getStagesByWorld(worldId).length;
+}
+
+/**
  * ステージIDから進捗表示用の情報を取得
- * @returns { worldId, stageIndex, difficulty, nameKey } または undefined
+ * @returns { worldId, stageIndex, totalStages, difficulty, nameKey } または undefined
  */
 export function getStageProgressInfo(stageId: string): {
     worldId: WorldId;
     stageIndex: number;
+    totalStages: number;
     difficulty: StageDefinition["difficulty"];
     nameKey: string;
 } | undefined {
@@ -69,6 +77,7 @@ export function getStageProgressInfo(stageId: string): {
     if (!stage) return undefined;
 
     const worldId = stage.worldId || "world1";
+    const totalStages = getTotalStagesInWorld(worldId);
 
     // ステージIDから番号を抽出
     // 例: "stage_5" -> 5, "boss_stage_3" -> 3, "inferno_7" -> 7
@@ -78,6 +87,7 @@ export function getStageProgressInfo(stageId: string): {
     return {
         worldId,
         stageIndex,
+        totalStages,
         difficulty: stage.difficulty,
         nameKey: stage.name, // ステージ名の翻訳キー
     };

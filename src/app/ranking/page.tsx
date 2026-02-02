@@ -19,7 +19,7 @@ type SortOption = RankingSortBy | "all";
 
 /**
  * ステージ進捗を表示用にフォーマット
- * 例: "🔥 Inferno - Flame Gate" / "🌍 Earth - Forest Path"
+ * 例: "🔥 Inferno 5/20" / "🌍 Earth 20/35"
  */
 function formatStageProgress(
     stageId: string | null,
@@ -38,7 +38,7 @@ function formatStageProgress(
 
     return {
         icon: world.icon,
-        text: `${worldName} #${progressInfo.stageIndex}`,
+        text: `${worldName} ${progressInfo.stageIndex}/${progressInfo.totalStages}`,
         stageName: stageName,
     };
 }

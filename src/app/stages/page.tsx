@@ -34,6 +34,11 @@ const DIFFICULTY_TABS: {
     { key: "extreme", labelKey: "difficulty_extreme", subKey: "difficulty_extreme_sub", icon: "🔥", color: "bg-red-600", banner: "/assets/stages/extreme_banner.webp", gradient: "from-red-600 to-red-900" },
     { key: "boss", labelKey: "difficulty_boss", subKey: "difficulty_boss_sub", icon: "🏰", color: "bg-purple-600", banner: "/assets/stages/boss_banner.webp", gradient: "from-purple-700 to-black" },
     { key: "special", labelKey: "difficulty_special", subKey: "difficulty_special_sub", icon: "✨", color: "bg-gradient-to-r from-pink-500 to-cyan-500", banner: "/assets/stages/special_banner.webp", gradient: "from-pink-400 via-purple-500 to-cyan-400" },
+    // World 2 難易度
+    { key: "purgatory", labelKey: "difficulty_purgatory", subKey: "difficulty_purgatory_sub", icon: "🔥", color: "bg-orange-700", banner: "/assets/stages/purgatory_banner.webp", gradient: "from-orange-700 to-red-900" },
+    { key: "hellfire", labelKey: "difficulty_hellfire", subKey: "difficulty_hellfire_sub", icon: "🌋", color: "bg-red-700", banner: "/assets/stages/hellfire_banner.webp", gradient: "from-red-700 to-orange-900" },
+    { key: "abyss", labelKey: "difficulty_abyss", subKey: "difficulty_abyss_sub", icon: "🕳️", color: "bg-purple-900", banner: "/assets/stages/abyss_banner.webp", gradient: "from-purple-900 to-gray-900" },
+    { key: "inferno_boss", labelKey: "difficulty_inferno_boss", subKey: "difficulty_inferno_boss_sub", icon: "👹", color: "bg-red-900", banner: "/assets/stages/inferno_boss_banner.webp", gradient: "from-red-900 to-black" },
 ];
 
 // ステージのテーマアイコン
@@ -93,6 +98,11 @@ const getDifficultyStars = (difficulty?: StageDifficulty): string => {
         case "extreme": return "💀💀💀";
         case "boss": return "👑";
         case "special": return "✨";
+        // World 2 難易度
+        case "purgatory": return "🔥";
+        case "hellfire": return "🔥🔥";
+        case "abyss": return "🔥🔥🔥";
+        case "inferno_boss": return "👹";
         default: return "⭐";
     }
 };
