@@ -1,18 +1,34 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import unitsData from "@/data/units";
 import type { Rarity, UnitDefinition } from "@/data/types";
+import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { getSpritePath } from "@/lib/sprites";
 import { ChessGame, ChessMove, ChessPieceType } from "@/lib/chess";
+import { chessClient, ChessLobbyRoom, Colyseus } from "@/lib/colyseus/chessClient";
 import Modal from "@/components/ui/Modal";
 import RarityFrame from "@/components/ui/RarityFrame";
 
 type PieceRole = "k" | "q" | "r" | "b" | "n" | "p";
 type ChessAiLevel = "easy" | "normal" | "hard";
+type ChessMode = "cpu" | "online";
+type ChessConnectionStatus = "lobby" | "connecting" | "waiting" | "playing" | "finished" | "error";
+
+interface ChessPlayerInfo {
+  sessionId: string;
+  displayName: string;
+  side: "w" | "b";
+}
+
+interface ChessMovePayload {
+  from: { x: number; y: number };
+  to: { x: number; y: number };
+  promotion?: ChessPieceType;
+}
 
 interface PieceSkin {
   unitId: string;
@@ -36,8 +52,11 @@ const PIECE_ROLES: { id: PieceRole; labelKey: string }[] = [
 
 export default function ChessPage() {
   const { t } = useLanguage();
+  const { playerName } = useAuth();
   const { selectedTeam, unitInventory, isLoaded } = usePlayerData();
   const gameRef = useRef<ChessGame>(new ChessGame());
+  const roomRef = useRef<Colyseus.Room | null>(null);
+  const serverMovesRef = useRef<ChessMovePayload[]>([]);
   const [version, setVersion] = useState(0);
   const [selected, setSelected] = useState<{ x: number; y: number } | null>(null);
   const [legalMoves, setLegalMoves] = useState<ChessMove[]>([]);
@@ -47,6 +66,20 @@ export default function ChessPage() {
   const [aiThinking, setAiThinking] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [pendingPromotion, setPendingPromotion] = useState<{ from: { x: number; y: number }; to: { x: number; y: number } } | null>(null);
+  const [mode, setMode] = useState<ChessMode>("cpu");
+  const [connectionStatus, setConnectionStatus] = useState<ChessConnectionStatus>("lobby");
+  const [rooms, setRooms] = useState<ChessLobbyRoom[]>([]);
+  const [isLoadingRooms, setIsLoadingRooms] = useState(false);
+  const [roomId, setRoomId] = useState<string | null>(null);
+  const [mySide, setMySide] = useState<"w" | "b" | null>(null);
+  const [mySessionId, setMySessionId] = useState<string | null>(null);
+  const [onlinePlayers, setOnlinePlayers] = useState<ChessPlayerInfo[]>([]);
+  const [onlineError, setOnlineError] = useState<string | null>(null);
+  const [onlineWinner, setOnlineWinner] = useState<"w" | "b" | null>(null);
+  const [onlineWinReason, setOnlineWinReason] = useState<string | null>(null);
+  const [awaitingServer, setAwaitingServer] = useState(false);
+
+  const displayName = playerName?.trim() || "Player";
 
   const ownedUnits = useMemo(
     () => playableUnits.filter((unit) => (unitInventory[unit.id] ?? 0) > 0),
@@ -140,10 +173,245 @@ export default function ChessPage() {
     } catch {}
   }, [pieceSkins]);
 
+  const resetLocalGame = useCallback(() => {
+    gameRef.current.reset();
+    setSelected(null);
+    setLegalMoves([]);
+    setPendingPromotion(null);
+    setVersion((v) => v + 1);
+  }, []);
+
+  const applyServerMoves = useCallback((moves: ChessMovePayload[]) => {
+    gameRef.current.reset();
+    for (const move of moves) {
+      const result = gameRef.current.move(move.from.x, move.from.y, move.to.x, move.to.y, move.promotion ?? "q");
+      if (!result.ok) break;
+    }
+    setAwaitingServer(false);
+    setSelected(null);
+    setLegalMoves([]);
+    setPendingPromotion(null);
+    setVersion((v) => v + 1);
+  }, []);
+
+  const applyServerMove = useCallback((move: ChessMovePayload) => {
+    const result = gameRef.current.move(move.from.x, move.from.y, move.to.x, move.to.y, move.promotion ?? "q");
+    if (!result.ok) {
+      chessClient.requestSync();
+      return;
+    }
+    setAwaitingServer(false);
+    setSelected(null);
+    setLegalMoves([]);
+    setPendingPromotion(null);
+    setVersion((v) => v + 1);
+  }, []);
+
+  const resetOnlineState = useCallback((status: ChessConnectionStatus = "lobby") => {
+    setConnectionStatus(status);
+    setRoomId(null);
+    setMySide(null);
+    setMySessionId(null);
+    setOnlinePlayers([]);
+    setOnlineError(null);
+    setOnlineWinner(null);
+    setOnlineWinReason(null);
+    setAwaitingServer(false);
+    serverMovesRef.current = [];
+  }, []);
+
+  const fetchOnlineRooms = useCallback(async () => {
+    setIsLoadingRooms(true);
+    const list = await chessClient.fetchRooms();
+    setRooms(list);
+    setIsLoadingRooms(false);
+  }, []);
+
+  const attachRoom = useCallback(
+    (room: Colyseus.Room) => {
+      roomRef.current = room;
+      setRoomId(room.roomId);
+      setMySessionId(room.sessionId);
+      setConnectionStatus("waiting");
+      setOnlineError(null);
+      setOnlineWinner(null);
+      setOnlineWinReason(null);
+      setMySide(null);
+      setOnlinePlayers([]);
+      setAwaitingServer(false);
+      serverMovesRef.current = [];
+      resetLocalGame();
+
+      room.onMessage("assign", (message: any) => {
+        if (message?.side === "w" || message?.side === "b") {
+          setMySide(message.side);
+        }
+      });
+
+      room.onMessage("all_players", (message: any) => {
+        if (Array.isArray(message?.players)) {
+          setOnlinePlayers(
+            message.players.map((player: ChessPlayerInfo) => {
+              if (player.sessionId === room.sessionId) {
+                return { ...player, displayName };
+              }
+              return player;
+            })
+          );
+        }
+      });
+
+      room.onMessage("player_joined", (message: any) => {
+        if (!message?.sessionId) return;
+        setOnlinePlayers((prev) => {
+          const next = prev.filter((p) => p.sessionId !== message.sessionId);
+          next.push({
+            sessionId: message.sessionId,
+            displayName: message.sessionId === room.sessionId ? displayName : message.displayName || "Player",
+            side: message.side,
+          });
+          return next;
+        });
+      });
+
+      room.onMessage("player_left", (message: any) => {
+        if (!message?.sessionId) return;
+        setOnlinePlayers((prev) => prev.filter((p) => p.sessionId !== message.sessionId));
+      });
+
+      room.onMessage("sync", (message: any) => {
+        const moves = Array.isArray(message?.moves) ? message.moves : [];
+        serverMovesRef.current = moves;
+        applyServerMoves(moves);
+        if (message?.phase === "playing") {
+          setConnectionStatus("playing");
+        }
+      });
+
+      room.onMessage("game_start", () => {
+        setConnectionStatus("playing");
+      });
+
+      room.onMessage("move", (message: any) => {
+        if (!message?.from || !message?.to) return;
+        const move: ChessMovePayload = {
+          from: message.from,
+          to: message.to,
+          promotion: message.promotion,
+        };
+        serverMovesRef.current = [...serverMovesRef.current, move];
+        applyServerMove(move);
+      });
+
+      room.onMessage("game_over", (message: any) => {
+        setConnectionStatus("finished");
+        setOnlineWinner(message?.winnerSide ?? null);
+        setOnlineWinReason(message?.reason ?? null);
+      });
+
+      room.onMessage("error", (message: any) => {
+        if (!message || (!message.code && !message.message)) return;
+        const code = message.code || "ERROR";
+        const msg = message.message || "";
+        setAwaitingServer(false);
+        setOnlineError(`${code}${msg ? `: ${msg}` : ""}`);
+      });
+
+      room.onLeave(() => {
+        chessClient.clearRoom();
+        roomRef.current = null;
+        resetOnlineState("lobby");
+      });
+    },
+    [applyServerMove, applyServerMoves, displayName, resetLocalGame, resetOnlineState]
+  );
+
+  const handleQuickMatch = useCallback(async () => {
+    setConnectionStatus("connecting");
+    try {
+      const room = await chessClient.quickMatch({ displayName });
+      attachRoom(room);
+    } catch (error) {
+      console.error("[Chess] Quick match failed:", error);
+      setOnlineError(error instanceof Error ? error.message : "Connection failed");
+      setConnectionStatus("error");
+    }
+  }, [attachRoom, displayName]);
+
+  const handleCreateRoom = useCallback(async () => {
+    setConnectionStatus("connecting");
+    try {
+      const room = await chessClient.createRoom({ displayName });
+      attachRoom(room);
+    } catch (error) {
+      console.error("[Chess] Create room failed:", error);
+      setOnlineError(error instanceof Error ? error.message : "Connection failed");
+      setConnectionStatus("error");
+    }
+  }, [attachRoom, displayName]);
+
+  const handleJoinRoom = useCallback(
+    async (targetRoomId: string) => {
+      setConnectionStatus("connecting");
+      try {
+        const room = await chessClient.joinRoom(targetRoomId, { displayName });
+        attachRoom(room);
+      } catch (error) {
+        console.error("[Chess] Join room failed:", error);
+        setOnlineError(error instanceof Error ? error.message : "Connection failed");
+        setConnectionStatus("error");
+      }
+    },
+    [attachRoom, displayName]
+  );
+
+  const handleResign = useCallback(() => {
+    chessClient.sendResign();
+  }, []);
+
+  const disconnectOnline = useCallback(async () => {
+    await chessClient.leave();
+    roomRef.current = null;
+    resetOnlineState("lobby");
+  }, [resetOnlineState]);
+
+  useEffect(() => {
+    if (mode !== "online") return;
+    fetchOnlineRooms();
+  }, [mode, fetchOnlineRooms]);
+
+  useEffect(() => {
+    if (mode === "online") {
+      setAiThinking(false);
+      return;
+    }
+    if (roomRef.current) {
+      chessClient.leave();
+      roomRef.current = null;
+    }
+    resetOnlineState("lobby");
+    resetLocalGame();
+  }, [mode, resetOnlineState, resetLocalGame]);
+
+  useEffect(() => {
+    return () => {
+      if (roomRef.current) {
+        chessClient.leave();
+      }
+    };
+  }, []);
+
   const board = gameRef.current.getBoard();
   const status = gameRef.current.getStatus();
   const turn = gameRef.current.getTurn();
   const lastMove = gameRef.current.getLastMove();
+  const isOnline = mode === "online";
+  const isInMatch = mode === "cpu" || connectionStatus === "playing" || connectionStatus === "finished";
+  const canInteract =
+    mode === "cpu"
+      ? turn === "w"
+      : connectionStatus === "playing" && !!mySide && mySide === turn && !awaitingServer;
+  const opponent = isOnline ? onlinePlayers.find((player) => player.side !== mySide) || null : null;
 
   const legalMoveTargets = useMemo(() => {
     const map = new Map<string, ChessMove>();
@@ -155,7 +423,8 @@ export default function ChessPage() {
 
   const handleSquareClick = (x: number, y: number) => {
     if (status.checkmate || status.stalemate) return;
-    if (turn !== "w") return;
+    if (connectionStatus === "finished") return;
+    if (!canInteract) return;
     if (pendingPromotion) return;
     const piece = board[y][x];
     if (selected) {
@@ -164,6 +433,13 @@ export default function ChessPage() {
         // Check if this is a pawn promotion
         if (move.promotion) {
           setPendingPromotion({ from: { x: selected.x, y: selected.y }, to: { x, y } });
+          return;
+        }
+        if (mode === "online") {
+          chessClient.sendMove({ from: { x: selected.x, y: selected.y }, to: { x, y } });
+          setAwaitingServer(true);
+          setSelected(null);
+          setLegalMoves([]);
           return;
         }
         const result = gameRef.current.move(selected.x, selected.y, x, y);
@@ -187,23 +463,35 @@ export default function ChessPage() {
 
   const handlePromotion = (pieceType: ChessPieceType) => {
     if (!pendingPromotion) return;
-    const result = gameRef.current.move(
-      pendingPromotion.from.x,
-      pendingPromotion.from.y,
-      pendingPromotion.to.x,
-      pendingPromotion.to.y,
-      pieceType
-    );
-    if (result.ok) {
+    if (mode === "online") {
+      chessClient.sendMove({
+        from: { ...pendingPromotion.from },
+        to: { ...pendingPromotion.to },
+        promotion: pieceType,
+      });
+      setAwaitingServer(true);
       setSelected(null);
       setLegalMoves([]);
-      setVersion((v) => v + 1);
+    } else {
+      const result = gameRef.current.move(
+        pendingPromotion.from.x,
+        pendingPromotion.from.y,
+        pendingPromotion.to.x,
+        pendingPromotion.to.y,
+        pieceType
+      );
+      if (result.ok) {
+        setSelected(null);
+        setLegalMoves([]);
+        setVersion((v) => v + 1);
+      }
     }
     setPendingPromotion(null);
   };
 
   const handleUndo = () => {
     // Undo twice to undo both player and AI move
+    if (mode !== "cpu") return;
     if (gameRef.current.canUndo()) {
       gameRef.current.undo();
       if (gameRef.current.canUndo() && gameRef.current.getTurn() === "b") {
@@ -216,6 +504,7 @@ export default function ChessPage() {
   };
 
   const handleReset = () => {
+    if (mode !== "cpu") return;
     gameRef.current.reset();
     setSelected(null);
     setLegalMoves([]);
@@ -243,6 +532,7 @@ export default function ChessPage() {
   };
 
   useEffect(() => {
+    if (mode !== "cpu") return;
     if (status.checkmate || status.stalemate) return;
     if (turn !== "b") return;
 
@@ -332,7 +622,7 @@ export default function ChessPage() {
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [turn, aiLevel, status.checkmate, status.stalemate, version]);
+  }, [turn, aiLevel, status.checkmate, status.stalemate, version, mode]);
 
   if (!isLoaded || !pieceSkins) {
     return (
@@ -416,6 +706,30 @@ export default function ChessPage() {
     );
   };
 
+  const formatSide = (side?: "w" | "b" | null) => {
+    if (side === "w") return t("chess_online_side_white");
+    if (side === "b") return t("chess_online_side_black");
+    return "-";
+  };
+
+  const onlineResultLabel =
+    connectionStatus === "finished"
+      ? onlineWinReason === "stalemate"
+        ? t("chess_online_result_draw")
+        : onlineWinner
+        ? onlineWinner === mySide
+          ? t("chess_online_result_win")
+          : t("chess_online_result_lose")
+        : t("chess_online_result_draw")
+      : null;
+
+  const onlineStatusLabel =
+    connectionStatus === "playing"
+      ? t("chess_online_status_playing")
+      : connectionStatus === "finished"
+      ? t("chess_online_status_finished")
+      : t("chess_online_status_waiting");
+
   return (
     <main className="min-h-screen p-4 md:p-6">
       <div className="flex items-center justify-between mb-6">
@@ -424,163 +738,327 @@ export default function ChessPage() {
         </Link>
         <h1 className="text-2xl font-bold text-amber-600 dark:text-amber-400">♟️ {t("menu_chess")}</h1>
         <div className="flex gap-2">
-          <button
-            onClick={handleUndo}
-            disabled={!gameRef.current.canUndo() || turn === "b"}
-            className="btn btn-secondary text-sm py-2 px-3 disabled:opacity-40"
-          >
-            ↩ {t("chess_undo")}
-          </button>
-          <button onClick={handleReset} className="btn btn-primary text-sm py-2 px-3">
-            {t("chess_reset")}
-          </button>
+          {mode === "cpu" ? (
+            <>
+              <button
+                onClick={handleUndo}
+                disabled={!gameRef.current.canUndo() || turn === "b"}
+                className="btn btn-secondary text-sm py-2 px-3 disabled:opacity-40"
+              >
+                ↩ {t("chess_undo")}
+              </button>
+              <button onClick={handleReset} className="btn btn-primary text-sm py-2 px-3">
+                {t("chess_reset")}
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={handleResign}
+                disabled={connectionStatus !== "playing"}
+                className="btn btn-secondary text-sm py-2 px-3 disabled:opacity-40"
+              >
+                {t("chess_online_resign")}
+              </button>
+              <button onClick={disconnectOnline} className="btn btn-primary text-sm py-2 px-3">
+                {t("chess_online_leave")}
+              </button>
+            </>
+          )}
         </div>
       </div>
 
-      <div className="text-center mb-6 text-amber-900/70 dark:text-gray-400">
-        <p>{t("chess_subtitle")}</p>
-        <p className="text-sm mt-1">
-          {turn === "w" ? t("chess_turn_white") : t("chess_turn_black")}
-          {status.inCheck && !status.checkmate && ` • ${t("chess_check")}`}
-          {aiThinking && turn === "b" && ` • ${t("chess_ai_thinking")}`}
-        </p>
+      <div className="max-w-4xl mx-auto mb-6 card">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-bold text-amber-900 dark:text-white">{t("chess_mode_title")}</h2>
+            <p className="text-sm text-amber-700/70 dark:text-slate-300/70">{t("chess_mode_desc")}</p>
+          </div>
+          <div className="grid grid-cols-2 gap-2 w-full md:w-auto">
+            <button
+              onClick={() => setMode("cpu")}
+              className={`btn ${mode === "cpu" ? "btn-primary" : "btn-secondary"} text-sm`}
+            >
+              {t("chess_mode_cpu")}
+            </button>
+            <button
+              onClick={() => setMode("online")}
+              className={`btn ${mode === "online" ? "btn-primary" : "btn-secondary"} text-sm`}
+            >
+              {t("chess_mode_online")}
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-6 items-start">
-        <div className="card">
-          <div className="grid grid-cols-8 border-4 border-amber-200 rounded-2xl overflow-hidden shadow-lg">
-            {board.map((row, y) =>
-              row.map((piece, x) => {
-                const isLight = (x + y) % 2 === 0;
-                const isSelected = selected?.x === x && selected?.y === y;
-                const moveData = legalMoveTargets.get(`${x}-${y}`);
-                const legalMove = !!moveData;
-                const isCapture = moveData?.capture || moveData?.enPassant;
-                const isLast =
-                  lastMove &&
-                  ((lastMove.from.x === x && lastMove.from.y === y) ||
-                    (lastMove.to.x === x && lastMove.to.y === y));
+      {isInMatch && (
+        <div className="text-center mb-6 text-amber-900/70 dark:text-gray-400">
+          <p>{t("chess_subtitle")}</p>
+          <p className="text-sm mt-1">
+            {turn === "w" ? t("chess_turn_white") : t("chess_turn_black")}
+            {status.inCheck && !status.checkmate && ` • ${t("chess_check")}`}
+            {mode === "cpu" && aiThinking && turn === "b" && ` • ${t("chess_ai_thinking")}`}
+          </p>
+        </div>
+      )}
 
-                return (
+      {isOnline && !isInMatch && (
+        <div className="max-w-4xl mx-auto space-y-4">
+          {onlineError && (
+            <div className="card border border-rose-200 bg-rose-50 text-rose-700">{onlineError}</div>
+          )}
+
+          {connectionStatus === "waiting" || connectionStatus === "connecting" ? (
+            <div className="card text-center space-y-3">
+              <div className="text-4xl">⏳</div>
+              <div className="text-lg font-bold text-amber-900">{t("chess_online_waiting")}</div>
+              <p className="text-sm text-amber-700/70">
+                {displayName} {t("chess_online_waiting_as")}
+              </p>
+              {roomId && (
+                <p className="text-xs text-amber-700/60">
+                  {t("chess_online_room_created")} ID:{" "}
+                  <span className="font-mono bg-amber-100 px-2 py-0.5 rounded">{roomId.slice(0, 8)}</span>
+                </p>
+              )}
+              <button onClick={disconnectOnline} className="btn btn-secondary text-sm">
+                {t("chess_online_leave")}
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="card">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div>
+                    <h2 className="text-lg font-bold text-amber-900 dark:text-white">{t("chess_online_title")}</h2>
+                    <p className="text-sm text-amber-700/70 dark:text-slate-300/70">{t("chess_online_subtitle")}</p>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <button onClick={handleQuickMatch} className="btn btn-primary text-sm">
+                      {t("chess_online_quick_match")}
+                    </button>
+                    <button onClick={handleCreateRoom} className="btn btn-secondary text-sm">
+                      {t("chess_online_create_room")}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="card">
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-lg font-bold text-amber-800 dark:text-amber-200">
+                    {t("chess_online_waiting_rooms")}
+                  </h2>
                   <button
-                    key={`${x}-${y}-${version}`}
-                    onClick={() => handleSquareClick(x, y)}
-                    className={`relative aspect-square flex items-center justify-center transition-colors ${
-                      isLight ? "bg-amber-100/80" : "bg-amber-300/70"
-                    } ${isSelected ? "ring-4 ring-emerald-400" : ""} ${isLast ? "outline outline-2 outline-orange-300" : ""} ${
-                      isCapture ? "ring-4 ring-rose-500 bg-rose-200/50" : ""
-                    }`}
+                    onClick={fetchOnlineRooms}
+                    disabled={isLoadingRooms}
+                    className="px-3 py-2 bg-amber-100 dark:bg-amber-900/50 hover:bg-amber-200 dark:hover:bg-amber-800/50 text-amber-700 dark:text-amber-300 rounded-xl font-bold text-xs disabled:opacity-50 transition-all"
                   >
-                    {legalMove && !isCapture && (
-                      <div className="absolute w-3 h-3 rounded-full bg-emerald-500/80" />
-                    )}
-                    {piece && (
-                      <div className="relative">
-                        <img
-                          src={getSpritePath(
-                            getPieceSkin(piece.type as PieceRole).baseUnitId || getPieceSkin(piece.type as PieceRole).unitId,
-                            getPieceSkin(piece.type as PieceRole).rarity
-                          )}
-                          alt={piece.type}
-                          className={`w-10 h-10 sm:w-12 sm:h-12 object-contain drop-shadow ${
-                            piece.color === "b" ? "grayscale brightness-75 contrast-125" : ""
-                          }`}
-                          style={piece.color === "b" ? { transform: "scaleX(-1)" } : undefined}
-                        />
-                        <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white/90 text-amber-900 text-sm font-bold flex items-center justify-center shadow">
-                          {getPieceSymbol(piece.type as PieceRole, piece.color)}
-                        </span>
-                        {isCapture && (
-                          <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[10px] font-bold text-rose-600 bg-white/90 px-1 rounded">
-                            ⚔️
-                          </span>
-                        )}
-                      </div>
-                    )}
+                    {isLoadingRooms ? `🔄 ${t("loading")}` : `🔄 ${t("refresh")}`}
                   </button>
-                );
-              })
+                </div>
+
+                {rooms.length === 0 ? (
+                  <div className="text-center text-sm text-amber-700/70 py-6">
+                    <p>{t("chess_online_no_rooms")}</p>
+                    <p className="text-xs mt-1">{t("chess_online_no_rooms_hint")}</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {rooms.map((room) => (
+                      <div
+                        key={room.roomId}
+                        className="flex items-center justify-between rounded-xl border border-amber-100 bg-amber-50/70 px-4 py-3"
+                      >
+                        <div>
+                          <p className="font-bold text-amber-900">{room.hostName}</p>
+                          <p className="text-xs text-amber-700/60">
+                            {new Date(room.createdAt).toLocaleTimeString()}
+                          </p>
+                        </div>
+                        <button onClick={() => handleJoinRoom(room.roomId)} className="btn btn-primary text-xs">
+                          {t("chess_online_join")}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {isInMatch && (
+        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-6 items-start">
+          <div className="card">
+            <div className="grid grid-cols-8 border-4 border-amber-200 rounded-2xl overflow-hidden shadow-lg">
+              {board.map((row, y) =>
+                row.map((piece, x) => {
+                  const isLight = (x + y) % 2 === 0;
+                  const isSelected = selected?.x === x && selected?.y === y;
+                  const moveData = legalMoveTargets.get(`${x}-${y}`);
+                  const legalMove = !!moveData;
+                  const isCapture = moveData?.capture || moveData?.enPassant;
+                  const isLast =
+                    lastMove &&
+                    ((lastMove.from.x === x && lastMove.from.y === y) ||
+                      (lastMove.to.x === x && lastMove.to.y === y));
+
+                  return (
+                    <button
+                      key={`${x}-${y}-${version}`}
+                      onClick={() => handleSquareClick(x, y)}
+                      className={`relative aspect-square flex items-center justify-center transition-colors ${
+                        isLight ? "bg-amber-100/80" : "bg-amber-300/70"
+                      } ${isSelected ? "ring-4 ring-emerald-400" : ""} ${isLast ? "outline outline-2 outline-orange-300" : ""} ${
+                        isCapture ? "ring-4 ring-rose-500 bg-rose-200/50" : ""
+                      }`}
+                    >
+                      {legalMove && !isCapture && (
+                        <div className="absolute w-3 h-3 rounded-full bg-emerald-500/80" />
+                      )}
+                      {piece && (
+                        <div className="relative">
+                          <img
+                            src={getSpritePath(
+                              getPieceSkin(piece.type as PieceRole).baseUnitId || getPieceSkin(piece.type as PieceRole).unitId,
+                              getPieceSkin(piece.type as PieceRole).rarity
+                            )}
+                            alt={piece.type}
+                            className={`w-10 h-10 sm:w-12 sm:h-12 object-contain drop-shadow ${
+                              piece.color === "b" ? "grayscale brightness-75 contrast-125" : ""
+                            }`}
+                            style={piece.color === "b" ? { transform: "scaleX(-1)" } : undefined}
+                          />
+                          <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white/90 text-amber-900 text-sm font-bold flex items-center justify-center shadow">
+                            {getPieceSymbol(piece.type as PieceRole, piece.color)}
+                          </span>
+                          {isCapture && (
+                            <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[10px] font-bold text-rose-600 bg-white/90 px-1 rounded">
+                              ⚔️
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </button>
+                  );
+                })
+              )}
+            </div>
+
+            {(status.checkmate || status.stalemate) && (
+              <div className="mt-4 text-center text-sm font-semibold text-rose-600">
+                {status.checkmate ? t("chess_checkmate") : t("chess_stalemate")}
+              </div>
             )}
           </div>
 
-          {(status.checkmate || status.stalemate) && (
-            <div className="mt-4 text-center text-sm font-semibold text-rose-600">
-              {status.checkmate ? t("chess_checkmate") : t("chess_stalemate")}
+          <div className="space-y-4">
+            {mode === "online" ? (
+              <div className="card">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h2 className="text-lg font-bold text-amber-800 dark:text-white">{t("chess_mode_online")}</h2>
+                    <p className="text-sm text-amber-700/70 dark:text-slate-300/70">{t("chess_online_subtitle")}</p>
+                  </div>
+                  <span className="text-2xl">🌐</span>
+                </div>
+                <div className="space-y-1 text-sm text-amber-800/80 dark:text-slate-300/80">
+                  <div className="flex items-center justify-between">
+                    <span>{t("chess_online_you")}</span>
+                    <span>
+                      {displayName} ({formatSide(mySide)})
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>{t("chess_online_opponent")}</span>
+                    <span>
+                      {opponent?.displayName || "?"} ({formatSide(opponent?.side)})
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>{t("chess_online_status")}</span>
+                    <span>{onlineStatusLabel}</span>
+                  </div>
+                </div>
+                {onlineResultLabel && (
+                  <div className="mt-3 text-sm font-semibold text-rose-600">{onlineResultLabel}</div>
+                )}
+              </div>
+            ) : (
+              <div className="card">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h2 className="text-lg font-bold text-amber-800 dark:text-white">{t("chess_ai_level")}</h2>
+                    <p className="text-sm text-amber-700/70 dark:text-slate-300/70">{t("chess_ai_level_desc")}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {(["easy", "normal", "hard"] as ChessAiLevel[]).map((level) => (
+                    <button
+                      key={level}
+                      onClick={() => setAiLevel(level)}
+                      className={`btn ${aiLevel === level ? "btn-primary" : "btn-secondary"} text-xs py-2`}
+                    >
+                      {t(`chess_ai_${level}`)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="card">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-lg font-bold text-amber-800 dark:text-white">{t("chess_piece_set")}</h2>
+                  <p className="text-sm text-amber-700/70 dark:text-slate-300/70">{t("chess_piece_set_desc")}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                {PIECE_ROLES.map((role) => {
+                  const skin = getPieceSkin(role.id);
+                  return (
+                    <button
+                      key={role.id}
+                      onClick={() => setActiveRole(role.id)}
+                      className="unit-card flex flex-col items-center gap-2 hover:scale-[1.02]"
+                    >
+                      <RarityFrame
+                        unitId={skin.unitId}
+                        unitName={getUnitName(playableUnits.find((u) => u.id === skin.unitId) || playableUnits[0])}
+                        rarity={skin.rarity}
+                        size="sm"
+                        baseUnitId={skin.baseUnitId}
+                      />
+                      <span className="text-xs text-amber-900/80">{t(role.labelKey)}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          )}
+
+            <div className="card">
+              <button
+                onClick={() => setShowHelp(true)}
+                className="w-full flex items-center justify-between text-left"
+              >
+                <div>
+                  <h2 className="text-lg font-bold text-amber-800 dark:text-white">{t("chess_help")}</h2>
+                  <p className="text-sm text-amber-700/70 dark:text-slate-300/70">{t("chess_help_desc")}</p>
+                </div>
+                <span className="text-2xl">❓</span>
+              </button>
+            </div>
+
+            <div className="card text-sm text-amber-800/80 dark:text-slate-300/80">
+              <p className="font-semibold text-amber-900 dark:text-white mb-2">{t("chess_hint_title")}</p>
+              <p>{t("chess_hint_body")}</p>
+            </div>
+          </div>
         </div>
-
-        <div className="space-y-4">
-          <div className="card">
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <h2 className="text-lg font-bold text-amber-800 dark:text-white">{t("chess_ai_level")}</h2>
-                <p className="text-sm text-amber-700/70 dark:text-slate-300/70">{t("chess_ai_level_desc")}</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {(["easy", "normal", "hard"] as ChessAiLevel[]).map((level) => (
-                <button
-                  key={level}
-                  onClick={() => setAiLevel(level)}
-                  className={`btn ${aiLevel === level ? "btn-primary" : "btn-secondary"} text-xs py-2`}
-                >
-                  {t(`chess_ai_${level}`)}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="card">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-lg font-bold text-amber-800 dark:text-white">{t("chess_piece_set")}</h2>
-                <p className="text-sm text-amber-700/70 dark:text-slate-300/70">{t("chess_piece_set_desc")}</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-3">
-              {PIECE_ROLES.map((role) => {
-                const skin = getPieceSkin(role.id);
-                return (
-                  <button
-                    key={role.id}
-                    onClick={() => setActiveRole(role.id)}
-                    className="unit-card flex flex-col items-center gap-2 hover:scale-[1.02]"
-                  >
-                    <RarityFrame
-                      unitId={skin.unitId}
-                      unitName={getUnitName(playableUnits.find((u) => u.id === skin.unitId) || playableUnits[0])}
-                      rarity={skin.rarity}
-                      size="sm"
-                      baseUnitId={skin.baseUnitId}
-                    />
-                    <span className="text-xs text-amber-900/80">{t(role.labelKey)}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="card">
-            <button
-              onClick={() => setShowHelp(true)}
-              className="w-full flex items-center justify-between text-left"
-            >
-              <div>
-                <h2 className="text-lg font-bold text-amber-800 dark:text-white">{t("chess_help")}</h2>
-                <p className="text-sm text-amber-700/70 dark:text-slate-300/70">{t("chess_help_desc")}</p>
-              </div>
-              <span className="text-2xl">❓</span>
-            </button>
-          </div>
-
-          <div className="card text-sm text-amber-800/80 dark:text-slate-300/80">
-            <p className="font-semibold text-amber-900 dark:text-white mb-2">{t("chess_hint_title")}</p>
-            <p>{t("chess_hint_body")}</p>
-          </div>
-        </div>
-      </div>
+      )}
 
       <Modal isOpen={!!activeRole} onClose={() => setActiveRole(null)} size="lg">
         <div className="p-5">
