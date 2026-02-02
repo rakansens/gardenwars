@@ -556,6 +556,41 @@ export class BattleScene extends Phaser.Scene {
             repeat: 0,
         });
 
+        // R Units animations
+        const rUnits = [
+            // R units batch 1
+            'r_apple_scholar', 'r_bamboo_samurai_cat', 'r_berry_basket_cat', 'r_broccoli', 'r_cactus_cowboy',
+            'r_cactus_guardian', 'r_capybara_gardener', 'r_capybara_spa', 'r_chainsaw_gardener', 'r_cherry'
+        ];
+        rUnits.forEach(unit => {
+            this.anims.create({
+                key: `${unit}_idle`,
+                frames: [{ key: `${unit}_atlas`, frame: `${unit}_idle.png` }],
+                frameRate: 1,
+                repeat: -1,
+            });
+            this.anims.create({
+                key: `${unit}_walk`,
+                frames: [
+                    { key: `${unit}_atlas`, frame: `${unit}_walk_1.png` },
+                    { key: `${unit}_atlas`, frame: `${unit}_walk_2.png` },
+                    { key: `${unit}_atlas`, frame: `${unit}_walk_3.png` },
+                ],
+                frameRate: 8,
+                repeat: -1,
+            });
+            this.anims.create({
+                key: `${unit}_attack`,
+                frames: [
+                    { key: `${unit}_atlas`, frame: `${unit}_attack_1.png` },
+                    { key: `${unit}_atlas`, frame: `${unit}_attack_2.png` },
+                    { key: `${unit}_atlas`, frame: `${unit}_attack_3.png` },
+                ],
+                frameRate: 12,
+                repeat: 0,
+            });
+        });
+
         // SR Units animations
         const srUnits = [
             'sr_rose_hero', 'sr_corn_tank', 'sr_bamboo_mech', 'sr_sun_pirate', 'sr_tulip_idol',

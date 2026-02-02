@@ -128,7 +128,10 @@ export default function UnitAnimationPreview({
                         "ssr_rose_gunslinger", "ssr_phantom_masquerade", "ssr_cyber_rose",
                         // SSR units (2026-02)
                         "ssr_neon_flower_cat", "ssr_glitch_sakura_cat", "ssr_psychedelic_mandala_cat",
-                        "ssr_coral_mermaid_cat", "ssr_fairy_queen_cat"
+                        "ssr_coral_mermaid_cat", "ssr_fairy_queen_cat",
+                        // R units batch 1
+                        "r_apple_scholar", "r_bamboo_samurai_cat", "r_berry_basket_cat", "r_broccoli", "r_cactus_cowboy",
+                        "r_cactus_guardian", "r_capybara_gardener", "r_capybara_spa", "r_chainsaw_gardener", "r_cherry"
                     ];
                     const isSmallSprite = smallSpriteUnits.includes(unitId);
                     const baseScale = isSmallSprite ? (compact ? 0.35 : 0.55) : (compact ? 0.15 : 0.25);

@@ -1,0 +1,19 @@
+{
+  "frames": {
+    "r_chainsaw_gardener_idle.png": { "frame": { "x": 0, "y": 0, "w": 344, "h": 384 } },
+    "r_chainsaw_gardener_walk_1.png": { "frame": { "x": 344, "y": 0, "w": 344, "h": 384 } },
+    "r_chainsaw_gardener_walk_2.png": { "frame": { "x": 688, "y": 0, "w": 344, "h": 384 } },
+    "r_chainsaw_gardener_walk_3.png": { "frame": { "x": 1032, "y": 0, "w": 344, "h": 384 } },
+    "r_chainsaw_gardener_walk_4.png": { "frame": { "x": 0, "y": 384, "w": 344, "h": 384 } },
+    "r_chainsaw_gardener_attack_1.png": { "frame": { "x": 344, "y": 384, "w": 344, "h": 384 } },
+    "r_chainsaw_gardener_attack_2.png": { "frame": { "x": 688, "y": 384, "w": 344, "h": 384 } },
+    "r_chainsaw_gardener_attack_3.png": { "frame": { "x": 1032, "y": 384, "w": 344, "h": 384 } },
+    "r_chainsaw_gardener_attack_4.png": { "frame": { "x": 0, "y": 0, "w": 344, "h": 384 } }
+  },
+  "meta": {
+    "image": "r_chainsaw_gardener_sheet.webp",
+    "format": "RGBA8888",
+    "size": { "w": 1376, "h": 768 },
+    "scale": "1"
+  }
+}
