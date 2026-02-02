@@ -1,6 +1,6 @@
 {
   "home": "ホーム",
-  "back_to_home": "← ホームへ",
+  "back_to_home": "ホームへ",
   "loading": "読み込み中...",
   "ok": "OK",
   "skip": "スキップ",
@@ -648,6 +648,5 @@
   "confirm_name_change": "名前の変更",
   "name_change_message": "「{old}」から「{new}」に変更しますか？",
   "page_not_found": "ページが見つかりません",
-  "page_not_found_message": "お探しのページは存在しないか、移動された可能性があります。",
-  "back_to_home": "ホームに戻る"
+  "page_not_found_message": "お探しのページは存在しないか、移動された可能性があります。"
 }

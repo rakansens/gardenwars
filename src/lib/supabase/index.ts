@@ -48,6 +48,7 @@ export {
     updateGardenUnits,
     updateShopItems,
     markShopItemSold,
+    ensureRankingsExist,
     updateRankings,
     incrementBattleStats,
     incrementGachaCount,
