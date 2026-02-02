@@ -18,6 +18,9 @@ export const ANIMATED_UNITS = [
     'ssr_frost_empress', 'ssr_galaxy_slime', 'ssr_carnivore_mask', 'ssr_higanbana_mage',
     'ssr_poinsettia_wild', 'ssr_psychedelic_bloom', 'ssr_rainbow_storm', 'ssr_sakura_samurai',
     'ssr_rose_gunslinger', 'ssr_phantom_masquerade', 'ssr_cyber_rose',
+    // New SSR units (2026-02)
+    'ssr_neon_flower_cat', 'ssr_glitch_sakura_cat', 'ssr_psychedelic_mandala_cat',
+    'ssr_coral_mermaid_cat', 'ssr_fairy_queen_cat',
     // UR ユニット
     'ur_knight', 'ur_mage', 'ur_archer', 'ur_tank', 'ur_ninja', 'ur_healer',
     'ur_dragon', 'ur_spirit', 'ur_phoenix', 'ur_golem', 'ur_angel', 'ur_ancient_treant',

@@ -589,7 +589,16 @@ export class BattleScene extends Phaser.Scene {
         });
 
         // SSR Units animations
-        const ssrUnits = ['flame_knight', 'ice_samurai', 'shadow_assassin', 'thunder_golem'];
+        const ssrUnits = [
+            'flame_knight', 'ice_samurai', 'shadow_assassin', 'thunder_golem',
+            // New SSR units (2025-01)
+            'ssr_frost_empress', 'ssr_galaxy_slime', 'ssr_carnivore_mask', 'ssr_higanbana_mage',
+            'ssr_poinsettia_wild', 'ssr_psychedelic_bloom', 'ssr_rainbow_storm', 'ssr_sakura_samurai',
+            'ssr_rose_gunslinger', 'ssr_phantom_masquerade', 'ssr_cyber_rose',
+            // New SSR units (2026-02)
+            'ssr_neon_flower_cat', 'ssr_glitch_sakura_cat', 'ssr_psychedelic_mandala_cat',
+            'ssr_coral_mermaid_cat', 'ssr_fairy_queen_cat'
+        ];
         ssrUnits.forEach(unit => {
             this.anims.create({
                 key: `${unit}_idle`,
