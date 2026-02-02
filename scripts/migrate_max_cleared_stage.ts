@@ -20,70 +20,44 @@ if (!supabaseUrl || !supabaseKey) {
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// ステージの優先順位を定義（ワールド順 + 難易度順 + ステージ番号）
-const WORLD_ORDER: Record<string, number> = {
-    "world1": 1,
-    "world2": 2,
-    "world3": 3,
-};
-
-const DIFFICULTY_ORDER: Record<string, number> = {
-    "tutorial": 1,
-    "easy": 2,
-    "normal": 3,
-    "hard": 4,
-    "extreme": 5,
-    "boss": 6,
-    "special": 7,
-    "inferno": 8,
-};
-
-// ステージIDから優先度スコアを計算
+// ステージIDから進捗スコアを計算（ワールド順 + ステージ番号順）
+// 難易度ではなく、実際のゲーム進行順を反映
 function getStageScore(stageId: string): number {
+    // World 3 (Underworld) stages: underworld_1, etc. - 最高優先度
+    if (stageId.startsWith("underworld_")) {
+        const num = parseInt(stageId.replace("underworld_", ""), 10) || 0;
+        return 30000 + num;
+    }
+
     // World 2 (Inferno) stages: inferno_1, inferno_2, etc.
     if (stageId.startsWith("inferno_")) {
         const num = parseInt(stageId.replace("inferno_", ""), 10) || 0;
-        return WORLD_ORDER["world2"] * 10000 + DIFFICULTY_ORDER["inferno"] * 100 + num;
+        return 20000 + num;
     }
 
-    // World 3 (Underworld) stages: underworld_1, etc.
-    if (stageId.startsWith("underworld_")) {
-        const num = parseInt(stageId.replace("underworld_", ""), 10) || 0;
-        return WORLD_ORDER["world3"] * 10000 + 100 + num;
-    }
-
-    // Boss stages: boss_stage_1, etc.
-    if (stageId.startsWith("boss_stage_")) {
-        const num = parseInt(stageId.replace("boss_stage_", ""), 10) || 0;
-        return WORLD_ORDER["world1"] * 10000 + DIFFICULTY_ORDER["boss"] * 100 + num;
-    }
-
-    // Special stages: special_1, etc.
-    if (stageId.startsWith("special_")) {
-        const num = parseInt(stageId.replace("special_", ""), 10) || 0;
-        return WORLD_ORDER["world1"] * 10000 + DIFFICULTY_ORDER["special"] * 100 + num;
-    }
-
-    // Tutorial stages: tutorial_1, etc.
-    if (stageId.startsWith("tutorial_")) {
-        const num = parseInt(stageId.replace("tutorial_", ""), 10) || 0;
-        return WORLD_ORDER["world1"] * 10000 + DIFFICULTY_ORDER["tutorial"] * 100 + num;
-    }
-
-    // Normal stages: stage_1, stage_2, etc.
+    // World 1 - Normal stages: stage_1, stage_2, etc.
+    // これがメインの進行ライン
     if (stageId.startsWith("stage_")) {
         const num = parseInt(stageId.replace("stage_", ""), 10) || 0;
-        // Determine difficulty based on stage number
-        let difficulty = "easy";
-        if (num <= 5) difficulty = "easy";
-        else if (num <= 10) difficulty = "normal";
-        else if (num <= 15) difficulty = "hard";
-        else difficulty = "extreme";
-
-        return WORLD_ORDER["world1"] * 10000 + DIFFICULTY_ORDER[difficulty] * 100 + num;
+        return 10000 + num;
     }
 
-    // Unknown stage format
+    // Boss/Special/Tutorial は進行度としては低い（サイドコンテンツ）
+    if (stageId.startsWith("boss_stage_")) {
+        const num = parseInt(stageId.replace("boss_stage_", ""), 10) || 0;
+        return 5000 + num;
+    }
+
+    if (stageId.startsWith("special_")) {
+        const num = parseInt(stageId.replace("special_", ""), 10) || 0;
+        return 4000 + num;
+    }
+
+    if (stageId.startsWith("tutorial_")) {
+        const num = parseInt(stageId.replace("tutorial_", ""), 10) || 0;
+        return 1000 + num;
+    }
+
     return 0;
 }
 

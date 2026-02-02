@@ -57,12 +57,13 @@ export function getStageById(stageId: string): StageDefinition | undefined {
 
 /**
  * ステージIDから進捗表示用の情報を取得
- * @returns { worldId, stageIndex, difficulty } または undefined
+ * @returns { worldId, stageIndex, difficulty, nameKey } または undefined
  */
 export function getStageProgressInfo(stageId: string): {
     worldId: WorldId;
     stageIndex: number;
     difficulty: StageDefinition["difficulty"];
+    nameKey: string;
 } | undefined {
     const stage = getStageById(stageId);
     if (!stage) return undefined;
@@ -78,6 +79,7 @@ export function getStageProgressInfo(stageId: string): {
         worldId,
         stageIndex,
         difficulty: stage.difficulty,
+        nameKey: stage.name, // ステージ名の翻訳キー
     };
 }
 

@@ -19,12 +19,12 @@ type SortOption = RankingSortBy | "all";
 
 /**
  * ステージ進捗を表示用にフォーマット
- * 例: "🔥 Inferno #5" / "🌍 Earth Boss #3"
+ * 例: "🔥 Inferno - Flame Gate" / "🌍 Earth - Forest Path"
  */
 function formatStageProgress(
     stageId: string | null,
     t: (key: string) => string
-): { icon: string; text: string } | null {
+): { icon: string; text: string; stageName: string } | null {
     if (!stageId) return null;
 
     const progressInfo = getStageProgressInfo(stageId);
@@ -34,20 +34,12 @@ function formatStageProgress(
     if (!world) return null;
 
     const worldName = t(world.nameKey);
-
-    // 難易度に応じたラベル
-    let difficultyLabel = "";
-    if (progressInfo.difficulty === "boss") {
-        difficultyLabel = "Boss ";
-    } else if (progressInfo.difficulty === "special") {
-        difficultyLabel = "SP ";
-    } else if (progressInfo.difficulty === "tutorial") {
-        difficultyLabel = "Tutorial ";
-    }
+    const stageName = t(progressInfo.nameKey) || `Stage ${progressInfo.stageIndex}`;
 
     return {
         icon: world.icon,
-        text: `${worldName} ${difficultyLabel}#${progressInfo.stageIndex}`,
+        text: `${worldName} #${progressInfo.stageIndex}`,
+        stageName: stageName,
     };
 }
 
@@ -106,12 +98,12 @@ export default function RankingPage() {
     const formatValue = (entry: RankingEntry, key: SortOption): string => {
         const actualKey: RankingSortBy = key === "all" ? "max_stage" : key;
 
-        // max_stageの場合はステージ進捗表示を使用（数字も併記）
+        // max_stageの場合はステージ進捗表示を使用
         if (actualKey === "max_stage") {
             const progress = formatStageProgress(entry.max_cleared_stage_id, t);
             if (progress) {
-                // 例: "🔥 Inferno #5 (15)"
-                return `${progress.icon} ${progress.text} (${entry.max_stage})`;
+                // 例: "🌍 Earth #15 - Forest Path"
+                return `${progress.icon} ${progress.text}`;
             }
             // フォールバック: 数値のみ
             return String(entry.max_stage);
@@ -122,6 +114,12 @@ export default function RankingPage() {
             return value.toLocaleString();
         }
         return String(value);
+    };
+
+    // ステージ名を取得（Highest Stageカラム用）
+    const getStageName = (entry: RankingEntry): string | null => {
+        const progress = formatStageProgress(entry.max_cleared_stage_id, t);
+        return progress?.stageName || null;
     };
 
     const getRankStyle = (rank: number) => {
@@ -257,10 +255,16 @@ export default function RankingPage() {
 
                                         {/* メイン値（PC）- デッキタブでは非表示 */}
                                         {!isAllTab && (
-                                            <div className="hidden md:flex col-span-2 items-center justify-center">
+                                            <div className="hidden md:flex col-span-2 flex-col items-center justify-center">
                                                 <span className="text-amber-500 dark:text-amber-400 font-bold text-lg">
                                                     {formatValue(entry, sortBy)}
                                                 </span>
+                                                {/* Highest Stageタブでステージ名を表示 */}
+                                                {sortBy === "max_stage" && stageProgress && (
+                                                    <span className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[150px]">
+                                                        {stageProgress.stageName}
+                                                    </span>
+                                                )}
                                             </div>
                                         )}
 
@@ -284,10 +288,16 @@ export default function RankingPage() {
 
                                         {/* モバイル: メイン値 - デッキタブでは非表示 */}
                                         {!isAllTab && (
-                                            <div className="col-span-4 md:hidden flex items-center justify-end">
+                                            <div className="col-span-4 md:hidden flex flex-col items-end justify-center">
                                                 <span className="text-amber-500 dark:text-amber-400 font-bold">
                                                     {currentSortOption?.icon} {formatValue(entry, sortBy)}
                                                 </span>
+                                                {/* Highest Stageタブでステージ名を表示 */}
+                                                {sortBy === "max_stage" && stageProgress && (
+                                                    <span className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[120px]">
+                                                        {stageProgress.stageName}
+                                                    </span>
+                                                )}
                                             </div>
                                         )}
                                     </div>
