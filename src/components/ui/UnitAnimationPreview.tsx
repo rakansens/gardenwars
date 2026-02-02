@@ -137,7 +137,10 @@ export default function UnitAnimationPreview({
                         "r_eggplant", "r_fire_chili", "r_garden_hero", "r_garden_lady_cat", "r_grape_gladiator",
                         // R units batch 3
                         "r_harvest_viking", "r_herb_alchemist", "r_herbal_tea_cat", "r_hydrangea_cat", "r_ivy_ninja_cat",
-                        "r_jellyfish_flower_cat", "r_jungle_explorer", "r_ladybug_rider_cat", "r_latte_ballerina", "r_leaf_ninja"
+                        "r_jellyfish_flower_cat", "r_jungle_explorer", "r_ladybug_rider_cat", "r_latte_ballerina", "r_leaf_ninja",
+                        // R units batch 4
+                        "r_lemon", "r_meringue_teacup_cat", "r_origami_crane_cat", "r_penguin_scholar", "r_pepper",
+                        "r_plant_dealer", "r_pressed_flower_book_cat", "r_pumpkin_brawler", "r_radish", "r_rake_rock_cat", "r_rose_bunny_cat"
                     ];
                     const isSmallSprite = smallSpriteUnits.includes(unitId);
                     const baseScale = isSmallSprite ? (compact ? 0.35 : 0.55) : (compact ? 0.15 : 0.25);

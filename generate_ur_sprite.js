@@ -7,16 +7,26 @@
  *   node generate_ur_sprite.js <入力画像> <出力パス> [アタックスタイル]
  *
  * アタックスタイル:
+ *   - auto    : 画像を分析してキャラに最適な攻撃を自動生成（推奨）
  *   - mech    : ロボット、メカ（レーザー、爆発）
  *   - knight  : 剣士（剣斬撃、エネルギーアーク）
  *   - paladin : 聖騎士（神聖光、聖なる力）
- *   - nature  : 植物系（つる、花びら、とげ）
+ *   - ninja   : 忍者（手裏剣、クナイ、影分身）
  *   - beast   : 動物（爪、牙、野性の力）
  *   - magic   : 魔法使い（魔法、アーケインエネルギー）
+ *   - dancer  : ダンサー（優雅な回転、キック）
+ *   - gunner  : 射撃系（銃、弓、投擲）
+ *   - water   : 水属性（波、泡、水流）
+ *   - fire    : 炎属性（炎、爆発、熱波）
+ *   - ice     : 氷属性（氷柱、吹雪、凍結）
+ *   - rider   : 騎乗系（突撃、マウント攻撃）
+ *   - food    : 食べ物系（投げる、はじける）
+ *   - cute    : かわいい系（ハート、星、キラキラ）
  *   - default : 汎用
  *
  * 例:
- *   node generate_ur_sprite.js public/assets/sprites/allies/SSR/ssr_frost_empress.webp public/assets/sprites/sheets/ssr_frost_empress_sheet.png magic
+ *   node generate_ur_sprite.js input.webp output.png auto    # 自動判定（推奨）
+ *   node generate_ur_sprite.js input.webp output.png knight  # 剣士スタイル
  *
  * 出力仕様:
  *   - サイズ: 1376 x 768 ピクセル
@@ -55,11 +65,11 @@ const ATTACK_STYLES = {
   - attack_3: Purifying explosion with golden particles and angelic feathers
   - attack_4: Blessed afterglow with floating light orbs`,
 
-    nature: `BOTANICAL FURY attack sequence with primal plant power!
-  - attack_1: Vines and roses swirling, thorns extending, petals gathering
-  - attack_2: MASSIVE rose storm / thorn barrage with petal hurricane
-  - attack_3: Explosive bloom with thorns, petals, and nature energy burst
-  - attack_4: Flowers settling, vines retracting with floating petals`,
+    ninja: `SWIFT SHADOW attack sequence with deadly precision!
+  - attack_1: Crouching in shadow, kunai/shuriken appearing, eyes glowing
+  - attack_2: RAPID shuriken barrage / kunai slash with shadow trails
+  - attack_3: Shadow clone explosion with smoke and afterimages
+  - attack_4: Landing in stealth pose with fading shadows`,
 
     beast: `FEROCIOUS PRIMAL attack sequence with raw power!
   - attack_1: Crouching, muscles tensing, primal energy crackling
@@ -68,10 +78,58 @@ const ATTACK_STYLES = {
   - attack_4: Landing pose with residual wild energy`,
 
     magic: `SPECTACULAR ARCANE attack sequence with mystical power!
-  - attack_1: Raising staff, gathering magical energy, glowing runes appear
+  - attack_1: Raising staff/wand, gathering magical energy, glowing runes appear
   - attack_2: Full power magical blast with swirling energy and bright light
   - attack_3: Explosive impact with magical particles, stars, and arcane symbols
   - attack_4: Follow through with lingering magical sparkles and energy wisps`,
+
+    dancer: `GRACEFUL PERFORMANCE attack sequence with elegant power!
+  - attack_1: Elegant pose, ribbons/energy swirling, preparing to spin
+  - attack_2: BEAUTIFUL pirouette with energy ribbons and sparkles trailing
+  - attack_3: Finishing pose with burst of stars, hearts, or petals
+  - attack_4: Graceful bow with lingering sparkles and floating particles`,
+
+    gunner: `PRECISION RANGED attack sequence with deadly accuracy!
+  - attack_1: Aiming weapon, energy charging, crosshairs appearing
+  - attack_2: POWERFUL shot/arrow with bright projectile trail
+  - attack_3: Impact explosion with sparks and energy burst
+  - attack_4: Recoil pose with smoke/steam dissipating`,
+
+    water: `FLOWING AQUA attack sequence with oceanic power!
+  - attack_1: Water swirling around, bubbles forming, wave gathering
+  - attack_2: MASSIVE water wave / hydro blast with splashing droplets
+  - attack_3: Tidal impact with spray, bubbles, and aqua energy burst
+  - attack_4: Water settling with floating bubbles and mist`,
+
+    fire: `BLAZING INFERNO attack sequence with burning fury!
+  - attack_1: Flames igniting, heat waves rising, ember particles
+  - attack_2: EXPLOSIVE fire blast / flame breath with intense heat trail
+  - attack_3: Fiery explosion with sparks, embers, and smoke
+  - attack_4: Flames dying down with lingering embers and heat shimmer`,
+
+    ice: `FROZEN BLIZZARD attack sequence with crystalline power!
+  - attack_1: Ice crystals forming, cold mist gathering, frost spreading
+  - attack_2: PIERCING ice shard barrage / blizzard blast with snowflakes
+  - attack_3: Frozen explosion with ice shards and crystalline burst
+  - attack_4: Ice settling with floating snowflakes and frost particles`,
+
+    rider: `CHARGING MOUNT attack sequence with combined power!
+  - attack_1: Mount rearing up, rider preparing, energy building
+  - attack_2: THUNDERING charge attack with speed lines and impact force
+  - attack_3: Collision impact with dust, sparks, and shockwave
+  - attack_4: Triumphant pose with mount, dust settling`,
+
+    food: `TASTY CHAOS attack sequence with delicious destruction!
+  - attack_1: Food items appearing, preparing to throw, energy swirling
+  - attack_2: EXPLOSIVE food barrage with splashing and bouncing items
+  - attack_3: Messy impact with splatter effects and food particles
+  - attack_4: Satisfied pose with floating food particles settling`,
+
+    cute: `ADORABLE ASSAULT attack sequence with overwhelming cuteness!
+  - attack_1: Cute pose, hearts and stars gathering, sparkly aura
+  - attack_2: DAZZLING heart/star burst with rainbow energy
+  - attack_3: Explosion of hearts, stars, flowers, and sparkles
+  - attack_4: Victory pose with floating hearts and twinkling stars`,
 
     default: `POWERFUL attack sequence with dramatic effects!
   - attack_1: Wind up / preparation pose with energy gathering
@@ -81,9 +139,47 @@ const ATTACK_STYLES = {
 };
 
 async function generateSprite(inputImagePath, outputPath, attackStyle = 'default') {
-    const attackDesc = ATTACK_STYLES[attackStyle] || ATTACK_STYLES.default;
+    let prompt;
 
-    const prompt = `Using this exact character design, create a sprite sheet animation.
+    if (attackStyle === 'auto') {
+        // autoモード: 画像を分析してキャラに最適な攻撃を自動生成
+        prompt = `Using this exact character design, create a sprite sheet animation.
+
+IMPORTANT: Keep the SAME character design, colors, and style from the input image.
+
+Create a sprite sheet with:
+- 4 columns x 2 rows (8 frames total)
+- Size: 1376 x 768 pixels
+- Each frame: 344 x 384 pixels
+- SOLID BRIGHT GREEN background (#00FF00) - chroma key green for easy removal
+
+Row 1: idle, walk_1, walk_2, walk_3
+
+Row 2 (Attack Animation): ANALYZE this character carefully and create an attack animation that PERFECTLY MATCHES the character's theme, appearance, and personality:
+- If the character holds a weapon (sword, staff, gun, etc.) - use that weapon in the attack
+- If the character is food-themed (fruit, vegetable, drink) - attack by throwing/splashing related items
+- If the character is an animal - use natural animal attacks (claws, bite, charge)
+- If the character is cute/kawaii - use hearts, stars, sparkles
+- If the character has elemental features (fire, water, ice) - use that element
+- If the character is a dancer/ballerina - use graceful spinning attacks
+- If the character rides something - use a charging attack with the mount
+- If the character has wings - use aerial swooping attacks
+- If the character is tea/coffee themed - splash hot liquid
+- If the character is a ninja - use shuriken/kunai/shadow techniques
+- Make the attack animation MATCH what this specific character would naturally do!
+
+  - attack_1: Preparation pose - gathering energy/power appropriate to this character
+  - attack_2: Main attack action - SPECTACULAR move that fits this character's theme
+  - attack_3: Impact moment - explosion/burst effect matching the character's style
+  - attack_4: Follow through - landing/recovery with lingering effects
+
+Character must face RIGHT. This is an ULTRA RARE unit - make the attack animation SPECTACULAR and EPIC!
+
+CRITICAL: Do NOT add any text labels. NO "Idle", "Walk", "Attack" text. ONLY character graphics.`;
+    } else {
+        // 固定スタイルモード
+        const attackDesc = ATTACK_STYLES[attackStyle] || ATTACK_STYLES.default;
+        prompt = `Using this exact character design, create a sprite sheet animation.
 
 IMPORTANT: Keep the SAME character design, colors, and style from the input image.
 
@@ -99,6 +195,7 @@ Row 2: ${attackDesc}
 Character must face RIGHT. This is an ULTRA RARE unit - make the attack animation SPECTACULAR and EPIC!
 
 CRITICAL: Do NOT add any text labels. NO "Idle", "Walk", "Attack" text. ONLY character graphics.`;
+    }
 
     console.log('=== UR Sprite Generator (Intense Attack) ===');
     console.log('Input:', inputImagePath);
@@ -160,19 +257,29 @@ if (args.length < 2) {
 Usage: node generate_ur_sprite.js <input_image> <output_path> [attack_style]
 
 Attack Styles:
+  auto     - 🌟 RECOMMENDED! Auto-analyze character and generate matching attack
   mech     - Robots, mechs, gundams (lasers, cannons, explosions)
   knight   - Sword warriors (blade slashes, energy arcs)
   paladin  - Holy warriors (divine light, sacred power)
-  nature   - Plant/flower units (vines, petals, thorns)
+  ninja    - Ninjas (shuriken, kunai, shadow techniques)
   beast    - Animals, monsters (claws, fangs, primal power)
   magic    - Wizards, mages (spells, arcane energy)
+  dancer   - Dancers, ballerinas (graceful spins, elegant kicks)
+  gunner   - Ranged attackers (guns, bows, projectiles)
+  water    - Water/aquatic (waves, bubbles, hydro blasts)
+  fire     - Fire/flame (inferno, embers, explosions)
+  ice      - Ice/frost (blizzard, ice shards, freezing)
+  rider    - Mount riders (charging attacks with mount)
+  food     - Food-themed (throwing food, splashing)
+  cute     - Kawaii characters (hearts, stars, sparkles)
   default  - Generic powerful attack
 
 Examples:
-  node generate_ur_sprite.js ur_botanical_gundam.webp ur_botanical_gundam_sheet.png mech
-  node generate_ur_sprite.js ur_golden_paladin.webp ur_golden_paladin_sheet.png paladin
+  node generate_ur_sprite.js input.webp output.png auto     # 🌟 Auto-detect best style
+  node generate_ur_sprite.js input.webp output.png knight   # Sword warrior style
+  node generate_ur_sprite.js input.webp output.png cute     # Kawaii style
 `);
     process.exit(1);
 }
 
-generateSprite(args[0], args[1], args[2] || 'default');
+generateSprite(args[0], args[1], args[2] || 'auto');
