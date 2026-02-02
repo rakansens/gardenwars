@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import type { StageDefinition, UnitDefinition, ArenaStageDefinition, SurvivalDifficulty } from "@/data/types";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { setGameLanguage } from "@/lib/gameTranslations";
 
 // グローバルなゲームインスタンス参照（重複防止）
 let globalPhaserGame: Phaser.Game | null = null;
@@ -61,6 +63,12 @@ export default function PhaserGame({
     const [isPortrait, setIsPortrait] = useState(false);
     const battleEndedRef = useRef(false);
     const initSeqRef = useRef(0);
+    const { language } = useLanguage();
+
+    // Set game language for Phaser scenes to access
+    useEffect(() => {
+        setGameLanguage(language);
+    }, [language]);
 
     // 画面の向きをチェック
     useEffect(() => {
