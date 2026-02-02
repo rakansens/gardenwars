@@ -19,7 +19,7 @@ type SortOption = RankingSortBy | "all";
 
 /**
  * ステージ進捗を表示用にフォーマット
- * 例: "🔥 Inferno Stage 5" / "🌍 Earth Stage 10"
+ * 例: "🔥 Inferno #5" / "🌍 Earth Boss #3"
  */
 function formatStageProgress(
     stageId: string | null,
@@ -34,9 +34,20 @@ function formatStageProgress(
     if (!world) return null;
 
     const worldName = t(world.nameKey);
+
+    // 難易度に応じたラベル
+    let difficultyLabel = "";
+    if (progressInfo.difficulty === "boss") {
+        difficultyLabel = "Boss ";
+    } else if (progressInfo.difficulty === "special") {
+        difficultyLabel = "SP ";
+    } else if (progressInfo.difficulty === "tutorial") {
+        difficultyLabel = "Tutorial ";
+    }
+
     return {
         icon: world.icon,
-        text: `${worldName} #${progressInfo.stageIndex}`,
+        text: `${worldName} ${difficultyLabel}#${progressInfo.stageIndex}`,
     };
 }
 

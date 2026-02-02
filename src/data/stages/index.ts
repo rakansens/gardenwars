@@ -57,7 +57,7 @@ export function getStageById(stageId: string): StageDefinition | undefined {
 
 /**
  * ステージIDから進捗表示用の情報を取得
- * @returns { worldId, stageIndex } または undefined
+ * @returns { worldId, stageIndex, difficulty } または undefined
  */
 export function getStageProgressInfo(stageId: string): {
     worldId: WorldId;
@@ -68,8 +68,11 @@ export function getStageProgressInfo(stageId: string): {
     if (!stage) return undefined;
 
     const worldId = stage.worldId || "world1";
-    const worldStages = getStagesByWorld(worldId);
-    const stageIndex = worldStages.findIndex((s) => s.id === stageId) + 1;
+
+    // ステージIDから番号を抽出
+    // 例: "stage_5" -> 5, "boss_stage_3" -> 3, "inferno_7" -> 7
+    const numMatch = stageId.match(/(\d+)$/);
+    const stageIndex = numMatch ? parseInt(numMatch[1], 10) : 1;
 
     return {
         worldId,
