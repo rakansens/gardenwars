@@ -2,16 +2,16 @@ import type { WorldDefinition } from "./types";
 
 /**
  * ワールド定義
- * - World 1 (草原): デフォルト解放
- * - World 2 (火山): World 1のBoss全クリアで解放
- * - World 3 (氷河): World 2のBoss全クリアで解放
+ * - 地球 (Earth): デフォルト解放
+ * - 地獄 (Inferno): 地球のBoss全クリアで解放
+ * - 冥界 (Underworld): 地獄のBoss全クリアで解放
  */
 export const worlds: WorldDefinition[] = [
     {
         id: "world1",
         nameKey: "world1_name",
         subtitleKey: "world1_subtitle",
-        icon: "🌿",
+        icon: "🌍",
         unlockedByDefault: true,
         gradient: "from-green-400 to-emerald-600",
         banner: "/assets/stages/tutorial_banner.webp",
@@ -20,7 +20,7 @@ export const worlds: WorldDefinition[] = [
         id: "world2",
         nameKey: "world2_name",
         subtitleKey: "world2_subtitle",
-        icon: "🌋",
+        icon: "🔥",
         unlockedByDefault: false,
         requiredBossStages: [
             "boss_stage_1",
@@ -36,12 +36,11 @@ export const worlds: WorldDefinition[] = [
         id: "world3",
         nameKey: "world3_name",
         subtitleKey: "world3_subtitle",
-        icon: "❄️",
+        icon: "💀",
         unlockedByDefault: false,
-        // World 2のボスステージ（将来追加）が解放条件
-        // 現時点ではWorld 2のボスが未実装のため、World 1のボス全クリア + World 2ボス全クリアを条件とする予定
-        requiredBossStages: [], // World 2のボス追加時に更新
-        gradient: "from-cyan-400 to-blue-700",
+        // 地獄のボスステージ（将来追加）が解放条件
+        requiredBossStages: [], // 地獄のボス追加時に更新
+        gradient: "from-purple-600 to-gray-900",
         banner: "/assets/stages/hard_banner.webp",
     },
 ];

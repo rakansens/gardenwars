@@ -615,12 +615,12 @@
   "offline_message": "You are offline. Some features may not work.",
   "offline_action_blocked": "Cannot complete action while offline",
 
-  "world1_name": "World 1",
-  "world1_subtitle": "Grassland",
-  "world2_name": "World 2",
-  "world2_subtitle": "Volcano",
-  "world3_name": "World 3",
-  "world3_subtitle": "Glacier",
+  "world1_name": "Earth",
+  "world1_subtitle": "Green Homeland",
+  "world2_name": "Inferno",
+  "world2_subtitle": "Realm of Fire",
+  "world3_name": "Underworld",
+  "world3_subtitle": "Frozen Abyss",
   "world_locked": "Clear all Boss stages to unlock",
 
   "paused": "PAUSED",

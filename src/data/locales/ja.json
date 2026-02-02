@@ -618,12 +618,12 @@
   "offline_message": "オフラインです。一部の機能が利用できません。",
   "offline_action_blocked": "オフライン中はこの操作を実行できません",
 
-  "world1_name": "ワールド1",
-  "world1_subtitle": "草原",
-  "world2_name": "ワールド2",
-  "world2_subtitle": "火山",
-  "world3_name": "ワールド3",
-  "world3_subtitle": "氷河",
+  "world1_name": "地球",
+  "world1_subtitle": "緑の故郷",
+  "world2_name": "地獄",
+  "world2_subtitle": "灼熱の業火",
+  "world3_name": "冥界",
+  "world3_subtitle": "凍てつく冥府",
   "world_locked": "全ボスステージをクリアして解放",
 
   "paused": "一時停止",
