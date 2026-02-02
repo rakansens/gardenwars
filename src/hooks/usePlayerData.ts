@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import playerDataInitial from "@/data/player.json";
 import unitsData from "@/data/units";
 import type { UnitDefinition } from "@/data/types";
@@ -98,26 +98,52 @@ const loadFromStorage = (): FrontendPlayerData => {
         console.error("Failed to load player data:", e);
     }
 
+    // Validate critical fields from parsed data
+    if (!Array.isArray(initial.clearedStages)) {
+        console.warn("Invalid clearedStages structure, resetting to empty array");
+        initial.clearedStages = [];
+    }
+    if (!Array.isArray(initial.gardenUnits)) {
+        console.warn("Invalid gardenUnits structure, resetting to empty array");
+        initial.gardenUnits = [];
+    }
+    if (typeof initial.unitInventory !== "object" || initial.unitInventory === null) {
+        console.warn("Invalid unitInventory structure, resetting to empty object");
+        initial.unitInventory = {};
+    }
+    if (!Array.isArray(initial.selectedTeam)) {
+        console.warn("Invalid selectedTeam structure, resetting to empty array");
+        initial.selectedTeam = [];
+    }
+
     // 別キーからも読み込み（後方互換性）
     try {
         const clearedStagesRaw = localStorage.getItem(CLEARED_STAGES_KEY);
         if (clearedStagesRaw && initial.clearedStages.length === 0) {
             const parsed = JSON.parse(clearedStagesRaw);
-            if (Array.isArray(parsed)) {
+            if (Array.isArray(parsed) && parsed.every(item => typeof item === "string")) {
                 initial.clearedStages = parsed;
+            } else {
+                console.warn("clearedStages data has invalid structure, skipping migration");
             }
         }
-    } catch {}
+    } catch (e) {
+        console.warn("Failed to parse clearedStages from localStorage:", e);
+    }
 
     try {
         const gardenRaw = localStorage.getItem(GARDEN_SELECTION_KEY);
         if (gardenRaw && initial.gardenUnits.length === 0) {
             const parsed = JSON.parse(gardenRaw);
-            if (Array.isArray(parsed)) {
+            if (Array.isArray(parsed) && parsed.every(item => typeof item === "string")) {
                 initial.gardenUnits = parsed;
+            } else {
+                console.warn("gardenUnits data has invalid structure, skipping migration");
             }
         }
-    } catch {}
+    } catch (e) {
+        console.warn("Failed to parse gardenUnits from localStorage:", e);
+    }
 
     return initial;
 };
@@ -126,14 +152,22 @@ const loadFromStorage = (): FrontendPlayerData => {
 const saveToStorage = (data: FrontendPlayerData) => {
     if (typeof window === "undefined") return;
 
-    try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        // 後方互換性のため別キーにも保存
-        localStorage.setItem(CLEARED_STAGES_KEY, JSON.stringify(data.clearedStages));
-        localStorage.setItem(GARDEN_SELECTION_KEY, JSON.stringify(data.gardenUnits));
-    } catch (e) {
-        console.error("Failed to save player data:", e);
-    }
+    const trySetItem = (key: string, value: string) => {
+        try {
+            localStorage.setItem(key, value);
+        } catch (e) {
+            if (e instanceof DOMException && (e.name === "QuotaExceededError" || e.code === 22)) {
+                console.warn(`Storage quota exceeded when saving to ${key}. Consider clearing old data.`);
+            } else {
+                console.error(`Failed to save to ${key}:`, e);
+            }
+        }
+    };
+
+    trySetItem(STORAGE_KEY, JSON.stringify(data));
+    // 後方互換性のため別キーにも保存
+    trySetItem(CLEARED_STAGES_KEY, JSON.stringify(data.clearedStages));
+    trySetItem(GARDEN_SELECTION_KEY, JSON.stringify(data.gardenUnits));
 };
 
 /**
@@ -146,7 +180,13 @@ export function usePlayerData() {
     const [data, setData] = useState<PlayerData>(getInitialData);
     const [isLoaded, setIsLoaded] = useState(false);
     const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const dataRef = useRef<PlayerData>(data); // Ref to capture latest data for debounced save
     const isAuthenticated = status === "authenticated" && playerId;
+
+    // Keep dataRef in sync with data
+    useEffect(() => {
+        dataRef.current = data;
+    }, [data]);
 
     // 初回読み込み
     useEffect(() => {
@@ -183,8 +223,10 @@ export function usePlayerData() {
                             mergedData.shopItems = localData.shopItems;
                         } else if (mergedData.shopItems.length > 0 && localData.shopItems.length > 0) {
                             // 同じUIDのアイテムはローカルのsoldOut状態を優先
+                            // O(n) Map-based lookup instead of O(n²) find inside map
+                            const localItemMap = new Map(localData.shopItems.map(item => [item.uid, item]));
                             mergedData.shopItems = mergedData.shopItems.map(remoteItem => {
-                                const localItem = localData.shopItems.find(l => l.uid === remoteItem.uid);
+                                const localItem = localItemMap.get(remoteItem.uid);
                                 if (localItem && localItem.soldOut) {
                                     return { ...remoteItem, soldOut: true };
                                 }
@@ -245,16 +287,30 @@ export function usePlayerData() {
             }
 
             saveTimeoutRef.current = setTimeout(async () => {
-                try {
-                    // 型安全な変換関数を使用してSupabase形式に変換
-                    const saveData = toSupabaseSaveData(data);
-                    await saveToSupabase(playerId, saveData);
+                const maxRetries = 3;
+                let lastError: unknown = null;
 
-                    // ランキング統計も同期（コイン数、コレクション数）
-                    await syncRankingStats(playerId, data.coins, data.unitInventory);
-                } catch (err) {
-                    console.error("Failed to save to Supabase:", err);
+                for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                    try {
+                        // dataRefから最新のデータを取得（stale closure回避）
+                        const latestData = dataRef.current;
+                        // 型安全な変換関数を使用してSupabase形式に変換
+                        const saveData = toSupabaseSaveData(latestData);
+                        await saveToSupabase(playerId, saveData);
+
+                        // ランキング統計も同期（コイン数、コレクション数）
+                        await syncRankingStats(playerId, latestData.coins, latestData.unitInventory);
+                        return; // Success, exit retry loop
+                    } catch (err) {
+                        lastError = err;
+                        console.warn(`Supabase save attempt ${attempt}/${maxRetries} failed:`, err);
+                        if (attempt < maxRetries) {
+                            // Wait before retry with exponential backoff
+                            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+                        }
+                    }
                 }
+                console.error("Failed to save to Supabase after all retries:", lastError);
             }, 1000); // 1秒後に保存
         }
 
@@ -295,17 +351,19 @@ export function usePlayerData() {
     }, []);
 
     // コインを減らす（消費）
+    // React 18対応: コールバック内でsuccessを設定するとバッチングで遅延するため、先にチェック
     const spendCoins = useCallback((amount: number): boolean => {
-        let success = false;
+        if (data.coins < amount) {
+            return false;
+        }
         setData((prev) => {
-            if (prev.coins >= amount) {
-                success = true;
-                return { ...prev, coins: prev.coins - amount };
+            if (prev.coins < amount) {
+                return prev; // 二重チェック
             }
-            return prev;
+            return { ...prev, coins: prev.coins - amount };
         });
-        return success;
-    }, []);
+        return true;
+    }, [data.coins]);
 
     // ユニットを追加（単体）
     const addUnit = useCallback((unitId: string, count: number = 1) => {
@@ -442,31 +500,38 @@ export function usePlayerData() {
         setData(prev => ({ ...prev, shopItems: newItems }));
     }, []);
 
-    // アイテム購入（アトミック操作 - 依存配列を空にしてレースコンディションを防止）
+    // アイテム購入（アトミック操作）
+    // React 18対応: 先に購入可能かチェックしてから状態更新
     const buyShopItem = useCallback((index: number): boolean => {
-        let success = false;
+        // 先に購入可能かチェック
+        const currentItem = data.shopItems[index];
+        if (!currentItem || currentItem.soldOut || data.coins < currentItem.price) {
+            return false; // 購入失敗
+        }
+
+        // 購入可能なので、状態を更新
         setData(prev => {
             const items = [...prev.shopItems];
-            const currentItem = items[index];
-            if (!currentItem || currentItem.soldOut || prev.coins < currentItem.price) {
-                return prev; // 購入失敗 - 状態変更なし
+            const item = items[index];
+            // 二重チェック
+            if (!item || item.soldOut || prev.coins < item.price) {
+                return prev;
             }
 
-            success = true;
-            items[index] = { ...currentItem, soldOut: true };
+            items[index] = { ...item, soldOut: true };
 
             const newInventory = { ...prev.unitInventory };
-            newInventory[currentItem.unitId] = (newInventory[currentItem.unitId] || 0) + 1;
+            newInventory[item.unitId] = (newInventory[item.unitId] || 0) + 1;
 
             return {
                 ...prev,
-                coins: prev.coins - currentItem.price,
+                coins: prev.coins - item.price,
                 shopItems: items,
                 unitInventory: newInventory
             };
         });
-        return success;
-    }, []); // 依存配列を空に - setData内でprevを使用するため安全
+        return true;
+    }, [data.shopItems, data.coins]);
 
     // ガチャ履歴を追加
     const addGachaHistory = useCallback((unitIds: string[]) => {
@@ -546,21 +611,28 @@ export function usePlayerData() {
 
     // フュージョン用アトミック操作（素材消費 + 結果追加を1つのsetData内で実行）
     // これにより、素材だけ消費されて結果が得られないケースを防ぐ
+    // React 18対応: 先に素材チェックを行い、その結果を返す
     const executeFusion = useCallback((materialIds: string[], resultUnitId: string): boolean => {
-        let success = false;
-        setData((prev) => {
-            // 素材が全て揃っているか確認
-            const materialCounts: Record<string, number> = {};
-            for (const id of materialIds) {
-                materialCounts[id] = (materialCounts[id] || 0) + 1;
+        // 先に素材が全て揃っているか確認
+        const materialCounts: Record<string, number> = {};
+        for (const id of materialIds) {
+            materialCounts[id] = (materialCounts[id] || 0) + 1;
+        }
+        for (const [unitId, needed] of Object.entries(materialCounts)) {
+            if ((data.unitInventory[unitId] || 0) < needed) {
+                return false; // 素材不足
             }
+        }
+
+        // 素材が揃っているので、状態を更新
+        setData((prev) => {
+            // 二重チェック
             for (const [unitId, needed] of Object.entries(materialCounts)) {
                 if ((prev.unitInventory[unitId] || 0) < needed) {
-                    return prev; // 素材不足
+                    return prev;
                 }
             }
 
-            success = true;
             const newInventory = { ...prev.unitInventory };
 
             // 素材を消費
@@ -581,8 +653,8 @@ export function usePlayerData() {
                 unitInventory: newInventory,
             };
         });
-        return success;
-    }, []);
+        return true;
+    }, [data.unitInventory]);
 
     // バトル報酬用アトミック操作（コイン + ステージクリア + ドロップユニットを1つのsetData内で実行）
     // これにより、報酬の一部だけ反映されるケースを防ぐ

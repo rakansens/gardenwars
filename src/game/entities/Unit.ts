@@ -969,7 +969,7 @@ export class Unit extends Phaser.GameObjects.Container {
     }
 
     private updateHpBar(): void {
-        const hpRatio = this.hp / this.maxHp;
+        const hpRatio = this.maxHp > 0 ? this.hp / this.maxHp : 0;
         this.hpBar.setScale(hpRatio, 1);
         this.hpBar.setX(-25 * (1 - hpRatio));
 
@@ -1708,6 +1708,8 @@ export class Unit extends Phaser.GameObjects.Container {
     private applySlowEffect(target: Unit, slowValue: number, durationMs: number, icon: string): void {
         // 乗算スタック: 複数のスロー効果が重なる
         target.speedModifier *= slowValue;
+        // Clamp speedModifier to prevent extreme values
+        target.speedModifier = Math.max(0.1, Math.min(10.0, target.speedModifier));
         target.sprite.setTint(0xaaddff);
 
         target.addStatusEffect({
@@ -1725,6 +1727,8 @@ export class Unit extends Phaser.GameObjects.Container {
     private applyHasteEffect(target: Unit, hasteValue: number, durationMs: number, icon: string): void {
         // 乗算スタック: 複数のヘイスト効果が重なる
         target.attackSpeedModifier *= hasteValue;
+        // Clamp attackSpeedModifier to prevent extreme values
+        target.attackSpeedModifier = Math.max(0.1, Math.min(10.0, target.attackSpeedModifier));
 
         target.addStatusEffect({
             id: `haste_${Date.now()}`,
@@ -1770,10 +1774,18 @@ export class Unit extends Phaser.GameObjects.Container {
     }
 
     private applyBurnEffect(target: Unit, damagePerSecond: number, durationMs: number, icon: string): void {
-        // 既存の炎上を上書き
+        // 既存の炎上を上書き - 古いタイマーを破棄してから新しいものを作成
         const existingBurn = target.statusEffects.find(e => e.type === 'burn');
         if (existingBurn) {
+            // Destroy old burn timers before reapplying
+            for (const timer of target.burnTimers) {
+                timer.destroy();
+            }
+            target.burnTimers = [];
             existingBurn.remainingMs = durationMs;
+            existingBurn.value = damagePerSecond;
+            // Start new burn damage with updated values
+            this.startBurnDamage(target, damagePerSecond, durationMs);
             return;
         }
 
@@ -1882,6 +1894,8 @@ export class Unit extends Phaser.GameObjects.Container {
     private applyDamageBuffEffect(target: Unit, value: number, durationMs: number, icon: string): void {
         // 乗算スタック: 複数のダメージバフ効果が重なる
         target.damageModifier *= value;
+        // Clamp damageModifier to prevent extreme values
+        target.damageModifier = Math.max(0.1, Math.min(10.0, target.damageModifier));
 
         target.addStatusEffect({
             id: `dmg_buff_${Date.now()}`,

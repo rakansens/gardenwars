@@ -1,18 +1,18 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import unitsData from "@/data/units";
 import type { UnitDefinition, Rarity, UnitRole } from "@/data/types";
 import { SKILL_DEFINITIONS } from "@/data/skills";
 
-// ロール別のアイコンと色
-const roleConfig: Record<UnitRole, { icon: string; color: string }> = {
-    tank: { icon: "🛡️", color: "text-slate-600 dark:text-slate-400" },
-    attacker: { icon: "⚔️", color: "text-red-600 dark:text-red-400" },
-    ranger: { icon: "🏹", color: "text-green-600 dark:text-green-400" },
-    speedster: { icon: "💨", color: "text-cyan-600 dark:text-cyan-400" },
-    flying: { icon: "🪽", color: "text-sky-600 dark:text-sky-400" },
-    balanced: { icon: "⚖️", color: "text-gray-600 dark:text-gray-400" },
+// ロール別のアイコンと色（テキスト色とバッジ背景色の両方）
+const roleConfig: Record<UnitRole, { icon: string; color: string; bgColor: string }> = {
+    tank: { icon: "🛡️", color: "text-slate-600 dark:text-slate-400", bgColor: "bg-slate-500" },
+    attacker: { icon: "⚔️", color: "text-red-600 dark:text-red-400", bgColor: "bg-red-500" },
+    ranger: { icon: "🏹", color: "text-green-600 dark:text-green-400", bgColor: "bg-green-500" },
+    speedster: { icon: "💨", color: "text-cyan-600 dark:text-cyan-400", bgColor: "bg-cyan-500" },
+    flying: { icon: "🪽", color: "text-sky-600 dark:text-sky-400", bgColor: "bg-sky-500" },
+    balanced: { icon: "⚖️", color: "text-gray-600 dark:text-gray-400", bgColor: "bg-gray-500" },
 };
 import RarityFrame from "@/components/ui/RarityFrame";
 import UnitDetailModal from "@/components/ui/UnitDetailModal";
@@ -195,6 +195,18 @@ export default function TeamPage() {
         { key: "UR", label: "UR", color: "bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500" },
     ];
 
+    // Memoize rarity counts to avoid repeated filtering in render
+    const rarityUnitCounts = useMemo(() => {
+        const counts: Record<Rarity | "ALL", number> = {
+            ALL: allyUnits.length,
+            N: 0, R: 0, SR: 0, SSR: 0, UR: 0
+        };
+        for (const u of allyUnits) {
+            counts[u.rarity]++;
+        }
+        return counts;
+    }, []);
+
     const roleTabs: { key: RoleFilter; label: string; icon: string; color: string }[] = [
         { key: "ALL", label: "ALL", icon: "🎯", color: "bg-gray-500" },
         { key: "tank", label: t("role_tank"), icon: "🛡️", color: "bg-slate-500" },
@@ -302,14 +314,7 @@ export default function TeamPage() {
 
                 {/* ロールバッジ */}
                 {unit.role && (
-                    <div className={`absolute ${unitHasAnimation ? "top-6" : "-top-2"} -left-2 w-7 h-7 rounded-full ${
-                        unit.role === 'tank' ? 'bg-slate-500' :
-                        unit.role === 'attacker' ? 'bg-red-500' :
-                        unit.role === 'ranger' ? 'bg-green-500' :
-                        unit.role === 'speedster' ? 'bg-cyan-500' :
-                        unit.role === 'flying' ? 'bg-sky-500' :
-                        'bg-gray-500'
-                    } text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10`} title={unit.role}>
+                    <div className={`absolute ${unitHasAnimation ? "top-6" : "-top-2"} -left-2 w-7 h-7 rounded-full ${roleConfig[unit.role].bgColor} text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10`} title={unit.role}>
                         {roleConfig[unit.role].icon}
                     </div>
                 )}
@@ -451,14 +456,7 @@ export default function TeamPage() {
 
                 {/* ロールバッジ */}
                 {unit.role && (
-                    <div className={`absolute ${unitHasAnimation ? "top-6" : "-top-2"} -left-2 w-7 h-7 rounded-full ${
-                        unit.role === 'tank' ? 'bg-slate-500' :
-                        unit.role === 'attacker' ? 'bg-red-500' :
-                        unit.role === 'ranger' ? 'bg-green-500' :
-                        unit.role === 'speedster' ? 'bg-cyan-500' :
-                        unit.role === 'flying' ? 'bg-sky-500' :
-                        'bg-gray-500'
-                    } text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10`} title={unit.role}>
+                    <div className={`absolute ${unitHasAnimation ? "top-6" : "-top-2"} -left-2 w-7 h-7 rounded-full ${roleConfig[unit.role].bgColor} text-white text-xs font-bold flex items-center justify-center border-2 border-white shadow z-10`} title={unit.role}>
                         {roleConfig[unit.role].icon}
                     </div>
                 )}
@@ -687,9 +685,7 @@ export default function TeamPage() {
                             >
                                 {tab.label}
                                 <span className="ml-1.5 text-xs md:text-sm opacity-75">
-                                    ({tab.key === "ALL"
-                                        ? allyUnits.length
-                                        : allyUnits.filter(u => u.rarity === tab.key).length})
+                                    ({rarityUnitCounts[tab.key]})
                                 </span>
                             </button>
                         ))}

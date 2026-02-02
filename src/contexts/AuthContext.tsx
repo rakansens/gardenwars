@@ -28,9 +28,16 @@ function getLocalStorageData(): LocalStorageData | undefined {
         try {
             const clearedStagesRaw = localStorage.getItem(CLEARED_STAGES_KEY);
             if (clearedStagesRaw) {
-                clearedStages = JSON.parse(clearedStagesRaw);
+                const parsed = JSON.parse(clearedStagesRaw);
+                if (Array.isArray(parsed) && parsed.every(item => typeof item === "string")) {
+                    clearedStages = parsed;
+                } else {
+                    console.warn("clearedStages has invalid structure, skipping");
+                }
             }
-        } catch {}
+        } catch (e) {
+            console.warn("Failed to parse clearedStages from localStorage:", e);
+        }
 
         try {
             const gardenRaw = localStorage.getItem(GARDEN_SELECTION_KEY);

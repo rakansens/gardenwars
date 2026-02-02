@@ -56,7 +56,8 @@ export class SurvivalEnemy extends Phaser.GameObjects.Container {
 
         this.sprite = scene.add.image(0, 0, config.spriteKey);
         const targetHeight = this.isBoss ? 90 : 45;
-        const baseScale = targetHeight / this.sprite.height;
+        const spriteHeight = this.sprite.height > 0 ? this.sprite.height : 1;
+        const baseScale = targetHeight / spriteHeight;
         this.sprite.setScale(baseScale * (config.scale ?? 1));
         this.sprite.setOrigin(0.5, 1);
         if (config.flipSprite) {
@@ -92,7 +93,7 @@ export class SurvivalEnemy extends Phaser.GameObjects.Container {
         const dy = player.y - this.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
-        if (dist > 0.001) {
+        if (dist > 0) {
             const move = (this.speed * delta) / 1000;
             const nx = dx / dist;
             const ny = dy / dist;

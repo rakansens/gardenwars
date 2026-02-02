@@ -107,7 +107,7 @@ export class AIController {
         const upgradeCost = this.costSystem.getUpgradeCost();
         const canUpgrade = this.costSystem.canUpgrade();
         const maxCost = this.costSystem.getMax();
-        const costRatio = currentCost / maxCost;
+        const costRatio = maxCost > 0 ? currentCost / maxCost : 0;
 
         if (canUpgrade && upgradeCost !== null && currentCost >= upgradeCost) {
             const shouldUpgrade =
@@ -173,7 +173,7 @@ export class AIController {
                         return affordableUnits[i];
                     }
                 }
-                return affordableUnits[0];
+                return affordableUnits.length > 0 ? affordableUnits[0] : null;
         }
     }
 

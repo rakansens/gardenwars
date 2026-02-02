@@ -74,11 +74,22 @@ export default function AsyncBattlePage() {
             if (!opponentId) return;
 
             try {
-                // プレイヤーデータとプレイヤー名を並行取得
-                const [playerData, playerName] = await Promise.all([
+                // プレイヤーデータとプレイヤー名を並行取得（個別エラーハンドリング付き）
+                const [playerDataResult, playerNameResult] = await Promise.allSettled([
                     getPlayerData(opponentId),
                     getPlayerName(opponentId),
                 ]);
+
+                // Extract values with proper error handling
+                const playerData = playerDataResult.status === 'fulfilled' ? playerDataResult.value : null;
+                const playerName = playerNameResult.status === 'fulfilled' ? playerNameResult.value : null;
+
+                if (playerDataResult.status === 'rejected') {
+                    console.error("Failed to fetch player data:", playerDataResult.reason);
+                }
+                if (playerNameResult.status === 'rejected') {
+                    console.error("Failed to fetch player name:", playerNameResult.reason);
+                }
 
                 if (playerData && playerData.selected_team && playerData.selected_team.length > 0) {
                     setOpponent({

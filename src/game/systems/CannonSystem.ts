@@ -64,7 +64,7 @@ export class CannonSystem {
 
     update(delta: number) {
         this.charge = Math.min(this.charge + delta, this.chargeMax);
-        const ratio = this.charge / this.chargeMax;
+        const ratio = this.chargeMax > 0 ? this.charge / this.chargeMax : 0;
         const barWidth = Math.max(0, Math.min(1, ratio)) * 50;
         this.barFill.width = barWidth;
         this.barFill.height = 6;

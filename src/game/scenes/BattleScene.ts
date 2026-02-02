@@ -1652,10 +1652,15 @@ export class BattleScene extends Phaser.Scene {
         // デバッグ: 城のHP確認（シーンID付き）
         console.log(`[Scene ${this.sceneId}] Ally HP: ${this.allyCastle.hp}/${this.allyCastle.maxHp}, Enemy HP: ${this.enemyCastle.hp}/${this.enemyCastle.maxHp}`);
 
-        if (this.enemyCastle.isDestroyed()) {
+        // Check both castles to handle simultaneous destruction
+        const enemyDestroyed = this.enemyCastle.isDestroyed();
+        const allyDestroyed = this.allyCastle.isDestroyed();
+
+        // Priority: if both destroyed simultaneously, enemy destruction = win
+        if (enemyDestroyed) {
             console.log('[GameEnd] Enemy castle destroyed!');
             this.endBattle(true);
-        } else if (this.allyCastle.isDestroyed()) {
+        } else if (allyDestroyed) {
             console.log('[GameEnd] Ally castle destroyed!');
             this.endBattle(false);
         }

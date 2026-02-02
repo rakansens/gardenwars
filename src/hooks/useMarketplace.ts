@@ -142,12 +142,23 @@ export function useMarketplace(): UseMarketplaceReturn {
 
         setIsLoading(true);
         try {
-            await Promise.all([
+            // 各操作を順番に実行し、個別のエラーをキャッチ
+            const results = await Promise.allSettled([
                 refreshListings(undefined, true),
                 refreshMyListings(),
                 refreshSoldHistory(),
                 refreshNotifications(),
             ]);
+
+            // エラーがあった場合はログに記録
+            results.forEach((result, index) => {
+                if (result.status === 'rejected') {
+                    const operations = ['refreshListings', 'refreshMyListings', 'refreshSoldHistory', 'refreshNotifications'];
+                    console.error(`Failed to ${operations[index]}:`, result.reason);
+                }
+            });
+        } catch (error) {
+            console.error("Unexpected error in refreshAll:", error);
         } finally {
             setIsLoading(false);
         }
@@ -156,11 +167,20 @@ export function useMarketplace(): UseMarketplaceReturn {
     // 初回読み込み
     useEffect(() => {
         if (isAuthenticated && playerId) {
-            Promise.all([
-                refreshListings(),
-                refreshMyListings(),
-                refreshNotifications(),
-            ]).finally(() => setIsLoading(false));
+            const loadInitialData = async () => {
+                try {
+                    await Promise.all([
+                        refreshListings(),
+                        refreshMyListings(),
+                        refreshNotifications(),
+                    ]);
+                } catch (error) {
+                    console.error("Failed to load initial marketplace data:", error);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+            loadInitialData();
         } else {
             setIsLoading(false);
         }

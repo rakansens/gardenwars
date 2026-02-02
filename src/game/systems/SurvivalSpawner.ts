@@ -61,8 +61,14 @@ export class SurvivalSpawner {
 
         if (this.enemies.length < this.maxEnemies) {
             const interval = this.getSpawnInterval();
-            while (this.spawnTimer >= interval) {
-                this.spawnTimer -= interval;
+            // Validate interval to prevent infinite loop (minimum 100ms)
+            const safeInterval = Math.max(100, interval);
+            // Add max iteration limit to prevent infinite loops
+            const maxIterations = 10;
+            let iterations = 0;
+            while (this.spawnTimer >= safeInterval && iterations < maxIterations) {
+                iterations++;
+                this.spawnTimer -= safeInterval;
                 this.spawnEnemy(false, playerX, playerY);
 
                 const extraChance = Math.min(

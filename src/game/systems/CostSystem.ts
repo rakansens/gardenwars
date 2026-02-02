@@ -46,6 +46,11 @@ export class CostSystem {
      * コストを消費
      */
     spend(amount: number): boolean {
+        // Validate that amount is non-negative
+        if (amount < 0) {
+            console.warn('[CostSystem] Attempted to spend negative amount:', amount);
+            return false;
+        }
         if (this.current >= amount) {
             this.current -= amount;
             eventBus.emit(GameEvents.COST_CHANGED, this.current, this.max);

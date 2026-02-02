@@ -16,6 +16,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import PageHeader from "@/components/layout/PageHeader";
 import { useAuth } from "@/contexts/AuthContext";
 import { incrementGachaCount } from "@/lib/supabase";
+import { secureRandom } from "@/lib/secureRandom";
 
 const allUnits = unitsData as UnitDefinition[];
 // ガチャ対象はallyユニットのみ
@@ -38,14 +39,16 @@ const unitsCountByRarity: Record<Rarity, number> = {
 // ドロップレートのキャッシュ
 const dropRateCache = new Map<string, number>();
 gachaPool.forEach(unit => {
-    const rate = rarityWeightsConst[unit.rarity] / unitsCountByRarity[unit.rarity];
+    const countByRarity = unitsCountByRarity[unit.rarity];
+    const rate = countByRarity > 0 ? rarityWeightsConst[unit.rarity] / countByRarity : 0;
     dropRateCache.set(unit.id, rate);
 });
 
 // ガチャ用の重み計算キャッシュ
 const unitWeightCache = new Map<string, number>();
 gachaPool.forEach(unit => {
-    unitWeightCache.set(unit.id, rarityWeightsConst[unit.rarity] / unitsCountByRarity[unit.rarity]);
+    const countByRarity = unitsCountByRarity[unit.rarity];
+    unitWeightCache.set(unit.id, countByRarity > 0 ? rarityWeightsConst[unit.rarity] / countByRarity : 0);
 });
 const totalGachaWeight = Array.from(unitWeightCache.values()).reduce((sum, w) => sum + w, 0);
 
@@ -160,9 +163,24 @@ export default function GachaPage() {
 
         // 重要: ガチャ結果を即座にSupabaseに保存（デバウンスをバイパス）
         // これによりブラウザが閉じられてもデータが失われない
-        flushToSupabase().catch(err => {
-            console.error("Failed to flush gacha to Supabase:", err);
-        });
+        const flushWithRetry = async (retries = 3) => {
+            for (let attempt = 1; attempt <= retries; attempt++) {
+                try {
+                    const success = await flushToSupabase();
+                    if (success) return;
+                    console.warn(`Flush attempt ${attempt} failed, ${retries - attempt} retries left`);
+                } catch (err) {
+                    console.error(`Flush attempt ${attempt} error:`, err);
+                }
+                if (attempt < retries) {
+                    await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Exponential backoff
+                }
+            }
+            // All retries failed - notify user (data is saved locally, will sync later)
+            console.error("Failed to sync gacha results after retries. Data saved locally.");
+            // Note: Data is already saved to localStorage, will sync on next successful connection
+        };
+        flushWithRetry();
 
         // ランキング用ガチャ回数カウント（エラーハンドリング付き）
         if (playerId) {
@@ -182,8 +200,13 @@ export default function GachaPage() {
     };
 
     // レアリティで重み付けしてランダム選択（キャッシュ済み重みを使用）
+    // セキュリティ向上: crypto.getRandomValues()を使用
     const pickRandomUnit = (): UnitDefinition => {
-        let random = Math.random() * totalGachaWeight;
+        if (gachaPool.length === 0) {
+            throw new Error("Gacha pool is empty");
+        }
+        // Use cryptographically secure random for gacha picks
+        let random = secureRandom() * totalGachaWeight;
 
         for (const unit of gachaPool) {
             random -= unitWeightCache.get(unit.id) ?? 0;
