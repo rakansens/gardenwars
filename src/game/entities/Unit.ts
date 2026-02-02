@@ -1083,6 +1083,16 @@ export class Unit extends Phaser.GameObjects.Container {
             onStart: () => this.sprite.setTint(0xff4444),
             onComplete: () => this.sprite.clearTint(),
         });
+
+        // エンレイジ直後に確定AoE攻撃（死亡前に少なくとも1回は発動を保証）
+        if (this.definition.bossAoe?.enabled) {
+            this.scene.time.delayedCall(500, () => {
+                if (!this.isDead()) {
+                    this.performAoeAttack();
+                    this.lastAoeTime = Date.now();
+                }
+            });
+        }
     }
 
     /**
@@ -1135,13 +1145,11 @@ export class Unit extends Phaser.GameObjects.Container {
         return targetUnits.filter((unit: Unit) => {
             if (unit.isDead()) return false;
 
-            if (this.verticalMode) {
-                const distance = Math.abs(this.y - unit.y);
-                return distance <= range;
-            } else {
-                const distance = Math.abs(this.x - unit.x);
-                return distance <= range;
-            }
+            // 2D距離計算（ユークリッド距離）- AoEは円形なので両軸を考慮
+            const dx = this.x - unit.x;
+            const dy = (this.y - this.flyingOffset) - (unit.y - unit.flyingOffset);
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            return distance <= range;
         });
     }
 

@@ -5,7 +5,7 @@
     "description": "boss_stage_1_desc",
     "length": 3000,
     "baseCastleHp": 30000,
-    "enemyCastleHp": 999999,
+    "enemyCastleHp": 100000,
     "isBossStage": true,
     "enemyWaves": [
       {
@@ -102,7 +102,7 @@
     "description": "boss_stage_2_desc",
     "length": 3500,
     "baseCastleHp": 40000,
-    "enemyCastleHp": 999999,
+    "enemyCastleHp": 100000,
     "isBossStage": true,
     "enemyWaves": [
       {
@@ -203,7 +203,7 @@
     "description": "boss_stage_3_desc",
     "length": 4000,
     "baseCastleHp": 50000,
-    "enemyCastleHp": 999999,
+    "enemyCastleHp": 100000,
     "isBossStage": true,
     "enemyWaves": [
       {
@@ -304,7 +304,7 @@
     "description": "boss_stage_4_desc",
     "length": 3500,
     "baseCastleHp": 45000,
-    "enemyCastleHp": 999999,
+    "enemyCastleHp": 100000,
     "isBossStage": true,
     "enemyWaves": [
       {
@@ -405,7 +405,7 @@
     "description": "boss_stage_5_desc",
     "length": 5000,
     "baseCastleHp": 60000,
-    "enemyCastleHp": 999999,
+    "enemyCastleHp": 100000,
     "isBossStage": true,
     "enemyWaves": [
       {

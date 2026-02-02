@@ -1493,22 +1493,40 @@ export class BattleScene extends Phaser.Scene {
     }
 
     private updateBossUI() {
-        const boss = this.enemyUnits.find(u => u.definition.isBoss && !u.isDead());
+        // 生存中の全ボスを取得（複数ボス対応）
+        const bosses = this.enemyUnits.filter(u => u.definition.isBoss && !u.isDead());
         const { width } = this.scale;
         const bossBarW = Math.min(width - 40, 400);
 
-        if (boss) {
+        if (bosses.length > 0) {
             this.bossHpContainer.setVisible(true);
-            this.bossHpText.setText(`☠️ ${boss.definition.name} ☠️`);
 
-            const hpRatio = boss.hp / boss.maxHp;
-            this.bossHpBarFill.width = bossBarW * hpRatio;
+            // 複数ボスの場合は合計HP、単体の場合は個別表示
+            if (bosses.length === 1) {
+                const boss = bosses[0];
+                this.bossHpText.setText(`☠️ ${boss.definition.name} ☠️`);
+                const hpRatio = boss.hp / boss.maxHp;
+                this.bossHpBarFill.width = bossBarW * hpRatio;
 
-            // HP色変化（ピンチで点滅など）
-            if (hpRatio < 0.3) {
-                this.bossHpBarFill.setFillStyle(this.time.now % 200 < 100 ? 0xff0000 : 0xffaaaa);
+                // HP色変化（ピンチで点滅など）
+                if (hpRatio < 0.3) {
+                    this.bossHpBarFill.setFillStyle(this.time.now % 200 < 100 ? 0xff0000 : 0xffaaaa);
+                } else {
+                    this.bossHpBarFill.setFillStyle(0xff0000);
+                }
             } else {
-                this.bossHpBarFill.setFillStyle(0xff0000);
+                // 複数ボス：合計HPを表示
+                const totalHp = bosses.reduce((sum, b) => sum + b.hp, 0);
+                const totalMaxHp = bosses.reduce((sum, b) => sum + b.maxHp, 0);
+                this.bossHpText.setText(`☠️ BOSSES x${bosses.length} ☠️`);
+                const hpRatio = totalMaxHp > 0 ? totalHp / totalMaxHp : 0;
+                this.bossHpBarFill.width = bossBarW * hpRatio;
+
+                if (hpRatio < 0.3) {
+                    this.bossHpBarFill.setFillStyle(this.time.now % 200 < 100 ? 0xff0000 : 0xffaaaa);
+                } else {
+                    this.bossHpBarFill.setFillStyle(0xff0000);
+                }
             }
         } else {
             this.bossHpContainer.setVisible(false);

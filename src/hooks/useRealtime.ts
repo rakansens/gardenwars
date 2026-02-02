@@ -220,7 +220,11 @@ export function useRealtime(): [RealtimeState, RealtimeActions] {
     resetBattleState("connecting");
 
     try {
-      const room = await colyseusClient.joinBattle(options);
+      const result = await colyseusClient.joinBattle(options);
+      if (result.error || !result.data) {
+        throw new Error(result.error || "Failed to join room");
+      }
+      const room = result.data;
       roomRef.current = room;
       setMySessionId(room.sessionId);
       setConnectionStatus("waiting");
@@ -526,8 +530,8 @@ export function useRealtime(): [RealtimeState, RealtimeActions] {
   const fetchRooms = useCallback(async () => {
     setIsLoadingRooms(true);
     try {
-      const rooms = await colyseusClient.fetchRooms();
-      setLobbyRooms(rooms);
+      const result = await colyseusClient.fetchRooms();
+      setLobbyRooms(result.data || []);
     } catch (err) {
       console.error("[Realtime] Failed to fetch rooms:", err);
     } finally {
@@ -648,7 +652,11 @@ export function useRealtime(): [RealtimeState, RealtimeActions] {
     resetBattleState("connecting");
 
     try {
-      const room = await colyseusClient.createRoom(options);
+      const result = await colyseusClient.createRoom(options);
+      if (result.error || !result.data) {
+        throw new Error(result.error || "Failed to create room");
+      }
+      const room = result.data;
       roomRef.current = room;
       setMySessionId(room.sessionId);
       setRoomId(room.roomId);
@@ -671,7 +679,11 @@ export function useRealtime(): [RealtimeState, RealtimeActions] {
     resetBattleState("connecting");
 
     try {
-      const room = await colyseusClient.joinRoom(targetRoomId, options);
+      const result = await colyseusClient.joinRoom(targetRoomId, options);
+      if (result.error || !result.data) {
+        throw new Error(result.error || "Failed to join room");
+      }
+      const room = result.data;
       roomRef.current = room;
       setMySessionId(room.sessionId);
       setRoomId(room.roomId);
