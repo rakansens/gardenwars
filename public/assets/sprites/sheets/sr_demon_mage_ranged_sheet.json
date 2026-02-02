@@ -1,0 +1,19 @@
+{
+  "frames": {
+    "sr_demon_mage_idle.png": { "frame": { "x": 0, "y": 0, "w": 220, "h": 200 } },
+    "sr_demon_mage_walk_1.png": { "frame": { "x": 220, "y": 0, "w": 220, "h": 200 } },
+    "sr_demon_mage_walk_2.png": { "frame": { "x": 440, "y": 0, "w": 220, "h": 200 } },
+    "sr_demon_mage_walk_3.png": { "frame": { "x": 660, "y": 0, "w": 220, "h": 200 } },
+    "sr_demon_mage_attack_1.png": { "frame": { "x": 0, "y": 250, "w": 880, "h": 240 } },
+    "sr_demon_mage_attack_2.png": { "frame": { "x": 0, "y": 490, "w": 880, "h": 240 } },
+    "sr_demon_mage_attack_3.png": { "frame": { "x": 0, "y": 730, "w": 880, "h": 240 } },
+    "sr_demon_mage_attack_4.png": { "frame": { "x": 0, "y": 970, "w": 880, "h": 246 } }
+  },
+  "meta": {
+    "image": "sr_demon_mage_ranged_sheet.webp",
+    "format": "RGBA8888",
+    "size": { "w": 880, "h": 1216 },
+    "scale": "1",
+    "type": "ranged"
+  }
+}

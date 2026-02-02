@@ -107,6 +107,18 @@ export const RANGED_SPRITE_UNITS = [
     'ssr_neon_flower_cat',   // ネオンフラワー猫 (220, 範囲)
     'ssr_galaxy_slime',      // ギャラクシースライム (200)
     'ssr_coral_mermaid_cat', // コーラルマーメイド猫 (200)
+    // 範囲攻撃ユニット (全レアリティ)
+    'sr_demon_mage',         // デーモンメイジ (280, area 90)
+    'sr_frost_rose_queen',   // フロストローズクイーン (220, area 80)
+    'ur_astral_wizard',      // アストラルウィザード (300, area 100)
+    'r_sprinkler_cat',       // スプリンクラー猫 (180, area 60)
+    'ur_emerald_dragon',     // エメラルドドラゴン (170, area 70)
+    'ur_thunder_phoenix',    // サンダーフェニックス (160, area 80)
+    'ur_fire_lotus_cat',     // ファイアロータス猫 (150, area 70)
+    'ur_inferno_demon',      // インフェルノデーモン (140, area 70)
+    'flame_knight',          // フレイムナイト (100, area 80)
+    'thunder_golem',         // サンダーゴーレム (80, area 70)
+    'r_fire_chili',          // ファイアチリ (45, area 50)
 ] as const;
 
 /**
