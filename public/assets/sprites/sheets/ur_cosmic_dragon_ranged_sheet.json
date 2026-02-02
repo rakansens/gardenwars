@@ -10,7 +10,7 @@
     "ur_cosmic_dragon_attack_4.png": { "frame": { "x": 0, "y": 970, "w": 880, "h": 246 } }
   },
   "meta": {
-    "image": "ur_cosmic_dragon_sheet.webp",
+    "image": "ur_cosmic_dragon_ranged_sheet.webp",
     "format": "RGBA8888",
     "size": { "w": 880, "h": 1216 },
     "scale": "1",
