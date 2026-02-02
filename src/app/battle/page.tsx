@@ -12,67 +12,78 @@ export default function BattlePage() {
   const { t } = useLanguage();
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-4 md:p-6">
+    <main className="min-h-screen p-4 md:p-6">
       {/* タイトル */}
-      <div className="text-center mb-8">
-        <h1 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-amber-400 to-yellow-500 drop-shadow-lg animate-pulse">
-          ⚔️ {t("battle_select_title") || "バトルモード選択"} ⚔️
+      <div className="max-w-4xl mx-auto text-center mb-6">
+        <h1 className="text-2xl md:text-3xl font-bold text-amber-600 dark:text-amber-400">
+          ⚔️ {t("battle_select_title") || "バトルモード選択"}
         </h1>
-        <p className="text-amber-700/70 dark:text-amber-300/70 mt-3">
+        <p className="text-sm text-amber-700/70 dark:text-amber-300/70 mt-2">
           {t("battle_select_desc") || "対戦モードを選んでください"}
         </p>
       </div>
 
       {/* モード選択カード */}
-      <div className="flex flex-col md:flex-row gap-4 max-w-4xl w-full">
+      <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* 非同期対戦 */}
-        <button
-          onClick={() => router.push("/async-battle")}
-          className="flex-1 bg-white/70 dark:bg-slate-800/70 backdrop-blur rounded-3xl p-6 md:p-8 text-left hover:shadow-2xl transition-all shadow-xl border border-blue-200/50 dark:border-blue-700/30 hover:scale-[1.02] active:scale-[0.98] group"
-        >
-          <div className="bg-gradient-to-br from-blue-400 to-indigo-500 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-lg mb-4 group-hover:scale-110 transition-transform">
-            🤖
+        <div className="card flex flex-col justify-between gap-4">
+          <div className="flex items-start gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-2xl shadow-sm">
+              🤖
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-emerald-700/80 dark:text-emerald-300/80 mb-1">
+                {t("battle_async_title") || "非同期対戦"}
+              </p>
+              <h2 className="text-xl font-bold text-amber-900 dark:text-white">
+                {t("battle_async_title") || "非同期対戦"}
+              </h2>
+              <p className="text-sm text-amber-700/70 dark:text-slate-300/70 mt-2">
+                {t("battle_async_desc") || "他プレイヤーのチームとAI対戦。いつでも挑戦可能！"}
+              </p>
+            </div>
           </div>
-          <h2 className="text-2xl font-bold text-blue-700 dark:text-blue-300 mb-2">
-            {t("battle_async_title") || "非同期対戦"}
-          </h2>
-          <p className="text-blue-600/70 dark:text-blue-400/70 text-sm mb-4">
-            {t("battle_async_desc") || "他プレイヤーのチームとAI対戦。いつでも挑戦可能！"}
-          </p>
-          <div className="flex items-center text-blue-500 dark:text-blue-400 text-sm font-medium">
-            <span className="mr-2">→</span>
-            {t("battle_async_hint") || "プレイヤーがオフラインでもOK"}
+          <div className="flex items-center justify-between text-sm text-amber-700/80 dark:text-slate-300/80">
+            <span>{t("battle_async_hint") || "プレイヤーがオフラインでもOK"}</span>
+            <button onClick={() => router.push("/async-battle")} className="btn btn-primary text-xs">
+              {t("battle_async_start") || "はじめる"}
+            </button>
           </div>
-        </button>
+        </div>
 
         {/* リアルタイム対戦 */}
-        <button
-          onClick={() => router.push("/battle/realtime")}
-          className="flex-1 bg-white/70 dark:bg-slate-800/70 backdrop-blur rounded-3xl p-6 md:p-8 text-left hover:shadow-2xl transition-all shadow-xl border border-orange-200/50 dark:border-orange-700/30 hover:scale-[1.02] active:scale-[0.98] group"
-        >
-          <div className="bg-gradient-to-br from-orange-400 to-red-500 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-lg mb-4 group-hover:scale-110 transition-transform">
-            ⚔️
+        <div className="card flex flex-col justify-between gap-4">
+          <div className="flex items-start gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center text-2xl shadow-sm">
+              ⚔️
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-rose-700/80 dark:text-rose-300/80 mb-1">
+                {t("battle_realtime_title") || "リアルタイム対戦"}
+              </p>
+              <h2 className="text-xl font-bold text-amber-900 dark:text-white">
+                {t("battle_realtime_title") || "リアルタイム対戦"}
+              </h2>
+              <p className="text-sm text-amber-700/70 dark:text-slate-300/70 mt-2">
+                {t("battle_realtime_desc") || "オンラインで他プレイヤーとリアルタイム1vs1バトル！"}
+              </p>
+            </div>
           </div>
-          <h2 className="text-2xl font-bold text-orange-700 dark:text-orange-300 mb-2">
-            {t("battle_realtime_title") || "リアルタイム対戦"}
-          </h2>
-          <p className="text-orange-600/70 dark:text-orange-400/70 text-sm mb-4">
-            {t("battle_realtime_desc") || "オンラインで他プレイヤーとリアルタイム1vs1バトル！"}
-          </p>
-          <div className="flex items-center text-orange-500 dark:text-orange-400 text-sm font-medium">
-            <span className="mr-2">→</span>
-            {t("battle_realtime_hint") || "ロビーで対戦相手を探そう"}
+          <div className="flex items-center justify-between text-sm text-amber-700/80 dark:text-slate-300/80">
+            <span>{t("battle_realtime_hint") || "ロビーで対戦相手を探そう"}</span>
+            <button onClick={() => router.push("/battle/realtime")} className="btn btn-primary text-xs">
+              {t("battle_realtime_start") || "ロビーへ"}
+            </button>
           </div>
-        </button>
+        </div>
       </div>
 
       {/* 戻るボタン */}
-      <button
-        onClick={() => router.push("/")}
-        className="mt-10 btn btn-secondary"
-      >
-        ← {t("back_to_home") || "ホームに戻る"}
-      </button>
+      <div className="flex justify-center mt-8">
+        <button onClick={() => router.push("/")} className="btn btn-secondary">
+          ← {t("back_to_home") || "ホームに戻る"}
+        </button>
+      </div>
     </main>
   );
 }

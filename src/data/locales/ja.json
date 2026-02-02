@@ -525,6 +525,8 @@
   "battle_select_desc": "対戦モードを選んでください",
   "battle_async_hint": "プレイヤーがオフラインでもOK",
   "battle_realtime_hint": "ロビーで対戦相手を探そう",
+  "battle_async_start": "はじめる",
+  "battle_realtime_start": "ロビーへ",
   "battle_realtime_beta": "BETA",
   "battle_matching": "マッチング中...",
   "battle_waiting_opponent": "対戦相手を待っています...",

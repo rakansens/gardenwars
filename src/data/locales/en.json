@@ -525,6 +525,8 @@
   "battle_select_desc": "Choose your battle mode",
   "battle_async_hint": "Play even when opponents are offline",
   "battle_realtime_hint": "Find opponents in the lobby",
+  "battle_async_start": "Start",
+  "battle_realtime_start": "Go to lobby",
   "realtime_title": "Realtime Battle",
   "realtime_subtitle": "Battle online in real-time!",
   "realtime_quick_match": "Quick Match",
