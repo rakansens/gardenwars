@@ -116,6 +116,9 @@ export default function UnitAnimationPreview({
                         // New SR units (2026-02) batch 2
                         "sr_coffee_ninja", "sr_crystal_lotus_cat", "sr_crystal_rose_knight", "sr_cyber_swordsman", "sr_demon_mage",
                         "sr_elder_botanist", "sr_flora_captain", "sr_flora_hero", "sr_frost_rose_queen", "sr_garden_guardian",
+                        // New SR units (2026-02) batch 3
+                        "sr_green_cyborg", "sr_jade_emperor", "sr_lucky_clover_cat", "sr_mecha_gunner", "sr_music_box_ballerina_cat",
+                        "sr_oni_bonsai", "sr_rose_paladin", "sr_sakura_spirit_cat", "sr_scout_corps", "sr_shadow_ninja",
                         // SSR units (2025-01)
                         "ssr_frost_empress", "ssr_galaxy_slime", "ssr_carnivore_mask", "ssr_higanbana_mage",
                         "ssr_poinsettia_wild", "ssr_psychedelic_bloom", "ssr_rainbow_storm", "ssr_sakura_samurai",
