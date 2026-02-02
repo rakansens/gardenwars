@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { getSheetPath, ANIMATED_UNITS, hasAnimation } from "@/lib/sprites";
+import { getSheetPath, ANIMATED_UNITS, hasAnimation, hasRangedSprite } from "@/lib/sprites";
 export type { AnimatedUnitId } from "@/lib/sprites";
 
 // 後方互換性のためにre-export
@@ -35,6 +35,14 @@ export default function UnitAnimationPreview({
     const [isLoading, setIsLoading] = useState(true);
     const [currentAnim, setCurrentAnim] = useState<"idle" | "walk" | "attack">(defaultAnimation);
 
+    // 遠距離スプライトの攻撃時は幅を広げる
+    const isRanged = hasRangedSprite(unitId);
+    const isAttackMode = currentAnim === "attack";
+    // 遠距離キャラはcanvasを常に広めに作成（攻撃時に拡張できるように）
+    const canvasWidth = isRanged ? width * 2 : width;
+    // 表示コンテナは攻撃時のみ広げる
+    const displayWidth = isRanged && isAttackMode ? width * 2 : width;
+
     useEffect(() => {
         if (!containerRef.current || !hasAnimation(unitId)) return;
 
@@ -64,6 +72,8 @@ export default function UnitAnimationPreview({
             class PreviewScene extends Phaser.Scene {
                 private sprite!: Phaser.GameObjects.Sprite;
                 private currentAnimation: string = "idle";
+                private baseScale: number = 0.55;
+                private isRanged: boolean = false;
 
                 constructor() {
                     super({ key: "PreviewScene" });
@@ -80,15 +90,19 @@ export default function UnitAnimationPreview({
                 }
 
                 create() {
-                    const { width, height } = this.scale;
+                    const { width: sceneWidth, height: sceneHeight } = this.scale;
+
+                    // 遠距離判定を先に設定
+                    this.isRanged = hasRangedSprite(unitId);
 
                     // 背景（透明でない場合のみ）
                     if (!transparentBackground) {
-                        this.add.rectangle(width / 2, height / 2, width, height, bgColor);
+                        this.add.rectangle(sceneWidth / 2, sceneHeight / 2, sceneWidth, sceneHeight, bgColor);
                     }
 
-                    // スプライトを作成
-                    this.sprite = this.add.sprite(width / 2, height / 2, `${unitId}_atlas`);
+                    // スプライトを作成（遠距離キャラは左半分の中央に配置）
+                    const spriteX = this.isRanged ? sceneWidth / 4 : sceneWidth / 2;
+                    this.sprite = this.add.sprite(spriteX, sceneHeight / 2, `${unitId}_atlas`);
 
                     // スケールを調整（URキャラはスプライトが小さいので倍率UP）
                     const smallSpriteUnits = [
@@ -146,8 +160,8 @@ export default function UnitAnimationPreview({
                         "r_steam_gardener", "r_tomato", "r_valkyrie_bloom", "r_wisteria_swordsman"
                     ];
                     const isSmallSprite = smallSpriteUnits.includes(unitId);
-                    const baseScale = isSmallSprite ? (compact ? 0.35 : 0.55) : (compact ? 0.15 : 0.25);
-                    this.sprite.setScale(baseScale);
+                    this.baseScale = isSmallSprite ? (compact ? 0.35 : 0.55) : (compact ? 0.15 : 0.25);
+                    this.sprite.setScale(this.baseScale);
 
                     // アニメーション作成
                     this.createAnimations();
@@ -211,6 +225,20 @@ export default function UnitAnimationPreview({
                     if (this.anims.exists(animKey)) {
                         this.sprite.play(animKey);
                         this.currentAnimation = animType;
+
+                        const { width: sceneWidth, height: sceneHeight } = this.scale;
+
+                        // 遠距離スプライトの攻撃アニメーションは位置と原点を調整
+                        if (this.isRanged && animType === "attack") {
+                            this.sprite.setPosition(sceneWidth * 0.1, sceneHeight / 2);
+                            this.sprite.setOrigin(0.12, 0.5); // 左寄せ
+                        } else if (this.isRanged) {
+                            // idle/walkは左半分の中央に配置
+                            this.sprite.setPosition(sceneWidth / 4, sceneHeight / 2);
+                            this.sprite.setOrigin(0.5, 0.5);
+                        } else {
+                            this.sprite.setOrigin(0.5, 0.5); // 中央
+                        }
                     } else if (animType !== "idle") {
                         // フォールバック: アニメーションがなければidleを再生
                         this.playAnimation("idle");
@@ -221,7 +249,7 @@ export default function UnitAnimationPreview({
             const config: Phaser.Types.Core.GameConfig = {
                 type: Phaser.CANVAS,
                 parent: containerRef.current!,
-                width,
+                width: canvasWidth,
                 height,
                 backgroundColor: transparentBackground ? "transparent" : `#${bgColor.toString(16).padStart(6, '0')}`,
                 transparent: transparentBackground,
@@ -255,7 +283,7 @@ export default function UnitAnimationPreview({
                 gameRef.current = null;
             }
         };
-    }, [unitId, width, height, compact, defaultAnimation, backgroundColor, transparentBackground]);
+    }, [unitId, width, height, compact, defaultAnimation, backgroundColor, transparentBackground, canvasWidth]);
 
     // アニメーション切り替え
     useEffect(() => {
@@ -275,8 +303,8 @@ export default function UnitAnimationPreview({
         return (
             <div
                 ref={containerRef}
-                className="overflow-hidden"
-                style={{ width, height }}
+                className="overflow-hidden transition-all duration-300"
+                style={{ width: displayWidth, height }}
             >
                 {isLoading && (
                     <div className="w-full h-full flex items-center justify-center">
@@ -293,8 +321,8 @@ export default function UnitAnimationPreview({
             {/* プレビューコンテナ */}
             <div
                 ref={containerRef}
-                className="rounded-xl overflow-hidden border-2 border-amber-400 shadow-lg"
-                style={{ width, height }}
+                className="rounded-xl overflow-hidden border-2 border-amber-400 shadow-lg transition-all duration-300"
+                style={{ width: displayWidth, height }}
             >
                 {isLoading && (
                     <div className="w-full h-full flex items-center justify-center bg-gray-800">

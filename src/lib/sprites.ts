@@ -66,6 +66,50 @@ export const ANIMATED_UNITS = [
 export type AnimatedUnitId = (typeof ANIMATED_UNITS)[number];
 
 /**
+ * 遠距離攻撃スプライトを使用するユニット
+ * 攻撃フレームが横に広く（880px）、ビーム/ブレス/矢などの
+ * 遠距離エフェクトが画面端まで届く
+ */
+export const RANGED_SPRITE_UNITS = [
+    // 既存
+    'ur_cosmic_dragon',      // ブレス攻撃
+    'ur_botanical_gundam',   // レーザービーム
+    'ur_archer',             // 矢の軌道
+    'ur_phoenix',            // 炎ブレス
+    'ur_mage',               // 魔法ビーム
+    'ur_sea_leviathan',      // 水流攻撃
+    // 追加
+    'ur_aurora_mage_cat',    // オーロラ魔法
+    'ur_celestial_cat',      // 天体魔法
+    'ur_cosmic_tiger',       // コズミックエネルギー
+    'ur_crystal_griffin',    // クリスタルビーム
+    'ur_dragon',             // ドラゴンブレス
+    'ur_fairy_knight',       // フェアリー魔法
+    'ur_frost_giant',        // 氷の斬撃
+    'ur_golden_paladin',     // 聖なる光
+    'ur_golem',              // 岩石投擲
+    'ur_jade_dragon',        // 翡翠ブレス
+    'ur_ninja',              // 竜巻雷撃
+    // 追加 (2026-02)
+    'ur_overlord_rose',      // 薔薇の支配者
+    'ur_phoenix_flame_cat',  // 不死鳥の炎
+    'ur_rose_crystal_princess_cat', // クリスタルローズ
+    'ur_stained_glass_lotus_cat',   // ステンドグラス蓮
+] as const;
+
+/**
+ * 遠距離スプライト対応ユニットのSet（O(1)検索用）
+ */
+const RANGED_SPRITE_UNITS_SET = new Set<string>(RANGED_SPRITE_UNITS);
+
+/**
+ * ユニットが遠距離スプライト対応かどうかをチェック
+ */
+export function hasRangedSprite(unitId: string): boolean {
+    return RANGED_SPRITE_UNITS_SET.has(unitId);
+}
+
+/**
  * アニメーション対応ユニットのSet（O(1)検索用）
  */
 const ANIMATED_UNITS_SET = new Set<string>(ANIMATED_UNITS);
@@ -107,10 +151,12 @@ export function getSpritePath(id: string, rarity?: Rarity): string {
 
 /**
  * スプライトシートのパスを取得
+ * 遠距離スプライト対応ユニットは _ranged_sheet を使用
  */
 export function getSheetPath(id: string): { image: string; json: string } {
+    const suffix = hasRangedSprite(id) ? '_ranged_sheet' : '_sheet';
     return {
-        image: `/assets/sprites/sheets/${id}_sheet.webp`,
-        json: `/assets/sprites/sheets/${id}_sheet.json`
+        image: `/assets/sprites/sheets/${id}${suffix}.webp`,
+        json: `/assets/sprites/sheets/${id}${suffix}.json`
     };
 }
