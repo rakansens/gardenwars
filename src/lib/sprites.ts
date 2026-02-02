@@ -21,6 +21,9 @@ export const ANIMATED_UNITS = [
     // R ユニット batch 4
     'r_lemon', 'r_meringue_teacup_cat', 'r_origami_crane_cat', 'r_penguin_scholar', 'r_pepper',
     'r_plant_dealer', 'r_pressed_flower_book_cat', 'r_pumpkin_brawler', 'r_radish', 'r_rake_rock_cat', 'r_rose_bunny_cat',
+    // R ユニット batch 5
+    'r_sailor_rose', 'r_solar_spike', 'r_space_botanist', 'r_sprinkler_cat', 'r_sprout_knight',
+    'r_steam_gardener', 'r_tomato', 'r_valkyrie_bloom', 'r_wisteria_swordsman',
     // SR ユニット
     'sr_rose_hero', 'sr_corn_tank', 'sr_bamboo_mech', 'sr_sun_pirate', 'sr_tulip_idol',
     'sr_cappuccino_assassin', 'sr_capybara_ninja', 'sr_capybara_shaman', 'sr_odindindun', 'sr_traffarella',
