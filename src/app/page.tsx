@@ -173,31 +173,31 @@ export default function Home() {
       {/* 背景（グローバルCSSと同じ） */}
 
       {/* 言語切り替え & コイン & アカウント */}
-      <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
+      <div className="absolute top-2 right-2 md:top-4 md:right-4 flex items-center gap-1 md:gap-2 z-20">
         {/* アカウントボタン */}
         {status === "authenticated" && playerName ? (
           <button
             onClick={() => setShowPinModal(true)}
-            className="btn btn-primary text-sm py-2 px-3"
+            className="btn btn-primary text-xs md:text-sm py-1.5 px-2 md:py-2 md:px-3"
           >
             <span>👤</span>
-            <span className="max-w-[60px] truncate">{playerName}</span>
+            <span className="hidden md:inline max-w-[60px] truncate">{playerName}</span>
           </button>
         ) : (
           <Link
             href="/auth"
-            className="btn btn-secondary text-sm py-2 px-3"
+            className="btn btn-secondary text-xs md:text-sm py-1.5 px-2 md:py-2 md:px-3"
           >
             <span>🔑</span>
-            <span>{language === "ja" ? "ログイン" : "Login"}</span>
+            <span className="hidden md:inline">{language === "ja" ? "ログイン" : "Login"}</span>
           </Link>
         )}
-        <div className="bg-amber-500/90 text-white px-4 py-2 rounded-full font-bold shadow-lg flex items-center gap-2">
-          <span className="text-lg">💰</span>
+        <div className="bg-amber-500/90 text-white px-2 py-1 md:px-3 md:py-1.5 rounded-full text-xs md:text-sm font-bold shadow-lg flex items-center gap-1">
+          <span>💰</span>
           <span>{isLoaded ? coins.toLocaleString() : "---"}</span>
         </div>
-        <div className="bg-purple-500/90 text-white px-4 py-2 rounded-full font-bold shadow-lg flex items-center gap-2">
-          <span className="text-lg">📖</span>
+        <div className="bg-purple-500/90 text-white px-2 py-1 md:px-3 md:py-1.5 rounded-full text-xs md:text-sm font-bold shadow-lg flex items-center gap-1">
+          <span>📖</span>
           <span>{isLoaded ? `${Object.keys(unitInventory).filter(id => unitInventory[id] > 0).length}/${collectableUnits.length}` : "---"}</span>
         </div>
         <LanguageSwitch />
@@ -219,15 +219,22 @@ export default function Home() {
 
       {/* カテゴリ別メニュー */}
       <div className="w-full max-w-3xl px-2 mb-6 space-y-4">
-        {/* メインゲーム - 大きく強調 */}
-        <div className="mb-4">
+        {/* メインゲーム＆ランキング */}
+        <div className="grid grid-cols-2 gap-3 mb-2">
           <Link
             href="/stages"
-            className="btn btn-primary w-full py-6 flex flex-col items-center justify-center transition-all duration-200 hover:scale-[1.02] shadow-lg"
+            className="btn btn-primary py-5 flex flex-col items-center justify-center transition-all duration-200 hover:scale-[1.02] shadow-lg"
           >
-            <span className="text-4xl mb-2">⚔️</span>
-            <span className="text-xl font-bold">{t("menu_stages")}</span>
-            <span className="text-xs opacity-80 mt-1">{menuCategories.main.title}</span>
+            <span className="text-3xl mb-1">⚔️</span>
+            <span className="text-lg font-bold">{t("menu_stages")}</span>
+            <span className="text-xs opacity-80">{menuCategories.main.title}</span>
+          </Link>
+          <Link
+            href="/ranking"
+            className="btn btn-primary py-5 flex flex-col items-center justify-center transition-all duration-200 hover:scale-[1.02] shadow-lg"
+          >
+            <span className="text-3xl mb-1">🏅</span>
+            <span className="text-lg font-bold">{t("menu_ranking")}</span>
           </Link>
         </div>
 
@@ -272,25 +279,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ミニゲーム */}
-        <div className="bg-white/50 dark:bg-slate-800/50 rounded-2xl p-3 shadow-md">
-          <h3 className="text-sm font-bold text-gray-600 dark:text-gray-300 mb-2 px-1">
-            🎯 {menuCategories.minigames.title}
-          </h3>
-          <div className="grid grid-cols-4 gap-2">
-            {menuCategories.minigames.items.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="btn btn-secondary flex flex-col items-center justify-center py-3 transition-all duration-200 hover:scale-105"
-              >
-                <span className="text-2xl mb-1">{item.icon}</span>
-                <span className="text-xs text-center">{item.label}</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-
         {/* ユニット管理 */}
         <div className="bg-white/50 dark:bg-slate-800/50 rounded-2xl p-3 shadow-md">
           <h3 className="text-sm font-bold text-gray-600 dark:text-gray-300 mb-2 px-1">
@@ -310,19 +298,25 @@ export default function Home() {
           </div>
         </div>
 
-        {/* その他（ランキング） */}
-        <div className="flex justify-center">
-          {menuCategories.other.items.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="btn btn-secondary flex items-center justify-center gap-2 py-2 px-6 transition-all duration-200 hover:scale-105"
-            >
-              <span className="text-xl">{item.icon}</span>
-              <span className="text-sm">{item.label}</span>
-            </Link>
-          ))}
+        {/* ミニゲーム */}
+        <div className="bg-white/50 dark:bg-slate-800/50 rounded-2xl p-3 shadow-md">
+          <h3 className="text-sm font-bold text-gray-600 dark:text-gray-300 mb-2 px-1">
+            🎯 {menuCategories.minigames.title}
+          </h3>
+          <div className="grid grid-cols-4 gap-2">
+            {menuCategories.minigames.items.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="btn btn-secondary flex flex-col items-center justify-center py-3 transition-all duration-200 hover:scale-105"
+              >
+                <span className="text-2xl mb-1">{item.icon}</span>
+                <span className="text-xs text-center">{item.label}</span>
+              </Link>
+            ))}
+          </div>
         </div>
+
       </div>
 
       {/* キャラパレードエリア */}
