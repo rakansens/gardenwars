@@ -116,6 +116,7 @@ export type Database = {
           collection_count: number | null
           id: string
           max_stage: number | null
+          max_cleared_stage_id: string | null
           player_id: string | null
           total_battles: number | null
           total_coins: number | null
@@ -133,6 +134,7 @@ export type Database = {
           collection_count?: number | null
           id?: string
           max_stage?: number | null
+          max_cleared_stage_id?: string | null
           player_id?: string | null
           total_battles?: number | null
           total_coins?: number | null
@@ -150,6 +152,7 @@ export type Database = {
           collection_count?: number | null
           id?: string
           max_stage?: number | null
+          max_cleared_stage_id?: string | null
           player_id?: string | null
           total_battles?: number | null
           total_coins?: number | null
