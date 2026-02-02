@@ -94,6 +94,17 @@ export default function RankingPage() {
 
     const formatValue = (entry: RankingEntry, key: SortOption): string => {
         const actualKey: RankingSortBy = key === "all" ? "max_stage" : key;
+
+        // max_stageの場合はステージ進捗表示を使用
+        if (actualKey === "max_stage") {
+            const progress = formatStageProgress(entry.max_cleared_stage_id, t);
+            if (progress) {
+                return `${progress.icon} ${progress.text}`;
+            }
+            // フォールバック: 数値のみ
+            return String(entry.max_stage);
+        }
+
         const value = entry[actualKey];
         if (actualKey === "total_coins") {
             return value.toLocaleString();
@@ -244,8 +255,8 @@ export default function RankingPage() {
                                         {/* サブ統計（PC）- デッキタブでは非表示 */}
                                         {!isAllTab && (
                                             <>
-                                                <div className="hidden md:flex col-span-1 items-center justify-center text-gray-600 dark:text-gray-300 text-sm">
-                                                    {entry.max_stage}
+                                                <div className="hidden md:flex col-span-1 items-center justify-center text-gray-600 dark:text-gray-300 text-sm" title={stageProgress ? `${stageProgress.icon} ${stageProgress.text}` : undefined}>
+                                                    {stageProgress ? stageProgress.icon : entry.max_stage}
                                                 </div>
                                                 <div className="hidden md:flex col-span-1 items-center justify-center text-gray-600 dark:text-gray-300 text-sm">
                                                     {entry.total_wins}
