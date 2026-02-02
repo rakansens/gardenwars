@@ -27,10 +27,6 @@ export function useWorldUnlock(): WorldUnlockInfo {
     // ワールドがアンロックされているかチェック
     const isWorldUnlocked = useMemo(() => {
         return (worldId: WorldId): boolean => {
-            // TODO: デバッグ用 - 本番では削除
-            const DEBUG_UNLOCK_ALL = true;
-            if (DEBUG_UNLOCK_ALL) return true;
-
             const world = worlds.find((w) => w.id === worldId);
             if (!world) return false;
 

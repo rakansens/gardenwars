@@ -54,10 +54,6 @@ export function useStageUnlock(): StageUnlockInfo {
     // 難易度がアンロックされているかチェック
     const isDifficultyUnlocked = useMemo(() => {
         return (difficulty: StageDifficulty, worldId?: WorldId): boolean => {
-            // TODO: デバッグ用 - 本番では削除
-            const DEBUG_UNLOCK_ALL = true;
-            if (DEBUG_UNLOCK_ALL) return true;
-
             // World 2の難易度かどうか
             const isWorld2Difficulty = WORLD2_DIFFICULTY_ORDER.includes(difficulty);
 
@@ -92,10 +88,6 @@ export function useStageUnlock(): StageUnlockInfo {
     // ステージがアンロックされているかチェック
     const isStageUnlocked = useMemo(() => {
         return (stage: StageDefinition): boolean => {
-            // TODO: デバッグ用 - 本番では削除
-            const DEBUG_UNLOCK_ALL = true;
-            if (DEBUG_UNLOCK_ALL) return true;
-
             const worldId = (stage.worldId || "world1") as WorldId;
 
             // 難易度がアンロックされていなければステージもロック
