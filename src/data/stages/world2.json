@@ -1,0 +1,898 @@
+[
+  {
+    "id": "inferno_1",
+    "name": "inferno_1_name",
+    "description": "inferno_1_desc",
+    "worldId": "world2",
+    "length": 5000,
+    "baseCastleHp": 60000,
+    "enemyCastleHp": 200000,
+    "enemyWaves": [
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_fire_chili",
+        "count": 50,
+        "intervalMs": 120
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_sr_rose",
+        "count": 15,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_wolf",
+        "count": 30,
+        "intervalMs": 200
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_sr_tulip",
+        "count": 12,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_ribbon",
+        "count": 15,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 52000,
+        "unitId": "enemy_mage",
+        "count": 15,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 62000,
+        "unitId": "enemy_sr_pirate",
+        "count": 10,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 72000,
+        "unitId": "enemy_ur_knight",
+        "count": 8,
+        "intervalMs": 1000
+      }
+    ],
+    "reward": {
+      "coins": 100000,
+      "drops": [
+        {
+          "unitId": "ur_knight",
+          "rate": 8
+        },
+        {
+          "unitId": "ur_mage",
+          "rate": 6
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x4a0a00",
+      "groundColor": "0x2a0500",
+      "cloudColor": "0x8a2000",
+      "image": "/assets/stages/inferno_1.webp"
+    },
+    "difficulty": "inferno"
+  },
+  {
+    "id": "inferno_2",
+    "name": "inferno_2_name",
+    "description": "inferno_2_desc",
+    "worldId": "world2",
+    "length": 5500,
+    "baseCastleHp": 70000,
+    "enemyCastleHp": 250000,
+    "enemyWaves": [
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_crow",
+        "count": 80,
+        "intervalMs": 80
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 10,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_ninja",
+        "count": 60,
+        "intervalMs": 100
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 8,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_yumemi",
+        "count": 10,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 52000,
+        "unitId": "enemy_sr_rose",
+        "count": 15,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 62000,
+        "unitId": "enemy_ur_tank",
+        "count": 10,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 75000,
+        "unitId": "enemy_ur_dragon",
+        "count": 6,
+        "intervalMs": 1200
+      }
+    ],
+    "reward": {
+      "coins": 120000,
+      "drops": [
+        {
+          "unitId": "ur_tank",
+          "rate": 8
+        },
+        {
+          "unitId": "ur_dragon",
+          "rate": 5
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x5a0a00",
+      "groundColor": "0x300500",
+      "cloudColor": "0x9a2500",
+      "image": "/assets/stages/inferno_2.webp"
+    },
+    "difficulty": "inferno"
+  },
+  {
+    "id": "inferno_3",
+    "name": "inferno_3_name",
+    "description": "inferno_3_desc",
+    "worldId": "world2",
+    "length": 6000,
+    "baseCastleHp": 80000,
+    "enemyCastleHp": 300000,
+    "enemyWaves": [
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_leaf_ninja",
+        "count": 70,
+        "intervalMs": 90
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_penguin",
+        "count": 12,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_fire_chili",
+        "count": 40,
+        "intervalMs": 150
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_sr_pirate",
+        "count": 12,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_ribbon",
+        "count": 20,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 52000,
+        "unitId": "enemy_sr_tulip",
+        "count": 15,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 62000,
+        "unitId": "enemy_nika",
+        "count": 8,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 75000,
+        "unitId": "enemy_ur_angel",
+        "count": 10,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 88000,
+        "unitId": "enemy_lennon",
+        "count": 4,
+        "intervalMs": 2000
+      }
+    ],
+    "reward": {
+      "coins": 150000,
+      "drops": [
+        {
+          "unitId": "ur_angel",
+          "rate": 8
+        },
+        {
+          "unitId": "lennon",
+          "rate": 4
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x6a0800",
+      "groundColor": "0x350400",
+      "cloudColor": "0xaa2000",
+      "image": "/assets/stages/inferno_3.webp"
+    },
+    "difficulty": "inferno"
+  },
+  {
+    "id": "inferno_4",
+    "name": "inferno_4_name",
+    "description": "inferno_4_desc",
+    "worldId": "world2",
+    "length": 6500,
+    "baseCastleHp": 90000,
+    "enemyCastleHp": 400000,
+    "enemyWaves": [
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_wolf",
+        "count": 50,
+        "intervalMs": 120
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_sr_rose",
+        "count": 20,
+        "intervalMs": 300
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_mage",
+        "count": 25,
+        "intervalMs": 250
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 12,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_yumemi",
+        "count": 15,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 52000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 10,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 62000,
+        "unitId": "enemy_penguin",
+        "count": 15,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 75000,
+        "unitId": "enemy_ur_mage",
+        "count": 20,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 90000,
+        "unitId": "enemy_ur_knight",
+        "count": 12,
+        "intervalMs": 700
+      }
+    ],
+    "reward": {
+      "coins": 180000,
+      "drops": [
+        {
+          "unitId": "ur_phoenix",
+          "rate": 6
+        },
+        {
+          "unitId": "ur_spirit",
+          "rate": 6
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x7a0500",
+      "groundColor": "0x3a0300",
+      "cloudColor": "0xba1800",
+      "image": "/assets/stages/inferno_4.webp"
+    },
+    "difficulty": "inferno"
+  },
+  {
+    "id": "inferno_5",
+    "name": "inferno_5_name",
+    "description": "inferno_5_desc",
+    "worldId": "world2",
+    "length": 7000,
+    "baseCastleHp": 100000,
+    "enemyCastleHp": 500000,
+    "enemyWaves": [
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_ninja",
+        "count": 80,
+        "intervalMs": 80
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_sr_tulip",
+        "count": 18,
+        "intervalMs": 350
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_crow",
+        "count": 100,
+        "intervalMs": 60
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_sr_pirate",
+        "count": 15,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_ribbon",
+        "count": 25,
+        "intervalMs": 300
+      },
+      {
+        "timeMs": 52000,
+        "unitId": "enemy_nika",
+        "count": 10,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 65000,
+        "unitId": "enemy_ur_tank",
+        "count": 15,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 80000,
+        "unitId": "enemy_ur_dragon",
+        "count": 10,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 95000,
+        "unitId": "enemy_lennon",
+        "count": 6,
+        "intervalMs": 1500
+      }
+    ],
+    "reward": {
+      "coins": 220000,
+      "drops": [
+        {
+          "unitId": "ur_golem",
+          "rate": 8
+        },
+        {
+          "unitId": "ur_ancient_treant",
+          "rate": 6
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x8a0300",
+      "groundColor": "0x400200",
+      "cloudColor": "0xca1200",
+      "image": "/assets/stages/inferno_5.webp"
+    },
+    "difficulty": "inferno"
+  },
+  {
+    "id": "inferno_6",
+    "name": "inferno_6_name",
+    "description": "inferno_6_desc",
+    "worldId": "world2",
+    "length": 7500,
+    "baseCastleHp": 110000,
+    "enemyCastleHp": 600000,
+    "enemyWaves": [
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_fire_chili",
+        "count": 80,
+        "intervalMs": 80
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_sr_rose",
+        "count": 25,
+        "intervalMs": 250
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_leaf_ninja",
+        "count": 80,
+        "intervalMs": 80
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 15,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_yumemi",
+        "count": 18,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 55000,
+        "unitId": "enemy_penguin",
+        "count": 20,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 68000,
+        "unitId": "enemy_ur_angel",
+        "count": 15,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 82000,
+        "unitId": "enemy_ur_mage",
+        "count": 25,
+        "intervalMs": 350
+      },
+      {
+        "timeMs": 98000,
+        "unitId": "enemy_ur_knight",
+        "count": 15,
+        "intervalMs": 600
+      }
+    ],
+    "reward": {
+      "coins": 280000,
+      "drops": [
+        {
+          "unitId": "yumemi",
+          "rate": 5
+        },
+        {
+          "unitId": "ur_dragon",
+          "rate": 10
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x950000",
+      "groundColor": "0x450000",
+      "cloudColor": "0xd50500",
+      "image": "/assets/stages/inferno_6.webp"
+    },
+    "difficulty": "inferno"
+  },
+  {
+    "id": "inferno_7",
+    "name": "inferno_7_name",
+    "description": "inferno_7_desc",
+    "worldId": "world2",
+    "length": 8000,
+    "baseCastleHp": 120000,
+    "enemyCastleHp": 700000,
+    "enemyWaves": [
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_wolf",
+        "count": 60,
+        "intervalMs": 100
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 15,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_mage",
+        "count": 30,
+        "intervalMs": 200
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_sr_tulip",
+        "count": 20,
+        "intervalMs": 300
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_ribbon",
+        "count": 30,
+        "intervalMs": 250
+      },
+      {
+        "timeMs": 55000,
+        "unitId": "enemy_sr_pirate",
+        "count": 18,
+        "intervalMs": 350
+      },
+      {
+        "timeMs": 68000,
+        "unitId": "enemy_nika",
+        "count": 12,
+        "intervalMs": 700
+      },
+      {
+        "timeMs": 82000,
+        "unitId": "enemy_ur_tank",
+        "count": 18,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 98000,
+        "unitId": "enemy_ur_dragon",
+        "count": 12,
+        "intervalMs": 700
+      },
+      {
+        "timeMs": 115000,
+        "unitId": "enemy_lennon",
+        "count": 8,
+        "intervalMs": 1200
+      }
+    ],
+    "reward": {
+      "coins": 350000,
+      "drops": [
+        {
+          "unitId": "ur_phoenix",
+          "rate": 10
+        },
+        {
+          "unitId": "ur_golem",
+          "rate": 10
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0xa00000",
+      "groundColor": "0x500000",
+      "cloudColor": "0xe00000",
+      "image": "/assets/stages/inferno_7.webp"
+    },
+    "difficulty": "inferno"
+  },
+  {
+    "id": "inferno_8",
+    "name": "inferno_8_name",
+    "description": "inferno_8_desc",
+    "worldId": "world2",
+    "length": 8500,
+    "baseCastleHp": 130000,
+    "enemyCastleHp": 800000,
+    "enemyWaves": [
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_ninja",
+        "count": 100,
+        "intervalMs": 60
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_sr_rose",
+        "count": 30,
+        "intervalMs": 200
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_crow",
+        "count": 120,
+        "intervalMs": 50
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 18,
+        "intervalMs": 350
+      },
+      {
+        "timeMs": 45000,
+        "unitId": "enemy_yumemi",
+        "count": 20,
+        "intervalMs": 450
+      },
+      {
+        "timeMs": 58000,
+        "unitId": "enemy_penguin",
+        "count": 25,
+        "intervalMs": 350
+      },
+      {
+        "timeMs": 72000,
+        "unitId": "enemy_ur_angel",
+        "count": 18,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 88000,
+        "unitId": "enemy_ur_mage",
+        "count": 30,
+        "intervalMs": 300
+      },
+      {
+        "timeMs": 105000,
+        "unitId": "enemy_ur_knight",
+        "count": 18,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 122000,
+        "unitId": "enemy_lennon",
+        "count": 10,
+        "intervalMs": 1000
+      }
+    ],
+    "reward": {
+      "coins": 420000,
+      "drops": [
+        {
+          "unitId": "ur_ancient_treant",
+          "rate": 10
+        },
+        {
+          "unitId": "ur_spirit",
+          "rate": 10
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0xaa0000",
+      "groundColor": "0x550000",
+      "cloudColor": "0xf00000",
+      "image": "/assets/stages/inferno_8.webp"
+    },
+    "difficulty": "inferno"
+  },
+  {
+    "id": "inferno_9",
+    "name": "inferno_9_name",
+    "description": "inferno_9_desc",
+    "worldId": "world2",
+    "length": 9000,
+    "baseCastleHp": 140000,
+    "enemyCastleHp": 900000,
+    "enemyWaves": [
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_fire_chili",
+        "count": 100,
+        "intervalMs": 60
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_sr_tulip",
+        "count": 25,
+        "intervalMs": 250
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_leaf_ninja",
+        "count": 100,
+        "intervalMs": 60
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 18,
+        "intervalMs": 350
+      },
+      {
+        "timeMs": 45000,
+        "unitId": "enemy_ribbon",
+        "count": 35,
+        "intervalMs": 220
+      },
+      {
+        "timeMs": 58000,
+        "unitId": "enemy_sr_pirate",
+        "count": 22,
+        "intervalMs": 300
+      },
+      {
+        "timeMs": 72000,
+        "unitId": "enemy_nika",
+        "count": 15,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 88000,
+        "unitId": "enemy_ur_tank",
+        "count": 20,
+        "intervalMs": 450
+      },
+      {
+        "timeMs": 105000,
+        "unitId": "enemy_ur_dragon",
+        "count": 15,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 122000,
+        "unitId": "enemy_ur_mage",
+        "count": 35,
+        "intervalMs": 250
+      },
+      {
+        "timeMs": 140000,
+        "unitId": "enemy_lennon",
+        "count": 12,
+        "intervalMs": 800
+      }
+    ],
+    "reward": {
+      "coins": 500000,
+      "drops": [
+        {
+          "unitId": "yumemi",
+          "rate": 8
+        },
+        {
+          "unitId": "lennon",
+          "rate": 6
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0xb50000",
+      "groundColor": "0x5a0000",
+      "cloudColor": "0xff0000",
+      "image": "/assets/stages/inferno_9.webp"
+    },
+    "difficulty": "inferno"
+  },
+  {
+    "id": "inferno_10",
+    "name": "inferno_10_name",
+    "description": "inferno_10_desc",
+    "worldId": "world2",
+    "length": 10000,
+    "baseCastleHp": 150000,
+    "enemyCastleHp": 1000000,
+    "enemyWaves": [
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_wolf",
+        "count": 80,
+        "intervalMs": 80
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_sr_rose",
+        "count": 35,
+        "intervalMs": 180
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_ninja",
+        "count": 120,
+        "intervalMs": 50
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 20,
+        "intervalMs": 300
+      },
+      {
+        "timeMs": 45000,
+        "unitId": "enemy_mage",
+        "count": 40,
+        "intervalMs": 150
+      },
+      {
+        "timeMs": 58000,
+        "unitId": "enemy_yumemi",
+        "count": 25,
+        "intervalMs": 350
+      },
+      {
+        "timeMs": 72000,
+        "unitId": "enemy_sr_tulip",
+        "count": 30,
+        "intervalMs": 200
+      },
+      {
+        "timeMs": 88000,
+        "unitId": "enemy_penguin",
+        "count": 30,
+        "intervalMs": 300
+      },
+      {
+        "timeMs": 105000,
+        "unitId": "enemy_ur_angel",
+        "count": 20,
+        "intervalMs": 450
+      },
+      {
+        "timeMs": 122000,
+        "unitId": "enemy_nika",
+        "count": 18,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 140000,
+        "unitId": "enemy_ur_knight",
+        "count": 22,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 158000,
+        "unitId": "enemy_ur_dragon",
+        "count": 18,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 175000,
+        "unitId": "enemy_lennon",
+        "count": 15,
+        "intervalMs": 650
+      },
+      {
+        "timeMs": 195000,
+        "unitId": "enemy_ur_mage",
+        "count": 40,
+        "intervalMs": 200
+      }
+    ],
+    "reward": {
+      "coins": 600000,
+      "drops": [
+        {
+          "unitId": "yumemi",
+          "rate": 12
+        },
+        {
+          "unitId": "lennon",
+          "rate": 10
+        },
+        {
+          "unitId": "ur_phoenix",
+          "rate": 15
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0xc00000",
+      "groundColor": "0x600000",
+      "cloudColor": "0xff2000",
+      "image": "/assets/stages/inferno_10.webp"
+    },
+    "difficulty": "inferno"
+  }
+]

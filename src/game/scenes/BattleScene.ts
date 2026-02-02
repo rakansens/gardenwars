@@ -10,6 +10,7 @@ import { AIController } from '../systems/AIController';
 import { eventBus, GameEvents } from '../utils/EventBus';
 import { getSpritePath, getSheetPath, ANIMATED_UNITS } from '@/lib/sprites';
 import { getBgmVolume, getSfxVolume, isBgmEnabled } from '@/lib/audioHelper';
+import { getGameTranslation, getGameLanguage } from '@/lib/gameTranslations';
 import type { StageDefinition, UnitDefinition, GameState, Rarity } from '@/data/types';
 
 // ============================================
@@ -1239,7 +1240,7 @@ export class BattleScene extends Phaser.Scene {
         this.pauseOverlay.add(panel);
 
         // 「PAUSED」テキスト
-        const pausedText = this.add.text(width / 2, height / 2 - 70, 'PAUSED', {
+        const pausedText = this.add.text(width / 2, height / 2 - 70, getGameTranslation('paused', getGameLanguage()), {
             fontSize: '36px',
             color: '#3b2a1a',
             fontStyle: 'bold',
@@ -1255,7 +1256,7 @@ export class BattleScene extends Phaser.Scene {
         resumeBtnBg.setInteractive({ useHandCursor: true });
         this.pauseOverlay.add(resumeBtnBg);
 
-        const resumeText = this.add.text(width / 2, height / 2, '▶️ Resume', {
+        const resumeText = this.add.text(width / 2, height / 2, getGameTranslation('pause_resume', getGameLanguage()), {
             fontSize: '22px',
             color: '#ffffff',
             fontStyle: 'bold',
@@ -1277,7 +1278,7 @@ export class BattleScene extends Phaser.Scene {
         quitBtnBg.setInteractive({ useHandCursor: true });
         this.pauseOverlay.add(quitBtnBg);
 
-        const quitText = this.add.text(width / 2, height / 2 + 70, '🚪 Quit', {
+        const quitText = this.add.text(width / 2, height / 2 + 70, getGameTranslation('pause_quit', getGameLanguage()), {
             fontSize: '22px',
             color: '#ffffff',
             fontStyle: 'bold',
@@ -1293,7 +1294,7 @@ export class BattleScene extends Phaser.Scene {
         quitBtnBg.on('pointerout', () => quitBtnBg.setFillStyle(0xef4444));
 
         // ヒントテキスト
-        const hintText = this.add.text(width / 2, height / 2 + 130, 'Press ESC or Space to resume', {
+        const hintText = this.add.text(width / 2, height / 2 + 130, getGameTranslation('pause_keyboard_hint', getGameLanguage()), {
             fontSize: '12px',
             color: '#6b7280',
         });

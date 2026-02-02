@@ -3,12 +3,14 @@ import normalData from "./normal.json";
 import bossData from "./boss.json";
 import specialData from "./special.json";
 import arenaData from "./arena.json";
+import world2Data from "./world2.json";
 
 // 型アサーション
 export const normalStages = normalData as StageDefinition[];
 export const bossStages = bossData as StageDefinition[];
 export const specialStages = specialData as StageDefinition[];
 export const arenaStages = arenaData as ArenaStageDefinition[];
+export const world2Stages = world2Data as StageDefinition[];
 
 // 全ステージにデフォルトのworldIdを付与（後方互換性のため）
 const addDefaultWorldId = (stages: StageDefinition[]): StageDefinition[] => {
@@ -23,6 +25,7 @@ const allStages: StageDefinition[] = [
     ...addDefaultWorldId(normalStages),
     ...addDefaultWorldId(bossStages),
     ...addDefaultWorldId(specialStages),
+    ...world2Stages, // World 2のステージ（既にworldId設定済み）
 ];
 
 /**
