@@ -95,6 +95,18 @@ export const RANGED_SPRITE_UNITS = [
     'ur_phoenix_flame_cat',  // 不死鳥の炎
     'ur_rose_crystal_princess_cat', // クリスタルローズ
     'ur_stained_glass_lotus_cat',   // ステンドグラス蓮
+    // SSR遠距離/範囲攻撃ユニット
+    'ssr_rose_gunslinger',   // ガンスリンガー (350)
+    'ssr_higanbana_mage',    // 彼岸花メイジ (320, 範囲)
+    'ssr_rainbow_storm',     // レインボーストーム (300, 範囲)
+    'ssr_frost_empress',     // フロストエンプレス (280, 範囲)
+    'ssr_psychedelic_bloom', // サイケデリックブルーム (270)
+    'ssr_phantom_masquerade', // ファントムマスカレード (250)
+    'ssr_psychedelic_mandala_cat', // サイケデリックマンダラ猫 (250, 範囲)
+    'ssr_fairy_queen_cat',   // フェアリークイーン猫 (230)
+    'ssr_neon_flower_cat',   // ネオンフラワー猫 (220, 範囲)
+    'ssr_galaxy_slime',      // ギャラクシースライム (200)
+    'ssr_coral_mermaid_cat', // コーラルマーメイド猫 (200)
 ] as const;
 
 /**
