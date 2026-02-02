@@ -360,8 +360,6 @@ export default function GachaPage() {
                             </div>
                         </>
                     )}
-                        </>
-                    )}
                 </section>
 
                 {/* UR ユニットショーケース */}
@@ -480,6 +478,8 @@ export default function GachaPage() {
                                     );
                                 })}
                         </div>
+                    )}
+                        </>
                     )}
                 </section>
 
@@ -778,153 +778,173 @@ export default function GachaPage() {
 
                 {/* 所持ユニット一覧 */}
                 <section id="gacha-owned" className="card mb-6 scroll-mt-28">
-                    <h3 className="text-xl font-bold mb-4 text-amber-950">
-                        {t("gacha_owned_units")} ({gachaPool.filter(u => (unitInventory[u.id] || 0) > 0).length}/{gachaPool.length})
-                    </h3>
-
-                    {/* レアリティフィルター */}
-                    <div className="flex gap-2 flex-wrap mb-4">
-                        {rarityTabs.map(tab => {
-                            const ownedInRarity = gachaPool.filter(u =>
-                                (unitInventory[u.id] || 0) > 0 &&
-                                (tab.key === "ALL" || u.rarity === tab.key)
-                            ).length;
-                            return (
-                                <button
-                                    key={tab.key}
-                                    onClick={() => setOwnedRarityFilter(tab.key)}
-                                    className={`
-                                        px-3 py-1 rounded-lg font-bold text-sm transition-all
-                                        ${ownedRarityFilter === tab.key
-                                            ? `${tab.color} text-white shadow-md scale-105`
-                                            : "bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-slate-600"
-                                        }
-                                    `}
-                                >
-                                    {tab.label}
-                                    <span className="ml-1 text-xs opacity-75">({ownedInRarity})</span>
-                                </button>
-                            );
-                        })}
+                    <div
+                        className="flex items-center justify-between cursor-pointer"
+                        onClick={() => setOpenSections((prev) => ({ ...prev, owned: !prev.owned }))}
+                    >
+                        <h3 className="text-xl font-bold text-amber-950">
+                            {t("gacha_owned_units")} ({gachaPool.filter(u => (unitInventory[u.id] || 0) > 0).length}/{gachaPool.length})
+                        </h3>
+                        <span className="text-2xl">{openSections.owned ? "▲" : "▼"}</span>
                     </div>
 
-                    {(() => {
-                        const filteredOwned = gachaPool.filter(u =>
-                            (unitInventory[u.id] || 0) > 0 &&
-                            (ownedRarityFilter === "ALL" || u.rarity === ownedRarityFilter)
-                        );
-
-                        if (filteredOwned.length === 0) {
-                            return (
-                                <p className="text-amber-900/50 text-center py-4">{t("no_owned_in_rarity")}</p>
-                            );
-                        }
-
-                        return (
-                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-                                {filteredOwned.map((unit) => {
-                                    const count = unitInventory[unit.id] || 0;
+                    {openSections.owned && (
+                        <>
+                            {/* レアリティフィルター */}
+                            <div className="flex gap-2 flex-wrap mb-4 mt-4">
+                                {rarityTabs.map(tab => {
+                                    const ownedInRarity = gachaPool.filter(u =>
+                                        (unitInventory[u.id] || 0) > 0 &&
+                                        (tab.key === "ALL" || u.rarity === tab.key)
+                                    ).length;
                                     return (
-                                        <div
-                                            key={unit.id}
-                                            className="relative p-2 rounded-lg cursor-pointer hover:bg-amber-100 transition-colors"
-                                            onClick={() => openModal(unit)}
+                                        <button
+                                            key={tab.key}
+                                            onClick={() => setOwnedRarityFilter(tab.key)}
+                                            className={`
+                                                px-3 py-1 rounded-lg font-bold text-sm transition-all
+                                                ${ownedRarityFilter === tab.key
+                                                    ? `${tab.color} text-white shadow-md scale-105`
+                                                    : "bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-slate-600"
+                                                }
+                                            `}
                                         >
-                                            <div className="flex justify-center">
-                                                <RarityFrame
-                                                    unitId={unit.id}
-                                                    unitName={unit.name}
-                                                    rarity={unit.rarity}
-                                                    size="md"
-                                                    showLabel={true}
-                                                    count={count}
-                                                    baseUnitId={unit.baseUnitId}
-                                                />
-                                            </div>
-                                            <div className="text-xs text-center text-amber-950 truncate mt-1">
-                                                {unit.name}
-                                            </div>
-                                        </div>
+                                            {tab.label}
+                                            <span className="ml-1 text-xs opacity-75">({ownedInRarity})</span>
+                                        </button>
                                     );
                                 })}
                             </div>
-                        );
-                    })()}
+
+                            {(() => {
+                                const filteredOwned = gachaPool.filter(u =>
+                                    (unitInventory[u.id] || 0) > 0 &&
+                                    (ownedRarityFilter === "ALL" || u.rarity === ownedRarityFilter)
+                                );
+
+                                if (filteredOwned.length === 0) {
+                                    return (
+                                        <p className="text-amber-900/50 text-center py-4">{t("no_owned_in_rarity")}</p>
+                                    );
+                                }
+
+                                return (
+                                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                                        {filteredOwned.map((unit) => {
+                                            const count = unitInventory[unit.id] || 0;
+                                            return (
+                                                <div
+                                                    key={unit.id}
+                                                    className="relative p-2 rounded-lg cursor-pointer hover:bg-amber-100 transition-colors"
+                                                    onClick={() => openModal(unit)}
+                                                >
+                                                    <div className="flex justify-center">
+                                                        <RarityFrame
+                                                            unitId={unit.id}
+                                                            unitName={unit.name}
+                                                            rarity={unit.rarity}
+                                                            size="md"
+                                                            showLabel={true}
+                                                            count={count}
+                                                            baseUnitId={unit.baseUnitId}
+                                                        />
+                                                    </div>
+                                                    <div className="text-xs text-center text-amber-950 truncate mt-1">
+                                                        {unit.name}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                );
+                            })()}
+                        </>
+                    )}
                 </section>
 
                 {/* 未所持ユニット一覧 */}
                 <section id="gacha-unowned" className="card scroll-mt-28">
-                    <h3 className="text-xl font-bold mb-4 text-gray-600 dark:text-gray-400">
-                        {t("unowned_units")} ({gachaPool.filter(u => (unitInventory[u.id] || 0) === 0).length})
-                    </h3>
-
-                    {/* レアリティフィルター */}
-                    <div className="flex gap-2 flex-wrap mb-4">
-                        {rarityTabs.map(tab => {
-                            const unownedInRarity = gachaPool.filter(u =>
-                                (unitInventory[u.id] || 0) === 0 &&
-                                (tab.key === "ALL" || u.rarity === tab.key)
-                            ).length;
-                            return (
-                                <button
-                                    key={tab.key}
-                                    onClick={() => setUnownedRarityFilter(tab.key)}
-                                    className={`
-                                        px-3 py-1 rounded-lg font-bold text-sm transition-all
-                                        ${unownedRarityFilter === tab.key
-                                            ? `${tab.color} text-white shadow-md scale-105`
-                                            : "bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-slate-600"
-                                        }
-                                    `}
-                                >
-                                    {tab.label}
-                                    <span className="ml-1 text-xs opacity-75">({unownedInRarity})</span>
-                                </button>
-                            );
-                        })}
+                    <div
+                        className="flex items-center justify-between cursor-pointer"
+                        onClick={() => setOpenSections((prev) => ({ ...prev, unowned: !prev.unowned }))}
+                    >
+                        <h3 className="text-xl font-bold text-gray-600 dark:text-gray-400">
+                            {t("unowned_units")} ({gachaPool.filter(u => (unitInventory[u.id] || 0) === 0).length})
+                        </h3>
+                        <span className="text-2xl">{openSections.unowned ? "▲" : "▼"}</span>
                     </div>
 
-                    {(() => {
-                        const filteredUnowned = gachaPool.filter(u =>
-                            (unitInventory[u.id] || 0) === 0 &&
-                            (unownedRarityFilter === "ALL" || u.rarity === unownedRarityFilter)
-                        );
-
-                        if (filteredUnowned.length === 0) {
-                            return (
-                                <p className="text-green-600 text-center py-4 font-bold">
-                                    🎉 {unownedRarityFilter === "ALL" ? t("all_owned_in_rarity") : t("all_owned_in_rarity")}
-                                </p>
-                            );
-                        }
-
-                        return (
-                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 opacity-60">
-                                {filteredUnowned.map((unit) => (
-                                    <div
-                                        key={unit.id}
-                                        className="relative p-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
-                                        onClick={() => openModal(unit)}
-                                    >
-                                        <div className="flex justify-center">
-                                            <RarityFrame
-                                                unitId={unit.id}
-                                                unitName={unit.name}
-                                                rarity={unit.rarity}
-                                                size="md"
-                                                showLabel={true}
-                                                grayscale={true}
-                                                baseUnitId={unit.baseUnitId}
-                                            />
-                                        </div>
-                                        <div className="text-xs text-center text-gray-500 dark:text-gray-500 truncate mt-1">
-                                            {unit.name}
-                                        </div>
-                                    </div>
-                                ))}
+                    {openSections.unowned && (
+                        <>
+                            {/* レアリティフィルター */}
+                            <div className="flex gap-2 flex-wrap mb-4 mt-4">
+                                {rarityTabs.map(tab => {
+                                    const unownedInRarity = gachaPool.filter(u =>
+                                        (unitInventory[u.id] || 0) === 0 &&
+                                        (tab.key === "ALL" || u.rarity === tab.key)
+                                    ).length;
+                                    return (
+                                        <button
+                                            key={tab.key}
+                                            onClick={() => setUnownedRarityFilter(tab.key)}
+                                            className={`
+                                                px-3 py-1 rounded-lg font-bold text-sm transition-all
+                                                ${unownedRarityFilter === tab.key
+                                                    ? `${tab.color} text-white shadow-md scale-105`
+                                                    : "bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-slate-600"
+                                                }
+                                            `}
+                                        >
+                                            {tab.label}
+                                            <span className="ml-1 text-xs opacity-75">({unownedInRarity})</span>
+                                        </button>
+                                    );
+                                })}
                             </div>
-                        );
-                    })()}
+
+                            {(() => {
+                                const filteredUnowned = gachaPool.filter(u =>
+                                    (unitInventory[u.id] || 0) === 0 &&
+                                    (unownedRarityFilter === "ALL" || u.rarity === unownedRarityFilter)
+                                );
+
+                                if (filteredUnowned.length === 0) {
+                                    return (
+                                        <p className="text-green-600 text-center py-4 font-bold">
+                                            🎉 {unownedRarityFilter === "ALL" ? t("all_owned_in_rarity") : t("all_owned_in_rarity")}
+                                        </p>
+                                    );
+                                }
+
+                                return (
+                                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 opacity-60">
+                                        {filteredUnowned.map((unit) => (
+                                            <div
+                                                key={unit.id}
+                                                className="relative p-2 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+                                                onClick={() => openModal(unit)}
+                                            >
+                                                <div className="flex justify-center">
+                                                    <RarityFrame
+                                                        unitId={unit.id}
+                                                        unitName={unit.name}
+                                                        rarity={unit.rarity}
+                                                        size="md"
+                                                        showLabel={true}
+                                                        grayscale={true}
+                                                        baseUnitId={unit.baseUnitId}
+                                                    />
+                                                </div>
+                                                <div className="text-xs text-center text-gray-500 dark:text-gray-500 truncate mt-1">
+                                                    {unit.name}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                );
+                            })()}
+                        </>
+                    )}
                 </section>
 
                 {/* 編成へ */}
