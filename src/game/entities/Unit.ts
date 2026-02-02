@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { UnitDefinition, UnitState, UnitSide, SkillRuntimeState, StatusEffect, SkillEffect } from '@/data/types';
 import type { Castle } from './Castle';
+import { getSfxVolume } from '@/lib/audioHelper';
 
 // ============================================
 // Unit Entity - 状態機械による自動戦闘ユニット
@@ -305,7 +306,8 @@ export class Unit extends Phaser.GameObjects.Container {
                 });
                 // 召喚SE（味方のみ）
                 if (this.side === 'ally') {
-                    this.scene.sound.play('sfx_unit_spawn', { volume: 0.3 });
+                    const vol = getSfxVolume(0.3);
+                    if (vol > 0) this.scene.sound.play('sfx_unit_spawn', { volume: vol });
                 }
                 break;
             case 'WALK':
@@ -435,7 +437,8 @@ export class Unit extends Phaser.GameObjects.Container {
         const hitSfx = (rarity === 'SR' || rarity === 'SSR' || rarity === 'UR')
             ? 'sfx_attack_hit_sr'
             : 'sfx_attack_hit';
-        this.scene.sound.play(hitSfx, { volume: 0.25 });
+        const hitVol = getSfxVolume(0.25);
+        if (hitVol > 0) this.scene.sound.play(hitSfx, { volume: hitVol });
 
         // 通常ユニットの範囲攻撃
         if (this.definition.attackType === 'area' && this.definition.areaRadius) {
@@ -948,7 +951,8 @@ export class Unit extends Phaser.GameObjects.Container {
         this.setUnitState('DIE');
 
         // 死亡SE
-        this.scene.sound.play('sfx_unit_death', { volume: 0.3 });
+        const deathVol = getSfxVolume(0.3);
+        if (deathVol > 0) this.scene.sound.play('sfx_unit_death', { volume: deathVol });
 
         // 炎上タイマーをクリーンアップ
         for (const timer of this.burnTimers) {
@@ -1037,7 +1041,8 @@ export class Unit extends Phaser.GameObjects.Container {
      */
     private onEnrage(): void {
         // 怒りモード突入SE
-        this.scene.sound.play('sfx_attack_hit_sr', { volume: 0.6 });
+        const enrageVol = getSfxVolume(0.6);
+        if (enrageVol > 0) this.scene.sound.play('sfx_attack_hit_sr', { volume: enrageVol });
 
         // 画面シェイク
         this.scene.cameras.main.shake(400, 0.015);
@@ -1102,7 +1107,8 @@ export class Unit extends Phaser.GameObjects.Container {
         const aoe = this.definition.bossAoe!;
 
         // 範囲攻撃SE
-        this.scene.sound.play('sfx_cannon_fire', { volume: 0.5 });
+        const aoeVol = getSfxVolume(0.5);
+        if (aoeVol > 0) this.scene.sound.play('sfx_cannon_fire', { volume: aoeVol });
 
         // 画面シェイク
         this.scene.cameras.main.shake(300, 0.025);

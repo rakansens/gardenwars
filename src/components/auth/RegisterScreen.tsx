@@ -52,7 +52,8 @@ export function RegisterScreen({ onRegister, onBack }: RegisterScreenProps) {
                 <div className="bg-white/90 dark:bg-slate-800/90 rounded-3xl shadow-2xl p-8 max-w-sm w-full">
                     <button
                         onClick={onBack}
-                        className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 mb-4"
+                        disabled={isLoading}
+                        className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         ← {language === "ja" ? "もどる" : "Back"}
                     </button>

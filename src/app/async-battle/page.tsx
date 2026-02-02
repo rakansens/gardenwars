@@ -16,6 +16,34 @@ import { getSpritePath } from "@/lib/sprites";
 
 const allUnits = unitsData as UnitDefinition[];
 
+// Skeleton card for loading state
+function OpponentSkeleton() {
+    return (
+        <div className="bg-gray-100 dark:bg-slate-700/50 rounded-xl p-4 animate-pulse">
+            <div className="flex items-center justify-between gap-4">
+                {/* Opponent Info Skeleton */}
+                <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                        <div className="h-6 w-32 bg-gray-300 dark:bg-slate-600 rounded"></div>
+                        <div className="h-4 w-20 bg-gray-200 dark:bg-slate-600 rounded"></div>
+                    </div>
+                    {/* Deck Skeleton */}
+                    <div className="flex gap-1 flex-wrap">
+                        {[...Array(5)].map((_, idx) => (
+                            <div
+                                key={idx}
+                                className="w-10 h-10 rounded border border-gray-300 dark:border-slate-500 bg-gray-200 dark:bg-slate-600"
+                            />
+                        ))}
+                    </div>
+                </div>
+                {/* Button Skeleton */}
+                <div className="w-24 h-12 bg-gray-300 dark:bg-slate-600 rounded-xl"></div>
+            </div>
+        </div>
+    );
+}
+
 export default function AsyncBattlePage() {
     const router = useRouter();
     const { playerId, status } = useAuth();
@@ -160,9 +188,10 @@ export default function AsyncBattlePage() {
                     <h2 className="text-lg font-bold text-gray-800 dark:text-white mb-4">{t("async_select_opponent")}</h2>
 
                     {isLoading ? (
-                        <div className="text-center py-12">
-                            <div className="animate-spin text-4xl mb-4">⏳</div>
-                            <p className="text-gray-600 dark:text-gray-400">{t("loading")}</p>
+                        <div className="space-y-3">
+                            {[...Array(4)].map((_, idx) => (
+                                <OpponentSkeleton key={idx} />
+                            ))}
                         </div>
                     ) : opponents.length === 0 ? (
                         <div className="text-center py-12">

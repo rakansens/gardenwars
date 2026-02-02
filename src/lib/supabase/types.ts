@@ -66,6 +66,7 @@ export interface DBPlayerData {
     shop_items: ShopItem[] | null;
     gacha_history: GachaHistoryEntry[] | null;  // ガチャ履歴（最大100件）
     active_loadout_index: number | null;  // DEFAULT 0
+    current_world: string | null;  // 現在選択中のワールド（DEFAULT 'world1'）
     updated_at: string | null;
 }
 
@@ -117,6 +118,7 @@ export interface FrontendPlayerData {
     gachaHistory: GachaHistoryEntry[];  // Supabase同期
     clearedStages: string[];
     gardenUnits: string[];
+    currentWorld: string;  // 現在選択中のワールド（デフォルト: 'world1'）
 }
 
 /**
@@ -133,6 +135,7 @@ export interface SupabaseSaveData {
     gacha_history?: GachaHistoryEntry[];
     cleared_stages?: string[];
     garden_units?: string[];
+    current_world?: string;
 }
 
 /**
@@ -194,6 +197,7 @@ export function toFrontendPlayerData(
         gachaHistory: mergedHistory,
         clearedStages: db.cleared_stages || [],
         gardenUnits: db.garden_units || [],
+        currentWorld: db.current_world || "world1",
     };
 }
 
@@ -211,6 +215,7 @@ export function toSupabaseSaveData(frontend: FrontendPlayerData): SupabaseSaveDa
         gacha_history: frontend.gachaHistory.slice(0, 100),  // 最大100件
         cleared_stages: frontend.clearedStages,
         garden_units: frontend.gardenUnits,
+        current_world: frontend.currentWorld,
     };
 }
 

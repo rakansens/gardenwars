@@ -9,6 +9,7 @@ import RarityFrame from "@/components/ui/RarityFrame";
 import UnitDetailModal from "@/components/ui/UnitDetailModal";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useToast } from "@/contexts/ToastContext";
 import PageHeader from "@/components/layout/PageHeader";
 
 const allUnits = unitsData as UnitDefinition[];
@@ -27,6 +28,7 @@ const rarityColors: Record<Rarity, { border: string; bg: string; glow: string }>
 export default function ShopPage() {
     const { coins, shopItems, buyShopItem, refreshShop, spendCoins, isLoaded } = usePlayerData();
     const { t } = useLanguage();
+    const { showSuccess } = useToast();
     const { viewingUnit, openModal, closeModal } = useUnitDetailModal();
     const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
     const [targetIndex, setTargetIndex] = useState<number>(-1);
@@ -46,9 +48,13 @@ export default function ShopPage() {
 
     const handleBuy = () => {
         if (targetIndex === -1) return;
+        const targetItem = shopItems[targetIndex];
+        const targetUnit = targetItem ? allUnits.find(u => u.id === targetItem.unitId) : null;
         const success = buyShopItem(targetIndex);
         if (success) {
             setPurchaseSuccess(true);
+            const unitName = targetUnit ? (t(targetUnit.id) !== targetUnit.id ? t(targetUnit.id) : targetUnit.name) : "";
+            showSuccess(t("purchase_success") || `${unitName} ${t("purchased") || "purchased"}!`);
             setTimeout(() => {
                 setPurchaseSuccess(false);
                 setPurchaseModalOpen(false);
@@ -57,7 +63,7 @@ export default function ShopPage() {
     };
 
     const handleRefresh = () => {
-        if (coins < REFRESH_COST) return;
+        if (coins < REFRESH_COST || isRefreshing) return;
         // spendCoinsの戻り値をチェック（React 18対応）
         const success = spendCoins(REFRESH_COST);
         if (!success) return; // コイン消費失敗時は処理しない
@@ -66,6 +72,7 @@ export default function ShopPage() {
         setTimeout(() => {
             refreshShop();
             setIsRefreshing(false);
+            showSuccess(t("shop_refreshed") || "Shop refreshed!");
         }, 500);
     };
 

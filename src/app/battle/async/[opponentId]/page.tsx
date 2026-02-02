@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -69,6 +69,19 @@ export default function AsyncBattlePage() {
     const [result, setResult] = useState<{ win: boolean; coins: number } | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [battleStartTime, setBattleStartTime] = useState<number>(0);
+    const [opponentNotFound, setOpponentNotFound] = useState(false);
+    const [saveError, setSaveError] = useState<string | null>(null);
+    const navigationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    // Clean up navigation timer on unmount
+    useEffect(() => {
+        return () => {
+            if (navigationTimerRef.current) {
+                clearTimeout(navigationTimerRef.current);
+                navigationTimerRef.current = null;
+            }
+        };
+    }, []);
 
     // 相手のデータを取得
     useEffect(() => {
@@ -99,12 +112,20 @@ export default function AsyncBattlePage() {
                         deck: playerData.selected_team,
                     });
                 } else {
-                    // デッキがない場合は戻る
-                    router.push("/async-battle");
+                    // デッキがない場合はエラー表示して戻る
+                    setOpponentNotFound(true);
+                    showError(t("opponent_not_found") || "Opponent not found or has no deck");
+                    setTimeout(() => {
+                        router.push("/async-battle");
+                    }, 2000);
                 }
             } catch (err) {
                 console.error("Failed to fetch opponent:", err);
-                router.push("/async-battle");
+                setOpponentNotFound(true);
+                showError(t("failed_to_load_opponent") || "Failed to load opponent data");
+                setTimeout(() => {
+                    router.push("/async-battle");
+                }, 2000);
             }
             setIsLoading(false);
         };
@@ -141,6 +162,7 @@ export default function AsyncBattlePage() {
     const handleBattleEnd = async (win: boolean, coinsGained: number) => {
         setBattleEnded(true);
         setResult({ win, coins: coinsGained });
+        setSaveError(null);
 
         // 勝利時のコイン報酬を実際に付与
         if (win && coinsGained > 0) {
@@ -149,37 +171,79 @@ export default function AsyncBattlePage() {
 
         const battleDuration = Math.floor((Date.now() - battleStartTime) / 1000);
 
-        // 非同期バトル結果を保存
+        // 非同期バトル結果を保存（リトライロジック付き）
+        let saveSuccess = false;
         if (playerId && opponent) {
-            try {
-                const saveResult = await saveAsyncBattleResult({
-                    attacker_id: playerId,
-                    defender_id: opponentId,
-                    attacker_deck: selectedTeam,
-                    defender_deck: opponent.deck,
-                    winner: win ? 'attacker' : 'defender',
-                    attacker_castle_hp: win ? 1 : 0, // 簡易的
-                    defender_castle_hp: win ? 0 : 1,
-                    attacker_kills: 0, // TODO: 実際のキル数を取得
-                    defender_kills: 0,
-                    battle_duration: battleDuration,
-                });
-                if (saveResult.error) {
-                    console.error("Failed to save async battle result:", saveResult.error);
-                    showError("Failed to save battle result");
+            const maxRetries = 3;
+            let lastError: Error | null = null;
+
+            for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                try {
+                    const saveResult = await saveAsyncBattleResult({
+                        attacker_id: playerId,
+                        defender_id: opponentId,
+                        attacker_deck: selectedTeam,
+                        defender_deck: opponent.deck,
+                        winner: win ? 'attacker' : 'defender',
+                        attacker_castle_hp: win ? 1 : 0, // 簡易的
+                        defender_castle_hp: win ? 0 : 1,
+                        attacker_kills: 0, // TODO: 実際のキル数を取得
+                        defender_kills: 0,
+                        battle_duration: battleDuration,
+                    });
+                    if (saveResult.error) {
+                        throw new Error(typeof saveResult.error === 'string' ? saveResult.error : "Failed to save battle result");
+                    }
+                    saveSuccess = true;
+                    break; // Success, exit retry loop
+                } catch (err) {
+                    lastError = err instanceof Error ? err : new Error("Failed to save async battle result");
+                    console.error(`Attempt ${attempt}/${maxRetries} failed to save async battle result:`, err);
+
+                    if (attempt < maxRetries) {
+                        // Exponential backoff: 1s, 2s, 4s
+                        const delay = Math.pow(2, attempt - 1) * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    }
                 }
-            } catch (err) {
-                const errorMsg = err instanceof Error ? err.message : "Failed to save async battle result";
-                console.error("Failed to save async battle result:", err);
+            }
+
+            if (!saveSuccess && lastError) {
+                const errorMsg = t("failed_to_save_battle") || "Failed to save battle result. Please try again.";
+                setSaveError(errorMsg);
                 showError(errorMsg);
+                // Block navigation - user must manually navigate or retry
+                return;
             }
         }
 
-        // 3秒後に結果ページへ
-        setTimeout(() => {
+        // 3秒後に結果ページへ（保存成功時のみ）
+        // Clear any existing timer before setting a new one
+        if (navigationTimerRef.current) {
+            clearTimeout(navigationTimerRef.current);
+        }
+        navigationTimerRef.current = setTimeout(() => {
             router.push(`/async-battle/result?win=${win}&opponent=${opponentId}`);
         }, 3000);
     };
+
+    // Show error state when opponent is not found
+    if (opponentNotFound) {
+        return (
+            <main className="min-h-screen flex flex-col items-center justify-center bg-slate-900">
+                <div className="text-center p-8">
+                    <div className="text-6xl mb-4">😵</div>
+                    <h1 className="text-2xl font-bold text-red-400 mb-2">
+                        {t("opponent_not_found") || "Opponent not found"}
+                    </h1>
+                    <p className="text-white/70 mb-4">
+                        {t("redirecting_back") || "Redirecting back..."}
+                    </p>
+                    <div className="animate-spin text-2xl">⏳</div>
+                </div>
+            </main>
+        );
+    }
 
     if (isLoading || !stage || !opponent) {
         return (
@@ -223,7 +287,19 @@ export default function AsyncBattlePage() {
                         <p className="text-2xl text-white/80">
                             VS {opponent.name}
                         </p>
-                        <p className="mt-6 text-white/70 animate-pulse">{t("loading")}</p>
+                        {saveError ? (
+                            <div className="mt-6">
+                                <p className="text-red-400 mb-4">{saveError}</p>
+                                <Link
+                                    href="/async-battle"
+                                    className="btn btn-primary px-6 py-2"
+                                >
+                                    {t("back_to_battle_select") || "Back to Battle Select"}
+                                </Link>
+                            </div>
+                        ) : (
+                            <p className="mt-6 text-white/70 animate-pulse">{t("loading")}</p>
+                        )}
                     </div>
                 </div>
             )}

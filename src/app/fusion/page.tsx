@@ -9,6 +9,7 @@ import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
 import { getSpritePath } from "@/lib/sprites";
 import RarityFrame from "@/components/ui/RarityFrame";
 import { usePlayerData } from "@/hooks/usePlayerData";
+import { ConfirmModal } from "@/components/ui/Modal";
 
 const allUnits = unitsData as UnitDefinition[];
 // 味方ユニットのみ（enemy_で始まらない）かつボスではない
@@ -35,12 +36,15 @@ const rarityColors: Record<Rarity, string> = {
 type FusionMode = 3 | 10;
 
 export default function FusionPage() {
-    const { t } = useLanguage();
-    const { unitInventory, executeFusion, isLoaded } = usePlayerData();
+    const { t, language } = useLanguage();
+    const { unitInventory, executeFusion, flushToSupabase } = usePlayerData();
     const [selectedUnits, setSelectedUnits] = useState<string[]>([]);
     const [fusionResult, setFusionResult] = useState<UnitDefinition | null>(null);
     const [showVideo, setShowVideo] = useState(false);
     const [fusionMode, setFusionMode] = useState<FusionMode>(3);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [isFusing, setIsFusing] = useState(false);
+    const [fusionError, setFusionError] = useState<string | null>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
 
     // usePlayerDataから取得したインベントリを使用
@@ -72,99 +76,119 @@ export default function FusionPage() {
         }
     };
 
+    // フュージョン確認モーダルを表示
+    const handleFusionClick = () => {
+        if (selectedUnits.length !== fusionMode || isFusing) return;
+        setShowConfirmModal(true);
+    };
+
     // フュージョン実行
-    const handleFusion = () => {
-        if (selectedUnits.length !== fusionMode) return;
+    const handleFusion = async () => {
+        if (selectedUnits.length !== fusionMode || isFusing) return;
+        setIsFusing(true);
+        setFusionError(null);
 
-        // 選択されたユニットのレアリティ平均 → 結果レアリティ確率
-        const selectedDefs = selectedUnits.map(id => allyUnits.find(u => u.id === id)!);
-        const totalWeight = selectedDefs.reduce((sum, u) => sum + rarityWeights[u.rarity], 0);
-        const avgWeight = totalWeight / fusionMode;
+        try {
+            // 選択されたユニットのレアリティ平均 → 結果レアリティ確率
+            const selectedDefs = selectedUnits.map(id => allyUnits.find(u => u.id === id)!);
+            const totalWeight = selectedDefs.reduce((sum, u) => sum + rarityWeights[u.rarity], 0);
+            const avgWeight = totalWeight / fusionMode;
 
-        // 結果レアリティを決定
-        let resultRarity: Rarity;
-        const roll = Math.random() * 100;
+            // 結果レアリティを決定
+            let resultRarity: Rarity;
+            const roll = Math.random() * 100;
 
-        if (fusionMode === 10) {
-            // 10体モード: URが出やすい！
-            if (avgWeight >= 8) {
-                // SSR以上が多い → UR高確率
-                if (roll < 30) resultRarity = "UR";
-                else if (roll < 70) resultRarity = "SSR";
-                else resultRarity = "SR";
-            } else if (avgWeight >= 6) {
-                // SSRが多い
-                if (roll < 15) resultRarity = "UR";
-                else if (roll < 55) resultRarity = "SSR";
-                else resultRarity = "SR";
-            } else if (avgWeight >= 4) {
-                // SR素材が多い
-                if (roll < 8) resultRarity = "UR";
-                else if (roll < 35) resultRarity = "SSR";
-                else if (roll < 75) resultRarity = "SR";
-                else resultRarity = "R";
-            } else if (avgWeight >= 2) {
-                // R素材が多い
-                if (roll < 3) resultRarity = "UR";
-                else if (roll < 15) resultRarity = "SSR";
-                else if (roll < 45) resultRarity = "SR";
-                else if (roll < 80) resultRarity = "R";
-                else resultRarity = "N";
+            if (fusionMode === 10) {
+                // 10体モード: URが出やすい！
+                if (avgWeight >= 8) {
+                    // SSR以上が多い → UR高確率
+                    if (roll < 30) resultRarity = "UR";
+                    else if (roll < 70) resultRarity = "SSR";
+                    else resultRarity = "SR";
+                } else if (avgWeight >= 6) {
+                    // SSRが多い
+                    if (roll < 15) resultRarity = "UR";
+                    else if (roll < 55) resultRarity = "SSR";
+                    else resultRarity = "SR";
+                } else if (avgWeight >= 4) {
+                    // SR素材が多い
+                    if (roll < 8) resultRarity = "UR";
+                    else if (roll < 35) resultRarity = "SSR";
+                    else if (roll < 75) resultRarity = "SR";
+                    else resultRarity = "R";
+                } else if (avgWeight >= 2) {
+                    // R素材が多い
+                    if (roll < 3) resultRarity = "UR";
+                    else if (roll < 15) resultRarity = "SSR";
+                    else if (roll < 45) resultRarity = "SR";
+                    else if (roll < 80) resultRarity = "R";
+                    else resultRarity = "N";
+                } else {
+                    // N素材が多い
+                    if (roll < 1) resultRarity = "UR";
+                    else if (roll < 5) resultRarity = "SSR";
+                    else if (roll < 20) resultRarity = "SR";
+                    else if (roll < 50) resultRarity = "R";
+                    else resultRarity = "N";
+                }
             } else {
-                // N素材が多い
-                if (roll < 1) resultRarity = "UR";
-                else if (roll < 5) resultRarity = "SSR";
-                else if (roll < 20) resultRarity = "SR";
-                else if (roll < 50) resultRarity = "R";
-                else resultRarity = "N";
+                // 3体モード（従来のロジック）
+                if (avgWeight >= 6) {
+                    if (roll < 60) resultRarity = "SSR";
+                    else resultRarity = "SR";
+                } else if (avgWeight >= 4) {
+                    if (roll < 20) resultRarity = "SSR";
+                    else if (roll < 70) resultRarity = "SR";
+                    else resultRarity = "R";
+                } else if (avgWeight >= 2) {
+                    if (roll < 5) resultRarity = "SSR";
+                    else if (roll < 30) resultRarity = "SR";
+                    else if (roll < 80) resultRarity = "R";
+                    else resultRarity = "N";
+                } else {
+                    if (roll < 2) resultRarity = "SSR";
+                    else if (roll < 8) resultRarity = "SR";
+                    else if (roll < 30) resultRarity = "R";
+                    else resultRarity = "N";
+                }
             }
-        } else {
-            // 3体モード（従来のロジック）
-            if (avgWeight >= 6) {
-                if (roll < 60) resultRarity = "SSR";
-                else resultRarity = "SR";
-            } else if (avgWeight >= 4) {
-                if (roll < 20) resultRarity = "SSR";
-                else if (roll < 70) resultRarity = "SR";
-                else resultRarity = "R";
-            } else if (avgWeight >= 2) {
-                if (roll < 5) resultRarity = "SSR";
-                else if (roll < 30) resultRarity = "SR";
-                else if (roll < 80) resultRarity = "R";
-                else resultRarity = "N";
-            } else {
-                if (roll < 2) resultRarity = "SSR";
-                else if (roll < 8) resultRarity = "SR";
-                else if (roll < 30) resultRarity = "R";
-                else resultRarity = "N";
+
+            // そのレアリティからランダムに1体選択
+            const candidates = allyUnits.filter(u => u.rarity === resultRarity);
+            const resultUnit = candidates[Math.floor(Math.random() * candidates.length)];
+
+            // アトミック操作: 素材消費 + 結果追加を同時に実行
+            // これにより素材だけ消費されて結果が得られないケースを防ぐ
+            const success = executeFusion(selectedUnits, resultUnit.id);
+            if (!success) {
+                setFusionError(language === "ja" ? "素材が不足しています" : "Insufficient materials");
+                setIsFusing(false);
+                return; // 素材不足などで失敗
             }
-        }
 
-        // そのレアリティからランダムに1体選択
-        const candidates = allyUnits.filter(u => u.rarity === resultRarity);
-        const resultUnit = candidates[Math.floor(Math.random() * candidates.length)];
+            // Supabaseに即時保存
+            await flushToSupabase();
 
-        // アトミック操作: 素材消費 + 結果追加を同時に実行
-        // これにより素材だけ消費されて結果が得られないケースを防ぐ
-        const success = executeFusion(selectedUnits, resultUnit.id);
-        if (!success) {
-            return; // 素材不足などで失敗
-        }
+            setSelectedUnits([]);
+            setFusionResult(resultUnit);
+            setShowVideo(true);
 
-        setSelectedUnits([]);
-        setFusionResult(resultUnit);
-        setShowVideo(true);
-
-        // 動画再生
-        if (videoRef.current) {
-            videoRef.current.currentTime = 0;
-            videoRef.current.play();
+            // 動画再生
+            if (videoRef.current) {
+                videoRef.current.currentTime = 0;
+                videoRef.current.play();
+            }
+        } catch (error) {
+            console.error("Fusion error:", error);
+            setFusionError(language === "ja" ? "フュージョンに失敗しました" : "Fusion failed");
+            setIsFusing(false);
         }
     };
 
     // 動画終了
     const handleVideoEnd = () => {
         setShowVideo(false);
+        setIsFusing(false);
     };
 
     // 選択中のユニット数（ユニットIDごと）
@@ -289,18 +313,41 @@ export default function FusionPage() {
             {/* フュージョンボタン */}
             <div className="text-center mb-6">
                 <button
-                    onClick={handleFusion}
-                    disabled={selectedUnits.length !== fusionMode}
-                    className={`px-8 py-3 rounded-lg font-bold text-xl transition-all ${selectedUnits.length === fusionMode
+                    onClick={handleFusionClick}
+                    disabled={selectedUnits.length !== fusionMode || isFusing}
+                    className={`px-8 py-3 rounded-lg font-bold text-xl transition-all ${selectedUnits.length === fusionMode && !isFusing
                         ? fusionMode === 10
                             ? "bg-gradient-to-r from-amber-500 via-pink-500 to-purple-600 text-white hover:from-amber-600 hover:via-pink-600 hover:to-purple-700 shadow-lg animate-pulse"
                             : "bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 shadow-lg"
                         : "bg-gray-300 text-gray-500 cursor-not-allowed"
                         }`}
                 >
-                    {fusionMode === 10 ? t("fusion_10_execute") : `🔮 ${t("fusion_execute")}`}
+                    {isFusing ? (
+                        <span className="flex items-center justify-center gap-2">
+                            <span className="animate-spin">⏳</span>
+                            {language === "ja" ? "処理中..." : "Processing..."}
+                        </span>
+                    ) : (
+                        fusionMode === 10 ? t("fusion_10_execute") : `🔮 ${t("fusion_execute")}`
+                    )}
                 </button>
             </div>
+
+            {/* エラー表示 */}
+            {fusionError && (
+                <div className="text-center mb-6">
+                    <div className="inline-block bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-lg">
+                        <span className="mr-2">⚠️</span>
+                        {fusionError}
+                        <button
+                            onClick={() => setFusionError(null)}
+                            className="ml-3 text-red-500 hover:text-red-700 font-bold"
+                        >
+                            ✕
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* 所持ユニット一覧 */}
             <div className="bg-amber-50 rounded-lg p-4">
@@ -393,7 +440,10 @@ export default function FusionPage() {
                         </div>
                         <p className="text-xl font-bold mt-2">{fusionResult.name}</p>
                         <button
-                            onClick={() => setFusionResult(null)}
+                            onClick={() => {
+                                setFusionResult(null);
+                                setIsFusing(false);
+                            }}
                             className="mt-6 px-6 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600"
                         >
                             {t("ok")}
@@ -401,6 +451,27 @@ export default function FusionPage() {
                     </div>
                 </div>
             )}
+
+            {/* フュージョン確認モーダル */}
+            <ConfirmModal
+                isOpen={showConfirmModal}
+                onClose={() => !isFusing && setShowConfirmModal(false)}
+                onConfirm={() => {
+                    setShowConfirmModal(false);
+                    handleFusion();
+                }}
+                icon="🔮"
+                title={language === "ja" ? "フュージョン確認" : "Confirm Fusion"}
+                message={
+                    language === "ja"
+                        ? `${fusionMode}体のユニットを消費してフュージョンします。この操作は取り消せません。`
+                        : `${fusionMode} units will be consumed. This cannot be undone.`
+                }
+                confirmText={language === "ja" ? "フュージョン実行" : "Execute Fusion"}
+                cancelText={language === "ja" ? "キャンセル" : "Cancel"}
+                confirmColor="amber"
+                isLoading={isFusing}
+            />
         </main>
     );
 }

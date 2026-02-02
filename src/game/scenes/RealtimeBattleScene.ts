@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { NetworkManager } from '../systems/NetworkManager';
 import { getSpritePath, getSheetPath, ANIMATED_UNITS } from '@/lib/sprites';
+import { getBgmVolume, getSfxVolume, isBgmEnabled } from '@/lib/audioHelper';
 import type { UnitState as NetworkUnitState } from '@/lib/colyseus/types';
 import type { Rarity } from '@/data/types';
 
@@ -505,7 +506,8 @@ export class RealtimeBattleScene extends Phaser.Scene {
 
   private playSfx(key: string, volume = 0.3) {
     if (!this.cache.audio.exists(key)) return;
-    this.sound.play(key, { volume });
+    const effectiveVolume = getSfxVolume(volume);
+    if (effectiveVolume > 0) this.sound.play(key, { volume: effectiveVolume });
   }
 
   private getHitSfxKey(unitId: string) {
@@ -1333,8 +1335,9 @@ export class RealtimeBattleScene extends Phaser.Scene {
     // BGM停止して結果BGM再生
     this.bgm?.stop();
     const resultBgmKey = isWinner ? 'victory_bgm' : 'defeat_bgm';
-    if (this.cache.audio.exists(resultBgmKey)) {
-      const resultBgm = this.sound.add(resultBgmKey, { volume: 0.5 });
+    if (this.cache.audio.exists(resultBgmKey) && isBgmEnabled()) {
+      const resultVol = getBgmVolume(0.5);
+      const resultBgm = this.sound.add(resultBgmKey, { volume: resultVol });
       resultBgm.play();
     }
 
@@ -1382,14 +1385,15 @@ export class RealtimeBattleScene extends Phaser.Scene {
       return;
     }
     if (this.bgm) {
-      if (!this.bgm.isPlaying) {
+      if (!this.bgm.isPlaying && isBgmEnabled()) {
         this.bgm.play();
       }
       return;
     }
     const bgmKey = Math.random() < 0.5 ? 'battle_bgm_1' : 'battle_bgm_2';
-    if (this.cache.audio.exists(bgmKey)) {
-      this.bgm = this.sound.add(bgmKey, { loop: true, volume: 0.3 });
+    if (this.cache.audio.exists(bgmKey) && isBgmEnabled()) {
+      const bgmVol = getBgmVolume(0.3);
+      this.bgm = this.sound.add(bgmKey, { loop: true, volume: bgmVol });
       this.bgm.play();
     }
   }

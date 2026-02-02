@@ -255,13 +255,23 @@ export async function getSoldHistory(
 }
 
 /**
+ * Purchase result type for better error handling
+ */
+export type PurchaseResult = {
+    success: boolean;
+    error?: "not_found" | "already_sold" | "own_listing" | "expired" | "insufficient_coins" | "failed";
+    message?: string;
+};
+
+/**
  * リスティングを購入
+ * Optimistic locking を使用してレースコンディションを防止
  */
 export async function purchaseListing(
     buyerId: string,
     listingId: string
-): Promise<boolean> {
-    // リスティングを取得
+): Promise<PurchaseResult> {
+    // リスティングを取得（updated_at を含めて optimistic locking 用に保存）
     const { data: listing, error: listingError } = await (supabase as AnySupabase)
         .from("marketplace_listings")
         .select("*")
@@ -271,31 +281,32 @@ export async function purchaseListing(
 
     if (listingError || !listing) {
         console.error("Listing not found or not active:", listingError);
-        return false;
+        return { success: false, error: "not_found", message: "Listing not found or no longer available" };
     }
 
     const dbListing = listing as DBMarketplaceListing;
+    const capturedUpdatedAt = dbListing.updated_at; // Capture timestamp for optimistic locking
 
     // 自分の出品は購入不可
     if (dbListing.seller_id === buyerId) {
         console.error("Cannot purchase own listing");
-        return false;
+        return { success: false, error: "own_listing", message: "Cannot purchase your own listing" };
     }
 
     // 期限切れチェック
     if (new Date(dbListing.expires_at!) < new Date()) {
         console.error("Listing has expired");
-        return false;
+        return { success: false, error: "expired", message: "This listing has expired" };
     }
 
     // 購入者のコインを確認
     const buyerData = await getPlayerData(buyerId);
-    if (!buyerData) return false;
+    if (!buyerData) return { success: false, error: "failed", message: "Failed to get buyer data" };
 
     const buyerCoins = buyerData.coins ?? 0;
     if (buyerCoins < dbListing.total_price) {
         console.error("Not enough coins:", { have: buyerCoins, need: dbListing.total_price });
-        return false;
+        return { success: false, error: "insufficient_coins", message: "Not enough coins" };
     }
 
     // トランザクション: 購入者からコインを減算
@@ -305,7 +316,7 @@ export async function purchaseListing(
 
     if (!buyerUpdated) {
         console.error("Failed to deduct coins from buyer");
-        return false;
+        return { success: false, error: "failed", message: "Failed to process payment" };
     }
 
     // トランザクション: 購入者にユニットを追加
@@ -324,27 +335,35 @@ export async function purchaseListing(
         console.error("Failed to add units to buyer");
         // ロールバック: コインを戻す
         await savePlayerData(buyerId, { coins: buyerCoins });
-        return false;
+        return { success: false, error: "failed", message: "Failed to add units to inventory" };
     }
 
-    // リスティングをsoldに更新
-    const { error: updateError } = await (supabase as AnySupabase)
+    // リスティングをsoldに更新（Optimistic Locking: updated_at をチェック）
+    const { data: updateData, error: updateError } = await (supabase as AnySupabase)
         .from("marketplace_listings")
         .update({
             status: "sold",
             sold_at: new Date().toISOString(),
             buyer_id: buyerId,
         })
-        .eq("id", listingId);
+        .eq("id", listingId)
+        .eq("status", "active") // Double-check status is still active
+        .eq("updated_at", capturedUpdatedAt) // Optimistic locking check
+        .select("id");
 
-    if (updateError) {
-        console.error("Failed to update listing status:", updateError);
+    // Check if update affected any rows (optimistic locking failed if no rows)
+    if (updateError || !updateData || updateData.length === 0) {
+        console.error("Failed to update listing status (race condition or already sold):", updateError);
         // ロールバック: コインとインベントリを戻す
         await savePlayerData(buyerId, {
             coins: buyerCoins,
             unit_inventory: buyerInventory,
         });
-        return false;
+        return {
+            success: false,
+            error: "already_sold",
+            message: "This listing was just purchased by another buyer"
+        };
     }
 
     // 購入者の名前を取得
@@ -367,7 +386,7 @@ export async function purchaseListing(
         buyerName
     );
 
-    return true;
+    return { success: true };
 }
 
 /**
@@ -552,13 +571,23 @@ export async function markAllNotificationsRead(
 }
 
 /**
+ * Claim notification result type for better error handling
+ */
+export type ClaimResult = {
+    success: boolean;
+    error?: "not_found" | "already_claimed" | "failed";
+    message?: string;
+};
+
+/**
  * 通知を処理（コインを受け取り、既読にする）
+ * Optimistic locking を使用してレースコンディションを防止
  */
 export async function claimNotification(
     playerId: string,
     notificationId: string
-): Promise<boolean> {
-    // 通知を取得
+): Promise<ClaimResult> {
+    // 通知を取得（updated_at を含めて optimistic locking 用に保存）
     const { data: notification, error: notifError } = await (supabase as AnySupabase)
         .from("marketplace_notifications")
         .select("*")
@@ -569,15 +598,43 @@ export async function claimNotification(
 
     if (notifError || !notification) {
         console.error("Notification not found:", notifError);
-        return false;
+        return { success: false, error: "not_found", message: "Notification not found or already claimed" };
     }
 
     const dbNotif = notification as DBMarketplaceNotification;
+    const capturedUpdatedAt = dbNotif.updated_at; // Capture timestamp for optimistic locking
+
+    // まず通知を既読にする（Optimistic Locking を使用）
+    // これにより、同時クリックによる二重処理を防ぐ
+    const { data: updateData, error: updateError } = await (supabase as AnySupabase)
+        .from("marketplace_notifications")
+        .update({ is_read: true })
+        .eq("id", notificationId)
+        .eq("is_read", false) // Double-check still unread
+        .eq("updated_at", capturedUpdatedAt) // Optimistic locking check
+        .select("id");
+
+    // Check if update affected any rows (optimistic locking failed if no rows)
+    if (updateError || !updateData || updateData.length === 0) {
+        console.error("Failed to mark notification as read (race condition or already claimed):", updateError);
+        return {
+            success: false,
+            error: "already_claimed",
+            message: "This notification was already claimed"
+        };
+    }
 
     // コインを追加（item_soldの場合）
     if (dbNotif.notification_type === "item_sold" && dbNotif.coins_earned) {
         const playerData = await getPlayerData(playerId);
-        if (!playerData) return false;
+        if (!playerData) {
+            // ロールバック: 通知を未読に戻す
+            await (supabase as AnySupabase)
+                .from("marketplace_notifications")
+                .update({ is_read: false })
+                .eq("id", notificationId);
+            return { success: false, error: "failed", message: "Failed to get player data" };
+        }
 
         const currentCoins = playerData.coins ?? 0;
         const coinsUpdated = await savePlayerData(playerId, {
@@ -586,7 +643,12 @@ export async function claimNotification(
 
         if (!coinsUpdated) {
             console.error("Failed to add coins");
-            return false;
+            // ロールバック: 通知を未読に戻す
+            await (supabase as AnySupabase)
+                .from("marketplace_notifications")
+                .update({ is_read: false })
+                .eq("id", notificationId);
+            return { success: false, error: "failed", message: "Failed to add coins" };
         }
     }
 
@@ -598,7 +660,14 @@ export async function claimNotification(
         dbNotif.quantity
     ) {
         const playerData = await getPlayerData(playerId);
-        if (!playerData) return false;
+        if (!playerData) {
+            // ロールバック: 通知を未読に戻す
+            await (supabase as AnySupabase)
+                .from("marketplace_notifications")
+                .update({ is_read: false })
+                .eq("id", notificationId);
+            return { success: false, error: "failed", message: "Failed to get player data" };
+        }
 
         const inventory = playerData.unit_inventory ?? {};
         const currentCount = inventory[dbNotif.unit_id] || 0;
@@ -613,12 +682,16 @@ export async function claimNotification(
 
         if (!inventoryUpdated) {
             console.error("Failed to return units");
-            return false;
+            // ロールバック: 通知を未読に戻す
+            await (supabase as AnySupabase)
+                .from("marketplace_notifications")
+                .update({ is_read: false })
+                .eq("id", notificationId);
+            return { success: false, error: "failed", message: "Failed to return units" };
         }
     }
 
-    // 通知を既読にする
-    return markNotificationRead(notificationId);
+    return { success: true };
 }
 
 /**

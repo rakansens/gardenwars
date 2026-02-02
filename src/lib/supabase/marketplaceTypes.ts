@@ -42,6 +42,7 @@ export interface DBMarketplaceNotification {
     quantity: number | null;
     is_read: boolean;
     created_at: string | null;
+    updated_at: string | null;
     buyer_name: string | null;
 }
 

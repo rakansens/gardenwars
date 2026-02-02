@@ -18,14 +18,70 @@ interface DroppedUnit {
     rate: number;
 }
 
+interface ValidationError {
+    type: "coins" | "stage" | "general";
+    message: string;
+}
+
+function validateParams(
+    coinsParam: string | null,
+    stageId: string | null,
+    language: string
+): ValidationError | null {
+    // Validate coins is a valid positive number
+    if (coinsParam !== null) {
+        const coinsNum = Number(coinsParam);
+        if (isNaN(coinsNum) || coinsNum < 0 || !Number.isFinite(coinsNum)) {
+            return {
+                type: "coins",
+                message: language === "ja"
+                    ? "不正なコイン数です"
+                    : "Invalid coin amount"
+            };
+        }
+    }
+
+    // Validate stage exists (if provided and not default)
+    if (stageId && stageId !== "stage_1") {
+        const stageExists = typedStages.some(s => s.id === stageId);
+        if (!stageExists) {
+            return {
+                type: "stage",
+                message: language === "ja"
+                    ? "存在しないステージです"
+                    : "Stage does not exist"
+            };
+        }
+    }
+
+    return null;
+}
+
 function ResultContent() {
     const searchParams = useSearchParams();
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
 
     const win = searchParams.get("win") === "true";
-    const coins = Number(searchParams.get("coins") || 0);
-    const stageId = searchParams.get("stage") || "stage_1";
+    const coinsParam = searchParams.get("coins");
+    const stageIdParam = searchParams.get("stage");
     const dropsParam = searchParams.get("drops") || "";
+
+    // Validate params
+    const validationError = useMemo(() => {
+        return validateParams(coinsParam, stageIdParam, language);
+    }, [coinsParam, stageIdParam, language]);
+
+    // Use validated values with safe defaults
+    const coins = useMemo(() => {
+        const num = Number(coinsParam || 0);
+        return isNaN(num) || num < 0 ? 0 : num;
+    }, [coinsParam]);
+
+    const stageId = useMemo(() => {
+        if (!stageIdParam) return "stage_1";
+        const stageExists = typedStages.some(s => s.id === stageIdParam);
+        return stageExists ? stageIdParam : "stage_1";
+    }, [stageIdParam]);
 
     // ドロップ情報をURLパラメータから復元（処理はbattleページで完了済み）
     const droppedUnits = useMemo<DroppedUnit[]>(() => {
@@ -43,6 +99,21 @@ function ResultContent() {
 
     return (
         <main className="min-h-screen flex flex-col items-center justify-center p-8 dark:bg-slate-900">
+            {/* Validation error warning */}
+            {validationError && (
+                <div className="mb-6 p-4 bg-amber-100 dark:bg-amber-900/30 border-2 border-amber-400 dark:border-amber-600 rounded-xl max-w-md w-full">
+                    <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+                        <span className="text-xl">⚠️</span>
+                        <span className="font-bold">{validationError.message}</span>
+                    </div>
+                    <p className="text-sm text-amber-600 dark:text-amber-500 mt-1">
+                        {language === "ja"
+                            ? "デフォルト値を使用しています"
+                            : "Using default values"}
+                    </p>
+                </div>
+            )}
+
             {/* 結果アイコン */}
             <div className="text-8xl mb-8 animate-bounce">
                 {win ? "🏆" : "😿"}

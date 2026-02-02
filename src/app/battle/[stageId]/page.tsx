@@ -47,7 +47,7 @@ export default function BattlePage() {
     const stageId = params.stageId as string;
     const { t } = useLanguage();
     const { playerId } = useAuth();
-    const { selectedTeam, isLoaded, refreshShop, loadouts, activeLoadoutIndex, executeBattleReward } = usePlayerData();
+    const { selectedTeam, isLoaded, refreshShop, loadouts, activeLoadoutIndex, executeBattleReward, flushToSupabase } = usePlayerData();
 
     const [stage, setStage] = useState<StageDefinition | null>(null);
     const [team, setTeam] = useState<UnitDefinition[]>([]);
@@ -55,6 +55,7 @@ export default function BattlePage() {
     const [battleEnded, setBattleEnded] = useState(false);
     const [result, setResult] = useState<{ win: boolean; coins: number } | null>(null);
     const navigationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const [stageNotFound, setStageNotFound] = useState(false);
 
     // Clean up navigation timer on unmount
     useEffect(() => {
@@ -73,7 +74,11 @@ export default function BattlePage() {
         // ステージデータ取得
         const stageData = allStages.find((s) => s.id === stageId);
         if (!stageData) {
-            router.push("/stages");
+            setStageNotFound(true);
+            // Show error message briefly before redirecting
+            setTimeout(() => {
+                router.push("/stages");
+            }, 2000);
             return;
         }
         setStage(stageData);
@@ -118,6 +123,9 @@ export default function BattlePage() {
             // これにより報酬の一部だけ反映されるケースを防ぐ
             executeBattleReward(coinsGained, stageId, droppedUnitIds);
 
+            // Ensure rewards are persisted to Supabase before navigation
+            await flushToSupabase();
+
             refreshShop();
         }
 
@@ -131,6 +139,24 @@ export default function BattlePage() {
             router.push(`/result?win=${win}&coins=${coinsGained}&stage=${stageId}${dropsParam}`);
         }, 3000);
     };
+
+    // Show error message when stage is not found
+    if (stageNotFound) {
+        return (
+            <main className="fixed inset-0 bg-[#1a1a2e] flex flex-col items-center justify-center">
+                <div className="text-center p-8">
+                    <div className="text-6xl mb-4">❌</div>
+                    <h1 className="text-2xl font-bold text-red-400 mb-2">
+                        {t("stage_not_found") || "Stage not found"}
+                    </h1>
+                    <p className="text-white/70 mb-4">
+                        {t("redirecting_to_stages") || "Redirecting to stage select..."}
+                    </p>
+                    <div className="animate-spin text-2xl">⏳</div>
+                </div>
+            </main>
+        );
+    }
 
     if (!stage) {
         return <LoadingSpinner icon="⚔️" fullScreen />;

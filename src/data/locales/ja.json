@@ -613,5 +613,8 @@
   "skill_trigger_passive": "常時",
   "skill_cooldown": "クールダウン",
   "skill_chance": "発動確率",
-  "skill_threshold": "HP条件"
+  "skill_threshold": "HP条件",
+
+  "offline_message": "オフラインです。一部の機能が利用できません。",
+  "offline_action_blocked": "オフライン中はこの操作を実行できません"
 }

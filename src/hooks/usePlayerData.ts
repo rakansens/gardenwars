@@ -64,6 +64,7 @@ const getInitialData = (): PlayerDataWithTimestamp => {
         gachaHistory: [],
         clearedStages: [],
         gardenUnits: [],
+        currentWorld: "world1",
         lastModified: Date.now(),
     };
 };
@@ -79,10 +80,21 @@ const loadFromStorage = (): PlayerDataWithTimestamp => {
         if (saved) {
             const parsed = JSON.parse(saved);
 
-            const loadouts: [string[], string[], string[]] = parsed.loadouts ?? [
-                parsed.selectedTeam ?? initial.selectedTeam,
-                [],
-                []
+            // Ensure loadouts is always exactly 3 arrays (normalize corrupted data)
+            let rawLoadouts = parsed.loadouts;
+            if (!Array.isArray(rawLoadouts) || rawLoadouts.length !== 3) {
+                console.warn("Invalid loadouts structure, normalizing to 3 arrays");
+                rawLoadouts = [
+                    parsed.selectedTeam ?? initial.selectedTeam,
+                    [],
+                    []
+                ];
+            }
+            // Validate each deck is an array
+            const loadouts: [string[], string[], string[]] = [
+                Array.isArray(rawLoadouts[0]) ? rawLoadouts[0] : [],
+                Array.isArray(rawLoadouts[1]) ? rawLoadouts[1] : [],
+                Array.isArray(rawLoadouts[2]) ? rawLoadouts[2] : [],
             ];
 
             const activeLoadoutIndex = parsed.activeLoadoutIndex ?? 0;
@@ -98,6 +110,7 @@ const loadFromStorage = (): PlayerDataWithTimestamp => {
                 gachaHistory: parsed.gachaHistory ?? [],
                 clearedStages: parsed.clearedStages ?? [],
                 gardenUnits: parsed.gardenUnits ?? [],
+                currentWorld: parsed.currentWorld ?? "world1",
                 lastModified: parsed.lastModified ?? Date.now(),
             });
         }
@@ -297,9 +310,18 @@ export function usePlayerData() {
                         const mergedStages = new Set([...mergedData.clearedStages, ...localData.clearedStages]);
                         mergedData.clearedStages = Array.from(mergedStages);
 
-                        // loadoutsをマージ（新しい方を優先）
+                        // loadoutsをマージ（deck-by-deck comparison）
+                        // For each deck, use the one with more units (more "complete")
+                        const mergedLoadouts: [string[], string[], string[]] = [[], [], []];
+                        for (let i = 0; i < 3; i++) {
+                            const localDeck = localData.loadouts[i] || [];
+                            const remoteDeck = mergedData.loadouts[i] || [];
+                            // Use the deck with more units (more "complete")
+                            mergedLoadouts[i] = localDeck.length >= remoteDeck.length ? localDeck : remoteDeck;
+                        }
+                        mergedData.loadouts = mergedLoadouts;
+                        // Use the activeLoadoutIndex from the newer source
                         if (localIsNewer) {
-                            mergedData.loadouts = localData.loadouts;
                             mergedData.activeLoadoutIndex = localData.activeLoadoutIndex;
                         }
 
@@ -517,7 +539,11 @@ export function usePlayerData() {
 
     // ロードアウトを切り替え
     const switchLoadout = useCallback((index: number) => {
-        if (index < 0 || index > 2) return;
+        // Validate bounds with logging
+        if (index < 0 || index > 2) {
+            console.warn(`[switchLoadout] Index out of bounds: ${index}, clamping to valid range 0-2`);
+            index = Math.max(0, Math.min(2, index));
+        }
         setData((prev) => ({
             ...prev,
             activeLoadoutIndex: index,
@@ -680,6 +706,14 @@ export function usePlayerData() {
         }));
     }, []);
 
+    // 現在のワールドを更新
+    const setCurrentWorld = useCallback((worldId: string) => {
+        setData((prev) => ({
+            ...prev,
+            currentWorld: worldId,
+        }));
+    }, []);
+
     // ガチャ用アトミック操作（コイン消費 + ユニット追加を1つのsetData内で実行）
     // これにより、ブラウザが閉じられてもデータ損失を防ぐ
     // 注意: React 18ではsetDataコールバックが遅延実行されるため、
@@ -802,6 +836,7 @@ export function usePlayerData() {
         gachaHistory: data.gachaHistory,
         clearedStages: data.clearedStages,
         gardenUnits: data.gardenUnits,
+        currentWorld: data.currentWorld,
         isLoaded,
 
         // アクション
@@ -820,6 +855,7 @@ export function usePlayerData() {
         clearGachaHistory,
         addClearedStage,
         setGardenUnits,
+        setCurrentWorld,
         executeGacha,
         executeFusion,
         executeBattleReward,

@@ -610,5 +610,8 @@
   "skill_trigger_passive": "Passive",
   "skill_cooldown": "Cooldown",
   "skill_chance": "Chance",
-  "skill_threshold": "HP Condition"
+  "skill_threshold": "HP Condition",
+
+  "offline_message": "You are offline. Some features may not work.",
+  "offline_action_blocked": "Cannot complete action while offline"
 }

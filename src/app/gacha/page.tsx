@@ -59,6 +59,7 @@ export default function GachaPage() {
     const [results, setResults] = useState<UnitDefinition[]>([]);
     const [isRolling, setIsRolling] = useState(false);
     const [showReveal, setShowReveal] = useState(false);
+    const [isSyncing, setIsSyncing] = useState(false);
     const [openSections, setOpenSections] = useState({
         machine: true,
         ur: true,
@@ -133,70 +134,59 @@ export default function GachaPage() {
 
     // ガチャを引く
     const rollGacha = async (count: number) => {
+        // ダブルクリック防止 - 最初にチェック
+        if (isRolling) return;
+
         let cost = SINGLE_COST;
         if (count === 10) cost = MULTI_COST;
         if (count === 100) cost = SUPER_MULTI_COST;
 
         if (coins < cost) return;
-        if (isRolling) return; // ダブルクリック防止
 
         setIsRolling(true);
 
-        // ランダムにユニットを選ぶ（レアリティで重み付け）
-        const rolled: UnitDefinition[] = [];
-        for (let i = 0; i < count; i++) {
-            const unit = pickRandomUnit();
-            rolled.push(unit);
-        }
-        const unitIds = rolled.map(u => u.id);
+        try {
+            // ランダムにユニットを選ぶ（レアリティで重み付け）
+            const rolled: UnitDefinition[] = [];
+            for (let i = 0; i < count; i++) {
+                const unit = pickRandomUnit();
+                rolled.push(unit);
+            }
+            const unitIds = rolled.map(u => u.id);
 
-        // アトミック操作: コイン消費 + ユニット追加を同時に実行
-        // これによりブラウザが閉じられてもデータ損失を防ぐ
-        const success = executeGacha(cost, unitIds);
-        if (!success) {
-            setIsRolling(false);
-            return;
-        }
+            // アトミック操作: コイン消費 + ユニット追加を同時に実行
+            // これによりブラウザが閉じられてもデータ損失を防ぐ
+            const success = executeGacha(cost, unitIds);
+            if (!success) {
+                return; // finally will still run
+            }
 
-        // 履歴に追加
-        addGachaHistory(unitIds);
+            // 履歴に追加
+            addGachaHistory(unitIds);
 
-        // 重要: ガチャ結果を即座にSupabaseに保存（デバウンスをバイパス）
-        // これによりブラウザが閉じられてもデータが失われない
-        const flushWithRetry = async (retries = 3) => {
-            for (let attempt = 1; attempt <= retries; attempt++) {
+            // 重要: ガチャ結果を即座にSupabaseに保存（デバウンスをバイパス）
+            // これによりブラウザが閉じられてもデータが失われない
+            await flushToSupabase();
+
+            // ランキング用ガチャ回数カウント（エラーハンドリング付き）
+            if (playerId) {
                 try {
-                    const success = await flushToSupabase();
-                    if (success) return;
-                    console.warn(`Flush attempt ${attempt} failed, ${retries - attempt} retries left`);
+                    await incrementGachaCount(playerId, count);
                 } catch (err) {
-                    console.error(`Flush attempt ${attempt} error:`, err);
-                }
-                if (attempt < retries) {
-                    await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Exponential backoff
+                    console.error("Failed to increment gacha count:", err);
+                    // ランキング更新失敗してもガチャ自体は続行
                 }
             }
-            // All retries failed - notify user (data is saved locally, will sync later)
-            console.error("Failed to sync gacha results after retries. Data saved locally.");
-            // Note: Data is already saved to localStorage, will sync on next successful connection
-        };
-        flushWithRetry();
 
-        // ランキング用ガチャ回数カウント（エラーハンドリング付き）
-        if (playerId) {
-            try {
-                await incrementGachaCount(playerId, count);
-            } catch (err) {
-                console.error("Failed to increment gacha count:", err);
-                // ランキング更新失敗してもガチャ自体は続行
-            }
+            // 結果を即座に設定（setTimeoutではなく同期的に）
+            // これにより状態更新の競合を防ぐ
+            setResults(rolled);
+            setShowReveal(true);
+        } catch (error) {
+            console.error("Gacha error:", error);
+        } finally {
+            setIsRolling(false); // Always reset
         }
-
-        // 結果を即座に設定（setTimeoutではなく同期的に）
-        // これにより状態更新の競合を防ぐ
-        setResults(rolled);
-        setIsRolling(false);
-        setShowReveal(true);
     };
 
     // レアリティで重み付けしてランダム選択（キャッシュ済み重みを使用）
@@ -252,8 +242,16 @@ export default function GachaPage() {
                 title={t("gacha_title")}
                 showLanguageSwitch={false}
             >
-                <div className="btn btn-primary pointer-events-none">
-                    💰 {coins.toLocaleString()}
+                <div className="flex items-center gap-2">
+                    {isSyncing && (
+                        <div className="flex items-center gap-1 px-3 py-1 bg-blue-500/20 border border-blue-400/50 rounded-lg text-blue-600 dark:text-blue-300 text-sm">
+                            <span className="animate-spin text-sm">⏳</span>
+                            <span className="hidden sm:inline">{t("saving") || "Saving..."}</span>
+                        </div>
+                    )}
+                    <div className="btn btn-primary pointer-events-none">
+                        💰 {coins.toLocaleString()}
+                    </div>
                 </div>
             </PageHeader>
 
@@ -332,12 +330,12 @@ export default function GachaPage() {
                             <div className="flex justify-center gap-6 flex-wrap">
                                 {/* 1回ガチャ */}
                                 <button
-                                    className={`flex flex-col items-center p-4 rounded-2xl bg-gradient-to-b from-slate-700 to-slate-800 border-4 border-slate-500 shadow-xl transition-all hover:scale-105 hover:border-green-400 ${coins < SINGLE_COST || isRolling
+                                    className={`flex flex-col items-center p-4 rounded-2xl bg-gradient-to-b from-slate-700 to-slate-800 border-4 border-slate-500 shadow-xl transition-all hover:scale-105 hover:border-green-400 ${coins < SINGLE_COST || isRolling || showReveal
                                             ? "opacity-50 cursor-not-allowed"
                                             : ""
                                         }`}
                                     onClick={() => rollGacha(1)}
-                                    disabled={coins < SINGLE_COST || isRolling}
+                                    disabled={coins < SINGLE_COST || isRolling || showReveal}
                                 >
                                     <Image
                                         src="/assets/ui/gacha_1pull.png"
@@ -353,12 +351,12 @@ export default function GachaPage() {
 
                                 {/* 10連ガチャ */}
                                 <button
-                                    className={`flex flex-col items-center p-4 rounded-2xl bg-gradient-to-b from-purple-700 to-purple-900 border-4 border-purple-400 shadow-xl transition-all hover:scale-105 hover:border-pink-400 ${coins < MULTI_COST || isRolling
+                                    className={`flex flex-col items-center p-4 rounded-2xl bg-gradient-to-b from-purple-700 to-purple-900 border-4 border-purple-400 shadow-xl transition-all hover:scale-105 hover:border-pink-400 ${coins < MULTI_COST || isRolling || showReveal
                                             ? "opacity-50 cursor-not-allowed"
                                             : ""
                                         }`}
                                     onClick={() => rollGacha(10)}
-                                    disabled={coins < MULTI_COST || isRolling}
+                                    disabled={coins < MULTI_COST || isRolling || showReveal}
                                 >
                                     <Image
                                         src="/assets/ui/gacha_10pull.png"
@@ -374,12 +372,12 @@ export default function GachaPage() {
 
                                 {/* 100連ガチャ */}
                                 <button
-                                    className={`flex flex-col items-center p-4 rounded-2xl bg-gradient-to-b from-amber-600 via-orange-700 to-red-800 border-4 border-yellow-400 shadow-2xl transition-all hover:scale-105 ${coins < SUPER_MULTI_COST || isRolling
+                                    className={`flex flex-col items-center p-4 rounded-2xl bg-gradient-to-b from-amber-600 via-orange-700 to-red-800 border-4 border-yellow-400 shadow-2xl transition-all hover:scale-105 ${coins < SUPER_MULTI_COST || isRolling || showReveal
                                             ? "opacity-50 cursor-not-allowed"
                                             : "animate-pulse hover:animate-none"
                                         }`}
                                     onClick={() => rollGacha(100)}
-                                    disabled={coins < SUPER_MULTI_COST || isRolling}
+                                    disabled={coins < SUPER_MULTI_COST || isRolling || showReveal}
                                 >
                                     <Image
                                         src="/assets/ui/gacha_100pull.png"

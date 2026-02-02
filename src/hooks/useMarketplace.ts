@@ -23,6 +23,24 @@ import {
     getUnreadNotificationCount,
 } from "@/lib/supabase/marketplace";
 
+/**
+ * Result type for purchase operations with user-friendly error messages
+ */
+export interface PurchaseActionResult {
+    success: boolean;
+    error?: string;
+    userMessage?: string;
+}
+
+/**
+ * Result type for claim operations with user-friendly error messages
+ */
+export interface ClaimActionResult {
+    success: boolean;
+    error?: string;
+    userMessage?: string;
+}
+
 export interface UseMarketplaceReturn {
     // State
     listings: MarketplaceListing[];
@@ -32,6 +50,8 @@ export interface UseMarketplaceReturn {
     unreadCount: number;
     isLoading: boolean;
     isAuthenticated: boolean;
+    isPurchasing: boolean;
+    isClaiming: boolean;
 
     // Actions
     refreshListings: (filter?: ListingFilter, force?: boolean) => Promise<void>;
@@ -45,9 +65,9 @@ export interface UseMarketplaceReturn {
         pricePerUnit: number,
         expiresInDays?: number
     ) => Promise<boolean>;
-    buyListing: (listingId: string) => Promise<boolean>;
+    buyListing: (listingId: string) => Promise<PurchaseActionResult>;
     cancelMyListing: (listingId: string) => Promise<boolean>;
-    claimSoldNotification: (notificationId: string) => Promise<boolean>;
+    claimSoldNotification: (notificationId: string) => Promise<ClaimActionResult>;
     markNotificationAsRead: (notificationId: string) => Promise<boolean>;
     markAllNotificationsAsRead: () => Promise<boolean>;
 }
@@ -67,6 +87,8 @@ export function useMarketplace(): UseMarketplaceReturn {
     const [notifications, setNotifications] = useState<MarketplaceNotification[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
+    const [isPurchasing, setIsPurchasing] = useState(false);
+    const [isClaiming, setIsClaiming] = useState(false);
 
     const lastFetchRef = useRef<number>(0);
     const FETCH_COOLDOWN = 5000; // 5秒のクールダウン
@@ -229,44 +251,62 @@ export function useMarketplace(): UseMarketplaceReturn {
 
     // 購入
     const buyListing = useCallback(
-        async (listingId: string): Promise<boolean> => {
-            if (!isAuthenticated || !playerId) return false;
+        async (listingId: string): Promise<PurchaseActionResult> => {
+            if (!isAuthenticated || !playerId) {
+                return { success: false, error: "not_authenticated", userMessage: "Please log in to purchase" };
+            }
+
+            // Prevent double-clicks
+            if (isPurchasing) {
+                return { success: false, error: "in_progress", userMessage: "Purchase already in progress" };
+            }
 
             // リスティングを見つける
             const listing = listings.find((l) => l.id === listingId);
             if (!listing) {
-                console.error("Listing not found");
-                return false;
+                return { success: false, error: "not_found", userMessage: "Listing not found" };
             }
 
             // コイン残高チェック
             if (coins < listing.totalPrice) {
-                console.error("Not enough coins");
-                return false;
+                return { success: false, error: "insufficient_coins", userMessage: "Not enough coins" };
             }
 
             // 自分の出品は購入不可
             if (listing.isOwn) {
-                console.error("Cannot buy own listing");
-                return false;
+                return { success: false, error: "own_listing", userMessage: "Cannot buy your own listing" };
             }
 
+            setIsPurchasing(true);
             try {
-                const success = await purchaseListing(playerId, listingId);
+                const result = await purchaseListing(playerId, listingId);
 
-                if (success) {
+                if (result.success) {
                     // Supabaseで既にコイン減算・ユニット追加が処理済み
                     // リスト更新でSupabaseから最新状態を取得（重複更新を避ける）
                     await refreshListings(undefined, true);
-                    return true;
+                    return { success: true };
                 }
-                return false;
+
+                // Map backend errors to user-friendly messages
+                let userMessage = result.message || "Purchase failed";
+                if (result.error === "already_sold") {
+                    userMessage = "Sorry, this item was just purchased by another buyer. Please try a different listing.";
+                } else if (result.error === "expired") {
+                    userMessage = "This listing has expired.";
+                } else if (result.error === "insufficient_coins") {
+                    userMessage = "Not enough coins to complete this purchase.";
+                }
+
+                return { success: false, error: result.error, userMessage };
             } catch (error) {
                 console.error("Failed to buy listing:", error);
-                return false;
+                return { success: false, error: "exception", userMessage: "An unexpected error occurred. Please try again." };
+            } finally {
+                setIsPurchasing(false);
             }
         },
-        [isAuthenticated, playerId, listings, coins, refreshListings]
+        [isAuthenticated, playerId, listings, coins, isPurchasing, refreshListings]
     );
 
     // 出品キャンセル
@@ -301,32 +341,48 @@ export function useMarketplace(): UseMarketplaceReturn {
 
     // 売却通知を受け取る（コインを獲得）
     const claimSoldNotification = useCallback(
-        async (notificationId: string): Promise<boolean> => {
-            if (!isAuthenticated || !playerId) return false;
+        async (notificationId: string): Promise<ClaimActionResult> => {
+            if (!isAuthenticated || !playerId) {
+                return { success: false, error: "not_authenticated", userMessage: "Please log in to claim" };
+            }
+
+            // Prevent double-clicks
+            if (isClaiming) {
+                return { success: false, error: "in_progress", userMessage: "Claim already in progress" };
+            }
 
             // 通知を見つける
             const notification = notifications.find((n) => n.id === notificationId);
             if (!notification) {
-                console.error("Notification not found");
-                return false;
+                return { success: false, error: "not_found", userMessage: "Notification not found" };
             }
 
+            setIsClaiming(true);
             try {
-                const success = await claimNotification(playerId, notificationId);
+                const result = await claimNotification(playerId, notificationId);
 
-                if (success) {
+                if (result.success) {
                     // Supabaseで既にコイン追加・ユニット返却が処理済み
                     // 通知更新でSupabaseから最新状態を取得（重複処理を避ける）
                     await refreshNotifications();
-                    return true;
+                    return { success: true };
                 }
-                return false;
+
+                // Map backend errors to user-friendly messages
+                let userMessage = result.message || "Claim failed";
+                if (result.error === "already_claimed") {
+                    userMessage = "This notification has already been claimed.";
+                }
+
+                return { success: false, error: result.error, userMessage };
             } catch (error) {
                 console.error("Failed to claim notification:", error);
-                return false;
+                return { success: false, error: "exception", userMessage: "An unexpected error occurred. Please try again." };
+            } finally {
+                setIsClaiming(false);
             }
         },
-        [isAuthenticated, playerId, notifications, refreshNotifications]
+        [isAuthenticated, playerId, notifications, isClaiming, refreshNotifications]
     );
 
     // 通知を既読にする
@@ -371,6 +427,8 @@ export function useMarketplace(): UseMarketplaceReturn {
         unreadCount,
         isLoading,
         isAuthenticated,
+        isPurchasing,
+        isClaiming,
 
         // Actions
         refreshListings,

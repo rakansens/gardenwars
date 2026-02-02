@@ -541,7 +541,8 @@ export function useRealtime(): [RealtimeState, RealtimeActions] {
 
   // ルームリスナー設定（共通化）
   const setupRoomListeners = useCallback((room: Colyseus.Room) => {
-    const sessionId = room.sessionId;
+    // Note: Do NOT capture sessionId in closure - use room.sessionId directly
+    // to avoid stale closure issues when the room reconnects or session changes
 
     room.onMessage("phase_change", (message: any) => {
       if (message.phase) {
@@ -571,6 +572,7 @@ export function useRealtime(): [RealtimeState, RealtimeActions] {
     });
 
     room.onMessage("player_joined", (message: any) => {
+      const currentSessionId = room.sessionId;  // Get fresh value to avoid stale closure
       setPlayers(prev => {
         const newPlayers = new Map(prev);
         const built = buildPlayerState(message, newPlayers.get(message.sessionId));
@@ -579,13 +581,14 @@ export function useRealtime(): [RealtimeState, RealtimeActions] {
         }
         return newPlayers;
       });
-      if (message.sessionId === sessionId && (message.side === 'player1' || message.side === 'player2')) {
+      if (message.sessionId === currentSessionId && (message.side === 'player1' || message.side === 'player2')) {
         commitMySide(message.side, true);
       }
     });
 
     room.onMessage("all_players", (message: any) => {
-      setPlayersFromList(message.players, sessionId);
+      const currentSessionId = room.sessionId;  // Get fresh value to avoid stale closure
+      setPlayersFromList(message.players, currentSessionId);
       applyStageLength(message.stageLength);
     });
 
@@ -611,11 +614,12 @@ export function useRealtime(): [RealtimeState, RealtimeActions] {
     });
 
     room.onMessage("players_sync", (message: any) => {
+      const currentSessionId = room.sessionId;  // Get fresh value to avoid stale closure
       if (message.players && Array.isArray(message.players)) {
         if (isDeltaSync(message)) {
-          upsertPlayersFromList(message.players, sessionId);
+          upsertPlayersFromList(message.players, currentSessionId);
         } else {
-          setPlayersFromList(message.players, sessionId);
+          setPlayersFromList(message.players, currentSessionId);
         }
         applyStageLength(message.stageLength);
       }

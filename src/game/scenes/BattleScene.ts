@@ -9,6 +9,7 @@ import { CannonSystem } from '../systems/CannonSystem';
 import { AIController } from '../systems/AIController';
 import { eventBus, GameEvents } from '../utils/EventBus';
 import { getSpritePath, getSheetPath, ANIMATED_UNITS } from '@/lib/sprites';
+import { getBgmVolume, getSfxVolume, isBgmEnabled } from '@/lib/audioHelper';
 import type { StageDefinition, UnitDefinition, GameState, Rarity } from '@/data/types';
 
 // ============================================
@@ -106,11 +107,26 @@ export class BattleScene extends Phaser.Scene {
     // BGM
     private bgm?: Phaser.Sound.BaseSound;
 
+    // Pause system
+    private isPaused: boolean = false;
+    private pauseOverlay?: Phaser.GameObjects.Container;
+    private pauseBtn?: Phaser.GameObjects.Container;
+
     constructor() {
         super({ key: 'BattleScene' });
     }
 
     shutdown() {
+        // ポーズ状態をリセット
+        this.isPaused = false;
+        this.time.paused = false;
+
+        // ポーズオーバーレイをクリーンアップ
+        if (this.pauseOverlay) {
+            this.pauseOverlay.destroy();
+            this.pauseOverlay = undefined;
+        }
+
         // BGMを停止
         this.bgm?.stop();
 
@@ -152,6 +168,11 @@ export class BattleScene extends Phaser.Scene {
         this.gameState = 'LOADING';
         this.allyUnits = [];
         this.enemyUnits = [];
+
+        // ポーズ状態をリセット
+        this.isPaused = false;
+        this.pauseOverlay = undefined;
+        this.pauseBtn = undefined;
 
         // クールダウンをリセット
         this.unitCooldowns = new Map();
@@ -341,8 +362,11 @@ export class BattleScene extends Phaser.Scene {
         } else {
             bgmKey = Math.random() < 0.5 ? 'battle_bgm_1' : 'battle_bgm_2';
         }
-        this.bgm = this.sound.add(bgmKey, { loop: true, volume: 0.3 });
-        this.bgm.play();
+        const bgmVolume = getBgmVolume(0.3);
+        this.bgm = this.sound.add(bgmKey, { loop: true, volume: bgmVolume });
+        if (isBgmEnabled()) {
+            this.bgm.play();
+        }
 
         // 地面（床を大きく）- ステージ設定から色を取得
         const worldWidth = this.stageData.length + 100;
@@ -933,7 +957,8 @@ export class BattleScene extends Phaser.Scene {
         this.costUpBtnZone.setInteractive({ useHandCursor: true });
         this.costUpBtnZone.on('pointerdown', () => {
             if (this.costSystem.upgradeMax()) {
-                this.sound.play('sfx_cost_upgrade', { volume: 0.5 });
+                const sfxVol = getSfxVolume(0.5);
+                if (sfxVol > 0) this.sound.play('sfx_cost_upgrade', { volume: sfxVol });
             }
         });
 
@@ -960,6 +985,9 @@ export class BattleScene extends Phaser.Scene {
 
         // 速度切り替えボタン
         this.createSpeedToggle();
+
+        // ポーズボタン
+        this.createPauseButton();
 
         // 召喚ボタン（チーム分）
         this.createSummonButtons();
@@ -1084,6 +1112,223 @@ export class BattleScene extends Phaser.Scene {
         // ホバーエフェクト
         bg.on('pointerover', () => bg.setAlpha(0.8));
         bg.on('pointerout', () => bg.setAlpha(1));
+    }
+
+    private createPauseButton() {
+        const { width } = this.scale;
+
+        // === ポーズボタン（速度ボタンの右） ===
+        this.pauseBtn = this.add.container(width - 60, 55);
+        this.pauseBtn.setScrollFactor(0);
+        this.pauseBtn.setDepth(100);
+
+        // 背景
+        const bg = this.add.rectangle(0, 0, 50, 32, 0x6b7280);
+        bg.setStrokeStyle(2, 0x374151);
+        bg.setScrollFactor(0);
+        bg.setInteractive({ useHandCursor: true });
+
+        // テキスト
+        const text = this.add.text(0, 0, '⏸️', {
+            fontSize: '18px',
+            color: '#ffffff',
+        });
+        text.setOrigin(0.5, 0.5);
+        text.setScrollFactor(0);
+
+        this.pauseBtn.add([bg, text]);
+
+        // クリックでポーズ切り替え
+        bg.on('pointerdown', () => {
+            this.togglePause();
+        });
+
+        // ホバーエフェクト
+        bg.on('pointerover', () => bg.setAlpha(0.8));
+        bg.on('pointerout', () => bg.setAlpha(1));
+
+        // キーボードショートカット（ESCとスペース）
+        this.input.keyboard?.on('keydown-ESC', () => {
+            this.togglePause();
+        });
+        this.input.keyboard?.on('keydown-SPACE', () => {
+            this.togglePause();
+        });
+    }
+
+    private togglePause() {
+        // ゲーム終了後はポーズ不可
+        if (this.gameState === 'WIN' || this.gameState === 'LOSE') {
+            return;
+        }
+
+        this.isPaused = !this.isPaused;
+
+        if (this.isPaused) {
+            // ポーズ開始
+            this.pauseGame();
+        } else {
+            // ポーズ解除
+            this.resumeGame();
+        }
+    }
+
+    private pauseGame() {
+        // すべてのTweenを一時停止
+        this.tweens.pauseAll();
+
+        // すべてのタイマーイベントを一時停止
+        this.time.paused = true;
+
+        // BGMを一時停止
+        if (this.bgm && this.bgm.isPlaying) {
+            this.bgm.pause();
+        }
+
+        // ポーズボタンのアイコンを変更
+        if (this.pauseBtn) {
+            const text = this.pauseBtn.getAt(1) as Phaser.GameObjects.Text;
+            text.setText('▶️');
+        }
+
+        // ポーズオーバーレイを表示
+        this.showPauseOverlay();
+    }
+
+    private resumeGame() {
+        // すべてのTweenを再開
+        this.tweens.resumeAll();
+
+        // すべてのタイマーイベントを再開
+        this.time.paused = false;
+
+        // BGMを再開
+        if (this.bgm && !this.bgm.isPlaying) {
+            this.bgm.resume();
+        }
+
+        // ポーズボタンのアイコンを戻す
+        if (this.pauseBtn) {
+            const text = this.pauseBtn.getAt(1) as Phaser.GameObjects.Text;
+            text.setText('⏸️');
+        }
+
+        // ポーズオーバーレイを非表示
+        this.hidePauseOverlay();
+    }
+
+    private showPauseOverlay() {
+        const { width, height } = this.scale;
+
+        // オーバーレイコンテナ
+        this.pauseOverlay = this.add.container(0, 0);
+        this.pauseOverlay.setScrollFactor(0);
+        this.pauseOverlay.setDepth(500);
+
+        // 半透明の暗い背景
+        const overlay = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.7);
+        overlay.setScrollFactor(0);
+        this.pauseOverlay.add(overlay);
+
+        // メニューパネル背景
+        const panelWidth = 280;
+        const panelHeight = 240;
+        const panel = this.add.rectangle(width / 2, height / 2, panelWidth, panelHeight, 0xf8e7b6);
+        panel.setStrokeStyle(4, 0x3b2a1a);
+        panel.setScrollFactor(0);
+        this.pauseOverlay.add(panel);
+
+        // 「PAUSED」テキスト
+        const pausedText = this.add.text(width / 2, height / 2 - 70, 'PAUSED', {
+            fontSize: '36px',
+            color: '#3b2a1a',
+            fontStyle: 'bold',
+        });
+        pausedText.setOrigin(0.5, 0.5);
+        pausedText.setScrollFactor(0);
+        this.pauseOverlay.add(pausedText);
+
+        // Resumeボタン
+        const resumeBtnBg = this.add.rectangle(width / 2, height / 2, 180, 50, 0x4ade80);
+        resumeBtnBg.setStrokeStyle(3, 0x166534);
+        resumeBtnBg.setScrollFactor(0);
+        resumeBtnBg.setInteractive({ useHandCursor: true });
+        this.pauseOverlay.add(resumeBtnBg);
+
+        const resumeText = this.add.text(width / 2, height / 2, '▶️ Resume', {
+            fontSize: '22px',
+            color: '#ffffff',
+            fontStyle: 'bold',
+        });
+        resumeText.setOrigin(0.5, 0.5);
+        resumeText.setScrollFactor(0);
+        this.pauseOverlay.add(resumeText);
+
+        resumeBtnBg.on('pointerdown', () => {
+            this.togglePause();
+        });
+        resumeBtnBg.on('pointerover', () => resumeBtnBg.setFillStyle(0x22c55e));
+        resumeBtnBg.on('pointerout', () => resumeBtnBg.setFillStyle(0x4ade80));
+
+        // Quitボタン
+        const quitBtnBg = this.add.rectangle(width / 2, height / 2 + 70, 180, 50, 0xef4444);
+        quitBtnBg.setStrokeStyle(3, 0xb91c1c);
+        quitBtnBg.setScrollFactor(0);
+        quitBtnBg.setInteractive({ useHandCursor: true });
+        this.pauseOverlay.add(quitBtnBg);
+
+        const quitText = this.add.text(width / 2, height / 2 + 70, '🚪 Quit', {
+            fontSize: '22px',
+            color: '#ffffff',
+            fontStyle: 'bold',
+        });
+        quitText.setOrigin(0.5, 0.5);
+        quitText.setScrollFactor(0);
+        this.pauseOverlay.add(quitText);
+
+        quitBtnBg.on('pointerdown', () => {
+            this.quitToStages();
+        });
+        quitBtnBg.on('pointerover', () => quitBtnBg.setFillStyle(0xdc2626));
+        quitBtnBg.on('pointerout', () => quitBtnBg.setFillStyle(0xef4444));
+
+        // ヒントテキスト
+        const hintText = this.add.text(width / 2, height / 2 + 130, 'Press ESC or Space to resume', {
+            fontSize: '12px',
+            color: '#6b7280',
+        });
+        hintText.setOrigin(0.5, 0.5);
+        hintText.setScrollFactor(0);
+        this.pauseOverlay.add(hintText);
+    }
+
+    private hidePauseOverlay() {
+        if (this.pauseOverlay) {
+            this.pauseOverlay.destroy();
+            this.pauseOverlay = undefined;
+        }
+    }
+
+    private quitToStages() {
+        // ポーズを解除（タイマー再開のため）
+        this.isPaused = false;
+        this.time.paused = false;
+        this.tweens.resumeAll();
+
+        // BGMを停止
+        this.bgm?.stop();
+
+        // シーンを停止してステージ選択に戻る通知
+        eventBus.emit(GameEvents.BATTLE_LOSE, {
+            stageId: this.stageData.id,
+            win: false,
+            coinsGained: 0,
+            timestamp: Date.now(),
+            quit: true, // Quit flag to differentiate from actual loss
+        });
+
+        // シーンを停止
+        this.scene.stop();
     }
 
     // デッキ（ロードアウト）を次のものに切り替え
@@ -1441,6 +1686,9 @@ export class BattleScene extends Phaser.Scene {
     update(time: number, delta: number) {
         if (this.gameState !== 'PLAYING') return;
 
+        // ポーズ中はゲームロジックを停止
+        if (this.isPaused) return;
+
         // ゲーム速度を適用
         const adjustedDelta = delta * this.gameSpeed;
 
@@ -1700,12 +1948,13 @@ export class BattleScene extends Phaser.Scene {
         const resultBgmKey = win ? 'victory_bgm' : 'defeat_bgm';
         try {
             // オーディオがロードされているか確認
-            if (this.cache.audio.exists(resultBgmKey)) {
+            if (this.cache.audio.exists(resultBgmKey) && isBgmEnabled()) {
                 console.log(`[BattleScene] Playing result BGM: ${resultBgmKey}`);
-                const resultBgm = this.sound.add(resultBgmKey, { volume: 0.5 });
+                const resultBgmVolume = getBgmVolume(0.5);
+                const resultBgm = this.sound.add(resultBgmKey, { volume: resultBgmVolume });
                 resultBgm.play();
             } else {
-                console.warn(`[BattleScene] Audio not loaded: ${resultBgmKey}`);
+                console.warn(`[BattleScene] Audio not loaded or disabled: ${resultBgmKey}`);
             }
         } catch (err) {
             console.error('[BattleScene] Failed to play result BGM:', err);

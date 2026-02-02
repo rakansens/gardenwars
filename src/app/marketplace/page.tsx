@@ -7,6 +7,7 @@ import { usePlayerData } from "@/hooks/usePlayerData";
 import { useMarketplace } from "@/hooks/useMarketplace";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/contexts/ToastContext";
+import { useNetwork } from "@/contexts/NetworkContext";
 import PageHeader from "@/components/layout/PageHeader";
 import {
     ListingCard,
@@ -29,7 +30,8 @@ type SortType = ListingFilter["sortBy"];
 
 export default function MarketplacePage() {
     const { t } = useLanguage();
-    const { showError } = useToast();
+    const { showError, showWarning } = useToast();
+    const { isOnline } = useNetwork();
     const { coins, unitInventory, isLoaded } = usePlayerData();
     const {
         listings,
@@ -62,6 +64,8 @@ export default function MarketplacePage() {
     const [confirmBuy, setConfirmBuy] = useState<MarketplaceListing | null>(null);
     const [confirmCancel, setConfirmCancel] = useState<MarketplaceListing | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [isSubmittingBuy, setIsSubmittingBuy] = useState(false);
+    const [isSubmittingCancel, setIsSubmittingCancel] = useState(false);
 
     // フィルタリングとソート
     const filteredListings = useMemo(() => {
@@ -113,11 +117,21 @@ export default function MarketplacePage() {
 
     // 購入処理
     const handleBuy = async () => {
-        if (!confirmBuy) return;
+        if (!confirmBuy || isSubmittingBuy) return;
+
+        // Check for offline status
+        if (!isOnline) {
+            showWarning(t("offline_action_blocked") || "Cannot complete action while offline");
+            setConfirmBuy(null);
+            return;
+        }
+
         try {
             setError(null);
+            setIsSubmittingBuy(true);
             const success = await buyListing(confirmBuy.id);
             setConfirmBuy(null);
+            setIsSubmittingBuy(false);
             if (success) {
                 setSuccessMessage(t("purchase_complete"));
             } else {
@@ -130,16 +144,27 @@ export default function MarketplacePage() {
             setError(errorMsg);
             showError(errorMsg);
             setConfirmBuy(null);
+            setIsSubmittingBuy(false);
         }
     };
 
     // キャンセル処理
     const handleCancel = async () => {
-        if (!confirmCancel) return;
+        if (!confirmCancel || isSubmittingCancel) return;
+
+        // Check for offline status
+        if (!isOnline) {
+            showWarning(t("offline_action_blocked") || "Cannot complete action while offline");
+            setConfirmCancel(null);
+            return;
+        }
+
         try {
             setError(null);
+            setIsSubmittingCancel(true);
             const success = await cancelMyListing(confirmCancel.id);
             setConfirmCancel(null);
+            setIsSubmittingCancel(false);
             if (success) {
                 setSuccessMessage(t("listing_cancelled_success"));
             } else {
@@ -152,6 +177,7 @@ export default function MarketplacePage() {
             setError(errorMsg);
             showError(errorMsg);
             setConfirmCancel(null);
+            setIsSubmittingCancel(false);
         }
     };
 
@@ -161,6 +187,12 @@ export default function MarketplacePage() {
         quantity: number,
         pricePerUnit: number
     ) => {
+        // Check for offline status
+        if (!isOnline) {
+            showWarning(t("offline_action_blocked") || "Cannot complete action while offline");
+            return false;
+        }
+
         try {
             setError(null);
             const success = await createNewListing(unitId, quantity, pricePerUnit);
@@ -181,18 +213,25 @@ export default function MarketplacePage() {
     };
 
     // 通知処理
-    const handleClaimNotification = async (notificationId: string) => {
+    const handleClaimNotification = async (notificationId: string): Promise<boolean> => {
+        // Check for offline status
+        if (!isOnline) {
+            showWarning(t("offline_action_blocked") || "Cannot complete action while offline");
+            return false;
+        }
+
         try {
             setError(null);
-            const success = await claimSoldNotification(notificationId);
-            if (success) {
+            const result = await claimSoldNotification(notificationId);
+            if (result.success) {
                 setSuccessMessage(t("claimed_success"));
+                return true;
             } else {
-                const errorMsg = t("claim_failed") || "Failed to claim";
+                const errorMsg = result.userMessage || t("claim_failed") || "Failed to claim";
                 setError(errorMsg);
                 showError(errorMsg);
+                return false;
             }
-            return success;
         } catch (err) {
             const errorMsg = err instanceof Error ? err.message : t("claim_failed") || "Failed to claim";
             setError(errorMsg);
@@ -519,7 +558,7 @@ export default function MarketplacePage() {
             {confirmBuy && (
                 <ConfirmModal
                     isOpen={!!confirmBuy}
-                    onClose={() => setConfirmBuy(null)}
+                    onClose={() => !isSubmittingBuy && setConfirmBuy(null)}
                     onConfirm={handleBuy}
                     icon="🛒"
                     title={t("confirm_purchase")}
@@ -527,6 +566,7 @@ export default function MarketplacePage() {
                     confirmText={t("buy")}
                     cancelText={t("cancel")}
                     confirmColor="green"
+                    isLoading={isSubmittingBuy}
                 />
             )}
 
@@ -534,7 +574,7 @@ export default function MarketplacePage() {
             {confirmCancel && (
                 <ConfirmModal
                     isOpen={!!confirmCancel}
-                    onClose={() => setConfirmCancel(null)}
+                    onClose={() => !isSubmittingCancel && setConfirmCancel(null)}
                     onConfirm={handleCancel}
                     icon="↩️"
                     title={t("cancel_listing_confirm")}
@@ -542,6 +582,7 @@ export default function MarketplacePage() {
                     confirmText={t("confirm")}
                     cancelText={t("cancel")}
                     confirmColor="red"
+                    isLoading={isSubmittingCancel}
                 />
             )}
 

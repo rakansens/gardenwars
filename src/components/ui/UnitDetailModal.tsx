@@ -110,10 +110,10 @@ export default function UnitDetailModal({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-2 sm:p-4 transition-opacity animate-in fade-in duration-200">
-            {/* Floating close button for mobile - always visible */}
+            {/* Floating close button for mobile - always visible, 44x44px minimum for touch accessibility */}
             <button
                 onClick={onClose}
-                className="absolute top-3 right-3 z-[60] bg-black/50 hover:bg-black/70 text-white rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold shadow-lg sm:hidden"
+                className="absolute top-3 right-3 z-[60] bg-black/50 hover:bg-black/70 text-white rounded-full w-11 h-11 flex items-center justify-center text-xl font-bold shadow-lg sm:hidden"
                 aria-label="Close"
             >
                 ✕
@@ -146,7 +146,8 @@ export default function UnitDetailModal({
                         )}
                         <button
                             onClick={onClose}
-                            className="hidden sm:flex bg-white/20 hover:bg-white/40 text-white rounded-full p-2 transition-colors ml-2"
+                            className="hidden sm:flex bg-white/20 hover:bg-white/40 text-white rounded-full w-11 h-11 items-center justify-center transition-colors ml-2"
+                            aria-label="Close"
                         >
                             ✕
                         </button>

@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { useLanguage, LanguageSwitch } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAudio, AudioToggleButton } from "@/contexts/AudioContext";
 import Modal, { SuccessModal, ConfirmModal } from "@/components/ui/Modal";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import unitsData from "@/data/units";
@@ -30,6 +31,8 @@ export default function Home() {
   const { coins, unitInventory, isLoaded } = usePlayerData();
   const { t, language } = useLanguage();
   const { status, playerName, player, logout, updateName } = useAuth();
+  const { isMuted, masterVolume, bgmVolume, sfxVolume, bgmEnabled, sfxEnabled, setMasterVolume, setBgmVolume, setSfxVolume, setBgmEnabled, setSfxEnabled } = useAudio();
+  const [showAudioSettings, setShowAudioSettings] = useState(false);
   const [paradeChars, setParadeChars] = useState<ParadeChar[]>([]);
   const [showPinModal, setShowPinModal] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -39,6 +42,7 @@ export default function Home() {
   const [nameError, setNameError] = useState("");
   const [isUpdatingName, setIsUpdatingName] = useState(false);
   const [showNameSuccess, setShowNameSuccess] = useState(false);
+  const [showNameConfirm, setShowNameConfirm] = useState(false);
 
   const handleEditName = () => {
     setEditedName(playerName || "");
@@ -46,7 +50,8 @@ export default function Home() {
     setIsEditingName(true);
   };
 
-  const handleSaveName = async () => {
+  // 名前保存前の確認を表示
+  const handleSaveNameClick = () => {
     if (!editedName.trim()) {
       setNameError(language === "ja" ? "名前を入力してください" : "Please enter a name");
       return;
@@ -55,7 +60,15 @@ export default function Home() {
       setNameError(language === "ja" ? "名前は20文字以内にしてください" : "Name must be 20 characters or less");
       return;
     }
+    // 同じ名前の場合は変更不要
+    if (editedName.trim() === playerName) {
+      setIsEditingName(false);
+      return;
+    }
+    setShowNameConfirm(true);
+  };
 
+  const handleSaveName = async () => {
     setIsUpdatingName(true);
     const result = await updateName(editedName.trim());
     setIsUpdatingName(false);
@@ -204,6 +217,14 @@ export default function Home() {
         </div>
         <LanguageSwitch />
         <ThemeToggle />
+        {/* Audio Toggle - click to mute/unmute, long press for settings */}
+        <button
+          onClick={() => setShowAudioSettings(true)}
+          className="px-2 py-1 md:px-3 md:py-1.5 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 text-sm font-bold transition-colors"
+          title={language === "ja" ? "オーディオ設定" : "Audio Settings"}
+        >
+          {isMuted ? "🔇" : "🔊"}
+        </button>
       </div>
 
       {/* タイトル */}
@@ -408,7 +429,7 @@ export default function Home() {
                       {language === "ja" ? "キャンセル" : "Cancel"}
                     </button>
                     <button
-                      onClick={handleSaveName}
+                      onClick={handleSaveNameClick}
                       className="flex-1 btn btn-primary text-sm py-2 disabled:opacity-50"
                       disabled={isUpdatingName}
                     >
@@ -511,6 +532,117 @@ export default function Home() {
         message={language === "ja" ? "新しい名前でプレイしよう！" : "Play with your new name!"}
         buttonText="OK"
       />
+
+      {/* 名前変更確認モーダル */}
+      <ConfirmModal
+        isOpen={showNameConfirm}
+        onClose={() => setShowNameConfirm(false)}
+        onConfirm={handleSaveName}
+        icon="✏️"
+        title={language === "ja" ? "名前を変更しますか？" : "Change name?"}
+        message={
+          language === "ja"
+            ? `「${playerName}」から「${editedName.trim()}」に変更します。`
+            : `Change from "${playerName}" to "${editedName.trim()}"?`
+        }
+        confirmText={language === "ja" ? "変更する" : "Change"}
+        cancelText={language === "ja" ? "キャンセル" : "Cancel"}
+        confirmColor="green"
+      />
+
+      {/* オーディオ設定モーダル */}
+      <Modal isOpen={showAudioSettings} onClose={() => setShowAudioSettings(false)} showCloseButton={false}>
+        <div className="p-6">
+          <h2 className="text-xl font-bold text-slate-700 dark:text-slate-300 mb-4 text-center flex items-center justify-center gap-2">
+            🔊 {language === "ja" ? "オーディオ設定" : "Audio Settings"}
+          </h2>
+
+          {/* Master Volume */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+              {language === "ja" ? "マスター音量" : "Master Volume"}: {Math.round(masterVolume * 100)}%
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={masterVolume * 100}
+              onChange={(e) => setMasterVolume(Number(e.target.value) / 100)}
+              className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-500"
+            />
+          </div>
+
+          {/* BGM Volume */}
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                BGM: {Math.round(bgmVolume * 100)}%
+              </label>
+              <button
+                onClick={() => setBgmEnabled(!bgmEnabled)}
+                className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
+                  bgmEnabled
+                    ? "bg-green-500 text-white"
+                    : "bg-slate-300 dark:bg-slate-600 text-slate-600 dark:text-slate-400"
+                }`}
+              >
+                {bgmEnabled ? "ON" : "OFF"}
+              </button>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={bgmVolume * 100}
+              onChange={(e) => setBgmVolume(Number(e.target.value) / 100)}
+              disabled={!bgmEnabled}
+              className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500 disabled:opacity-50"
+            />
+          </div>
+
+          {/* SFX Volume */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                {language === "ja" ? "効果音" : "SFX"}: {Math.round(sfxVolume * 100)}%
+              </label>
+              <button
+                onClick={() => setSfxEnabled(!sfxEnabled)}
+                className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
+                  sfxEnabled
+                    ? "bg-green-500 text-white"
+                    : "bg-slate-300 dark:bg-slate-600 text-slate-600 dark:text-slate-400"
+                }`}
+              >
+                {sfxEnabled ? "ON" : "OFF"}
+              </button>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={sfxVolume * 100}
+              onChange={(e) => setSfxVolume(Number(e.target.value) / 100)}
+              disabled={!sfxEnabled}
+              className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-purple-500 disabled:opacity-50"
+            />
+          </div>
+
+          {/* Mute indicator */}
+          {isMuted && (
+            <div className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-sm p-2 rounded-lg text-center mb-4">
+              {language === "ja" ? "全ての音声がミュートされています" : "All audio is muted"}
+            </div>
+          )}
+
+          <button
+            onClick={() => setShowAudioSettings(false)}
+            className="w-full btn btn-primary"
+          >
+            {language === "ja" ? "閉じる" : "Close"}
+          </button>
+        </div>
+      </Modal>
     </main>
   );
 }

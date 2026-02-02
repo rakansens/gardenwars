@@ -108,6 +108,7 @@ export async function registerPlayer(
                 garden_units: (playerData.garden_units as unknown as string[]) || [],
                 shop_items: (playerData.shop_items as unknown as ShopItem[]) || [],
                 gacha_history: ((playerData as any).gacha_history as GachaHistoryEntry[]) || [],
+                current_world: (playerData.current_world as unknown as string) || "world1",
             },
         },
     };
@@ -151,6 +152,7 @@ export async function loginWithPIN(pin: string): Promise<FullPlayerData | null> 
             garden_units: (playerData.garden_units as unknown as string[]) || [],
             shop_items: (playerData.shop_items as unknown as ShopItem[]) || [],
             gacha_history: ((playerData as any).gacha_history as GachaHistoryEntry[]) || [],
+            current_world: (playerData.current_world as unknown as string) || "world1",
         },
     };
 }

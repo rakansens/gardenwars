@@ -85,11 +85,12 @@ export default function Modal({
                     ${className}
                 `}
             >
-                {/* 閉じるボタン */}
+                {/* 閉じるボタン - 44x44px minimum for touch accessibility */}
                 {showCloseButton && (
                     <button
                         onClick={onClose}
-                        className="absolute top-3 right-3 w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors z-10"
+                        className="absolute top-2 right-2 w-11 h-11 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors z-10"
+                        aria-label="Close"
                     >
                         ✕
                     </button>
@@ -147,6 +148,7 @@ interface ConfirmModalProps {
     confirmText?: string;
     cancelText?: string;
     confirmColor?: "red" | "green" | "amber";
+    isLoading?: boolean;
 }
 
 export function ConfirmModal({
@@ -159,6 +161,7 @@ export function ConfirmModal({
     confirmText = "OK",
     cancelText = "キャンセル",
     confirmColor = "amber",
+    isLoading = false,
 }: ConfirmModalProps) {
     const colorClasses = {
         red: "from-red-500 to-red-600",
@@ -167,26 +170,34 @@ export function ConfirmModal({
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} showCloseButton={false}>
+        <Modal isOpen={isOpen} onClose={isLoading ? () => {} : onClose} showCloseButton={false} closeOnOutsideClick={!isLoading}>
             <div className="p-6 text-center">
-                <div className="text-5xl mb-4">{icon}</div>
+                <div className="text-5xl mb-4">{isLoading ? <span className="animate-spin inline-block">⏳</span> : icon}</div>
                 <h2 className="text-xl font-bold text-gray-800 mb-2">{title}</h2>
                 {message && <p className="text-gray-600 mb-6">{message}</p>}
                 <div className="flex gap-3 justify-center">
                     <button
                         onClick={onClose}
                         className="btn btn-secondary px-6"
+                        disabled={isLoading}
                     >
                         {cancelText}
                     </button>
                     <button
                         onClick={() => {
                             onConfirm();
-                            onClose();
                         }}
-                        className={`btn btn-primary px-6 ${confirmColor === "red" ? "bg-gradient-to-r from-red-500 to-red-600 border-red-400" : ""}`}
+                        disabled={isLoading}
+                        className={`btn btn-primary px-6 ${confirmColor === "red" ? "bg-gradient-to-r from-red-500 to-red-600 border-red-400" : ""} ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                     >
-                        {confirmText}
+                        {isLoading ? (
+                            <span className="flex items-center gap-2">
+                                <span className="animate-spin">⏳</span>
+                                {confirmText}
+                            </span>
+                        ) : (
+                            confirmText
+                        )}
                     </button>
                 </div>
             </div>

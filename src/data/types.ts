@@ -23,6 +23,25 @@ export type AttackType = 'single' | 'area' | 'piercing';
 export type StageDifficulty = 'tutorial' | 'easy' | 'normal' | 'hard' | 'extreme' | 'boss' | 'special';
 
 /**
+ * ワールドID
+ */
+export type WorldId = 'world1' | 'world2' | 'world3';
+
+/**
+ * ワールド定義
+ */
+export interface WorldDefinition {
+  id: WorldId;
+  nameKey: string;
+  subtitleKey: string;
+  icon: string;
+  unlockedByDefault: boolean;
+  requiredBossStages?: string[];  // 解放に必要なボスステージID
+  gradient: string;
+  banner?: string;
+}
+
+/**
  * ユニット定義（マスターデータ）
  */
 export interface UnitDefinition {
@@ -97,6 +116,7 @@ export interface StageDefinition {
   name: string;
   description: string;
   difficulty?: StageDifficulty; // 難易度カテゴリ
+  worldId?: WorldId;           // 所属ワールド（省略時はworld1）
   length: number;             // 敵城までの距離（pixels）
   baseCastleHp: number;       // 味方城HP
   enemyCastleHp: number;      // 敵城HP

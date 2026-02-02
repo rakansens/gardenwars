@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { Unit } from '../entities/Unit';
 import { Castle } from '../entities/Castle';
+import { getSfxVolume } from '@/lib/audioHelper';
 
 export interface CannonTarget {
     x: number;
@@ -118,7 +119,8 @@ export class CannonSystem {
         this.scene.cameras.main.shake(400, 0.015);
 
         // キャノン発射SE
-        this.scene.sound.play('sfx_cannon_fire', { volume: 0.6 });
+        const cannonVol = getSfxVolume(0.6);
+        if (cannonVol > 0) this.scene.sound.play('sfx_cannon_fire', { volume: cannonVol });
 
         // 衝撃波
         this.createShockwave(allyCastle.x, groundY, attackRange);
@@ -157,7 +159,8 @@ export class CannonSystem {
 
         // キャノン発射SE（存在する場合のみ）
         if (this.scene.cache.audio.exists('sfx_cannon_fire')) {
-            this.scene.sound.play('sfx_cannon_fire', { volume: 0.5 });
+            const radialCannonVol = getSfxVolume(0.5);
+            if (radialCannonVol > 0) this.scene.sound.play('sfx_cannon_fire', { volume: radialCannonVol });
         }
 
         // 衝撃波
