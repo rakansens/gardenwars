@@ -427,18 +427,19 @@ export default function WorldMapPage() {
                                     className={`
                                         relative flex-shrink-0 w-36 cursor-pointer
                                         transition-all duration-300 ease-out
-                                        ${unlocked ? "hover:-translate-y-3 hover:scale-105" : "opacity-50 grayscale cursor-not-allowed"}
+                                        ${unlocked ? "hover:-translate-y-3 hover:scale-105" : "opacity-50 cursor-not-allowed"}
                                         ${isSelected ? "-translate-y-3 scale-105" : ""}
                                     `}
                                     style={{ marginTop: `${yOffset + 30}px` }}
                                     onClick={() => unlocked && handleSelectStage(stage)}
                                 >
-                                    {/* ステージ番号バッジ */}
+                                    {/* ステージ番号バッジ - ロック時はグレースケール */}
                                     <div
                                         className={`
                                             absolute -top-3 left-1/2 -translate-x-1/2 z-20
                                             px-3 py-1 rounded-xl font-extrabold text-sm
                                             border-3 shadow-md
+                                            ${!unlocked ? 'grayscale' : ''}
                                             ${isBoss
                                                 ? "bg-gradient-to-r from-purple-400 to-violet-500 border-purple-700 text-white"
                                                 : "bg-gradient-to-r from-amber-300 to-amber-400 border-amber-700 text-amber-900"
@@ -455,7 +456,7 @@ export default function WorldMapPage() {
                                         </div>
                                     )}
 
-                                    {/* サムネイル画像 */}
+                                    {/* サムネイル画像 - ロック時も色を保持 */}
                                     <div
                                         className={`
                                             relative w-32 h-20 mx-auto rounded-xl overflow-hidden
@@ -492,8 +493,8 @@ export default function WorldMapPage() {
                                         )}
                                     </div>
 
-                                    {/* ステージ名 */}
-                                    <div className="mt-2 text-center">
+                                    {/* ステージ名 - ロック時はグレースケール */}
+                                    <div className={`mt-2 text-center ${!unlocked ? 'grayscale' : ''}`}>
                                         <div
                                             suppressHydrationWarning
                                             className={`

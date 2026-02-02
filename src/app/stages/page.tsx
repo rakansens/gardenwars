@@ -266,14 +266,14 @@ export default function StagesPage() {
                                     key={stage.id}
                                     className={`stage-card relative overflow-hidden ${
                                         isLocked
-                                            ? 'opacity-60 grayscale cursor-not-allowed'
+                                            ? 'opacity-60 cursor-not-allowed'
                                             : isCleared
                                                 ? 'ring-2 ring-green-400 cursor-pointer'
                                                 : 'cursor-pointer'
                                     }`}
                                     onClick={() => !isLocked && handleSelectStage(stage.id)}
                                 >
-                                    {/* サムネイル画像 */}
+                                    {/* サムネイル画像 - ロック時も色を保持 */}
                                     <div className="relative h-32 -mx-4 -mt-4 mb-3 overflow-hidden">
                                         <Image
                                             src={stageImage}
@@ -281,7 +281,7 @@ export default function StagesPage() {
                                             fill
                                             className="object-cover"
                                         />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-amber-50 dark:from-slate-800 via-transparent to-transparent" />
+                                        <div className={`absolute inset-0 bg-gradient-to-t from-amber-50 dark:from-slate-800 via-transparent to-transparent ${isLocked ? 'bg-black/30' : ''}`} />
 
                                         {/* ロックオーバーレイ */}
                                         {isLocked && (
@@ -308,100 +308,103 @@ export default function StagesPage() {
                                         </div>
                                     </div>
 
-                                    {/* ステージ名 */}
-                                    <h2 className="text-xl font-bold mb-2 text-amber-950 dark:text-white">
-                                        {t(stage.name)}
-                                    </h2>
+                                    {/* コンテンツ部分 - ロック時はグレースケール */}
+                                    <div className={isLocked ? 'grayscale' : ''}>
+                                        {/* ステージ名 */}
+                                        <h2 className="text-xl font-bold mb-2 text-amber-950 dark:text-white">
+                                            {t(stage.name)}
+                                        </h2>
 
-                                    {/* 説明 */}
-                                    <p className="text-amber-900/70 dark:text-gray-400 mb-3 text-sm">{t(stage.description)}</p>
+                                        {/* 説明 */}
+                                        <p className="text-amber-900/70 dark:text-gray-400 mb-3 text-sm">{t(stage.description)}</p>
 
-                                    {/* 出現する敵ユニット */}
-                                    <div className="mb-3">
-                                        <div className="text-xs text-amber-800 dark:text-gray-400 mb-1.5">{t("encounter_units")}:</div>
-                                        <div className="flex gap-2 flex-wrap">
-                                            {enemyUnits.slice(0, 6).map((unit) => {
-                                                const isBoss = unit.isBoss;
-                                                return (
-                                                    <div
-                                                        key={unit.id}
-                                                        className={`w-11 h-11 rounded-lg flex items-center justify-center overflow-hidden ${isBoss
-                                                                ? 'bg-purple-900 border-2 border-purple-500'
-                                                                : 'bg-red-100 border-2 border-red-300'
-                                                            }`}
-                                                        title={isBoss ? "???" : unit.name}
-                                                    >
-                                                        {isBoss ? (
-                                                            <span className="text-purple-300 font-bold text-lg">?</span>
-                                                        ) : (
-                                                            <Image
-                                                                src={getSpritePath(unit.baseUnitId || unit.id, unit.rarity)}
-                                                                alt={unit.name}
-                                                                width={36}
-                                                                height={36}
-                                                                className="object-contain"
-                                                                style={{ transform: unit.flipSprite ? "scaleX(-1)" : "none" }}
-                                                            />
-                                                        )}
-                                                    </div>
-                                                );
-                                            })}
-                                            {enemyUnits.length > 6 && (
-                                                <div className="w-11 h-11 rounded-lg bg-amber-200 dark:bg-slate-700 flex items-center justify-center text-sm font-bold text-amber-700 dark:text-gray-300">
-                                                    +{enemyUnits.length - 6}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* 敵情報（コンパクト） */}
-                                    <div className="bg-amber-200/70 dark:bg-slate-700/50 rounded-lg p-2 mb-3 text-xs text-amber-900 dark:text-gray-300 font-medium">
-                                        <div className="flex justify-between">
-                                            <span>👾 {getTotalEnemies(stage)}</span>
-                                            <span>🌊 {stage.enemyWaves.length}</span>
-                                            <span>🏰 {stage.enemyCastleHp}</span>
-                                        </div>
-                                    </div>
-
-                                    {/* ドロップ報酬 */}
-                                    {stage.reward.drops && stage.reward.drops.length > 0 && (
+                                        {/* 出現する敵ユニット */}
                                         <div className="mb-3">
-                                            <div className="text-xs text-green-700 dark:text-green-400 mb-1.5">🎁 {t("drops")}:</div>
+                                            <div className="text-xs text-amber-800 dark:text-gray-400 mb-1.5">{t("encounter_units")}:</div>
                                             <div className="flex gap-2 flex-wrap">
-                                                {stage.reward.drops.slice(0, 4).map((drop) => {
-                                                    const unit = allUnits.find(u => u.id === drop.unitId);
-                                                    if (!unit) return null;
+                                                {enemyUnits.slice(0, 6).map((unit) => {
+                                                    const isBoss = unit.isBoss;
                                                     return (
                                                         <div
-                                                            key={drop.unitId}
-                                                            className="flex items-center gap-1.5 bg-green-100 dark:bg-green-900/50 border-2 border-green-300 dark:border-green-700 rounded-lg px-2 py-1"
-                                                            title={`${unit.name} (${drop.rate}%)`}
+                                                            key={unit.id}
+                                                            className={`w-11 h-11 rounded-lg flex items-center justify-center overflow-hidden ${isBoss
+                                                                    ? 'bg-purple-900 border-2 border-purple-500'
+                                                                    : 'bg-red-100 border-2 border-red-300'
+                                                                }`}
+                                                            title={isBoss ? "???" : unit.name}
                                                         >
-                                                            <div className="w-8 h-8 rounded bg-white dark:bg-slate-700 flex items-center justify-center overflow-hidden">
+                                                            {isBoss ? (
+                                                                <span className="text-purple-300 font-bold text-lg">?</span>
+                                                            ) : (
                                                                 <Image
                                                                     src={getSpritePath(unit.baseUnitId || unit.id, unit.rarity)}
                                                                     alt={unit.name}
-                                                                    width={28}
-                                                                    height={28}
+                                                                    width={36}
+                                                                    height={36}
                                                                     className="object-contain"
+                                                                    style={{ transform: unit.flipSprite ? "scaleX(-1)" : "none" }}
                                                                 />
-                                                            </div>
-                                                            <span className="text-sm font-bold text-green-700 dark:text-green-400">{drop.rate}%</span>
+                                                            )}
                                                         </div>
                                                     );
                                                 })}
+                                                {enemyUnits.length > 6 && (
+                                                    <div className="w-11 h-11 rounded-lg bg-amber-200 dark:bg-slate-700 flex items-center justify-center text-sm font-bold text-amber-700 dark:text-gray-300">
+                                                        +{enemyUnits.length - 6}
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
-                                    )}
 
-                                    {/* 難易度と報酬 */}
-                                    <div className="flex justify-between items-center text-sm">
-                                        <span className="text-amber-700 dark:text-amber-400">
-                                            {getDifficultyStars(stage.difficulty)}
-                                        </span>
-                                        <span className="text-amber-700 dark:text-amber-400 font-bold">
-                                            💰 {stage.reward.coins.toLocaleString()}
-                                        </span>
+                                        {/* 敵情報（コンパクト） */}
+                                        <div className="bg-amber-200/70 dark:bg-slate-700/50 rounded-lg p-2 mb-3 text-xs text-amber-900 dark:text-gray-300 font-medium">
+                                            <div className="flex justify-between">
+                                                <span>👾 {getTotalEnemies(stage)}</span>
+                                                <span>🌊 {stage.enemyWaves.length}</span>
+                                                <span>🏰 {stage.enemyCastleHp}</span>
+                                            </div>
+                                        </div>
+
+                                        {/* ドロップ報酬 */}
+                                        {stage.reward.drops && stage.reward.drops.length > 0 && (
+                                            <div className="mb-3">
+                                                <div className="text-xs text-green-700 dark:text-green-400 mb-1.5">🎁 {t("drops")}:</div>
+                                                <div className="flex gap-2 flex-wrap">
+                                                    {stage.reward.drops.slice(0, 4).map((drop) => {
+                                                        const unit = allUnits.find(u => u.id === drop.unitId);
+                                                        if (!unit) return null;
+                                                        return (
+                                                            <div
+                                                                key={drop.unitId}
+                                                                className="flex items-center gap-1.5 bg-green-100 dark:bg-green-900/50 border-2 border-green-300 dark:border-green-700 rounded-lg px-2 py-1"
+                                                                title={`${unit.name} (${drop.rate}%)`}
+                                                            >
+                                                                <div className="w-8 h-8 rounded bg-white dark:bg-slate-700 flex items-center justify-center overflow-hidden">
+                                                                    <Image
+                                                                        src={getSpritePath(unit.baseUnitId || unit.id, unit.rarity)}
+                                                                        alt={unit.name}
+                                                                        width={28}
+                                                                        height={28}
+                                                                        className="object-contain"
+                                                                    />
+                                                                </div>
+                                                                <span className="text-sm font-bold text-green-700 dark:text-green-400">{drop.rate}%</span>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* 難易度と報酬 */}
+                                        <div className="flex justify-between items-center text-sm">
+                                            <span className="text-amber-700 dark:text-amber-400">
+                                                {getDifficultyStars(stage.difficulty)}
+                                            </span>
+                                            <span className="text-amber-700 dark:text-amber-400 font-bold">
+                                                💰 {stage.reward.coins.toLocaleString()}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             );

@@ -216,10 +216,9 @@ export class BattleScene extends Phaser.Scene {
         this.load.image('castle_ally', getSpritePath('castle_ally'));
         this.load.image('castle_enemy', getSpritePath('castle_enemy'));
 
-        // 背景画像をロード（設定されている場合）
-        if (this.stageData.background?.image) {
-            this.load.image('stage_bg', this.stageData.background.image);
-        }
+        // 背景画像をロード（設定されている場合、または自動検出）
+        const bgImagePath = this.stageData.background?.image || `/assets/stages/${this.stageData.id}.webp`;
+        this.load.image('stage_bg', bgImagePath);
 
         // 必要なユニットを収集（チーム + ステージの敵）
         // unitId -> { spriteId, rarity } のマップ（spriteIdは実際のスプライトファイル名）
@@ -804,8 +803,8 @@ export class BattleScene extends Phaser.Scene {
             cloudColor: '0xffffff'
         };
 
-        // 背景画像がある場合は画像を表示
-        if (bg.image && this.textures.exists('stage_bg')) {
+        // 背景画像がある場合は画像を表示（自動検出された画像も含む）
+        if (this.textures.exists('stage_bg') && this.textures.get('stage_bg').key !== '__MISSING') {
             const texture = this.textures.get('stage_bg');
             const frame = texture.getSourceImage();
             const imgWidth = frame.width;
