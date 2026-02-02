@@ -6,6 +6,7 @@ import unitsData from "@/data/units";
 import type { Rarity, UnitDefinition } from "@/data/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useToast } from "@/contexts/ToastContext";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { getSpritePath } from "@/lib/sprites";
 import { ChessGame, ChessMove, ChessPieceType } from "@/lib/chess";
@@ -52,6 +53,7 @@ const PIECE_ROLES: { id: PieceRole; labelKey: string }[] = [
 
 export default function ChessPage() {
   const { t } = useLanguage();
+  const { showError } = useToast();
   const { playerName } = useAuth();
   const { selectedTeam, unitInventory, isLoaded } = usePlayerData();
   const gameRef = useRef<ChessGame>(new ChessGame());
@@ -233,10 +235,13 @@ export default function ChessPage() {
 
   const fetchOnlineRooms = useCallback(async () => {
     setIsLoadingRooms(true);
-    const list = await chessClient.fetchRooms();
-    setRooms(list);
+    const result = await chessClient.fetchRooms();
+    setRooms(result.data || []);
+    if (result.error) {
+      showError(result.error);
+    }
     setIsLoadingRooms(false);
-  }, []);
+  }, [showError]);
 
   const attachRoom = useCallback(
     (room: Colyseus.Room) => {
@@ -339,41 +344,44 @@ export default function ChessPage() {
 
   const handleQuickMatch = useCallback(async () => {
     setConnectionStatus("connecting");
-    try {
-      const room = await chessClient.quickMatch({ displayName });
-      attachRoom(room);
-    } catch (error) {
-      console.error("[Chess] Quick match failed:", error);
-      setOnlineError(error instanceof Error ? error.message : "Connection failed");
+    const result = await chessClient.quickMatch({ displayName });
+    if (result.error || !result.data) {
+      console.error("[Chess] Quick match failed:", result.error);
+      setOnlineError(result.error || "Connection failed");
+      showError(result.error || "Connection failed");
       setConnectionStatus("error");
+      return;
     }
-  }, [attachRoom, displayName]);
+    attachRoom(result.data);
+  }, [attachRoom, displayName, showError]);
 
   const handleCreateRoom = useCallback(async () => {
     setConnectionStatus("connecting");
-    try {
-      const room = await chessClient.createRoom({ displayName });
-      attachRoom(room);
-    } catch (error) {
-      console.error("[Chess] Create room failed:", error);
-      setOnlineError(error instanceof Error ? error.message : "Connection failed");
+    const result = await chessClient.createRoom({ displayName });
+    if (result.error || !result.data) {
+      console.error("[Chess] Create room failed:", result.error);
+      setOnlineError(result.error || "Connection failed");
+      showError(result.error || "Connection failed");
       setConnectionStatus("error");
+      return;
     }
-  }, [attachRoom, displayName]);
+    attachRoom(result.data);
+  }, [attachRoom, displayName, showError]);
 
   const handleJoinRoom = useCallback(
     async (targetRoomId: string) => {
       setConnectionStatus("connecting");
-      try {
-        const room = await chessClient.joinRoom(targetRoomId, { displayName });
-        attachRoom(room);
-      } catch (error) {
-        console.error("[Chess] Join room failed:", error);
-        setOnlineError(error instanceof Error ? error.message : "Connection failed");
+      const result = await chessClient.joinRoom(targetRoomId, { displayName });
+      if (result.error || !result.data) {
+        console.error("[Chess] Join room failed:", result.error);
+        setOnlineError(result.error || "Connection failed");
+        showError(result.error || "Connection failed");
         setConnectionStatus("error");
+        return;
       }
+      attachRoom(result.data);
     },
-    [attachRoom, displayName]
+    [attachRoom, displayName, showError]
   );
 
   const handleResign = useCallback(() => {

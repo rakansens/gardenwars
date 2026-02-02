@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useToast } from "@/contexts/ToastContext";
 import PageHeader from "@/components/layout/PageHeader";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { getAsyncOpponents, type AsyncOpponent } from "@/lib/supabase";
@@ -19,21 +20,31 @@ export default function AsyncBattlePage() {
     const router = useRouter();
     const { playerId, status } = useAuth();
     const { t } = useLanguage();
+    const { showError } = useToast();
     const { selectedTeam, isLoaded } = usePlayerData();
     const [opponents, setOpponents] = useState<AsyncOpponent[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedOpponent, setSelectedOpponent] = useState<AsyncOpponent | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     // Fetch opponents
     useEffect(() => {
         const fetchOpponents = async () => {
             if (!playerId) return;
             setIsLoading(true);
+            setError(null);
             try {
-                const data = await getAsyncOpponents(playerId, 20);
-                setOpponents(data);
+                const result = await getAsyncOpponents(playerId, 20);
+                setOpponents(result.data);
+                if (result.error) {
+                    setError(result.error);
+                    showError(result.error);
+                }
             } catch (err) {
+                const errorMsg = err instanceof Error ? err.message : "Failed to fetch opponents";
                 console.error("Failed to fetch opponents:", err);
+                setError(errorMsg);
+                showError(errorMsg);
             }
             setIsLoading(false);
         };
@@ -43,11 +54,11 @@ export default function AsyncBattlePage() {
         } else if (status === "unauthenticated") {
             setIsLoading(false);
         }
-    }, [playerId, status]);
+    }, [playerId, status, showError]);
 
     const handleChallenge = (opponent: AsyncOpponent) => {
         if (selectedTeam.length === 0) {
-            alert(t("async_no_team"));
+            showError(t("async_no_team"));
             return;
         }
         // Navigate to async battle page
@@ -57,8 +68,19 @@ export default function AsyncBattlePage() {
     const refreshOpponents = async () => {
         if (!playerId) return;
         setIsLoading(true);
-        const data = await getAsyncOpponents(playerId, 20);
-        setOpponents(data);
+        setError(null);
+        try {
+            const result = await getAsyncOpponents(playerId, 20);
+            setOpponents(result.data);
+            if (result.error) {
+                setError(result.error);
+                showError(result.error);
+            }
+        } catch (err) {
+            const errorMsg = err instanceof Error ? err.message : "Failed to fetch opponents";
+            setError(errorMsg);
+            showError(errorMsg);
+        }
         setIsLoading(false);
     };
 

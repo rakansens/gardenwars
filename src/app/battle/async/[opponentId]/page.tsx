@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import unitsData from "@/data/units";
 import type { StageDefinition, UnitDefinition } from "@/data/types";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useToast } from "@/contexts/ToastContext";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { useAuth } from "@/contexts/AuthContext";
 import { getPlayerData, getPlayerName, saveAsyncBattleResult } from "@/lib/supabase";
@@ -56,6 +57,7 @@ export default function AsyncBattlePage() {
     const params = useParams();
     const opponentId = params.opponentId as string;
     const { t } = useLanguage();
+    const { showError } = useToast();
     const { playerId } = useAuth();
     const { selectedTeam, isLoaded, loadouts, activeLoadoutIndex, addCoins } = usePlayerData();
 
@@ -150,7 +152,7 @@ export default function AsyncBattlePage() {
         // 非同期バトル結果を保存
         if (playerId && opponent) {
             try {
-                await saveAsyncBattleResult({
+                const saveResult = await saveAsyncBattleResult({
                     attacker_id: playerId,
                     defender_id: opponentId,
                     attacker_deck: selectedTeam,
@@ -162,8 +164,14 @@ export default function AsyncBattlePage() {
                     defender_kills: 0,
                     battle_duration: battleDuration,
                 });
+                if (saveResult.error) {
+                    console.error("Failed to save async battle result:", saveResult.error);
+                    showError("Failed to save battle result");
+                }
             } catch (err) {
+                const errorMsg = err instanceof Error ? err.message : "Failed to save async battle result";
                 console.error("Failed to save async battle result:", err);
+                showError(errorMsg);
             }
         }
 

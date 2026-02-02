@@ -29,6 +29,11 @@ export type { ShopItem, GachaHistoryEntry };
 // Alias for backward compatibility
 export type PlayerData = FrontendPlayerData;
 
+// データの最終更新タイムスタンプを追跡
+interface PlayerDataWithTimestamp extends FrontendPlayerData {
+    lastModified?: number;
+}
+
 // Nレアリティのユニット一覧（味方のみ）
 const allUnits = unitsData as UnitDefinition[];
 const nRarityUnits = allUnits.filter(u =>
@@ -36,7 +41,7 @@ const nRarityUnits = allUnits.filter(u =>
 );
 
 // 初期データ（Nユニットをランダムに3体付与）
-const getInitialData = (): FrontendPlayerData => {
+const getInitialData = (): PlayerDataWithTimestamp => {
     // ランダムに3体選ぶ
     const shuffled = [...nRarityUnits].sort(() => Math.random() - 0.5);
     const starterUnits = shuffled.slice(0, 3);
@@ -59,11 +64,12 @@ const getInitialData = (): FrontendPlayerData => {
         gachaHistory: [],
         clearedStages: [],
         gardenUnits: [],
+        lastModified: Date.now(),
     };
 };
 
 // ローカルストレージから読み込み（複数キーから統合）
-const loadFromStorage = (): FrontendPlayerData => {
+const loadFromStorage = (): PlayerDataWithTimestamp => {
     if (typeof window === "undefined") return getInitialData();
 
     const initial = getInitialData();
@@ -92,6 +98,7 @@ const loadFromStorage = (): FrontendPlayerData => {
                 gachaHistory: parsed.gachaHistory ?? [],
                 clearedStages: parsed.clearedStages ?? [],
                 gardenUnits: parsed.gardenUnits ?? [],
+                lastModified: parsed.lastModified ?? Date.now(),
             });
         }
     } catch (e) {
@@ -188,7 +195,7 @@ const loadFromStorage = (): FrontendPlayerData => {
 };
 
 // ローカルストレージに保存（統合キーに保存 + 後方互換用に別キーにも保存）
-const saveToStorage = (data: FrontendPlayerData) => {
+const saveToStorage = (data: PlayerDataWithTimestamp) => {
     if (typeof window === "undefined") return;
 
     const trySetItem = (key: string, value: string) => {
@@ -203,7 +210,9 @@ const saveToStorage = (data: FrontendPlayerData) => {
         }
     };
 
-    trySetItem(STORAGE_KEY, JSON.stringify(data));
+    // タイムスタンプを更新して保存
+    const dataWithTimestamp = { ...data, lastModified: Date.now() };
+    trySetItem(STORAGE_KEY, JSON.stringify(dataWithTimestamp));
     // 後方互換性のため別キーにも保存
     trySetItem(CLEARED_STAGES_KEY, JSON.stringify(data.clearedStages));
     trySetItem(GARDEN_SELECTION_KEY, JSON.stringify(data.gardenUnits));
@@ -216,10 +225,11 @@ const saveToStorage = (data: FrontendPlayerData) => {
  */
 export function usePlayerData() {
     const { status, playerId, player } = useAuth();
-    const [data, setData] = useState<PlayerData>(getInitialData);
+    const [data, setData] = useState<PlayerDataWithTimestamp>(getInitialData);
     const [isLoaded, setIsLoaded] = useState(false);
     const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-    const dataRef = useRef<PlayerData>(data); // Ref to capture latest data for debounced save
+    const dataRef = useRef<PlayerDataWithTimestamp>(data); // Ref to capture latest data for debounced save
+    const pendingSaveRef = useRef<boolean>(false); // 保存待ちフラグ
     const isAuthenticated = status === "authenticated" && playerId;
 
     // Keep dataRef in sync with data
@@ -239,48 +249,56 @@ export function usePlayerData() {
                     const remoteData = await getFromSupabase(playerId);
                     if (remoteData) {
                         // リモートデータをローカル形式に変換（型安全な変換関数を使用）
-                        const mergedData = toFrontendPlayerData(
+                        const remoteConverted = toFrontendPlayerData(
                             remoteData,
                             localData.gachaHistory // ガチャ履歴はローカルのみ
                         );
 
-                        // unitInventoryをマージ（ローカルとリモートの最大値を取る）
-                        // これにより、Supabase保存前のローカル購入が失われない
-                        const mergedInventory: Record<string, number> = { ...mergedData.unitInventory };
-                        for (const [unitId, count] of Object.entries(localData.unitInventory)) {
-                            mergedInventory[unitId] = Math.max(mergedInventory[unitId] || 0, count);
-                        }
-                        mergedData.unitInventory = mergedInventory;
+                        // タイムスタンプベースのマージ戦略
+                        // ローカルが新しい場合はローカルのコインとインベントリを優先
+                        // リモートが新しい場合はリモートを優先
+                        const localTimestamp = localData.lastModified || 0;
+                        const remoteTimestamp = remoteData.updated_at
+                            ? new Date(remoteData.updated_at).getTime()
+                            : 0;
 
-                        // coinsもローカルが少ない場合はローカルを使用（購入後の状態を保持）
-                        if (localData.coins < mergedData.coins) {
-                            mergedData.coins = localData.coins;
-                        }
+                        const localIsNewer = localTimestamp > remoteTimestamp;
+                        console.log(`[Merge] Local: ${new Date(localTimestamp).toISOString()}, Remote: ${new Date(remoteTimestamp).toISOString()}, LocalIsNewer: ${localIsNewer}`);
 
-                        // shopItemsをマージ（soldOut状態はローカルを優先）
+                        // 消費系データ（コイン、インベントリ）はタイムスタンプが新しい方を使用
+                        // これにより、ガチャ消費やフュージョン後のデータが正しく反映される
+                        const mergedData: PlayerDataWithTimestamp = {
+                            ...remoteConverted,
+                            // コイン: 新しい方のデータを使用（Math.minは使わない！）
+                            coins: localIsNewer ? localData.coins : remoteConverted.coins,
+                            // インベントリ: 新しい方のデータを使用（Math.maxは使わない！）
+                            unitInventory: localIsNewer ? localData.unitInventory : remoteConverted.unitInventory,
+                            lastModified: Math.max(localTimestamp, remoteTimestamp),
+                        };
+
+                        // shopItemsをマージ（soldOut状態は新しい方を優先）
                         if (mergedData.shopItems.length === 0 && localData.shopItems.length > 0) {
                             mergedData.shopItems = localData.shopItems;
                         } else if (mergedData.shopItems.length > 0 && localData.shopItems.length > 0) {
-                            // 同じUIDのアイテムはローカルのsoldOut状態を優先
-                            // O(n) Map-based lookup instead of O(n²) find inside map
-                            const localItemMap = new Map(localData.shopItems.map(item => [item.uid, item]));
-                            mergedData.shopItems = mergedData.shopItems.map(remoteItem => {
-                                const localItem = localItemMap.get(remoteItem.uid);
-                                if (localItem && localItem.soldOut) {
-                                    return { ...remoteItem, soldOut: true };
-                                }
-                                return remoteItem;
-                            });
+                            // タイムスタンプが新しい方のsoldOut状態を使用
+                            if (localIsNewer) {
+                                const localItemMap = new Map(localData.shopItems.map(item => [item.uid, item]));
+                                mergedData.shopItems = mergedData.shopItems.map(remoteItem => {
+                                    const localItem = localItemMap.get(remoteItem.uid);
+                                    if (localItem) {
+                                        return { ...remoteItem, soldOut: localItem.soldOut };
+                                    }
+                                    return remoteItem;
+                                });
+                            }
                         }
 
-                        // clearedStagesをマージ（和集合 - クリア履歴は追加のみ）
+                        // clearedStagesをマージ（和集合 - クリア履歴は追加のみ、削除されない）
                         const mergedStages = new Set([...mergedData.clearedStages, ...localData.clearedStages]);
                         mergedData.clearedStages = Array.from(mergedStages);
 
-                        // loadoutsをマージ（ローカルがより充実していれば保持）
-                        const remoteLoadoutCount = mergedData.loadouts.filter(l => l.length > 0).length;
-                        const localLoadoutCount = localData.loadouts.filter(l => l.length > 0).length;
-                        if (localLoadoutCount > remoteLoadoutCount) {
+                        // loadoutsをマージ（新しい方を優先）
+                        if (localIsNewer) {
                             mergedData.loadouts = localData.loadouts;
                             mergedData.activeLoadoutIndex = localData.activeLoadoutIndex;
                         }
@@ -325,6 +343,8 @@ export function usePlayerData() {
                 clearTimeout(saveTimeoutRef.current);
             }
 
+            pendingSaveRef.current = true; // 保存待ち状態をマーク
+
             saveTimeoutRef.current = setTimeout(async () => {
                 const maxRetries = 3;
                 let lastError: unknown = null;
@@ -339,6 +359,7 @@ export function usePlayerData() {
 
                         // ランキング統計も同期（コイン数、コレクション数）
                         await syncRankingStats(playerId, latestData.coins, latestData.unitInventory);
+                        pendingSaveRef.current = false; // 保存完了
                         return; // Success, exit retry loop
                     } catch (err) {
                         lastError = err;
@@ -349,6 +370,7 @@ export function usePlayerData() {
                         }
                     }
                 }
+                pendingSaveRef.current = false; // リトライ失敗でも解除
                 console.error("Failed to save to Supabase after all retries:", lastError);
             }, 1000); // 1秒後に保存
         }
@@ -359,6 +381,36 @@ export function usePlayerData() {
             }
         };
     }, [data, isLoaded, isAuthenticated, playerId]);
+
+    // ブラウザを閉じる前に保存を完了（データ消失防止）
+    useEffect(() => {
+        if (!isAuthenticated || !playerId) return;
+
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            // 保存待ちがある場合は同期的に保存を試みる
+            if (pendingSaveRef.current && saveTimeoutRef.current) {
+                clearTimeout(saveTimeoutRef.current);
+                saveTimeoutRef.current = null;
+
+                // ローカルストレージに確実に保存（同期的）
+                // Note: Supabase APIはBeaconと互換性がないため、
+                // localStorageへの保存を優先し、次回ロード時にSupabaseと同期
+                try {
+                    const latestData = dataRef.current;
+                    saveToStorage(latestData);
+                    console.log("[beforeunload] Data saved to localStorage, will sync on next load");
+                } catch (err) {
+                    console.error("[beforeunload] Failed to save:", err);
+                }
+            }
+        };
+
+        window.addEventListener("beforeunload", handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+        };
+    }, [isAuthenticated, playerId]);
 
     // 即座にSupabaseに保存（ガチャなど重要な操作用）
     const flushToSupabase = useCallback(async (): Promise<boolean> => {
@@ -371,15 +423,18 @@ export function usePlayerData() {
         }
 
         try {
-            const saveData = toSupabaseSaveData(data);
+            // 最新のデータを取得
+            const latestData = dataRef.current;
+            const saveData = toSupabaseSaveData(latestData);
             await saveToSupabase(playerId, saveData);
-            await syncRankingStats(playerId, data.coins, data.unitInventory);
+            await syncRankingStats(playerId, latestData.coins, latestData.unitInventory);
+            pendingSaveRef.current = false; // 保存完了
             return true;
         } catch (err) {
             console.error("Failed to flush to Supabase:", err);
             return false;
         }
-    }, [data, isAuthenticated, playerId]);
+    }, [isAuthenticated, playerId]);
 
     // コインを増やす
     const addCoins = useCallback((amount: number) => {
