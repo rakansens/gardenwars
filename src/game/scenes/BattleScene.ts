@@ -560,7 +560,10 @@ export class BattleScene extends Phaser.Scene {
         const rUnits = [
             // R units batch 1
             'r_apple_scholar', 'r_bamboo_samurai_cat', 'r_berry_basket_cat', 'r_broccoli', 'r_cactus_cowboy',
-            'r_cactus_guardian', 'r_capybara_gardener', 'r_capybara_spa', 'r_chainsaw_gardener', 'r_cherry'
+            'r_cactus_guardian', 'r_capybara_gardener', 'r_capybara_spa', 'r_chainsaw_gardener', 'r_cherry',
+            // R units batch 2
+            'r_cherry_blossom_cat', 'r_cloud_gardener_cat', 'r_croc_pilot', 'r_dandelion_cat', 'r_diesel_farmer',
+            'r_eggplant', 'r_fire_chili', 'r_garden_hero', 'r_garden_lady_cat', 'r_grape_gladiator'
         ];
         rUnits.forEach(unit => {
             this.anims.create({
