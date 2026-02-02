@@ -15,6 +15,9 @@ export const ANIMATED_UNITS = [
     // R ユニット batch 2
     'r_cherry_blossom_cat', 'r_cloud_gardener_cat', 'r_croc_pilot', 'r_dandelion_cat', 'r_diesel_farmer',
     'r_eggplant', 'r_fire_chili', 'r_garden_hero', 'r_garden_lady_cat', 'r_grape_gladiator',
+    // R ユニット batch 3
+    'r_harvest_viking', 'r_herb_alchemist', 'r_herbal_tea_cat', 'r_hydrangea_cat', 'r_ivy_ninja_cat',
+    'r_jellyfish_flower_cat', 'r_jungle_explorer', 'r_ladybug_rider_cat', 'r_latte_ballerina', 'r_leaf_ninja',
     // SR ユニット
     'sr_rose_hero', 'sr_corn_tank', 'sr_bamboo_mech', 'sr_sun_pirate', 'sr_tulip_idol',
     'sr_cappuccino_assassin', 'sr_capybara_ninja', 'sr_capybara_shaman', 'sr_odindindun', 'sr_traffarella',
