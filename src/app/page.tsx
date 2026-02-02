@@ -120,22 +120,53 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [paradeChars.length]);
 
-  const menuItems = [
-    { href: "/stages", icon: "⚔️", label: t("menu_stages"), type: "primary" },
-    { href: "/worldmap", icon: "🗺️", label: t("world_map"), type: "primary" },
-    { href: "/arena", icon: "🏟️", label: t("menu_arena"), type: "primary" },
-    { href: "/battle", icon: "⚔️", label: t("menu_battle"), type: "primary" },
-    { href: "/survival", icon: "🧟", label: t("menu_survival"), type: "primary" },
-    { href: "/chess", icon: "♟️", label: t("menu_chess"), type: "secondary" },
-    { href: "/team", icon: "🎖️", label: t("menu_team"), type: "secondary" },
-    { href: "/collection", icon: "📖", label: t("menu_collection"), type: "secondary" },
-    { href: "/gacha", icon: "🎰", label: t("menu_gacha"), type: "primary" },
-    { href: "/shop", icon: "🛒", label: t("menu_shop"), type: "secondary" },
-    { href: "/marketplace", icon: "🏪", label: t("menu_marketplace"), type: "secondary" },
-    { href: "/fusion", icon: "🔮", label: t("fusion"), type: "secondary" },
-    { href: "/garden", icon: "🌱", label: t("menu_garden"), type: "primary" },
-    { href: "/ranking", icon: "🏅", label: t("menu_ranking"), type: "secondary" },
-  ];
+  // カテゴリ別メニュー
+  const menuCategories = {
+    main: {
+      title: language === "ja" ? "メインゲーム" : "Main Game",
+      items: [
+        { href: "/stages", icon: "⚔️", label: t("menu_stages") },
+      ],
+    },
+    battle: {
+      title: language === "ja" ? "バトルモード" : "Battle Modes",
+      items: [
+        { href: "/worldmap", icon: "🗺️", label: t("world_map") },
+        { href: "/battle", icon: "🤖", label: t("menu_battle") },
+      ],
+    },
+    minigames: {
+      title: language === "ja" ? "ミニゲーム" : "Mini Games",
+      items: [
+        { href: "/arena", icon: "🏟️", label: t("menu_arena") },
+        { href: "/survival", icon: "🧟", label: t("menu_survival") },
+        { href: "/chess", icon: "♟️", label: t("menu_chess") },
+        { href: "/garden", icon: "🌱", label: t("menu_garden") },
+      ],
+    },
+    units: {
+      title: language === "ja" ? "ユニット" : "Units",
+      items: [
+        { href: "/gacha", icon: "🎰", label: t("menu_gacha") },
+        { href: "/team", icon: "🎖️", label: t("menu_team") },
+        { href: "/collection", icon: "📖", label: t("menu_collection") },
+        { href: "/fusion", icon: "🔮", label: t("fusion") },
+      ],
+    },
+    shop: {
+      title: language === "ja" ? "ショップ" : "Shop",
+      items: [
+        { href: "/shop", icon: "🛒", label: t("menu_shop") },
+        { href: "/marketplace", icon: "🏪", label: t("menu_marketplace") },
+      ],
+    },
+    other: {
+      title: language === "ja" ? "その他" : "Other",
+      items: [
+        { href: "/ranking", icon: "🏅", label: t("menu_ranking") },
+      ],
+    },
+  };
 
   return (
     <main className="min-h-screen flex flex-col items-center p-4 relative overflow-hidden">
@@ -186,24 +217,112 @@ export default function Home() {
         <div className="absolute -top-2 -right-6 text-2xl animate-spin" style={{ animationDuration: '3s' }}>⭐</div>
       </div>
 
-      {/* メニューグリッド */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full max-w-2xl px-2 mb-6">
-        {menuItems.map((item, index) => (
+      {/* カテゴリ別メニュー */}
+      <div className="w-full max-w-3xl px-2 mb-6 space-y-4">
+        {/* メインゲーム - 大きく強調 */}
+        <div className="mb-4">
           <Link
-            key={item.href}
-            href={item.href}
-            className={`
-              btn ${item.type === "primary" ? "btn-primary" : "btn-secondary"}
-              flex flex-col items-center justify-center
-              transition-all duration-200
-              hover:scale-105
-              ${index === 0 ? "md:col-span-2 py-6" : "py-4"}
-            `}
+            href="/stages"
+            className="btn btn-primary w-full py-6 flex flex-col items-center justify-center transition-all duration-200 hover:scale-[1.02] shadow-lg"
           >
-            <span className="text-3xl mb-1">{item.icon}</span>
-            <span className="text-sm md:text-base text-center">{item.label}</span>
+            <span className="text-4xl mb-2">⚔️</span>
+            <span className="text-xl font-bold">{t("menu_stages")}</span>
+            <span className="text-xs opacity-80 mt-1">{menuCategories.main.title}</span>
           </Link>
-        ))}
+        </div>
+
+        {/* バトルモード＆ショップ（2列） */}
+        <div className="grid grid-cols-2 gap-3">
+          {/* バトルモード */}
+          <div className="bg-white/50 dark:bg-slate-800/50 rounded-2xl p-3 shadow-md">
+            <h3 className="text-sm font-bold text-gray-600 dark:text-gray-300 mb-2 px-1">
+              🎮 {menuCategories.battle.title}
+            </h3>
+            <div className="grid grid-cols-2 gap-2">
+              {menuCategories.battle.items.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="btn btn-secondary flex flex-col items-center justify-center py-3 transition-all duration-200 hover:scale-105"
+                >
+                  <span className="text-2xl mb-1">{item.icon}</span>
+                  <span className="text-xs text-center">{item.label}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* ショップ */}
+          <div className="bg-white/50 dark:bg-slate-800/50 rounded-2xl p-3 shadow-md">
+            <h3 className="text-sm font-bold text-gray-600 dark:text-gray-300 mb-2 px-1">
+              💰 {menuCategories.shop.title}
+            </h3>
+            <div className="grid grid-cols-2 gap-2">
+              {menuCategories.shop.items.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="btn btn-secondary flex flex-col items-center justify-center py-3 transition-all duration-200 hover:scale-105"
+                >
+                  <span className="text-2xl mb-1">{item.icon}</span>
+                  <span className="text-xs text-center">{item.label}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ミニゲーム */}
+        <div className="bg-white/50 dark:bg-slate-800/50 rounded-2xl p-3 shadow-md">
+          <h3 className="text-sm font-bold text-gray-600 dark:text-gray-300 mb-2 px-1">
+            🎯 {menuCategories.minigames.title}
+          </h3>
+          <div className="grid grid-cols-4 gap-2">
+            {menuCategories.minigames.items.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="btn btn-secondary flex flex-col items-center justify-center py-3 transition-all duration-200 hover:scale-105"
+              >
+                <span className="text-2xl mb-1">{item.icon}</span>
+                <span className="text-xs text-center">{item.label}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* ユニット管理 */}
+        <div className="bg-white/50 dark:bg-slate-800/50 rounded-2xl p-3 shadow-md">
+          <h3 className="text-sm font-bold text-gray-600 dark:text-gray-300 mb-2 px-1">
+            👥 {menuCategories.units.title}
+          </h3>
+          <div className="grid grid-cols-4 gap-2">
+            {menuCategories.units.items.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="btn btn-secondary flex flex-col items-center justify-center py-3 transition-all duration-200 hover:scale-105"
+              >
+                <span className="text-2xl mb-1">{item.icon}</span>
+                <span className="text-xs text-center">{item.label}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* その他（ランキング） */}
+        <div className="flex justify-center">
+          {menuCategories.other.items.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="btn btn-secondary flex items-center justify-center gap-2 py-2 px-6 transition-all duration-200 hover:scale-105"
+            >
+              <span className="text-xl">{item.icon}</span>
+              <span className="text-sm">{item.label}</span>
+            </Link>
+          ))}
+        </div>
       </div>
 
       {/* キャラパレードエリア */}
