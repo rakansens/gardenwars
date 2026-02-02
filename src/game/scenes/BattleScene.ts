@@ -117,6 +117,19 @@ export class BattleScene extends Phaser.Scene {
         // システムのクリーンアップ
         this.quizSystem?.destroy();
         this.cannonSystem?.destroy();
+        this.aiController = undefined;
+
+        // Tweensをすべて停止
+        this.tweens.killAll();
+
+        // Timer eventsをすべて停止
+        this.time.removeAllEvents();
+
+        // ユニットをクリーンアップ
+        this.allyUnits.forEach(u => u.destroy());
+        this.enemyUnits.forEach(u => u.destroy());
+        this.allyUnits = [];
+        this.enemyUnits = [];
 
         // イベントリスナーをクリア
         eventBus.removeAllListeners(GameEvents.SUMMON_UNIT);
@@ -148,6 +161,18 @@ export class BattleScene extends Phaser.Scene {
     }
 
     preload() {
+        // エラーハンドリング: アセットロード失敗時のフォールバック
+        this.load.on('loaderror', (fileObj: Phaser.Loader.File) => {
+            console.warn(`[BattleScene] Failed to load asset: ${fileObj.key} (${fileObj.url})`);
+            // テクスチャのロードエラー時はフォールバックテクスチャを設定
+            if (fileObj.type === 'image' || fileObj.type === 'atlas') {
+                // cat_warriorがフォールバックとして使用されるので、それ以外の場合のみ警告
+                if (fileObj.key !== 'cat_warrior') {
+                    console.warn(`[BattleScene] Will use fallback texture for: ${fileObj.key}`);
+                }
+            }
+        });
+
         // BGMをロード
         this.load.audio('battle_bgm_1', '/assets/audio/bgm/battle_1.mp3');
         this.load.audio('battle_bgm_2', '/assets/audio/bgm/battle_2.mp3');
@@ -1421,7 +1446,7 @@ export class BattleScene extends Phaser.Scene {
         if (this.aiController) {
             this.aiController.update(adjustedDelta);
         } else {
-            this.waveSystem.update();
+            this.waveSystem.update(adjustedDelta);
         }
 
         // ユニット更新
@@ -1489,6 +1514,7 @@ export class BattleScene extends Phaser.Scene {
         // 敵城がダメージを受けたかチェック
         if (this.enemyCastle.hp < this.lastEnemyCastleHp) {
             this.bossSpawned = true;
+            this.lastEnemyCastleHp = this.enemyCastle.hp; // Update to prevent re-triggers
             this.spawnBossWithKnockback();
         }
     }
@@ -1603,8 +1629,8 @@ export class BattleScene extends Phaser.Scene {
     }
 
     private cleanupDeadUnits() {
-        this.allyUnits = this.allyUnits.filter(u => !u.isDead() || u.active);
-        this.enemyUnits = this.enemyUnits.filter(u => !u.isDead() || u.active);
+        this.allyUnits = this.allyUnits.filter(u => !u.isDead());
+        this.enemyUnits = this.enemyUnits.filter(u => !u.isDead());
     }
 
     private checkGameEnd() {

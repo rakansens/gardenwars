@@ -19,7 +19,7 @@ export class AIController {
     private units: UnitDefinition[];
     private costSystem: CostSystem;
     private isStarted: boolean = false;
-    private lastDecisionTime: number = 0;
+    private timeSinceLastDecision: number = 0;  // Accumulated game time since last decision
     private spawnDelay: number;
     private strategy: 'aggressive' | 'balanced' | 'defensive';
     private unitCooldowns: Map<string, number> = new Map();
@@ -53,11 +53,12 @@ export class AIController {
      */
     start(): void {
         this.isStarted = true;
-        this.lastDecisionTime = Date.now();
+        this.timeSinceLastDecision = 0;
     }
 
     /**
      * 毎フレーム更新
+     * @param delta - Adjusted delta time (already multiplied by game speed from BattleScene)
      */
     update(delta: number): void {
         if (!this.isStarted) return;
@@ -65,18 +66,18 @@ export class AIController {
         // コスト回復
         this.costSystem.update(delta);
 
-        // クールダウン更新
+        // クールダウン更新 (delta is already adjusted for game speed)
         this.unitCooldowns.forEach((cooldown, unitId) => {
             if (cooldown > 0) {
                 this.unitCooldowns.set(unitId, Math.max(0, cooldown - delta));
             }
         });
 
-        // 一定間隔で出撃判断
-        const now = Date.now();
-        if (now - this.lastDecisionTime >= this.spawnDelay) {
+        // 一定間隔で出撃判断 (use accumulated game time, not wall-clock time)
+        this.timeSinceLastDecision += delta;
+        if (this.timeSinceLastDecision >= this.spawnDelay) {
             this.makeDecision();
-            this.lastDecisionTime = now;
+            this.timeSinceLastDecision = 0;
         }
     }
 
@@ -195,6 +196,7 @@ export class AIController {
      */
     reset(): void {
         this.isStarted = false;
+        this.timeSinceLastDecision = 0;
         this.costSystem.reset({ current: 0 });
         this.unitCooldowns.forEach((_, key) => {
             this.unitCooldowns.set(key, 0);

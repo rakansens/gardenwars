@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -54,6 +54,17 @@ export default function BattlePage() {
     const [loadoutDefs, setLoadoutDefs] = useState<[UnitDefinition[], UnitDefinition[], UnitDefinition[]]>([[], [], []]);
     const [battleEnded, setBattleEnded] = useState(false);
     const [result, setResult] = useState<{ win: boolean; coins: number } | null>(null);
+    const navigationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    // Clean up navigation timer on unmount
+    useEffect(() => {
+        return () => {
+            if (navigationTimerRef.current) {
+                clearTimeout(navigationTimerRef.current);
+                navigationTimerRef.current = null;
+            }
+        };
+    }, []);
 
     useEffect(() => {
         // プレイヤーデータがロードされるまで待つ
@@ -111,7 +122,11 @@ export default function BattlePage() {
         }
 
         // 3秒後にリザルト画面へ（ドロップ情報を渡す）
-        setTimeout(() => {
+        // Clear any existing timer before setting a new one
+        if (navigationTimerRef.current) {
+            clearTimeout(navigationTimerRef.current);
+        }
+        navigationTimerRef.current = setTimeout(() => {
             const dropsParam = droppedUnitIds.length > 0 ? `&drops=${droppedUnitIds.join(',')}` : '';
             router.push(`/result?win=${win}&coins=${coinsGained}&stage=${stageId}${dropsParam}`);
         }, 3000);

@@ -16,7 +16,7 @@ export class WaveSystem {
     private scene: BattleScene;
     private scheduledSpawns: ScheduledSpawn[] = [];
     private bossSpawns: ScheduledSpawn[] = [];  // ボスは別管理
-    private startTime: number = 0;
+    private elapsedTime: number = 0;  // Accumulated game time (respects game speed)
     private isStarted: boolean = false;
     private allUnits: UnitDefinition[];
     private isBossStage: boolean = false;
@@ -82,20 +82,22 @@ export class WaveSystem {
      * Wave開始
      */
     start(): void {
-        this.startTime = Date.now();
+        this.elapsedTime = 0;
         this.isStarted = true;
     }
 
     /**
      * 毎フレーム更新
+     * @param delta - Adjusted delta time (already multiplied by game speed from BattleScene)
      */
-    update(): void {
+    update(delta: number = 0): void {
         if (!this.isStarted) return;
 
-        const elapsedTime = Date.now() - this.startTime;
+        // Accumulate delta time (already adjusted for game speed by BattleScene)
+        this.elapsedTime += delta;
 
         for (const spawn of this.scheduledSpawns) {
-            if (!spawn.spawned && elapsedTime >= spawn.timeMs) {
+            if (!spawn.spawned && this.elapsedTime >= spawn.timeMs) {
                 this.spawnEnemy(spawn.unitId);
                 spawn.spawned = true;
             }

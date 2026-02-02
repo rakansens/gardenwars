@@ -71,30 +71,32 @@ export type AnimatedUnitId = (typeof ANIMATED_UNITS)[number];
  * 遠距離エフェクトが画面端まで届く
  */
 export const RANGED_SPRITE_UNITS = [
-    // 既存
+    // UR遠距離/範囲攻撃ユニット (スプライトアセットあり)
     'ur_cosmic_dragon',      // ブレス攻撃
     'ur_botanical_gundam',   // レーザービーム
     'ur_archer',             // 矢の軌道
     'ur_phoenix',            // 炎ブレス
     'ur_mage',               // 魔法ビーム
     'ur_sea_leviathan',      // 水流攻撃
-    // 追加
     'ur_aurora_mage_cat',    // オーロラ魔法
     'ur_celestial_cat',      // 天体魔法
     'ur_cosmic_tiger',       // コズミックエネルギー
     'ur_crystal_griffin',    // クリスタルビーム
-    'ur_dragon',             // ドラゴンブレス
     'ur_fairy_knight',       // フェアリー魔法
     'ur_frost_giant',        // 氷の斬撃
     'ur_golden_paladin',     // 聖なる光
     'ur_golem',              // 岩石投擲
     'ur_jade_dragon',        // 翡翠ブレス
     'ur_ninja',              // 竜巻雷撃
-    // 追加 (2026-02)
     'ur_overlord_rose',      // 薔薇の支配者
     'ur_phoenix_flame_cat',  // 不死鳥の炎
     'ur_rose_crystal_princess_cat', // クリスタルローズ
     'ur_stained_glass_lotus_cat',   // ステンドグラス蓮
+    'ur_astral_wizard',      // アストラルウィザード (300, area 100)
+    'ur_emerald_dragon',     // エメラルドドラゴン (170, area 70)
+    'ur_thunder_phoenix',    // サンダーフェニックス (160, area 80)
+    'ur_fire_lotus_cat',     // ファイアロータス猫 (150, area 70)
+    'ur_inferno_demon',      // インフェルノデーモン (140, area 70)
     // SSR遠距離/範囲攻撃ユニット
     'ssr_rose_gunslinger',   // ガンスリンガー (350)
     'ssr_higanbana_mage',    // 彼岸花メイジ (320, 範囲)
@@ -107,18 +109,15 @@ export const RANGED_SPRITE_UNITS = [
     'ssr_neon_flower_cat',   // ネオンフラワー猫 (220, 範囲)
     'ssr_galaxy_slime',      // ギャラクシースライム (200)
     'ssr_coral_mermaid_cat', // コーラルマーメイド猫 (200)
-    // 範囲攻撃ユニット (全レアリティ)
+    // SR範囲攻撃ユニット
     'sr_demon_mage',         // デーモンメイジ (280, area 90)
     'sr_frost_rose_queen',   // フロストローズクイーン (220, area 80)
-    'ur_astral_wizard',      // アストラルウィザード (300, area 100)
+    // R範囲攻撃ユニット
     'r_sprinkler_cat',       // スプリンクラー猫 (180, area 60)
-    'ur_emerald_dragon',     // エメラルドドラゴン (170, area 70)
-    'ur_thunder_phoenix',    // サンダーフェニックス (160, area 80)
-    'ur_fire_lotus_cat',     // ファイアロータス猫 (150, area 70)
-    'ur_inferno_demon',      // インフェルノデーモン (140, area 70)
+    'r_fire_chili',          // ファイアチリ (45, area 50)
+    // SSR単体攻撃ユニット
     'flame_knight',          // フレイムナイト (100, area 80)
     'thunder_golem',         // サンダーゴーレム (80, area 70)
-    'r_fire_chili',          // ファイアチリ (45, area 50)
 ] as const;
 
 /**
@@ -170,7 +169,7 @@ export function getSpritePath(id: string, rarity?: Rarity): string {
         return `/assets/sprites/allies/${rarity}/${id}.webp`;
     }
     // レアリティ不明の場合はフォールバック
-    return `/assets/sprites/sheets/${id}`;
+    return `/assets/sprites/sheets/${id}.webp`;
 }
 
 /**

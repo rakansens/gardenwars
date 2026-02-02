@@ -50,7 +50,7 @@ gachaPool.forEach(unit => {
 const totalGachaWeight = Array.from(unitWeightCache.values()).reduce((sum, w) => sum + w, 0);
 
 export default function GachaPage() {
-    const { coins, unitInventory, executeGacha, addGachaHistory, gachaHistory, isLoaded } = usePlayerData();
+    const { coins, unitInventory, executeGacha, addGachaHistory, gachaHistory, isLoaded, flushToSupabase } = usePlayerData();
     const { t } = useLanguage();
     const { playerId } = useAuth();
     const [results, setResults] = useState<UnitDefinition[]>([]);
@@ -129,12 +129,13 @@ export default function GachaPage() {
     ];
 
     // ガチャを引く
-    const rollGacha = (count: number) => {
+    const rollGacha = async (count: number) => {
         let cost = SINGLE_COST;
         if (count === 10) cost = MULTI_COST;
         if (count === 100) cost = SUPER_MULTI_COST;
 
         if (coins < cost) return;
+        if (isRolling) return; // ダブルクリック防止
 
         setIsRolling(true);
 
@@ -156,17 +157,28 @@ export default function GachaPage() {
 
         // 履歴に追加
         addGachaHistory(unitIds);
-        // ランキング用ガチャ回数カウント
+
+        // 重要: ガチャ結果を即座にSupabaseに保存（デバウンスをバイパス）
+        // これによりブラウザが閉じられてもデータが失われない
+        flushToSupabase().catch(err => {
+            console.error("Failed to flush gacha to Supabase:", err);
+        });
+
+        // ランキング用ガチャ回数カウント（エラーハンドリング付き）
         if (playerId) {
-            incrementGachaCount(playerId, count);
+            try {
+                await incrementGachaCount(playerId, count);
+            } catch (err) {
+                console.error("Failed to increment gacha count:", err);
+                // ランキング更新失敗してもガチャ自体は続行
+            }
         }
 
-        // カード演出開始（少しの遅延で演出効果）
-        setTimeout(() => {
-            setResults(rolled);
-            setIsRolling(false);
-            setShowReveal(true);
-        }, 100);
+        // 結果を即座に設定（setTimeoutではなく同期的に）
+        // これにより状態更新の競合を防ぐ
+        setResults(rolled);
+        setIsRolling(false);
+        setShowReveal(true);
     };
 
     // レアリティで重み付けしてランダム選択（キャッシュ済み重みを使用）

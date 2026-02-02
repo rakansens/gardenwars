@@ -134,6 +134,7 @@ export default function GachaReveal({ results, onComplete, dropRates }: GachaRev
                     autoPlay
                     playsInline
                     onEnded={handleVideoEnd}
+                    onError={handleVideoEnd}
                     className="max-w-full max-h-full object-contain"
                 />
                 <button

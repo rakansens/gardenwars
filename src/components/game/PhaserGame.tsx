@@ -6,6 +6,23 @@ import type { StageDefinition, UnitDefinition, ArenaStageDefinition, SurvivalDif
 // グローバルなゲームインスタンス参照（重複防止）
 let globalPhaserGame: Phaser.Game | null = null;
 
+// Properly destroy global Phaser instance with cleanup
+function destroyGlobalPhaserGame(): void {
+    if (globalPhaserGame) {
+        console.log('[PhaserGame] Destroying existing game instance');
+        try {
+            // Prevent AudioContext errors by disabling pause on blur
+            if (globalPhaserGame.sound) {
+                globalPhaserGame.sound.pauseOnBlur = false;
+            }
+            globalPhaserGame.destroy(true);
+        } catch (e) {
+            console.warn('[PhaserGame] Error during destroy:', e);
+        }
+        globalPhaserGame = null;
+    }
+}
+
 interface PhaserGameProps {
     mode?: 'battle' | 'garden' | 'arena' | 'survival';
     // Battle props
@@ -67,27 +84,20 @@ export default function PhaserGame({
         const initSeq = ++initSeqRef.current;
         let cancelled = false;
 
-        // 既存のゲームインスタンスを破棄
-        if (globalPhaserGame) {
-            console.log('[PhaserGame] Destroying existing game instance');
-            try {
-                // AudioContextエラーを防ぐためblur時のpause無効化
-                if (globalPhaserGame.sound) {
-                    globalPhaserGame.sound.pauseOnBlur = false;
-                }
-                globalPhaserGame.destroy(true);
-            } catch (e) {
-                console.warn('[PhaserGame] Error during destroy:', e);
-            }
-            globalPhaserGame = null;
-        }
+        // Store event listener references for cleanup
+        let eventBusModule: { eventBus: any; GameEvents: any } | null = null;
+        let storedHandleWin: ((...args: unknown[]) => void) | null = null;
+        let storedHandleLose: (() => void) | null = null;
+
+        // Properly destroy existing game instance before creating new one
+        destroyGlobalPhaserGame();
 
         battleEndedRef.current = false;
 
         const initPhaser = async () => {
             const Phaser = (await import("phaser")).default;
 
-            if (cancelled || initSeq !== initSeqRef.current) return () => { };
+            if (cancelled || initSeq !== initSeqRef.current) return;
 
             // モバイル対応
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -115,40 +125,42 @@ export default function PhaserGame({
                 startKey = "ArenaScene";
                 startData = { stage: arenaStage, team, allUnits };
 
-                // Arena用イベントリスナー
-                const { eventBus, GameEvents } = await import("@/game/utils/EventBus");
+                // Arena用イベントリスナー - store references for cleanup
+                eventBusModule = await import("@/game/utils/EventBus");
+                const { eventBus, GameEvents } = eventBusModule;
                 eventBus.removeAllListeners(GameEvents.BATTLE_WIN);
                 eventBus.removeAllListeners(GameEvents.BATTLE_LOSE);
 
-                const handleWin = (...args: unknown[]) => {
+                storedHandleWin = (...args: unknown[]) => {
                     const result = args[0] as { reward?: { coins?: number } } | undefined;
                     handleBattleEnd(true, result?.reward?.coins || 0);
                 };
-                const handleLose = () => {
+                storedHandleLose = () => {
                     handleBattleEnd(false, 0);
                 };
-                eventBus.on(GameEvents.BATTLE_WIN, handleWin);
-                eventBus.on(GameEvents.BATTLE_LOSE, handleLose);
+                eventBus.on(GameEvents.BATTLE_WIN, storedHandleWin);
+                eventBus.on(GameEvents.BATTLE_LOSE, storedHandleLose);
             } else {
                 const { BattleScene } = await import("@/game/scenes/BattleScene");
                 SceneClass = BattleScene;
                 startKey = "BattleScene";
                 startData = { stage, team, allUnits, loadouts, activeLoadoutIndex };
 
-                // Battle用イベントリスナー
-                const { eventBus, GameEvents } = await import("@/game/utils/EventBus");
+                // Battle用イベントリスナー - store references for cleanup
+                eventBusModule = await import("@/game/utils/EventBus");
+                const { eventBus, GameEvents } = eventBusModule;
                 eventBus.removeAllListeners(GameEvents.BATTLE_WIN);
                 eventBus.removeAllListeners(GameEvents.BATTLE_LOSE);
 
-                const handleWin = (...args: unknown[]) => {
+                storedHandleWin = (...args: unknown[]) => {
                     const result = args[0] as { coinsGained?: number } | undefined;
                     handleBattleEnd(true, result?.coinsGained || 0);
                 };
-                const handleLose = () => {
+                storedHandleLose = () => {
                     handleBattleEnd(false, 0);
                 };
-                eventBus.on(GameEvents.BATTLE_WIN, handleWin);
-                eventBus.on(GameEvents.BATTLE_LOSE, handleLose);
+                eventBus.on(GameEvents.BATTLE_WIN, storedHandleWin);
+                eventBus.on(GameEvents.BATTLE_LOSE, storedHandleLose);
             }
 
             // アリーナは縦長、それ以外は横長
@@ -184,34 +196,27 @@ export default function PhaserGame({
             if (!cancelled && initSeq === initSeqRef.current) {
                 setIsLoading(false);
             }
-
-            return () => {
-                if (mode === 'battle') {
-                    // EventBus cleanup could go here if we imported it
-                }
-            };
         };
 
-        let cleanup: (() => void) | undefined;
-        initPhaser().then((cleanupFn) => {
-            cleanup = cleanupFn;
-        });
+        initPhaser();
 
         return () => {
             console.log('[PhaserGame] Cleanup');
             cancelled = true;
-            cleanup?.();
-            if (globalPhaserGame) {
-                try {
-                    if (globalPhaserGame.sound) {
-                        globalPhaserGame.sound.pauseOnBlur = false;
-                    }
-                    globalPhaserGame.destroy(true);
-                } catch (e) {
-                    console.warn('[PhaserGame] Error during cleanup destroy:', e);
+
+            // Clean up EventBus listeners with stored references
+            if (eventBusModule && (storedHandleWin || storedHandleLose)) {
+                const { eventBus, GameEvents } = eventBusModule;
+                if (storedHandleWin) {
+                    eventBus.off(GameEvents.BATTLE_WIN, storedHandleWin);
                 }
-                globalPhaserGame = null;
+                if (storedHandleLose) {
+                    eventBus.off(GameEvents.BATTLE_LOSE, storedHandleLose);
+                }
             }
+
+            // Destroy global Phaser game instance
+            destroyGlobalPhaserGame();
         };
     }, [mode, stage, team, allUnits, gardenUnits, arenaStage, survivalPlayer, survivalDifficulty, handleBattleEnd]);
 

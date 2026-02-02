@@ -89,6 +89,7 @@ export class Unit extends Phaser.GameObjects.Container {
     private lastStandAvailable: boolean = false; // ラストスタンド使用可能
     private lastStandUsed: boolean = false;     // ラストスタンド使用済み
     private regenTimer: number = 0;             // リジェネタイマー
+    private burnTimers: Phaser.Time.TimerEvent[] = []; // 炎上タイマー（die時にクリーンアップ用）
 
     constructor(
         scene: Phaser.Scene,
@@ -136,16 +137,21 @@ export class Unit extends Phaser.GameObjects.Container {
         }
 
         // スケール調整（キャラを大きめに）
-        // スプライトサイズが取得できているか確認
-        if (this.sprite.width === 0) {
-            // まだロードされていない場合などの安全策（通常は起こらないはず）
-            this.sprite.width = 100;
-            this.sprite.height = 100;
-        }
+        // Phaserのwidth/heightはスケール適用前の値、displayWidth/displayHeightはスケール適用後の値
+        // ここではスケール前の元サイズを使用し、安全なデフォルト値でフォールバック
+        const spriteHeight = this.sprite.height;
+        const spriteWidth = this.sprite.width;
+
+        // スプライトサイズが取得できているか確認（0または非常に小さい場合は安全なデフォルト値を使用）
+        const safeHeight = (spriteHeight && spriteHeight > 0) ? spriteHeight : 100;
+        const safeWidth = (spriteWidth && spriteWidth > 0) ? spriteWidth : 100;
 
         const targetHeight = 120;
         const customScale = definition.scale ?? 1.0;
-        this.baseScale = (targetHeight / this.sprite.height) * customScale;
+        this.baseScale = (targetHeight / safeHeight) * customScale;
+
+        // スケールが異常値にならないようにクランプ
+        this.baseScale = Math.max(0.1, Math.min(5.0, this.baseScale));
         this.sprite.setScale(this.baseScale);
 
         // 原点を下中央に設定
@@ -472,6 +478,9 @@ export class Unit extends Phaser.GameObjects.Container {
         const endX = target.x;
         const endY = target.y - 50;
 
+        // スキルによるダメージ計算（ダメージバフ適用）
+        const { damage, isCritical } = this.calculateSkillDamage(this.definition.attackDamage);
+
         // 弾丸の見た目（レアリティとロールで変える）
         const projectile = this.createProjectile(startX, startY);
 
@@ -498,7 +507,10 @@ export class Unit extends Phaser.GameObjects.Container {
                 projectile.destroy();
                 // ヒット時にダメージ
                 if (!target.isDead()) {
-                    target.takeDamage(this.definition.attackDamage, this.definition.knockback);
+                    if (isCritical) {
+                        this.showCriticalEffect(target, damage);
+                    }
+                    target.takeDamage(damage, this.definition.knockback);
                     this.createRangedHitEffect(endX, endY);
                 }
             },
@@ -515,6 +527,9 @@ export class Unit extends Phaser.GameObjects.Container {
         const startY = this.y - 50 - this.flyingOffset;
         const endX = this.castleTarget.getX();
         const endY = this.castleTarget.y - 50;
+
+        // スキルによるダメージ計算（ダメージバフ適用）
+        const { damage } = this.calculateSkillDamage(this.definition.attackDamage);
 
         const projectile = this.createProjectile(startX, startY);
 
@@ -534,7 +549,7 @@ export class Unit extends Phaser.GameObjects.Container {
             onComplete: () => {
                 projectile.destroy();
                 if (this.castleTarget) {
-                    this.castleTarget.takeDamage(this.definition.attackDamage);
+                    this.castleTarget.takeDamage(damage);
                     this.createRangedHitEffect(endX, endY);
                 }
             },
@@ -829,8 +844,9 @@ export class Unit extends Phaser.GameObjects.Container {
             return;
         }
 
-        // ダメージ軽減適用
-        const actualDamage = Math.floor(damage * (1 - this.damageReduction));
+        // ダメージ軽減適用（damageReductionを[0, 1]にクランプ）
+        const clampedReduction = Math.max(0, Math.min(1, this.damageReduction));
+        const actualDamage = Math.floor(damage * (1 - clampedReduction));
         this.hp -= actualDamage;
 
         // ダメージ数値表示
@@ -877,17 +893,17 @@ export class Unit extends Phaser.GameObjects.Container {
             // 蓄積リセット
             this.damageAccumulated = 0;
 
-            const knockbackDir = this.side === 'ally' ? -1 : 1;
+            const knockbackDir = this.side === 'ally' ? 1 : -1;
 
             if (this.verticalMode) {
                 // アリーナモード: 縦方向ノックバック
                 this.y += knockback * knockbackDir;
 
-                // 位置クランプ
+                // 位置クランプ（移動と同じ境界を使用）
                 if (this.side === 'ally') {
-                    this.y = Math.min(this.y, this.screenHeight - 80);
-                } else {
                     this.y = Math.max(this.y, 100);
+                } else {
+                    this.y = Math.min(this.y, this.screenHeight - 80);
                 }
             } else {
                 // 通常モード: 横方向ノックバック
@@ -932,6 +948,12 @@ export class Unit extends Phaser.GameObjects.Container {
 
         // 死亡SE
         this.scene.sound.play('sfx_unit_death', { volume: 0.3 });
+
+        // 炎上タイマーをクリーンアップ
+        for (const timer of this.burnTimers) {
+            timer.destroy();
+        }
+        this.burnTimers = [];
 
         // 死亡アニメーション
         this.scene.tweens.add({
@@ -1356,7 +1378,8 @@ export class Unit extends Phaser.GameObjects.Container {
     private updateStatusEffectTimers(delta: number): void {
         const expiredEffects: StatusEffect[] = [];
 
-        for (const effect of this.statusEffects) {
+        // イテレーション中の配列変更を防ぐためにコピーを使用
+        for (const effect of [...this.statusEffects]) {
             effect.remainingMs -= delta;
             if (effect.remainingMs <= 0) {
                 expiredEffects.push(effect);
@@ -1471,8 +1494,10 @@ export class Unit extends Phaser.GameObjects.Container {
         if (skill?.trigger === 'on_attack') {
             const critEffect = skill.effects.find(e => e.type === 'critical');
             if (critEffect) {
-                const chance = skill.triggerChance ?? 1.0;
-                if (Math.random() < chance) {
+                // critEffect.range をクリティカル確率として使用（未定義時はデフォルト0.2 = 20%）
+                // critEffect.value はダメージ倍率として使用
+                const critChance = critEffect.range ?? 0.2;
+                if (Math.random() < critChance) {
                     damage *= critEffect.value;
                     isCritical = true;
                 }
@@ -1680,7 +1705,8 @@ export class Unit extends Phaser.GameObjects.Container {
     }
 
     private applySlowEffect(target: Unit, slowValue: number, durationMs: number, icon: string): void {
-        target.speedModifier = slowValue;
+        // 乗算スタック: 複数のスロー効果が重なる
+        target.speedModifier *= slowValue;
         target.sprite.setTint(0xaaddff);
 
         target.addStatusEffect({
@@ -1696,7 +1722,8 @@ export class Unit extends Phaser.GameObjects.Container {
     }
 
     private applyHasteEffect(target: Unit, hasteValue: number, durationMs: number, icon: string): void {
-        target.attackSpeedModifier = hasteValue;
+        // 乗算スタック: 複数のヘイスト効果が重なる
+        target.attackSpeedModifier *= hasteValue;
 
         target.addStatusEffect({
             id: `haste_${Date.now()}`,
@@ -1736,8 +1763,8 @@ export class Unit extends Phaser.GameObjects.Container {
             }
         }
 
-        // 連鎖ダメージ適用
-        const chainDamage = Math.floor(this.definition.attackDamage * damageRatio);
+        // 連鎖ダメージ適用（ダメージバフを適用）
+        const chainDamage = Math.floor(this.definition.attackDamage * damageRatio * this.damageModifier);
         this.showChainLightningEffect(mainTarget, chainTargets, chainDamage);
     }
 
@@ -1772,6 +1799,11 @@ export class Unit extends Phaser.GameObjects.Container {
                 elapsed += tickInterval;
                 if (target.isDead() || elapsed > durationMs) {
                     timer.destroy();
+                    // タイマー配列から削除
+                    const index = target.burnTimers.indexOf(timer);
+                    if (index > -1) {
+                        target.burnTimers.splice(index, 1);
+                    }
                     return;
                 }
 
@@ -1780,10 +1812,31 @@ export class Unit extends Phaser.GameObjects.Container {
             },
             loop: true
         });
+
+        // タイマーを保存してdie()時にクリーンアップできるようにする
+        target.burnTimers.push(timer);
     }
 
     public takeBurnDamage(damage: number): void {
-        this.hp -= damage;
+        // 無敵中はダメージ無効
+        if (this.isInvincible) {
+            this.showBlockedEffect();
+            return;
+        }
+
+        // ダメージ軽減適用（damageReductionを[0, 1]にクランプ）
+        const clampedReduction = Math.max(0, Math.min(1, this.damageReduction));
+        const actualDamage = Math.floor(damage * (1 - clampedReduction));
+        this.hp -= actualDamage;
+
+        // ラストスタンドチェック
+        if (this.hp <= 0 && this.lastStandAvailable && !this.lastStandUsed) {
+            this.hp = 1;
+            this.lastStandUsed = true;
+            this.showLastStandEffect();
+            return;
+        }
+
         if (this.hp <= 0) {
             this.hp = 0;
             this.die();
@@ -1826,7 +1879,8 @@ export class Unit extends Phaser.GameObjects.Container {
     }
 
     private applyDamageBuffEffect(target: Unit, value: number, durationMs: number, icon: string): void {
-        target.damageModifier = value;
+        // 乗算スタック: 複数のダメージバフ効果が重なる
+        target.damageModifier *= value;
 
         target.addStatusEffect({
             id: `dmg_buff_${Date.now()}`,

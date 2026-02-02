@@ -265,6 +265,27 @@ export function usePlayerData() {
         };
     }, [data, isLoaded, isAuthenticated, playerId]);
 
+    // 即座にSupabaseに保存（ガチャなど重要な操作用）
+    const flushToSupabase = useCallback(async (): Promise<boolean> => {
+        if (!isAuthenticated || !playerId) return false;
+
+        // 既存のデバウンスタイマーをキャンセル
+        if (saveTimeoutRef.current) {
+            clearTimeout(saveTimeoutRef.current);
+            saveTimeoutRef.current = null;
+        }
+
+        try {
+            const saveData = toSupabaseSaveData(data);
+            await saveToSupabase(playerId, saveData);
+            await syncRankingStats(playerId, data.coins, data.unitInventory);
+            return true;
+        } catch (err) {
+            console.error("Failed to flush to Supabase:", err);
+            return false;
+        }
+    }, [data, isAuthenticated, playerId]);
+
     // コインを増やす
     const addCoins = useCallback((amount: number) => {
         setData((prev) => ({
@@ -494,13 +515,21 @@ export function usePlayerData() {
 
     // ガチャ用アトミック操作（コイン消費 + ユニット追加を1つのsetData内で実行）
     // これにより、ブラウザが閉じられてもデータ損失を防ぐ
+    // 注意: React 18ではsetDataコールバックが遅延実行されるため、
+    // 事前にコイン残高をチェックしてから実行する
     const executeGacha = useCallback((cost: number, unitIds: string[]): boolean => {
-        let success = false;
+        // 先にコイン残高をチェック（data.coinsは現在の状態）
+        if (data.coins < cost) {
+            console.log("[executeGacha] Not enough coins:", data.coins, "<", cost);
+            return false;
+        }
+
+        // コインは十分あるので、状態を更新
         setData((prev) => {
+            // 二重チェック（念のため）
             if (prev.coins < cost) {
-                return prev; // コイン不足
+                return prev;
             }
-            success = true;
             const newInventory = { ...prev.unitInventory };
             for (const unitId of unitIds) {
                 newInventory[unitId] = (newInventory[unitId] || 0) + 1;
@@ -511,8 +540,9 @@ export function usePlayerData() {
                 unitInventory: newInventory,
             };
         });
-        return success;
-    }, []);
+
+        return true;
+    }, [data.coins]);
 
     // フュージョン用アトミック操作（素材消費 + 結果追加を1つのsetData内で実行）
     // これにより、素材だけ消費されて結果が得られないケースを防ぐ
@@ -619,5 +649,6 @@ export function usePlayerData() {
         executeGacha,
         executeFusion,
         executeBattleReward,
+        flushToSupabase,
     };
 }

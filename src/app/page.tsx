@@ -95,11 +95,11 @@ export default function Home() {
     setParadeChars(chars);
   }, [isLoaded, unitInventory]);
 
-  // パレードアニメーション
+  // パレードアニメーション - store interval reference for proper cleanup
   useEffect(() => {
     if (paradeChars.length === 0) return;
 
-    const interval = setInterval(() => {
+    const intervalId = setInterval(() => {
       setParadeChars(prev => prev.map(char => {
         let newX = char.x + (char.speed * char.direction * 0.05);
         let newDirection = char.direction;
@@ -117,7 +117,9 @@ export default function Home() {
       }));
     }, 50);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(intervalId);
+    };
   }, [paradeChars.length]);
 
   // カテゴリ別メニュー

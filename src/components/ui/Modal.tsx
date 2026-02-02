@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, ReactNode } from "react";
+import { useEffect, useRef, useCallback, ReactNode } from "react";
+import { pushModal, popModal } from "@/lib/modalStack";
 
 interface ModalProps {
     isOpen: boolean;
@@ -27,32 +28,41 @@ export default function Modal({
 }: ModalProps) {
     const modalRef = useRef<HTMLDivElement>(null);
 
-    // 外側クリックで閉じる
-    useEffect(() => {
-        if (!closeOnOutsideClick) return;
+    // ESC key handler for keyboard accessibility
+    const handleKeyDown = useCallback((event: KeyboardEvent) => {
+        if (event.key === "Escape") {
+            onClose();
+        }
+    }, [onClose]);
 
+    // 外側クリックで閉じる + ESCキー
+    useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+            if (closeOnOutsideClick && modalRef.current && !modalRef.current.contains(event.target as Node)) {
                 onClose();
             }
         };
 
         if (isOpen) {
             document.addEventListener("mousedown", handleClickOutside);
+            document.addEventListener("keydown", handleKeyDown);
         }
 
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("keydown", handleKeyDown);
         };
-    }, [isOpen, onClose, closeOnOutsideClick]);
+    }, [isOpen, onClose, closeOnOutsideClick, handleKeyDown]);
 
-    // スクロール防止
+    // スクロール防止 with modal stacking support
     useEffect(() => {
         if (isOpen) {
-            document.body.style.overflow = "hidden";
+            pushModal();
         }
         return () => {
-            document.body.style.overflow = "unset";
+            if (isOpen) {
+                popModal();
+            }
         };
     }, [isOpen]);
 

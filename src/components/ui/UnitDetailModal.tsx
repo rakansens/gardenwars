@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import Image from "next/image";
 import type { UnitDefinition, Rarity, UnitRole } from "@/data/types";
 import RarityFrame from "./RarityFrame";
 import { useLanguage } from "@/contexts/LanguageContext";
 import UnitAnimationPreview, { hasAnimation } from "./UnitAnimationPreview";
+import { pushModal, popModal } from "@/lib/modalStack";
 
 // ロール別のアイコンと色
 const roleConfig: Record<UnitRole, { icon: string; color: string; bgColor: string }> = {
@@ -71,7 +72,14 @@ export default function UnitDetailModal({
     const unitHasAnimation = hasAnimation(unit.atlasKey || unit.id);
     const [activeTab, setActiveTab] = useState<"stats" | "animation">("stats");
 
-    // Click outside to close
+    // ESC key handler for keyboard accessibility
+    const handleKeyDown = useCallback((event: KeyboardEvent) => {
+        if (event.key === "Escape") {
+            onClose();
+        }
+    }, [onClose]);
+
+    // Click outside to close + ESC key
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
@@ -79,16 +87,18 @@ export default function UnitDetailModal({
             }
         };
         document.addEventListener("mousedown", handleClickOutside);
+        document.addEventListener("keydown", handleKeyDown);
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("keydown", handleKeyDown);
         };
-    }, [onClose]);
+    }, [onClose, handleKeyDown]);
 
-    // Prevent scrolling when modal is open
+    // Prevent scrolling when modal is open with modal stacking support
     useEffect(() => {
-        document.body.style.overflow = "hidden";
+        pushModal();
         return () => {
-            document.body.style.overflow = "unset";
+            popModal();
         };
     }, []);
 
