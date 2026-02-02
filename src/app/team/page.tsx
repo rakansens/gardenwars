@@ -212,7 +212,7 @@ export default function TeamPage() {
         { key: "animation", label: "Anim", icon: "🎬", color: "bg-purple-500" },
     ];
 
-    // スキルフィルタータブ（URユニット向け）
+    // スキルフィルタータブ（UR/SSRユニット向け）
     const skillTabs = Object.entries(SKILL_DEFINITIONS).map(([id, skill]) => ({
         key: id,
         label: language === 'ja' ? skill.nameJa : skill.name,
@@ -230,7 +230,7 @@ export default function TeamPage() {
         if (specialFilter === "flying" && !u.isFlying) return false;
         if (specialFilter === "area" && u.attackType !== "area") return false;
         if (specialFilter === "animation" && !getUnitHasAnimation(u)) return false;
-        // スキルフィルター（URのみ対象）
+        // スキルフィルター（UR/SSR対象）
         if (skillFilter && u.skill?.id !== skillFilter) return false;
         return true;
     });
@@ -674,8 +674,8 @@ export default function TeamPage() {
                                 key={tab.key}
                                 onClick={() => {
                                     setRarityFilter(tab.key);
-                                    // UR以外に切り替えた時はスキルフィルターをリセット
-                                    if (tab.key !== "UR") setSkillFilter(null);
+                                    // UR/SSR以外に切り替えた時はスキルフィルターをリセット
+                                    if (tab.key !== "UR" && tab.key !== "SSR" && tab.key !== "ALL") setSkillFilter(null);
                                 }}
                                 className={`
                                     px-4 py-2.5 md:px-5 md:py-3 rounded-xl font-bold text-sm md:text-base transition-all min-h-[44px]
@@ -751,8 +751,8 @@ export default function TeamPage() {
                     </div>
                     </div>
 
-                    {/* スキルフィルター（URレアリティ選択時のみ表示） */}
-                    {(rarityFilter === "UR" || rarityFilter === "ALL") && (
+                    {/* スキルフィルター（UR/SSRレアリティ選択時に表示） */}
+                    {(rarityFilter === "UR" || rarityFilter === "SSR" || rarityFilter === "ALL") && (
                         <div className="mb-4">
                         <div className="flex items-center gap-2 md:gap-3 flex-wrap">
                             <span className="text-sm md:text-base font-bold text-purple-600 dark:text-purple-400">{t("skill")}:</span>
