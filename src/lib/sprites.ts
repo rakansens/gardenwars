@@ -21,6 +21,9 @@ export const ANIMATED_UNITS = [
     // New SR units (2026-02) batch 3
     'sr_green_cyborg', 'sr_jade_emperor', 'sr_lucky_clover_cat', 'sr_mecha_gunner', 'sr_music_box_ballerina_cat',
     'sr_oni_bonsai', 'sr_rose_paladin', 'sr_sakura_spirit_cat', 'sr_scout_corps', 'sr_shadow_ninja',
+    // New SR units (2026-02) batch 4
+    'sr_snow_globe_gardener_cat', 'sr_thorn_beast_cat', 'sr_thorn_reaper_cat', 'sr_unicorn_flower_cat',
+    'sr_vine_evangelion', 'sr_vine_ninja_cat', 'sr_vine_warlock', 'sr_wasteland_merc',
     // SSR ユニット
     'flame_knight', 'ice_samurai', 'shadow_assassin', 'thunder_golem',
     // New SSR units (2025-01)
