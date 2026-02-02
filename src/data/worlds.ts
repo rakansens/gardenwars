@@ -38,8 +38,14 @@ export const worlds: WorldDefinition[] = [
         subtitleKey: "world3_subtitle",
         icon: "💀",
         unlockedByDefault: false,
-        // 地獄のボスステージ（将来追加）が解放条件
-        requiredBossStages: [], // 地獄のボス追加時に更新
+        // 地獄のボスステージ全クリアで解放
+        requiredBossStages: [
+            "inferno_boss_1",
+            "inferno_boss_2",
+            "inferno_boss_3",
+            "inferno_boss_4",
+            "inferno_boss_5",
+        ],
         gradient: "from-purple-600 to-gray-900",
         banner: "/assets/stages/hard_banner.webp",
     },

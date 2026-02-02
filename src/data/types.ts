@@ -20,7 +20,7 @@ export type AttackType = 'single' | 'area' | 'piercing';
 /**
  * ステージ難易度
  */
-export type StageDifficulty = 'tutorial' | 'easy' | 'normal' | 'hard' | 'extreme' | 'boss' | 'special' | 'inferno';
+export type StageDifficulty = 'tutorial' | 'easy' | 'normal' | 'hard' | 'extreme' | 'boss' | 'special' | 'purgatory' | 'hellfire' | 'abyss' | 'inferno_boss';
 
 /**
  * ワールドID
