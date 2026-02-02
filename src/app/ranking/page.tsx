@@ -95,11 +95,12 @@ export default function RankingPage() {
     const formatValue = (entry: RankingEntry, key: SortOption): string => {
         const actualKey: RankingSortBy = key === "all" ? "max_stage" : key;
 
-        // max_stageの場合はステージ進捗表示を使用
+        // max_stageの場合はステージ進捗表示を使用（数字も併記）
         if (actualKey === "max_stage") {
             const progress = formatStageProgress(entry.max_cleared_stage_id, t);
             if (progress) {
-                return `${progress.icon} ${progress.text}`;
+                // 例: "🔥 Inferno #5 (15)"
+                return `${progress.icon} ${progress.text} (${entry.max_stage})`;
             }
             // フォールバック: 数値のみ
             return String(entry.max_stage);
