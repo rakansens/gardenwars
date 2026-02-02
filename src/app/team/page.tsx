@@ -149,7 +149,7 @@ export default function TeamPage() {
         { key: "size", label: t("size"), icon: "📐" },
     ];
 
-    const sortUnits = (units: UnitDefinition[]): UnitDefinition[] => {
+    const sortUnits = useCallback((units: UnitDefinition[]): UnitDefinition[] => {
         if (sortBy === "none") return units;
 
         return [...units].sort((a, b) => {
@@ -184,7 +184,7 @@ export default function TeamPage() {
                     return 0;
             }
         });
-    };
+    }, [sortBy]);
 
     const rarityTabs: { key: Rarity | "ALL"; label: string; color: string }[] = [
         { key: "ALL", label: "ALL", color: "bg-gray-500" },
@@ -233,7 +233,7 @@ export default function TeamPage() {
     }));
 
     // フィルタリング処理
-    const filteredUnits = allyUnits.filter(u => {
+    const filteredUnits = useMemo(() => allyUnits.filter(u => {
         // レアリティフィルター
         if (rarityFilter !== "ALL" && u.rarity !== rarityFilter) return false;
         // ロールフィルター
@@ -245,7 +245,25 @@ export default function TeamPage() {
         // スキルフィルター（UR/SSR対象）
         if (skillFilter && u.skill?.id !== skillFilter) return false;
         return true;
-    });
+    }), [rarityFilter, roleFilter, specialFilter, skillFilter]);
+
+    // Memoize owned/unowned unit lists to avoid repeated filtering
+    const { ownedUnits, unownedUnits } = useMemo(() => {
+        const owned: UnitDefinition[] = [];
+        const unowned: UnitDefinition[] = [];
+        for (const u of filteredUnits) {
+            if ((unitInventory[u.id] || 0) > 0) {
+                owned.push(u);
+            } else {
+                unowned.push(u);
+            }
+        }
+        return {
+            ownedUnits: sortUnits(owned),
+            unownedUnits: sortUnits(unowned)
+        };
+    }, [filteredUnits, unitInventory, sortUnits]);
+
     const MAX_TEAM_SIZE = 7;
 
     const handleToggleUnit = (unitId: string) => {
@@ -818,65 +836,56 @@ export default function TeamPage() {
                 </section>
 
                 {/* 保有ユニット */}
-                {(() => {
-                    const ownedUnits = sortUnits(filteredUnits.filter(u => (unitInventory[u.id] || 0) > 0));
-                    const unownedUnits = sortUnits(filteredUnits.filter(u => (unitInventory[u.id] || 0) === 0));
+                <section id="owned-section" className="mb-8 scroll-mt-28">
+                    <div className="flex items-center gap-3 mb-4">
+                        <h2 className="text-xl font-bold text-green-700 dark:text-green-400">✅ {t("owned_units")}</h2>
+                        <span className="px-3 py-1 bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 rounded-full text-sm font-bold">
+                            {ownedUnits.length} {t("units_count")}
+                        </span>
+                    </div>
+                    {ownedUnits.length > 0 ? (
+                        <VirtualizedGrid
+                            items={ownedUnits}
+                            getItemKey={getUnitKey}
+                            columnConfig={{ default: 2, sm: 2, md: 3, lg: 4, xl: 5 }}
+                            rowHeight={420}
+                            gap={20}
+                            containerHeight={900}
+                            renderItem={renderOwnedUnit}
+                        />
+                    ) : (
+                        <div className="text-center py-8 text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-slate-800 rounded-lg">
+                            {t("no_owned_in_rarity")}
+                        </div>
+                    )}
+                </section>
 
-                    return (
-                        <>
-                            <section id="owned-section" className="mb-8 scroll-mt-28">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <h2 className="text-xl font-bold text-green-700 dark:text-green-400">✅ {t("owned_units")}</h2>
-                                    <span className="px-3 py-1 bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 rounded-full text-sm font-bold">
-                                        {ownedUnits.length} {t("units_count")}
-                                    </span>
-                                </div>
-                                {ownedUnits.length > 0 ? (
-                                    <VirtualizedGrid
-                                        items={ownedUnits}
-                                        getItemKey={getUnitKey}
-                                        columnConfig={{ default: 2, sm: 2, md: 3, lg: 4, xl: 5 }}
-                                        rowHeight={420}
-                                        gap={20}
-                                        containerHeight={900}
-                                        renderItem={renderOwnedUnit}
-                                    />
-                                ) : (
-                                    <div className="text-center py-8 text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-slate-800 rounded-lg">
-                                        {t("no_owned_in_rarity")}
-                                    </div>
-                                )}
-                            </section>
-
-                            {/* 未保有ユニット */}
-                            <section id="unowned-section" className="scroll-mt-28">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <h2 className="text-xl font-bold text-gray-500 dark:text-gray-400">🔒 {t("unowned_units")}</h2>
-                                    <span className="px-3 py-1 bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 rounded-full text-sm font-bold">
-                                        {unownedUnits.length} {t("units_count")}
-                                    </span>
-                                </div>
-                                {unownedUnits.length > 0 ? (
-                                    <div className="opacity-60">
-                                        <VirtualizedGrid
-                                            items={unownedUnits}
-                                            getItemKey={getUnitKey}
-                                            columnConfig={{ default: 2, sm: 2, md: 3, lg: 4, xl: 5 }}
-                                            rowHeight={400}
-                                            gap={20}
-                                            containerHeight={850}
-                                            renderItem={renderUnownedUnit}
-                                        />
-                                    </div>
-                                ) : (
-                                    <div className="text-center py-8 text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 rounded-lg font-bold">
-                                        {t("all_owned_in_rarity")}
-                                    </div>
-                                )}
-                            </section>
-                        </>
-                    );
-                })()}
+                {/* 未保有ユニット */}
+                <section id="unowned-section" className="scroll-mt-28">
+                    <div className="flex items-center gap-3 mb-4">
+                        <h2 className="text-xl font-bold text-gray-500 dark:text-gray-400">🔒 {t("unowned_units")}</h2>
+                        <span className="px-3 py-1 bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 rounded-full text-sm font-bold">
+                            {unownedUnits.length} {t("units_count")}
+                        </span>
+                    </div>
+                    {unownedUnits.length > 0 ? (
+                        <div className="opacity-60">
+                            <VirtualizedGrid
+                                items={unownedUnits}
+                                getItemKey={getUnitKey}
+                                columnConfig={{ default: 2, sm: 2, md: 3, lg: 4, xl: 5 }}
+                                rowHeight={400}
+                                gap={20}
+                                containerHeight={850}
+                                renderItem={renderUnownedUnit}
+                            />
+                        </div>
+                    ) : (
+                        <div className="text-center py-8 text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 rounded-lg font-bold">
+                            {t("all_owned_in_rarity")}
+                        </div>
+                    )}
+                </section>
             </div>
 
             {/* 詳細モーダル */}

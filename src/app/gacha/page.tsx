@@ -94,14 +94,14 @@ export default function GachaPage() {
         return diffDays <= 7;
     };
 
-    // NEWユニット一覧（追加日が新しい順）
-    const newUnits = gachaPool
+    // NEWユニット一覧（追加日が新しい順）- memoized to avoid recomputation
+    const newUnits = useMemo(() => gachaPool
         .filter(u => isNewUnit(u))
         .sort((a, b) => {
             const dateA = new Date(a.addedDate || "2000-01-01").getTime();
             const dateB = new Date(b.addedDate || "2000-01-01").getTime();
             return dateB - dateA;
-        });
+        }), []);
 
     // 日付ごとにグループ化
     const unitsByDate = useMemo(() => {

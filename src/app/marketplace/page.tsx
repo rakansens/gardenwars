@@ -29,6 +29,7 @@ type SortType = ListingFilter["sortBy"];
 
 export default function MarketplacePage() {
     const { t } = useLanguage();
+    const { showError } = useToast();
     const { coins, unitInventory, isLoaded } = usePlayerData();
     const {
         listings,
@@ -54,6 +55,7 @@ export default function MarketplacePage() {
     const [filterRarity, setFilterRarity] = useState<Rarity | "all">("all");
     const [searchQuery, setSearchQuery] = useState("");
     const [filterSeller, setFilterSeller] = useState<{ id: string; name: string } | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     const [showCreateModal, setShowCreateModal] = useState(false);
     const { viewingUnit, openModal, closeModal } = useUnitDetailModal();
@@ -112,20 +114,44 @@ export default function MarketplacePage() {
     // 購入処理
     const handleBuy = async () => {
         if (!confirmBuy) return;
-        const success = await buyListing(confirmBuy.id);
-        setConfirmBuy(null);
-        if (success) {
-            setSuccessMessage(t("purchase_complete"));
+        try {
+            setError(null);
+            const success = await buyListing(confirmBuy.id);
+            setConfirmBuy(null);
+            if (success) {
+                setSuccessMessage(t("purchase_complete"));
+            } else {
+                const errorMsg = t("purchase_failed") || "Purchase failed";
+                setError(errorMsg);
+                showError(errorMsg);
+            }
+        } catch (err) {
+            const errorMsg = err instanceof Error ? err.message : t("purchase_failed") || "Purchase failed";
+            setError(errorMsg);
+            showError(errorMsg);
+            setConfirmBuy(null);
         }
     };
 
     // キャンセル処理
     const handleCancel = async () => {
         if (!confirmCancel) return;
-        const success = await cancelMyListing(confirmCancel.id);
-        setConfirmCancel(null);
-        if (success) {
-            setSuccessMessage(t("listing_cancelled_success"));
+        try {
+            setError(null);
+            const success = await cancelMyListing(confirmCancel.id);
+            setConfirmCancel(null);
+            if (success) {
+                setSuccessMessage(t("listing_cancelled_success"));
+            } else {
+                const errorMsg = t("cancel_failed") || "Cancel failed";
+                setError(errorMsg);
+                showError(errorMsg);
+            }
+        } catch (err) {
+            const errorMsg = err instanceof Error ? err.message : t("cancel_failed") || "Cancel failed";
+            setError(errorMsg);
+            showError(errorMsg);
+            setConfirmCancel(null);
         }
     };
 
@@ -135,20 +161,44 @@ export default function MarketplacePage() {
         quantity: number,
         pricePerUnit: number
     ) => {
-        const success = await createNewListing(unitId, quantity, pricePerUnit);
-        if (success) {
-            setSuccessMessage(t("listing_created"));
+        try {
+            setError(null);
+            const success = await createNewListing(unitId, quantity, pricePerUnit);
+            if (success) {
+                setSuccessMessage(t("listing_created"));
+            } else {
+                const errorMsg = t("listing_failed") || "Failed to create listing";
+                setError(errorMsg);
+                showError(errorMsg);
+            }
+            return success;
+        } catch (err) {
+            const errorMsg = err instanceof Error ? err.message : t("listing_failed") || "Failed to create listing";
+            setError(errorMsg);
+            showError(errorMsg);
+            return false;
         }
-        return success;
     };
 
     // 通知処理
     const handleClaimNotification = async (notificationId: string) => {
-        const success = await claimSoldNotification(notificationId);
-        if (success) {
-            setSuccessMessage(t("claimed_success"));
+        try {
+            setError(null);
+            const success = await claimSoldNotification(notificationId);
+            if (success) {
+                setSuccessMessage(t("claimed_success"));
+            } else {
+                const errorMsg = t("claim_failed") || "Failed to claim";
+                setError(errorMsg);
+                showError(errorMsg);
+            }
+            return success;
+        } catch (err) {
+            const errorMsg = err instanceof Error ? err.message : t("claim_failed") || "Failed to claim";
+            setError(errorMsg);
+            showError(errorMsg);
+            return false;
         }
-        return success;
     };
 
     // ローディング状態
@@ -185,6 +235,20 @@ export default function MarketplacePage() {
             </PageHeader>
 
             <div className="container">
+                {/* Error display */}
+                {error && (
+                    <div className="mb-4 p-4 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-xl flex items-center gap-3">
+                        <span className="text-2xl">❌</span>
+                        <p className="text-red-700 dark:text-red-300 flex-1">{error}</p>
+                        <button
+                            onClick={() => setError(null)}
+                            className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-200 text-xl"
+                        >
+                            ×
+                        </button>
+                    </div>
+                )}
+
                 {/* タブ */}
                 <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
                     <button

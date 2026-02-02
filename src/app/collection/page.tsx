@@ -66,23 +66,40 @@ export default function CollectionPage() {
         { key: "UR", label: "UR", color: "bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-500", icon: "💎" },
     ];
 
-    // コレクション統計
+    // コレクション統計 - single-pass reduce for O(n) performance
     const stats = useMemo(() => {
         const total = collectableUnits.length;
-        const collected = collectableUnits.filter(u => (unitInventory[u.id] || 0) > 0).length;
 
-        // レアリティ別の統計
-        const byRarity = rarityOrder.map(rarity => {
-            const unitsOfRarity = collectableUnits.filter(u => u.rarity === rarity);
-            const collectedOfRarity = unitsOfRarity.filter(u => (unitInventory[u.id] || 0) > 0).length;
-            return {
-                rarity,
-                total: unitsOfRarity.length,
-                collected: collectedOfRarity,
-            };
-        });
+        // Single pass to calculate all stats
+        const initial = {
+            collected: 0,
+            byRarityMap: {
+                N: { total: 0, collected: 0 },
+                R: { total: 0, collected: 0 },
+                SR: { total: 0, collected: 0 },
+                SSR: { total: 0, collected: 0 },
+                UR: { total: 0, collected: 0 },
+            } as Record<Rarity, { total: number; collected: number }>
+        };
 
-        return { total, collected, byRarity };
+        const result = collectableUnits.reduce((acc, u) => {
+            const isOwned = (unitInventory[u.id] || 0) > 0;
+            acc.byRarityMap[u.rarity].total++;
+            if (isOwned) {
+                acc.collected++;
+                acc.byRarityMap[u.rarity].collected++;
+            }
+            return acc;
+        }, initial);
+
+        // Convert to array format
+        const byRarity = rarityOrder.map(rarity => ({
+            rarity,
+            total: result.byRarityMap[rarity].total,
+            collected: result.byRarityMap[rarity].collected,
+        }));
+
+        return { total, collected: result.collected, byRarity };
     }, [unitInventory]);
 
     const filteredUnits = useMemo(() => {

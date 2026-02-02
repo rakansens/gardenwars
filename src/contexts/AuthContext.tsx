@@ -42,12 +42,32 @@ function getLocalStorageData(): LocalStorageData | undefined {
         try {
             const gardenRaw = localStorage.getItem(GARDEN_SELECTION_KEY);
             if (gardenRaw) {
-                gardenUnits = JSON.parse(gardenRaw);
+                const parsed = JSON.parse(gardenRaw);
+                if (Array.isArray(parsed) && parsed.every(item => typeof item === "string")) {
+                    gardenUnits = parsed;
+                } else {
+                    console.warn("gardenUnits has invalid structure, skipping");
+                }
             }
-        } catch {}
+        } catch (e) {
+            console.warn("Failed to parse gardenUnits from localStorage:", e);
+        }
 
         if (saved) {
             const parsed = JSON.parse(saved);
+
+            // Validate parsed data structure
+            const isValidCoins = typeof parsed.coins === "number" || parsed.coins === undefined;
+            const isValidInventory = parsed.unitInventory === undefined ||
+                (typeof parsed.unitInventory === "object" && parsed.unitInventory !== null);
+            const isValidTeam = parsed.selectedTeam === undefined || Array.isArray(parsed.selectedTeam);
+            const isValidLoadouts = parsed.loadouts === undefined || Array.isArray(parsed.loadouts);
+
+            if (!isValidCoins || !isValidInventory || !isValidTeam || !isValidLoadouts) {
+                console.warn("Player data has invalid structure, skipping migration");
+                return undefined;
+            }
+
             // Only migrate if there's meaningful data
             const hasData =
                 (parsed.coins && parsed.coins > 0) ||

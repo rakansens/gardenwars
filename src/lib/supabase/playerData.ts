@@ -4,6 +4,12 @@ import { DBPlayerData, ShopItem, GachaHistoryEntry, SupabaseSaveData } from "./t
 // Use DBPlayerData internally but alias for function signatures
 type PlayerData = DBPlayerData;
 
+// Error result type for functions that need to return error information
+export interface DataResult<T> {
+    data: T;
+    error: string | null;
+}
+
 // Save player data (full update)
 export async function savePlayerData(
     playerId: string,
@@ -340,7 +346,7 @@ export async function getRankings(
     sortBy: RankingSortBy = "max_stage",
     limit: number = 50,
     includeLoadout: boolean = false
-): Promise<RankingEntry[]> {
+): Promise<DataResult<RankingEntry[]>> {
     // ランキングデータを取得
     const { data, error } = await supabase
         .from("rankings")
@@ -364,29 +370,33 @@ export async function getRankings(
         .limit(limit);
 
     if (error || !data) {
+        const errorMsg = error?.message || "Failed to fetch rankings";
         console.error("getRankings error:", error);
-        return [];
+        return { data: [], error: errorMsg };
     }
 
     // ロードアウト取得が不要な場合は早期リターン
     if (!includeLoadout) {
-        return data.map((row) => ({
-            player_id: row.player_id || "",
-            player_name: (row.players as unknown as { name: string })?.name || "Unknown",
-            max_stage: row.max_stage ?? 0,
-            total_wins: row.total_wins ?? 0,
-            total_battles: row.total_battles ?? 0,
-            total_coins: row.total_coins ?? 0,
-            collection_count: row.collection_count ?? 0,
-            total_units: row.total_units ?? 0,
-            ur_unit_count: row.ur_unit_count ?? 0,
-            gacha_count: row.gacha_count ?? 0,
-            garden_visits: row.garden_visits ?? 0,
-            stages_cleared: row.stages_cleared ?? 0,
-            win_streak: row.win_streak ?? 0,
-            max_win_streak: row.max_win_streak ?? 0,
-            selected_team: [],
-        }));
+        return {
+            data: data.map((row) => ({
+                player_id: row.player_id || "",
+                player_name: (row.players as unknown as { name: string })?.name || "Unknown",
+                max_stage: row.max_stage ?? 0,
+                total_wins: row.total_wins ?? 0,
+                total_battles: row.total_battles ?? 0,
+                total_coins: row.total_coins ?? 0,
+                collection_count: row.collection_count ?? 0,
+                total_units: row.total_units ?? 0,
+                ur_unit_count: row.ur_unit_count ?? 0,
+                gacha_count: row.gacha_count ?? 0,
+                garden_visits: row.garden_visits ?? 0,
+                stages_cleared: row.stages_cleared ?? 0,
+                win_streak: row.win_streak ?? 0,
+                max_win_streak: row.max_win_streak ?? 0,
+                selected_team: [],
+            })),
+            error: null,
+        };
     }
 
     // プレイヤーIDリストを取得
@@ -408,23 +418,26 @@ export async function getRankings(
         });
     }
 
-    return data.map((row) => ({
-        player_id: row.player_id || "",
-        player_name: (row.players as unknown as { name: string })?.name || "Unknown",
-        max_stage: row.max_stage ?? 0,
-        total_wins: row.total_wins ?? 0,
-        total_battles: row.total_battles ?? 0,
-        total_coins: row.total_coins ?? 0,
-        collection_count: row.collection_count ?? 0,
-        total_units: row.total_units ?? 0,
-        ur_unit_count: row.ur_unit_count ?? 0,
-        gacha_count: row.gacha_count ?? 0,
-        garden_visits: row.garden_visits ?? 0,
-        stages_cleared: row.stages_cleared ?? 0,
-        win_streak: row.win_streak ?? 0,
-        max_win_streak: row.max_win_streak ?? 0,
-        selected_team: playerDataMap.get(row.player_id || "") || [],
-    }));
+    return {
+        data: data.map((row) => ({
+            player_id: row.player_id || "",
+            player_name: (row.players as unknown as { name: string })?.name || "Unknown",
+            max_stage: row.max_stage ?? 0,
+            total_wins: row.total_wins ?? 0,
+            total_battles: row.total_battles ?? 0,
+            total_coins: row.total_coins ?? 0,
+            collection_count: row.collection_count ?? 0,
+            total_units: row.total_units ?? 0,
+            ur_unit_count: row.ur_unit_count ?? 0,
+            gacha_count: row.gacha_count ?? 0,
+            garden_visits: row.garden_visits ?? 0,
+            stages_cleared: row.stages_cleared ?? 0,
+            win_streak: row.win_streak ?? 0,
+            max_win_streak: row.max_win_streak ?? 0,
+            selected_team: playerDataMap.get(row.player_id || "") || [],
+        })),
+        error: null,
+    };
 }
 
 // ============================================
@@ -459,7 +472,7 @@ export interface AsyncOpponent {
 export async function getAsyncOpponents(
     currentPlayerId: string,
     limit: number = 20
-): Promise<AsyncOpponent[]> {
+): Promise<DataResult<AsyncOpponent[]>> {
     // Get rankings with player data
     const { data, error } = await supabase
         .from("rankings")
@@ -473,8 +486,9 @@ export async function getAsyncOpponents(
         .limit(limit);
 
     if (error || !data) {
+        const errorMsg = error?.message || "Failed to fetch opponents";
         console.error("getAsyncOpponents error:", error);
-        return [];
+        return { data: [], error: errorMsg };
     }
 
     // Get player_data for selected_team
@@ -494,21 +508,24 @@ export async function getAsyncOpponents(
         });
     }
 
-    return data
-        .map((row) => ({
-            player_id: row.player_id || "",
-            player_name: (row.players as unknown as { name: string })?.name || "Unknown",
-            max_stage: row.max_stage ?? 0,
-            selected_team: playerDataMap.get(row.player_id || "") || [],
-        }))
-        .filter(opponent => opponent.selected_team.length > 0); // Only show opponents with a deck
+    return {
+        data: data
+            .map((row) => ({
+                player_id: row.player_id || "",
+                player_name: (row.players as unknown as { name: string })?.name || "Unknown",
+                max_stage: row.max_stage ?? 0,
+                selected_team: playerDataMap.get(row.player_id || "") || [],
+            }))
+            .filter(opponent => opponent.selected_team.length > 0), // Only show opponents with a deck
+        error: null,
+    };
 }
 
 // Save async battle result
 // Note: async_battles table needs to be created in Supabase first
 export async function saveAsyncBattleResult(
     result: Omit<AsyncBattleResult, 'id' | 'created_at' | 'attacker_name' | 'defender_name'>
-): Promise<boolean> {
+): Promise<{ success: boolean; error: string | null }> {
     // Use type assertion since async_battles isn't in generated types yet
     const { error } = await (supabase as any)
         .from("async_battles")
@@ -526,11 +543,12 @@ export async function saveAsyncBattleResult(
         });
 
     if (error) {
+        const errorMsg = error.message || "Failed to save battle result";
         console.error("saveAsyncBattleResult error:", error);
-        return false;
+        return { success: false, error: errorMsg };
     }
 
-    return true;
+    return { success: true, error: null };
 }
 
 // Get async battle history for a player
@@ -538,7 +556,7 @@ export async function saveAsyncBattleResult(
 export async function getAsyncBattleHistory(
     playerId: string,
     limit: number = 20
-): Promise<AsyncBattleResult[]> {
+): Promise<DataResult<AsyncBattleResult[]>> {
     // Use type assertion since async_battles isn't in generated types yet
     const { data, error } = await (supabase as any)
         .from("async_battles")
@@ -548,8 +566,9 @@ export async function getAsyncBattleHistory(
         .limit(limit);
 
     if (error || !data) {
+        const errorMsg = error?.message || "Failed to fetch battle history";
         console.error("getAsyncBattleHistory error:", error);
-        return [];
+        return { data: [], error: errorMsg };
     }
 
     // Get player names
@@ -571,20 +590,23 @@ export async function getAsyncBattleHistory(
         });
     }
 
-    return (data as any[]).map((row: any) => ({
-        id: row.id,
-        attacker_id: row.attacker_id || "",
-        defender_id: row.defender_id || "",
-        attacker_name: playerNameMap.get(row.attacker_id || "") || "Unknown",
-        defender_name: playerNameMap.get(row.defender_id || "") || "Unknown",
-        attacker_deck: (row.attacker_deck as string[]) || [],
-        defender_deck: (row.defender_deck as string[]) || [],
-        winner: row.winner as 'attacker' | 'defender',
-        attacker_castle_hp: row.attacker_castle_hp ?? 0,
-        defender_castle_hp: row.defender_castle_hp ?? 0,
-        attacker_kills: row.attacker_kills ?? 0,
-        defender_kills: row.defender_kills ?? 0,
-        battle_duration: row.battle_duration ?? 0,
-        created_at: row.created_at,
-    }));
+    return {
+        data: (data as any[]).map((row: any) => ({
+            id: row.id,
+            attacker_id: row.attacker_id || "",
+            defender_id: row.defender_id || "",
+            attacker_name: playerNameMap.get(row.attacker_id || "") || "Unknown",
+            defender_name: playerNameMap.get(row.defender_id || "") || "Unknown",
+            attacker_deck: (row.attacker_deck as string[]) || [],
+            defender_deck: (row.defender_deck as string[]) || [],
+            winner: row.winner as 'attacker' | 'defender',
+            attacker_castle_hp: row.attacker_castle_hp ?? 0,
+            defender_castle_hp: row.defender_castle_hp ?? 0,
+            attacker_kills: row.attacker_kills ?? 0,
+            defender_kills: row.defender_kills ?? 0,
+            battle_duration: row.battle_duration ?? 0,
+            created_at: row.created_at,
+        })),
+        error: null,
+    };
 }

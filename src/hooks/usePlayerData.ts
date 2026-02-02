@@ -73,7 +73,7 @@ const loadFromStorage = (): FrontendPlayerData => {
         if (saved) {
             const parsed = JSON.parse(saved);
 
-            let loadouts: [string[], string[], string[]] = parsed.loadouts ?? [
+            const loadouts: [string[], string[], string[]] = parsed.loadouts ?? [
                 parsed.selectedTeam ?? initial.selectedTeam,
                 [],
                 []
@@ -98,7 +98,45 @@ const loadFromStorage = (): FrontendPlayerData => {
         console.error("Failed to load player data:", e);
     }
 
-    // Validate critical fields from parsed data
+    // Validate and sanitize critical fields from parsed data
+    // Security: Validate coins is a non-negative number within reasonable range
+    const MAX_COINS = 999999999; // 1 billion max
+    if (typeof initial.coins !== 'number' || isNaN(initial.coins) || initial.coins < 0) {
+        console.warn("Invalid coins value, resetting to initial");
+        initial.coins = INITIAL_COINS;
+    } else {
+        // Clamp to reasonable range
+        initial.coins = Math.min(Math.max(0, Math.floor(initial.coins)), MAX_COINS);
+    }
+
+    // Security: Validate unitInventory structure and values
+    const MAX_UNIT_COUNT = 9999; // Max copies of a single unit
+    if (typeof initial.unitInventory !== "object" || initial.unitInventory === null || Array.isArray(initial.unitInventory)) {
+        console.warn("Invalid unitInventory structure, resetting to empty object");
+        initial.unitInventory = {};
+    } else {
+        // Validate each entry: key must be string, value must be non-negative integer
+        const validatedInventory: Record<string, number> = {};
+        for (const [unitId, count] of Object.entries(initial.unitInventory)) {
+            // Skip invalid keys (must be non-empty string)
+            if (typeof unitId !== 'string' || unitId.length === 0 || unitId.length > 100) {
+                console.warn(`Invalid unit ID in inventory: ${unitId}`);
+                continue;
+            }
+            // Validate count is a positive integer within range
+            if (typeof count !== 'number' || isNaN(count) || count < 0) {
+                console.warn(`Invalid count for unit ${unitId}: ${count}`);
+                continue;
+            }
+            // Clamp to reasonable range and ensure integer
+            const validCount = Math.min(Math.max(0, Math.floor(count)), MAX_UNIT_COUNT);
+            if (validCount > 0) {
+                validatedInventory[unitId] = validCount;
+            }
+        }
+        initial.unitInventory = validatedInventory;
+    }
+
     if (!Array.isArray(initial.clearedStages)) {
         console.warn("Invalid clearedStages structure, resetting to empty array");
         initial.clearedStages = [];
@@ -107,13 +145,14 @@ const loadFromStorage = (): FrontendPlayerData => {
         console.warn("Invalid gardenUnits structure, resetting to empty array");
         initial.gardenUnits = [];
     }
-    if (typeof initial.unitInventory !== "object" || initial.unitInventory === null) {
-        console.warn("Invalid unitInventory structure, resetting to empty object");
-        initial.unitInventory = {};
-    }
     if (!Array.isArray(initial.selectedTeam)) {
         console.warn("Invalid selectedTeam structure, resetting to empty array");
         initial.selectedTeam = [];
+    }
+
+    // Validate activeLoadoutIndex
+    if (typeof initial.activeLoadoutIndex !== 'number' || initial.activeLoadoutIndex < 0 || initial.activeLoadoutIndex > 2) {
+        initial.activeLoadoutIndex = 0;
     }
 
     // 別キーからも読み込み（後方互換性）
@@ -459,8 +498,16 @@ export function usePlayerData() {
             // SSR/URはショップに出現しない
             const weights = { N: 50, R: 30, SR: 15, SSR: 0, UR: 0 };
 
+            if (allUnits.length === 0) {
+                throw new Error("No units available for shop");
+            }
+
             let totalWeight = 0;
             for (const u of allUnits) totalWeight += weights[u.rarity] || 0;
+
+            if (totalWeight === 0) {
+                return allUnits[0];
+            }
 
             let r = Math.random() * totalWeight;
             for (const u of allUnits) {

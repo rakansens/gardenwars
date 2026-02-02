@@ -1473,8 +1473,11 @@ export class BattleScene extends Phaser.Scene {
             this.enemyCastle
         );
 
-        // ボス出現チェック（敵城が初めてダメージを受けたら）
-        this.checkBossSpawn();
+        // ボス出現チェック - ボスステージでは3秒後に自動出現するため、城ダメージトリガーは無効
+        // 非ボスステージのみ城ダメージでボス出現（将来の拡張用）
+        if (!this.stageData.isBossStage) {
+            this.checkBossSpawn();
+        }
 
         // 死亡ユニットの除去
         this.cleanupDeadUnits();

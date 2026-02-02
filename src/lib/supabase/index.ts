@@ -59,4 +59,4 @@ export {
     saveAsyncBattleResult,
     getAsyncBattleHistory,
 } from "./playerData";
-export type { RankingEntry, RankingSortBy, RankingUpdateData, AsyncBattleResult, AsyncOpponent } from "./playerData";
+export type { RankingEntry, RankingSortBy, RankingUpdateData, AsyncBattleResult, AsyncOpponent, DataResult } from "./playerData";

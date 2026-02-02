@@ -107,25 +107,36 @@ export default function ChessPage() {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        const parsed = JSON.parse(stored) as Record<PieceRole, string>;
-        const next: Record<PieceRole, PieceSkin> = {} as Record<PieceRole, PieceSkin>;
-        let valid = true;
-        for (const role of PIECE_ROLES) {
-          const unitId = parsed[role.id];
-          const unitDef = playableUnits.find((u) => u.id === unitId);
-          if (!unitDef || (unitInventory[unitId] ?? 0) <= 0) {
-            valid = false;
-            break;
+        const parsed = JSON.parse(stored);
+        // Validate parsed data structure
+        if (typeof parsed !== "object" || parsed === null) {
+          console.warn("Invalid chess piece skins data structure, using defaults");
+        } else {
+          const next: Record<PieceRole, PieceSkin> = {} as Record<PieceRole, PieceSkin>;
+          let valid = true;
+          for (const role of PIECE_ROLES) {
+            const unitId = parsed[role.id];
+            if (typeof unitId !== "string") {
+              valid = false;
+              break;
+            }
+            const unitDef = playableUnits.find((u) => u.id === unitId);
+            if (!unitDef || (unitInventory[unitId] ?? 0) <= 0) {
+              valid = false;
+              break;
+            }
+            next[role.id] = {
+              unitId: unitDef.id,
+              rarity: unitDef.rarity,
+              baseUnitId: unitDef.baseUnitId || unitDef.atlasKey,
+            };
           }
-          next[role.id] = {
-            unitId: unitDef.id,
-            rarity: unitDef.rarity,
-            baseUnitId: unitDef.baseUnitId || unitDef.atlasKey,
-          };
+          if (valid) initial = next;
         }
-        if (valid) initial = next;
       }
-    } catch {}
+    } catch (e) {
+      console.warn("Failed to parse chess piece skins from localStorage:", e);
+    }
 
     if (!initial) {
       const candidates: UnitDefinition[] = [];

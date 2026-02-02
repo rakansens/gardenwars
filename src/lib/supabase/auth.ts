@@ -35,18 +35,30 @@ async function generateUniquePIN(): Promise<string> {
     throw new Error("PIN generation failed after maximum attempts");
 }
 
+// Maximum player name length
+const MAX_NAME_LENGTH = 20;
+
 // Register new player (with optional localStorage data migration)
 export async function registerPlayer(
     name: string,
     localData?: LocalStorageMigrationData
 ): Promise<{ pin: string; player: FullPlayerData }> {
+    // Validate and sanitize player name (defense in depth - also validated in AuthContext)
+    const sanitizedName = name.trim();
+    if (!sanitizedName || sanitizedName.length === 0) {
+        throw new Error("Player name cannot be empty");
+    }
+    if (sanitizedName.length > MAX_NAME_LENGTH) {
+        throw new Error(`Player name must be ${MAX_NAME_LENGTH} characters or less`);
+    }
+
     // Generate unique PIN
     const pin = await generateUniquePIN();
 
-    // Insert player
+    // Insert player with sanitized name
     const { data: player, error: playerError } = await supabase
         .from("players")
-        .insert({ pin, name })
+        .insert({ pin, name: sanitizedName })
         .select()
         .single();
 

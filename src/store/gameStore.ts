@@ -76,13 +76,26 @@ export const useGameStore = create<GameStore>((set, get) => ({
         costGauge: { ...state.costGauge, ...gauge }
     })),
 
+    // React 18/Zustand対応: set内でstate参照して競合を防ぐ
     spendCost: (amount) => {
         const { costGauge } = get();
-        if (costGauge.current >= amount) {
-            set({ costGauge: { ...costGauge, current: costGauge.current - amount } });
-            return true;
+        // 先にチェック（UIフィードバック用）
+        if (costGauge.current < amount) {
+            return false;
         }
-        return false;
+        // set内で最新のstateを使用
+        set((state) => {
+            if (state.costGauge.current < amount) {
+                return state; // 二重チェック：変更なし
+            }
+            return {
+                costGauge: {
+                    ...state.costGauge,
+                    current: state.costGauge.current - amount
+                }
+            };
+        });
+        return true;
     },
 
     setBattleResult: (result) => set((state) => ({

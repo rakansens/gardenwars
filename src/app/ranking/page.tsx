@@ -5,6 +5,7 @@ import Image from "next/image";
 import { getRankings, type RankingEntry, type RankingSortBy } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useToast } from "@/contexts/ToastContext";
 import PageHeader from "@/components/layout/PageHeader";
 import unitsData from "@/data/units";
 import type { UnitDefinition } from "@/data/types";
@@ -32,9 +33,11 @@ const SORT_OPTIONS: { key: SortOption; labelKey: string; icon: string }[] = [
 export default function RankingPage() {
     const { playerId } = useAuth();
     const { t } = useLanguage();
+    const { showError } = useToast();
     const [rankings, setRankings] = useState<RankingEntry[]>([]);
     const [sortBy, setSortBy] = useState<SortOption>("all");
     const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     const isAllTab = sortBy === "all";
     const actualSortBy: RankingSortBy = isAllTab ? "max_stage" : sortBy;
@@ -42,17 +45,25 @@ export default function RankingPage() {
     useEffect(() => {
         const fetchRankings = async () => {
             setIsLoading(true);
+            setError(null);
             try {
-                const data = await getRankings(actualSortBy, 100, isAllTab);
-                setRankings(data);
+                const result = await getRankings(actualSortBy, 100, isAllTab);
+                setRankings(result.data);
+                if (result.error) {
+                    setError(result.error);
+                    showError(result.error);
+                }
             } catch (err) {
+                const errorMsg = err instanceof Error ? err.message : "Failed to fetch rankings";
                 console.error("Failed to fetch rankings:", err);
+                setError(errorMsg);
+                showError(errorMsg);
             }
             setIsLoading(false);
         };
 
         fetchRankings();
-    }, [sortBy, actualSortBy, isAllTab]);
+    }, [sortBy, actualSortBy, isAllTab, showError]);
 
     const currentSortOption = SORT_OPTIONS.find(opt => opt.key === sortBy);
 

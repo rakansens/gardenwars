@@ -58,8 +58,11 @@ export default function ShopPage() {
 
     const handleRefresh = () => {
         if (coins < REFRESH_COST) return;
+        // spendCoinsの戻り値をチェック（React 18対応）
+        const success = spendCoins(REFRESH_COST);
+        if (!success) return; // コイン消費失敗時は処理しない
+
         setIsRefreshing(true);
-        spendCoins(REFRESH_COST);
         setTimeout(() => {
             refreshShop();
             setIsRefreshing(false);
