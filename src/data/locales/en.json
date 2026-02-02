@@ -645,5 +645,29 @@
   "confirm_name_change": "Change Name",
   "name_change_message": "Change name from \"{old}\" to \"{new}\"?",
   "page_not_found": "Page Not Found",
-  "page_not_found_message": "The page you're looking for doesn't exist or has been moved."
+  "page_not_found_message": "The page you're looking for doesn't exist or has been moved.",
+
+  "difficulty_inferno": "Burning Abyss",
+  "difficulty_inferno_sub": "🔥 Inferno",
+
+  "inferno_1_name": "Flame Gate",
+  "inferno_1_desc": "The entrance to Hell. Flames welcome you.",
+  "inferno_2_name": "Scorched Path",
+  "inferno_2_desc": "A road burned by eternal fire.",
+  "inferno_3_name": "Lava Stream",
+  "inferno_3_desc": "Rivers of molten rock flow endlessly.",
+  "inferno_4_name": "Ash Valley",
+  "inferno_4_desc": "A valley covered in burning ash.",
+  "inferno_5_name": "Fire Swamp",
+  "inferno_5_desc": "A swamp where flames never die.",
+  "inferno_6_name": "Infernal Citadel",
+  "inferno_6_desc": "A fortress forged in hellfire.",
+  "inferno_7_name": "Demon's Corridor",
+  "inferno_7_desc": "A passage guarded by demons.",
+  "inferno_8_name": "Crimson Arena",
+  "inferno_8_desc": "An arena stained with blood and fire.",
+  "inferno_9_name": "Throne of Embers",
+  "inferno_9_desc": "The seat of power in Hell's domain.",
+  "inferno_10_name": "Hellfire Core",
+  "inferno_10_desc": "The heart of all infernal flames."
 }
