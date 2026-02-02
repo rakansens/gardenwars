@@ -79,17 +79,19 @@ export default function UnitDetailModal({
         }
     }, [onClose]);
 
-    // Click outside to close + ESC key
+    // Click/tap outside to close + ESC key
     useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
+        const handleClickOutside = (event: MouseEvent | TouchEvent) => {
             if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
                 onClose();
             }
         };
         document.addEventListener("mousedown", handleClickOutside);
+        document.addEventListener("touchstart", handleClickOutside);
         document.addEventListener("keydown", handleKeyDown);
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("touchstart", handleClickOutside);
             document.removeEventListener("keydown", handleKeyDown);
         };
     }, [onClose, handleKeyDown]);
@@ -107,36 +109,44 @@ export default function UnitDetailModal({
     const unitName = translatedName !== unit.id ? translatedName : unit.name;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-2 sm:p-4 overflow-y-auto transition-opacity animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-2 sm:p-4 transition-opacity animate-in fade-in duration-200">
+            {/* Floating close button for mobile - always visible */}
+            <button
+                onClick={onClose}
+                className="absolute top-3 right-3 z-[60] bg-black/50 hover:bg-black/70 text-white rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold shadow-lg sm:hidden"
+                aria-label="Close"
+            >
+                ✕
+            </button>
             <div
                 ref={modalRef}
-                className="bg-white rounded-2xl w-full max-w-3xl overflow-hidden shadow-2xl transform transition-transform animate-in zoom-in-95 duration-200"
+                className="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl transform transition-transform animate-in zoom-in-95 duration-200"
             >
                 {/* Header */}
-                <div className={`relative h-16 bg-gradient-to-r ${rarityGradients[unit.rarity]} flex items-center justify-between px-6`}>
-                    <div className="flex items-center gap-3">
+                <div className={`sticky top-0 z-10 h-14 sm:h-16 bg-gradient-to-r ${rarityGradients[unit.rarity]} flex items-center justify-between px-4 sm:px-6`}>
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                         <span className={`
-                            text-sm font-bold px-3 py-1 rounded-lg shadow-md
+                            text-xs sm:text-sm font-bold px-2 sm:px-3 py-1 rounded-lg shadow-md flex-shrink-0
                             ${unit.rarity === 'UR' ? 'bg-white/30 text-white' : 'bg-white/90 text-gray-800'}
                         `}>
                             {unit.rarity}
                         </span>
-                        <h2 className="text-2xl font-bold text-white drop-shadow-md">{unitName}</h2>
+                        <h2 className="text-lg sm:text-2xl font-bold text-white drop-shadow-md truncate">{unitName}</h2>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                         {unitHasAnimation && (
-                            <div className="bg-purple-600 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1 shadow-lg">
+                            <div className="bg-purple-600 text-white text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full flex items-center shadow-lg">
                                 🎬
                             </div>
                         )}
                         {unit.role && (
-                            <div className="bg-white/30 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+                            <div className="bg-white/30 text-white text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full shadow-lg">
                                 {roleConfig[unit.role].icon}
                             </div>
                         )}
                         <button
                             onClick={onClose}
-                            className="bg-white/20 hover:bg-white/40 text-white rounded-full p-2 transition-colors ml-2"
+                            className="hidden sm:flex bg-white/20 hover:bg-white/40 text-white rounded-full p-2 transition-colors ml-2"
                         >
                             ✕
                         </button>
