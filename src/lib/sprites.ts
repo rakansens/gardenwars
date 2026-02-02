@@ -12,6 +12,9 @@ export const ANIMATED_UNITS = [
     // SR ユニット
     'sr_rose_hero', 'sr_corn_tank', 'sr_bamboo_mech', 'sr_sun_pirate', 'sr_tulip_idol',
     'sr_cappuccino_assassin', 'sr_capybara_ninja', 'sr_capybara_shaman', 'sr_odindindun', 'sr_traffarella',
+    // New SR units (2026-02) batch 1
+    'sr_amber_fossil_cat', 'sr_angelic_garden', 'sr_bamboo_blaster', 'sr_bamboo_ninja', 'sr_banchou_brawler',
+    'sr_bonsai_cat', 'sr_bonsai_samurai', 'sr_butterfly_fairy_cat', 'sr_celtic_warrior', 'sr_cloud_angel_cat',
     // SSR ユニット
     'flame_knight', 'ice_samurai', 'shadow_assassin', 'thunder_golem',
     // New SSR units (2025-01)
