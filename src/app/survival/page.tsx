@@ -103,92 +103,96 @@ export default function SurvivalPage() {
     ];
 
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center p-4 md:p-6">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-slate-300 to-amber-400 drop-shadow-lg">
-            🧟 {t("survival_select_title")} 🧟
+      <main className="min-h-screen p-4 md:p-6">
+        <div className="max-w-4xl mx-auto text-center mb-6">
+          <h1 className="text-2xl md:text-3xl font-bold text-amber-600 dark:text-amber-400">
+            🧟 {t("survival_select_title")}
           </h1>
-          <p className="text-amber-700/70 dark:text-amber-300/70 mt-3">
+          <p className="text-sm text-amber-700/70 dark:text-amber-300/70 mt-2">
             {t("survival_select_desc")}
           </p>
         </div>
 
         {playerUnit && (
-          <div className="w-full max-w-4xl mb-6">
-            <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur rounded-3xl p-4 md:p-6 shadow-xl border border-slate-200/60 dark:border-slate-700/40 flex flex-col sm:flex-row items-center gap-4">
-              <RarityFrame
-                unitId={playerUnit.id}
-                unitName={getUnitName(playerUnit)}
-                rarity={playerUnit.rarity}
-                size="lg"
-                baseUnitId={playerUnit.baseUnitId || playerUnit.atlasKey}
-              />
-              <div className="flex-1 text-center sm:text-left">
-                <p className="text-slate-500 dark:text-slate-300 text-sm font-semibold tracking-wide">
-                  {t("survival_unit_select")}
-                </p>
-                <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-1">
-                  {getUnitName(playerUnit)}
-                </h2>
-                <p className="text-sm text-slate-600/80 dark:text-slate-300/80">
-                  {t("survival_unit_select_desc")}
-                </p>
-              </div>
-              <button
-                onClick={() => setIsUnitModalOpen(true)}
-                className="btn btn-primary"
-              >
-                {t("survival_unit_change")}
-              </button>
+          <div className="max-w-4xl mx-auto mb-6 card flex flex-col sm:flex-row items-center gap-4">
+            <RarityFrame
+              unitId={playerUnit.id}
+              unitName={getUnitName(playerUnit)}
+              rarity={playerUnit.rarity}
+              size="lg"
+              baseUnitId={playerUnit.baseUnitId || playerUnit.atlasKey}
+            />
+            <div className="flex-1 text-center sm:text-left">
+              <p className="text-xs font-semibold text-amber-700/70 dark:text-amber-300/70 mb-1">
+                {t("survival_unit_select")}
+              </p>
+              <h2 className="text-xl font-bold text-amber-900 dark:text-white mb-1">
+                {getUnitName(playerUnit)}
+              </h2>
+              <p className="text-sm text-amber-700/70 dark:text-slate-300/70">
+                {t("survival_unit_select_desc")}
+              </p>
             </div>
+            <button onClick={() => setIsUnitModalOpen(true)} className="btn btn-primary text-sm">
+              {t("survival_unit_change")}
+            </button>
           </div>
         )}
 
-        <div className="flex flex-col md:flex-row gap-4 max-w-4xl w-full">
+        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4">
           {options.map((option) => (
             <button
               key={option.id}
               onClick={() => setDifficulty(option.id)}
-              className="flex-1 bg-white/70 dark:bg-slate-800/70 backdrop-blur rounded-3xl p-6 md:p-8 text-left hover:shadow-2xl transition-all shadow-xl border border-slate-200/50 dark:border-slate-700/30 hover:scale-[1.02] active:scale-[0.98] group"
+              className="card flex flex-col justify-between gap-4 text-left hover:shadow-xl transition-all active:scale-[0.99]"
             >
-              <div className={`bg-gradient-to-br ${option.accent} w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-lg mb-4 group-hover:scale-110 transition-transform`}>
-                {option.icon}
+              <div className="flex items-start gap-4">
+                <div
+                  className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-sm bg-gradient-to-br ${option.accent}`}
+                >
+                  {option.icon}
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-amber-700/80 dark:text-amber-300/80 mb-1">
+                    {option.title}
+                  </p>
+                  <h2 className="text-lg font-bold text-amber-900 dark:text-white">{option.title}</h2>
+                  <p className="text-sm text-amber-700/70 dark:text-slate-300/70 mt-2">
+                    {option.desc}
+                  </p>
+                </div>
               </div>
-              <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">
-                {option.title}
-              </h2>
-              <p className="text-slate-600/80 dark:text-slate-300/80 text-sm mb-4">
-                {option.desc}
-              </p>
-              <div className="flex items-center text-slate-500 dark:text-slate-400 text-sm font-medium">
-                <span className="mr-2">→</span>
-                {t("survival_select_hint")}
+              <div className="flex items-center justify-between text-sm text-amber-700/80 dark:text-slate-300/80">
+                <span>{t("survival_select_hint")}</span>
+                <span className="font-semibold text-amber-800">→</span>
               </div>
             </button>
           ))}
         </div>
 
-        <Link href="/" className="mt-10 btn btn-secondary">
-          ← {t("back_to_home")}
-        </Link>
+        <div className="flex justify-center mt-8">
+          <Link href="/" className="btn btn-secondary">
+            ← {t("back_to_home")}
+          </Link>
+        </div>
 
         <Modal isOpen={isUnitModalOpen} onClose={() => setIsUnitModalOpen(false)} size="lg">
           <div className="p-5">
-            <h2 className="text-xl font-bold text-slate-800 mb-2">{t("survival_unit_select")}</h2>
-            <p className="text-sm text-slate-600 mb-4">{t("survival_unit_select_desc")}</p>
+            <h2 className="text-xl font-bold text-amber-900 mb-2">{t("survival_unit_select")}</h2>
+            <p className="text-sm text-amber-700/70 mb-4">{t("survival_unit_select_desc")}</p>
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 max-h-[60vh] overflow-y-auto pr-1">
               {selectableUnits.map((unit) => {
                 const isSelected = playerUnit?.id === unit.id;
                 return (
-                <button
-                  key={unit.id}
-                  onClick={() => {
-                    setPlayerUnit(unit);
-                    try {
-                      localStorage.setItem(SURVIVAL_UNIT_KEY, unit.id);
-                    } catch {}
-                    setIsUnitModalOpen(false);
-                  }}
+                  <button
+                    key={unit.id}
+                    onClick={() => {
+                      setPlayerUnit(unit);
+                      try {
+                        localStorage.setItem(SURVIVAL_UNIT_KEY, unit.id);
+                      } catch {}
+                      setIsUnitModalOpen(false);
+                    }}
                     className={`flex flex-col items-center gap-2 p-2 rounded-xl border transition-all ${
                       isSelected ? "border-amber-400 bg-amber-50" : "border-transparent hover:border-slate-300 hover:bg-slate-50"
                     }`}
