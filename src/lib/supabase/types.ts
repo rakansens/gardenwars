@@ -90,6 +90,7 @@ export interface DBRankings {
     stages_cleared: number | null;  // DEFAULT 0 (number of stages cleared)
     win_streak: number | null;  // DEFAULT 0 (current win streak)
     max_win_streak: number | null;  // DEFAULT 0 (best win streak)
+    max_cleared_stage_id: string | null;  // 最高クリアステージID (e.g., "inferno_5")
     updated_at: string | null;
 }
 

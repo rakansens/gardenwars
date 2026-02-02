@@ -48,4 +48,34 @@ export function getStagesByWorldAndDifficulty(
     );
 }
 
+/**
+ * ステージIDからステージ定義を取得
+ */
+export function getStageById(stageId: string): StageDefinition | undefined {
+    return allStages.find((stage) => stage.id === stageId);
+}
+
+/**
+ * ステージIDから進捗表示用の情報を取得
+ * @returns { worldId, stageIndex } または undefined
+ */
+export function getStageProgressInfo(stageId: string): {
+    worldId: WorldId;
+    stageIndex: number;
+    difficulty: StageDefinition["difficulty"];
+} | undefined {
+    const stage = getStageById(stageId);
+    if (!stage) return undefined;
+
+    const worldId = stage.worldId || "world1";
+    const worldStages = getStagesByWorld(worldId);
+    const stageIndex = worldStages.findIndex((s) => s.id === stageId) + 1;
+
+    return {
+        worldId,
+        stageIndex,
+        difficulty: stage.difficulty,
+    };
+}
+
 export default allStages;

@@ -187,6 +187,7 @@ export interface RankingUpdateData {
     stages_cleared?: number;
     win_streak?: number;
     max_win_streak?: number;
+    max_cleared_stage_id?: string;  // 最高クリアステージID
 }
 
 export interface RankingEntry {
@@ -205,6 +206,7 @@ export interface RankingEntry {
     stages_cleared: number;
     win_streak: number;
     max_win_streak: number;
+    max_cleared_stage_id: string | null;  // 最高クリアステージID
     // ロードアウト（デッキ）
     selected_team: string[];
 }
@@ -264,7 +266,8 @@ export async function updateRankings(
 export async function incrementBattleStats(
     playerId: string,
     won: boolean,
-    stageNum?: number
+    stageNum?: number,
+    stageId?: string
 ): Promise<boolean> {
     let { data: rankings, error: fetchError } = await supabase
         .from("rankings")
@@ -312,6 +315,10 @@ export async function incrementBattleStats(
         }
         if (stageNum !== undefined && stageNum > maxStage) {
             updates.max_stage = stageNum;
+            // 最高ステージ更新時のみステージIDも更新
+            if (stageId) {
+                updates.max_cleared_stage_id = stageId;
+            }
         }
     } else {
         // 負けたら連勝リセット
@@ -454,6 +461,7 @@ export async function getRankings(
             stages_cleared,
             win_streak,
             max_win_streak,
+            max_cleared_stage_id,
             players!inner(name)
         `)
         .order(sortBy, { ascending: false })
@@ -483,6 +491,7 @@ export async function getRankings(
                 stages_cleared: row.stages_cleared ?? 0,
                 win_streak: row.win_streak ?? 0,
                 max_win_streak: row.max_win_streak ?? 0,
+                max_cleared_stage_id: (row as any).max_cleared_stage_id || null,
                 selected_team: [],
             })),
             error: null,
@@ -524,6 +533,7 @@ export async function getRankings(
             stages_cleared: row.stages_cleared ?? 0,
             win_streak: row.win_streak ?? 0,
             max_win_streak: row.max_win_streak ?? 0,
+            max_cleared_stage_id: (row as any).max_cleared_stage_id || null,
             selected_team: playerDataMap.get(row.player_id || "") || [],
         })),
         error: null,

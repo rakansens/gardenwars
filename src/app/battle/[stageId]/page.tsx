@@ -110,7 +110,7 @@ export default function BattlePage() {
 
         // バトル統計を記録（認証済みの場合のみ）
         if (playerId) {
-            incrementBattleStats(playerId, win, stageNum).catch(err => {
+            incrementBattleStats(playerId, win, stageNum, stageId).catch(err => {
                 console.error("Failed to update battle stats:", err);
             });
         }

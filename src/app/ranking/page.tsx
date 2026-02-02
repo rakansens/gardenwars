@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { getRankings, type RankingEntry, type RankingSortBy } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
@@ -10,10 +10,35 @@ import PageHeader from "@/components/layout/PageHeader";
 import unitsData from "@/data/units";
 import type { UnitDefinition } from "@/data/types";
 import { getSpritePath } from "@/lib/sprites";
+import { getStageProgressInfo } from "@/data/stages";
+import { getWorldById } from "@/data/worlds";
 
 const allUnits = unitsData as UnitDefinition[];
 
 type SortOption = RankingSortBy | "all";
+
+/**
+ * ステージ進捗を表示用にフォーマット
+ * 例: "🔥 Inferno Stage 5" / "🌍 Earth Stage 10"
+ */
+function formatStageProgress(
+    stageId: string | null,
+    t: (key: string) => string
+): { icon: string; text: string } | null {
+    if (!stageId) return null;
+
+    const progressInfo = getStageProgressInfo(stageId);
+    if (!progressInfo) return null;
+
+    const world = getWorldById(progressInfo.worldId);
+    if (!world) return null;
+
+    const worldName = t(world.nameKey);
+    return {
+        icon: world.icon,
+        text: `${worldName} #${progressInfo.stageIndex}`,
+    };
+}
 
 const SORT_OPTIONS: { key: SortOption; labelKey: string; icon: string }[] = [
     { key: "all", labelKey: "ranking_all", icon: "🎴" },
@@ -146,6 +171,7 @@ export default function RankingPage() {
                             {rankings.map((entry, index) => {
                                 const rank = index + 1;
                                 const isCurrentPlayer = entry.player_id === playerId;
+                                const stageProgress = formatStageProgress(entry.max_cleared_stage_id, t);
 
                                 return (
                                     <div
@@ -165,12 +191,20 @@ export default function RankingPage() {
 
                                         {/* プレイヤー名 & ロードアウト */}
                                         <div className={`${isAllTab ? "col-span-10" : "col-span-6"} ${isAllTab ? "md:col-span-11" : "md:col-span-4"} flex flex-col justify-center`}>
-                                            <span className="text-gray-800 dark:text-white font-bold truncate">
-                                                {entry.player_name}
-                                                {isCurrentPlayer && (
-                                                    <span className="ml-2 text-xs text-blue-500 dark:text-blue-400">(You)</span>
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                <span className="text-gray-800 dark:text-white font-bold truncate">
+                                                    {entry.player_name}
+                                                    {isCurrentPlayer && (
+                                                        <span className="ml-2 text-xs text-blue-500 dark:text-blue-400">(You)</span>
+                                                    )}
+                                                </span>
+                                                {/* ステージ進捗バッジ */}
+                                                {stageProgress && (
+                                                    <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 whitespace-nowrap">
+                                                        {stageProgress.icon} {stageProgress.text}
+                                                    </span>
                                                 )}
-                                            </span>
+                                            </div>
                                             {/* ロードアウトアイコン（Allタブのみ） */}
                                             {isAllTab && entry.selected_team && entry.selected_team.length > 0 && (
                                                 <div className="flex gap-2 mt-2 flex-wrap">
