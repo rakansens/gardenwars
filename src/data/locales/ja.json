@@ -602,5 +602,16 @@
   "attack_type_piercing": "貫通",
   "area_radius": "範囲半径",
   "filter": "フィルター",
-  "clear_filter": "クリア"
+  "clear_filter": "クリア",
+
+  "skill": "スキル",
+  "skill_trigger": "発動条件",
+  "skill_trigger_on_spawn": "召喚時",
+  "skill_trigger_on_attack": "攻撃時",
+  "skill_trigger_hp_threshold": "HP低下時",
+  "skill_trigger_interval": "一定間隔",
+  "skill_trigger_passive": "常時",
+  "skill_cooldown": "クールダウン",
+  "skill_chance": "発動確率",
+  "skill_threshold": "HP条件"
 }

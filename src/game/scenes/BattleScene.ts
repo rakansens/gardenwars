@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { Unit } from '../entities/Unit';
+import { Unit, setUnitListGetters } from '../entities/Unit';
 import { Castle } from '../entities/Castle';
 import { CombatSystem } from '../systems/CombatSystem';
 import { WaveSystem } from '../systems/WaveSystem';
@@ -340,6 +340,12 @@ export class BattleScene extends Phaser.Scene {
         // システム初期化
         this.combatSystem = new CombatSystem(this);
         this.waveSystem = new WaveSystem(this, this.stageData, this.allUnitsData);
+
+        // スキルシステム用のユニットリストゲッター設定
+        setUnitListGetters(
+            () => this.allyUnits.filter(u => u.active),
+            () => this.enemyUnits.filter(u => u.active)
+        );
 
         // プレイヤーのコスト設定
         const playerCostConfig = {

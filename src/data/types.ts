@@ -57,6 +57,8 @@ export interface UnitDefinition {
   role?: UnitRole;            // ユニットロール
   attackType?: AttackType;    // 攻撃タイプ（デフォルト: single）
   areaRadius?: number;        // 範囲攻撃の半径（attackType: area時）
+  skillId?: string;           // スキルID（JSON定義用、実行時にskillに解決）
+  skill?: UnitSkill;          // スキル（URユニット用）
 }
 
 /**
@@ -297,3 +299,122 @@ export interface SurvivalWavesConfig {
 }
 
 export type SurvivalDifficulty = 'easy' | 'normal' | 'hard';
+
+// ============================================
+// Skill System Types
+// ============================================
+
+/**
+ * スキル発動トリガー
+ */
+export type SkillTrigger =
+  | 'on_spawn'        // 召喚時に1回発動
+  | 'on_attack'       // 攻撃時に発動（確率判定あり）
+  | 'on_hit'          // 被弾時に発動
+  | 'on_kill'         // 敵撃破時に発動
+  | 'hp_threshold'    // HP閾値到達時（1回のみ）
+  | 'interval'        // 一定間隔で自動発動
+  | 'passive';        // 常時発動（バフ系）
+
+/**
+ * スキル効果タイプ
+ */
+export type SkillEffectType =
+  // 時間操作系
+  | 'time_stop'       // 時間停止
+  | 'time_slow'       // スロー
+  | 'haste'           // 加速
+
+  // ダメージ系
+  | 'damage_modifier' // ダメージ倍率
+  | 'critical'        // クリティカル
+  | 'dot'             // 継続ダメージ
+  | 'chain'           // 連鎖ダメージ
+
+  // 防御系
+  | 'shield'          // シールド
+  | 'damage_reduction'// ダメージ軽減
+  | 'invincible'      // 無敵
+  | 'last_stand'      // 致死ダメージを1回耐える
+
+  // 回復系
+  | 'heal'            // HP回復（即時）
+  | 'regen'           // HP継続回復
+
+  // 状態異常系
+  | 'stun'            // スタン
+  | 'freeze'          // 凍結
+  | 'burn';           // 炎上
+
+/**
+ * スキル効果対象
+ */
+export type SkillTarget =
+  | 'self'            // 自分のみ
+  | 'single_enemy'    // 単体敵（攻撃対象）
+  | 'all_enemies'     // 全敵
+  | 'area_enemies'    // 範囲内敵
+  | 'single_ally'     // 単体味方
+  | 'all_allies'      // 全味方
+  | 'area_allies';    // 範囲内味方
+
+/**
+ * スキル効果定義
+ */
+export interface SkillEffect {
+  type: SkillEffectType;
+  target: SkillTarget;
+  value: number;               // 効果値
+  durationMs?: number;         // 効果持続時間
+  range?: number;              // 効果範囲（area_* の場合）
+  chainCount?: number;         // chain: 連鎖回数
+}
+
+/**
+ * スキル定義
+ */
+export interface UnitSkill {
+  id: string;
+  name: string;
+  nameJa: string;
+  description: string;
+  descriptionJa: string;
+
+  // 発動条件
+  trigger: SkillTrigger;
+  triggerChance?: number;      // 発動確率 (0.0-1.0)
+  triggerThreshold?: number;   // HP閾値 (0.0-1.0)
+  triggerIntervalMs?: number;  // 発動間隔
+
+  // クールダウン
+  cooldownMs: number;
+
+  // 効果
+  effects: SkillEffect[];
+
+  // ビジュアル
+  icon: string;                // アイコン絵文字
+  effectColor: number;         // エフェクト色（0xRRGGBB）
+}
+
+/**
+ * ランタイムスキル状態
+ */
+export interface SkillRuntimeState {
+  skillId: string;
+  cooldownRemaining: number;
+  intervalTimer: number;       // interval用タイマー
+  triggered: boolean;          // hp_threshold等の1回限りトリガー用
+}
+
+/**
+ * ステータス効果（バフ/デバフ）
+ */
+export interface StatusEffect {
+  id: string;
+  type: SkillEffectType;
+  value: number;
+  remainingMs: number;
+  sourceUnitId: string;
+  icon: string;
+}

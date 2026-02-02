@@ -599,5 +599,16 @@
   "attack_type_piercing": "Piercing",
   "area_radius": "Area Radius",
   "filter": "Filter",
-  "clear_filter": "Clear"
+  "clear_filter": "Clear",
+
+  "skill": "Skill",
+  "skill_trigger": "Trigger",
+  "skill_trigger_on_spawn": "On Spawn",
+  "skill_trigger_on_attack": "On Attack",
+  "skill_trigger_hp_threshold": "HP Threshold",
+  "skill_trigger_interval": "Interval",
+  "skill_trigger_passive": "Passive",
+  "skill_cooldown": "Cooldown",
+  "skill_chance": "Chance",
+  "skill_threshold": "HP Condition"
 }

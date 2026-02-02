@@ -131,6 +131,13 @@ const UnitCard = memo(function UnitCard({
                     </div>
                 )}
 
+                {/* スキルバッジ（URのみ） */}
+                {unit.skill && (
+                    <div className="absolute top-14 -left-2 w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-white text-xs flex items-center justify-center z-10 shadow-lg" title={unit.skill.nameJa}>
+                        {unit.skill.icon}
+                    </div>
+                )}
+
                 <div className="flex justify-center mb-2">
                     <RarityFrame
                         unitId={unit.id}
@@ -195,6 +202,13 @@ const UnitCard = memo(function UnitCard({
             {ownedCount !== undefined && ownedCount > 0 && (
                 <div className="absolute -top-1 -left-1 w-5 h-5 rounded-full bg-blue-500 text-white text-[10px] font-bold flex items-center justify-center z-10">
                     {ownedCount}
+                </div>
+            )}
+
+            {/* スキルバッジ（URのみ） */}
+            {unit.skill && (
+                <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-[10px] flex items-center justify-center z-10 shadow-lg" title={unit.skill.nameJa}>
+                    {unit.skill.icon}
                 </div>
             )}
 

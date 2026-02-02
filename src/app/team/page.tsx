@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import unitsData from "@/data/units";
 import type { UnitDefinition, Rarity, UnitRole } from "@/data/types";
+import { SKILL_DEFINITIONS } from "@/data/skills";
 
 // ロール別のアイコンと色
 const roleConfig: Record<UnitRole, { icon: string; color: string }> = {
@@ -116,10 +117,11 @@ type SpecialFilter = "none" | "flying" | "area" | "animation";
 
 export default function TeamPage() {
     const { selectedTeam, unitInventory, setTeam, isLoaded, activeLoadoutIndex, switchLoadout, loadouts } = usePlayerData();
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [rarityFilter, setRarityFilter] = useState<Rarity | "ALL">("ALL");
     const [roleFilter, setRoleFilter] = useState<RoleFilter>("ALL");
     const [specialFilter, setSpecialFilter] = useState<SpecialFilter>("none");
+    const [skillFilter, setSkillFilter] = useState<string | null>(null);
     const [sortBy, setSortBy] = useState<SortKey>("none");
     const { viewingUnit, openModal, closeModal } = useUnitDetailModal();
 
@@ -210,6 +212,14 @@ export default function TeamPage() {
         { key: "animation", label: "Anim", icon: "🎬", color: "bg-purple-500" },
     ];
 
+    // スキルフィルタータブ（URユニット向け）
+    const skillTabs = Object.entries(SKILL_DEFINITIONS).map(([id, skill]) => ({
+        key: id,
+        label: language === 'ja' ? skill.nameJa : skill.name,
+        icon: skill.icon,
+        color: "bg-purple-500"
+    }));
+
     // フィルタリング処理
     const filteredUnits = allyUnits.filter(u => {
         // レアリティフィルター
@@ -220,6 +230,8 @@ export default function TeamPage() {
         if (specialFilter === "flying" && !u.isFlying) return false;
         if (specialFilter === "area" && u.attackType !== "area") return false;
         if (specialFilter === "animation" && !getUnitHasAnimation(u)) return false;
+        // スキルフィルター（URのみ対象）
+        if (skillFilter && u.skill?.id !== skillFilter) return false;
         return true;
     });
     const MAX_TEAM_SIZE = 7;
@@ -660,7 +672,11 @@ export default function TeamPage() {
                         {rarityTabs.map(tab => (
                             <button
                                 key={tab.key}
-                                onClick={() => setRarityFilter(tab.key)}
+                                onClick={() => {
+                                    setRarityFilter(tab.key);
+                                    // UR以外に切り替えた時はスキルフィルターをリセット
+                                    if (tab.key !== "UR") setSkillFilter(null);
+                                }}
                                 className={`
                                     px-4 py-2.5 md:px-5 md:py-3 rounded-xl font-bold text-sm md:text-base transition-all min-h-[44px]
                                     ${rarityFilter === tab.key
@@ -724,9 +740,9 @@ export default function TeamPage() {
                             </button>
                         ))}
                         {/* フィルタークリアボタン */}
-                        {(roleFilter !== "ALL" || specialFilter !== "none") && (
+                        {(roleFilter !== "ALL" || specialFilter !== "none" || skillFilter !== null) && (
                             <button
-                                onClick={() => { setRoleFilter("ALL"); setSpecialFilter("none"); }}
+                                onClick={() => { setRoleFilter("ALL"); setSpecialFilter("none"); setSkillFilter(null); }}
                                 className="px-3 py-2 rounded-xl text-sm transition-all bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 active:scale-95"
                             >
                                 ✕ {t("clear_filter")}
@@ -734,6 +750,49 @@ export default function TeamPage() {
                         )}
                     </div>
                     </div>
+
+                    {/* スキルフィルター（URレアリティ選択時のみ表示） */}
+                    {(rarityFilter === "UR" || rarityFilter === "ALL") && (
+                        <div className="mb-4">
+                        <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+                            <span className="text-sm md:text-base font-bold text-purple-600 dark:text-purple-400">{t("skill")}:</span>
+                            <button
+                                onClick={() => setSkillFilter(null)}
+                                className={`
+                                    px-3 py-2 md:px-4 md:py-2.5 rounded-xl text-sm md:text-base transition-all flex items-center gap-1 min-h-[40px] md:min-h-[44px]
+                                    ${skillFilter === null
+                                        ? "bg-gray-500 text-white shadow-md scale-105"
+                                        : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-600 active:scale-95"
+                                    }
+                                `}
+                            >
+                                <span>📋</span>
+                                <span>{t("sort_none")}</span>
+                            </button>
+                            {skillTabs.map(tab => {
+                                // このスキルを持つユニット数をカウント
+                                const skillUnitCount = allyUnits.filter(u => u.skill?.id === tab.key).length;
+                                return (
+                                    <button
+                                        key={tab.key}
+                                        onClick={() => setSkillFilter(tab.key)}
+                                        className={`
+                                            px-3 py-2 md:px-4 md:py-2.5 rounded-xl text-sm md:text-base transition-all flex items-center gap-1 min-h-[40px] md:min-h-[44px]
+                                            ${skillFilter === tab.key
+                                                ? `${tab.color} text-white shadow-md scale-105`
+                                                : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-600 active:scale-95"
+                                            }
+                                        `}
+                                    >
+                                        <span>{tab.icon}</span>
+                                        <span className="hidden sm:inline">{tab.label}</span>
+                                        <span className="text-xs opacity-75">({skillUnitCount})</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                        </div>
+                    )}
 
                     {/* ソートオプション */}
                     <div>

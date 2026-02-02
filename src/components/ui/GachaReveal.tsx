@@ -70,7 +70,7 @@ const rarityEffects: Record<Rarity, {
 };
 
 export default function GachaReveal({ results, onComplete, dropRates }: GachaRevealProps) {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const isMulti = results.length > 1;
     const [phase, setPhase] = useState<"video" | "cards" | "single">("video");
     const [revealedCards, setRevealedCards] = useState<boolean[]>(results.map(() => false));
@@ -237,6 +237,16 @@ export default function GachaReveal({ results, onComplete, dropRates }: GachaRev
                                     }`}>
                                     {unit.rarity}
                                 </div>
+
+                                {/* スキル表示（URのみ） */}
+                                {unit.skill && (
+                                    <div className="mt-2 px-3 py-1.5 bg-gradient-to-r from-purple-500/80 to-pink-500/80 rounded-lg text-center">
+                                        <div className="flex items-center justify-center gap-1 text-white font-bold text-sm">
+                                            <span>{unit.skill.icon}</span>
+                                            <span>{language === 'ja' ? unit.skill.nameJa : unit.skill.name}</span>
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* ドロップレート */}
                                 {dropRates && dropRates[currentSingleIndex] !== undefined && (

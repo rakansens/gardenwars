@@ -1,11 +1,27 @@
 import Phaser from 'phaser';
-import type { UnitDefinition, UnitState, UnitSide } from '@/data/types';
+import type { UnitDefinition, UnitState, UnitSide, SkillRuntimeState, StatusEffect, SkillEffect } from '@/data/types';
 import type { Castle } from './Castle';
 
 // ============================================
 // Unit Entity - 状態機械による自動戦闘ユニット
 // ============================================
 // 注: アニメーション対応判定はランタイムでテクスチャ存在チェックを行う（hasAnimation参照は不要）
+
+// スキルシステム用：シーン全体のユニットリスト取得関数（モジュールレベル）
+let globalGetAllyUnits: (() => Unit[]) | null = null;
+let globalGetEnemyUnits: (() => Unit[]) | null = null;
+
+/**
+ * スキルシステム用のユニットリスト取得関数を設定
+ * BattleSceneのcreate()で呼び出す
+ */
+export function setUnitListGetters(
+    getAlly: () => Unit[],
+    getEnemy: () => Unit[]
+): void {
+    globalGetAllyUnits = getAlly;
+    globalGetEnemyUnits = getEnemy;
+}
 
 export class Unit extends Phaser.GameObjects.Container {
     // 基本データ
@@ -55,6 +71,24 @@ export class Unit extends Phaser.GameObjects.Container {
     // ボス範囲攻撃用
     private isEnraged: boolean = false;
     private lastAoeTime: number = 0;
+
+    // ============================================
+    // スキルシステム
+    // ============================================
+    private skillState: SkillRuntimeState | null = null;
+    private statusEffects: StatusEffect[] = [];
+    private statusIcons: Map<string, Phaser.GameObjects.Container> = new Map();
+
+    // スキル効果による修正値
+    public isFrozen: boolean = false;           // 時間停止/凍結中
+    public isInvincible: boolean = false;       // 無敵中
+    public speedModifier: number = 1.0;         // 速度倍率
+    public damageModifier: number = 1.0;        // ダメージ倍率（与える）
+    public attackSpeedModifier: number = 1.0;   // 攻撃速度倍率
+    public damageReduction: number = 0;         // ダメージ軽減%
+    private lastStandAvailable: boolean = false; // ラストスタンド使用可能
+    private lastStandUsed: boolean = false;     // ラストスタンド使用済み
+    private regenTimer: number = 0;             // リジェネタイマー
 
     constructor(
         scene: Phaser.Scene,
@@ -177,12 +211,27 @@ export class Unit extends Phaser.GameObjects.Container {
 
         // スポーン状態から開始
         this.setUnitState('SPAWN');
+
+        // スキル初期化
+        this.initializeSkill();
     }
 
+    /**
+     * ユニットリスト取得関数を設定（BattleSceneから呼び出し）
+     */
     update(delta: number): void {
         if (this.state === 'DIE') return;
 
+        // 時間停止中は更新しない
+        if (this.isFrozen) {
+            this.updateStatusEffectTimers(delta);
+            return;
+        }
+
         this.stateTimer += delta;
+
+        // スキルシステム更新
+        this.updateSkillSystem(delta);
 
         switch (this.state) {
             case 'SPAWN':
@@ -286,6 +335,8 @@ export class Unit extends Phaser.GameObjects.Container {
         // スポーン演出（300ms）
         if (this.stateTimer >= 300) {
             this.setUnitState('WALK');
+            // on_spawn スキルトリガー
+            this.triggerSkill('on_spawn');
         }
     }
 
@@ -301,8 +352,8 @@ export class Unit extends Phaser.GameObjects.Container {
             return;
         }
 
-        // 前進
-        const speed = this.definition.speed * (delta / 1000);
+        // 前進（スロー効果を適用）
+        const speed = this.definition.speed * this.speedModifier * (delta / 1000);
 
         if (this.verticalMode) {
             // アリーナモード: 縦移動
@@ -336,8 +387,9 @@ export class Unit extends Phaser.GameObjects.Container {
     }
 
     private handleAttackCooldown(): void {
-        // クールダウン完了
-        if (this.stateTimer >= this.definition.attackCooldownMs) {
+        // クールダウン完了（ヘイスト効果を適用）
+        const cooldown = this.definition.attackCooldownMs * this.attackSpeedModifier;
+        if (this.stateTimer >= cooldown) {
             // ターゲットがまだ射程内なら再度攻撃
             if (this.target && !this.target.isDead() && this.isInRange(this.target)) {
                 this.setUnitState('ATTACK_WINDUP');
@@ -386,20 +438,27 @@ export class Unit extends Phaser.GameObjects.Container {
 
         // 単体攻撃
         if (this.target && !this.target.isDead()) {
+            // スキルによるダメージ計算
+            const { damage, isCritical } = this.calculateSkillDamage(this.definition.attackDamage);
+
             // 遠距離ユニット（射程100以上）は弾丸エフェクト付き
             if (this.definition.attackRange >= 100) {
-                this.performRangedAttack(this.target);
+                this.performRangedAttackWithSkill(this.target, damage, isCritical);
             } else {
-                this.target.takeDamage(this.definition.attackDamage, this.definition.knockback);
+                this.applyDamageWithSkill(this.target, damage, isCritical);
             }
+
+            // on_attack スキルトリガー（追加効果: chain, burn, slow等）
+            this.triggerSkill('on_attack', this.target);
             return;
         }
         if (this.castleTarget) {
+            const { damage } = this.calculateSkillDamage(this.definition.attackDamage);
             // 城への遠距離攻撃もエフェクト付き
             if (this.definition.attackRange >= 100) {
-                this.performRangedAttackOnCastle();
+                this.performRangedAttackOnCastleWithDamage(damage);
             } else {
-                this.castleTarget.takeDamage(this.definition.attackDamage);
+                this.castleTarget.takeDamage(damage);
             }
         }
     }
@@ -763,17 +822,39 @@ export class Unit extends Phaser.GameObjects.Container {
         }
     }
 
-    public takeDamage(damage: number, knockback: number): void {
-        this.hp -= damage;
+    public takeDamage(damage: number, knockback: number, attacker?: Unit): void {
+        // 無敵中はダメージ無効
+        if (this.isInvincible) {
+            this.showBlockedEffect();
+            return;
+        }
+
+        // ダメージ軽減適用
+        const actualDamage = Math.floor(damage * (1 - this.damageReduction));
+        this.hp -= actualDamage;
 
         // ダメージ数値表示
-        this.showDamageNumber(damage);
+        this.showDamageNumber(actualDamage);
+
+        // on_hit スキルトリガー
+        this.triggerSkill('on_hit', attacker);
+
+        // ラストスタンドチェック
+        if (this.hp <= 0 && this.lastStandAvailable && !this.lastStandUsed) {
+            this.hp = 1;
+            this.lastStandUsed = true;
+            this.showLastStandEffect();
+            return;
+        }
 
         if (this.hp <= 0) {
             this.hp = 0;
             this.die();
             return;
         }
+
+        // hp_threshold スキルトリガー
+        this.checkHpThresholdSkill();
 
         // ボスの怒りモードチェック（HP閾値以下で発動）
         if (this.definition.isBoss && this.definition.bossAoe?.enabled) {
@@ -1179,5 +1260,983 @@ export class Unit extends Phaser.GameObjects.Container {
             ease: 'Power2',
             onComplete: () => hit.destroy(),
         });
+    }
+
+    // ============================================
+    // スキルシステム - メインメソッド
+    // ============================================
+
+    /**
+     * スキル初期化
+     */
+    private initializeSkill(): void {
+        const skill = this.definition.skill;
+        if (!skill) return;
+
+        this.skillState = {
+            skillId: skill.id,
+            cooldownRemaining: 0,
+            intervalTimer: 0,
+            triggered: false
+        };
+
+        // パッシブスキルは即座に効果適用
+        if (skill.trigger === 'passive') {
+            this.applyPassiveSkill(skill);
+        }
+
+        // スキルアイコン表示（URのみ）
+        if (this.definition.rarity === 'UR') {
+            this.showSkillIcon(skill.icon);
+        }
+    }
+
+    /**
+     * パッシブスキル適用
+     */
+    private applyPassiveSkill(skill: typeof this.definition.skill): void {
+        if (!skill) return;
+
+        for (const effect of skill.effects) {
+            switch (effect.type) {
+                case 'last_stand':
+                    this.lastStandAvailable = true;
+                    this.addStatusIcon('💪', -1);
+                    break;
+                case 'regen':
+                    // リジェネは updateSkillSystem で処理
+                    this.addStatusIcon('💚', -1);
+                    break;
+                case 'damage_reduction':
+                    this.damageReduction = effect.value;
+                    break;
+            }
+        }
+    }
+
+    /**
+     * スキルシステム更新（毎フレーム）
+     */
+    private updateSkillSystem(delta: number): void {
+        // クールダウン更新
+        if (this.skillState && this.skillState.cooldownRemaining > 0) {
+            this.skillState.cooldownRemaining -= delta;
+        }
+
+        // interval スキルチェック
+        if (this.skillState && this.definition.skill?.trigger === 'interval') {
+            this.skillState.intervalTimer += delta;
+            const interval = this.definition.skill.triggerIntervalMs || 10000;
+            if (this.skillState.intervalTimer >= interval && this.skillState.cooldownRemaining <= 0) {
+                this.skillState.intervalTimer = 0;
+                this.executeSkill(this.definition.skill);
+            }
+        }
+
+        // リジェネ処理
+        if (this.definition.skill?.effects.some(e => e.type === 'regen')) {
+            this.regenTimer += delta;
+            if (this.regenTimer >= 1000) {
+                this.regenTimer = 0;
+                const regenEffect = this.definition.skill.effects.find(e => e.type === 'regen');
+                if (regenEffect) {
+                    const healAmount = Math.floor(this.maxHp * regenEffect.value);
+                    this.heal(healAmount);
+                }
+            }
+        }
+
+        // ステータス効果の時間経過
+        this.updateStatusEffectTimers(delta);
+    }
+
+    /**
+     * ステータス効果タイマー更新
+     */
+    private updateStatusEffectTimers(delta: number): void {
+        const expiredEffects: StatusEffect[] = [];
+
+        for (const effect of this.statusEffects) {
+            effect.remainingMs -= delta;
+            if (effect.remainingMs <= 0) {
+                expiredEffects.push(effect);
+            }
+        }
+
+        // 期限切れ効果を除去
+        for (const effect of expiredEffects) {
+            this.removeStatusEffect(effect);
+        }
+    }
+
+    /**
+     * ステータス効果除去
+     */
+    private removeStatusEffect(effect: StatusEffect): void {
+        const index = this.statusEffects.indexOf(effect);
+        if (index > -1) {
+            this.statusEffects.splice(index, 1);
+        }
+
+        // 効果タイプに応じた後処理
+        switch (effect.type) {
+            case 'time_stop':
+            case 'stun':
+            case 'freeze':
+                this.isFrozen = false;
+                if (this.sprite instanceof Phaser.GameObjects.Sprite) {
+                    this.sprite.anims.resume();
+                }
+                this.sprite.clearTint();
+                this.showUnfreezeEffect();
+                break;
+            case 'time_slow':
+                // 他にスロー効果がなければ速度を戻す
+                if (!this.statusEffects.some(e => e.type === 'time_slow')) {
+                    this.speedModifier = 1.0;
+                }
+                break;
+            case 'haste':
+                if (!this.statusEffects.some(e => e.type === 'haste')) {
+                    this.attackSpeedModifier = 1.0;
+                }
+                break;
+            case 'invincible':
+                this.isInvincible = false;
+                this.showShieldBreakEffect();
+                break;
+            case 'damage_modifier':
+                if (!this.statusEffects.some(e => e.type === 'damage_modifier')) {
+                    this.damageModifier = 1.0;
+                }
+                break;
+        }
+
+        this.removeStatusIcon(effect.icon);
+    }
+
+    /**
+     * スキルトリガー
+     */
+    private triggerSkill(trigger: string, target?: Unit): void {
+        const skill = this.definition.skill;
+        if (!skill || skill.trigger !== trigger) return;
+        if (!this.skillState || this.skillState.cooldownRemaining > 0) return;
+
+        // 発動確率チェック
+        const chance = skill.triggerChance ?? 1.0;
+        if (Math.random() > chance) return;
+
+        // hp_threshold の1回限りチェック
+        if (trigger === 'hp_threshold' && this.skillState.triggered) return;
+        if (trigger === 'hp_threshold') {
+            this.skillState.triggered = true;
+        }
+
+        this.executeSkill(skill, target);
+    }
+
+    /**
+     * スキル実行
+     */
+    private executeSkill(skill: typeof this.definition.skill, target?: Unit): void {
+        if (!skill) return;
+
+        // クールダウン開始
+        if (this.skillState) {
+            this.skillState.cooldownRemaining = skill.cooldownMs;
+        }
+
+        // 発動エフェクト
+        this.showSkillActivationEffect(skill);
+
+        // 各効果を適用
+        for (const effect of skill.effects) {
+            this.applySkillEffect(effect, skill, target);
+        }
+    }
+
+    /**
+     * スキルダメージ計算
+     */
+    private calculateSkillDamage(baseDamage: number): { damage: number; isCritical: boolean } {
+        let damage = baseDamage;
+        let isCritical = false;
+
+        // ダメージ倍率バフ適用
+        damage *= this.damageModifier;
+
+        // クリティカルチェック
+        const skill = this.definition.skill;
+        if (skill?.trigger === 'on_attack') {
+            const critEffect = skill.effects.find(e => e.type === 'critical');
+            if (critEffect) {
+                const chance = skill.triggerChance ?? 1.0;
+                if (Math.random() < chance) {
+                    damage *= critEffect.value;
+                    isCritical = true;
+                }
+            }
+        }
+
+        return { damage: Math.floor(damage), isCritical };
+    }
+
+    /**
+     * スキル付きダメージ適用
+     */
+    private applyDamageWithSkill(target: Unit, damage: number, isCritical: boolean): void {
+        if (isCritical) {
+            this.showCriticalEffect(target, damage);
+        }
+        target.takeDamage(damage, this.definition.knockback, this);
+    }
+
+    /**
+     * スキル付き遠距離攻撃
+     */
+    private performRangedAttackWithSkill(target: Unit, damage: number, isCritical: boolean): void {
+        const startX = this.x;
+        const startY = this.y - 50 - this.flyingOffset;
+        const endX = target.x;
+        const endY = target.y - 50;
+
+        const projectile = this.createProjectile(startX, startY);
+        const distance = Math.abs(endX - startX);
+        const duration = Math.min(300, Math.max(100, distance * 0.8));
+
+        this.scene.tweens.add({
+            targets: projectile,
+            x: endX,
+            y: { value: endY, ease: 'Sine.easeIn' },
+            duration: duration,
+            onUpdate: () => {
+                if (Math.random() < 0.3) {
+                    this.createTrailParticle(projectile.x, projectile.y);
+                }
+            },
+            onComplete: () => {
+                projectile.destroy();
+                if (!target.isDead()) {
+                    if (isCritical) {
+                        this.showCriticalEffect(target, damage);
+                    }
+                    target.takeDamage(damage, this.definition.knockback, this);
+                    this.createRangedHitEffect(endX, endY);
+                }
+            },
+        });
+    }
+
+    /**
+     * 城への遠距離攻撃（ダメージ指定）
+     */
+    private performRangedAttackOnCastleWithDamage(damage: number): void {
+        if (!this.castleTarget) return;
+
+        const startX = this.x;
+        const startY = this.y - 50 - this.flyingOffset;
+        const endX = this.castleTarget.getX();
+        const endY = this.castleTarget.y - 50;
+
+        const projectile = this.createProjectile(startX, startY);
+        const distance = Math.abs(endX - startX);
+        const duration = Math.min(300, Math.max(100, distance * 0.8));
+
+        this.scene.tweens.add({
+            targets: projectile,
+            x: endX,
+            y: endY,
+            duration: duration,
+            onUpdate: () => {
+                if (Math.random() < 0.3) {
+                    this.createTrailParticle(projectile.x, projectile.y);
+                }
+            },
+            onComplete: () => {
+                projectile.destroy();
+                if (this.castleTarget) {
+                    this.castleTarget.takeDamage(damage);
+                    this.createRangedHitEffect(endX, endY);
+                }
+            },
+        });
+    }
+
+    /**
+     * HP閾値スキルチェック
+     */
+    private checkHpThresholdSkill(): void {
+        const skill = this.definition.skill;
+        if (!skill || skill.trigger !== 'hp_threshold') return;
+        if (this.skillState?.triggered) return;
+
+        const threshold = skill.triggerThreshold ?? 0.3;
+        const hpRatio = this.hp / this.maxHp;
+
+        if (hpRatio <= threshold) {
+            this.triggerSkill('hp_threshold');
+        }
+    }
+
+    /**
+     * スキル効果適用
+     */
+    private applySkillEffect(effect: SkillEffect, skill: typeof this.definition.skill, mainTarget?: Unit): void {
+        if (!skill) return;
+        const targets = this.getSkillTargets(effect.target, effect.range, mainTarget);
+
+        switch (effect.type) {
+            case 'time_stop':
+                targets.forEach(t => this.applyTimeStop(t, effect.durationMs!, skill.icon));
+                break;
+            case 'time_slow':
+                targets.forEach(t => this.applySlowEffect(t, effect.value, effect.durationMs!, skill.icon));
+                break;
+            case 'haste':
+                targets.forEach(t => this.applyHasteEffect(t, effect.value, effect.durationMs!, skill.icon));
+                break;
+            case 'chain':
+                if (mainTarget) {
+                    this.applyChainLightning(mainTarget, effect.value, effect.chainCount!, effect.range!);
+                }
+                break;
+            case 'burn':
+                if (mainTarget) {
+                    this.applyBurnEffect(mainTarget, effect.value, effect.durationMs!, skill.icon);
+                }
+                break;
+            case 'stun':
+                targets.forEach(t => this.applyStunEffect(t, effect.durationMs!, skill.icon));
+                break;
+            case 'invincible':
+                this.applyInvincibleEffect(effect.durationMs!, skill.icon);
+                break;
+            case 'damage_modifier':
+                targets.forEach(t => this.applyDamageBuffEffect(t, effect.value, effect.durationMs!, skill.icon));
+                break;
+        }
+    }
+
+    /**
+     * スキルターゲット取得
+     */
+    private getSkillTargets(targetType: string, range?: number, mainTarget?: Unit): Unit[] {
+        const scene = this.scene as any;
+        const allyUnits: Unit[] = globalGetAllyUnits?.() || scene.allyUnits || [];
+        const enemyUnits: Unit[] = globalGetEnemyUnits?.() || scene.enemyUnits || [];
+
+        switch (targetType) {
+            case 'self':
+                return [this];
+            case 'single_enemy':
+                return mainTarget ? [mainTarget] : [];
+            case 'all_enemies':
+                return this.side === 'ally' ? enemyUnits.filter(u => !u.isDead()) : allyUnits.filter(u => !u.isDead());
+            case 'area_enemies':
+                const enemies = this.side === 'ally' ? enemyUnits : allyUnits;
+                return enemies.filter(u => !u.isDead() && this.isWithinRange(u, range || 150));
+            case 'single_ally':
+                return [this];
+            case 'all_allies':
+                return this.side === 'ally' ? allyUnits.filter(u => !u.isDead()) : enemyUnits.filter(u => !u.isDead());
+            case 'area_allies':
+                const allies = this.side === 'ally' ? allyUnits : enemyUnits;
+                return allies.filter(u => !u.isDead() && this.isWithinRange(u, range || 150));
+            default:
+                return [];
+        }
+    }
+
+    private isWithinRange(target: Unit, range: number): boolean {
+        const distance = this.verticalMode
+            ? Math.abs(this.y - target.y)
+            : Math.abs(this.x - target.x);
+        return distance <= range;
+    }
+
+    // ============================================
+    // スキル効果適用メソッド
+    // ============================================
+
+    private applyTimeStop(target: Unit, durationMs: number, icon: string): void {
+        target.isFrozen = true;
+        if (target.sprite instanceof Phaser.GameObjects.Sprite) {
+            target.sprite.anims.pause();
+        }
+        target.sprite.setTint(0x88ccff);
+
+        target.addStatusEffect({
+            id: `time_stop_${Date.now()}`,
+            type: 'time_stop',
+            value: 1,
+            remainingMs: durationMs,
+            sourceUnitId: this.instanceId,
+            icon: '⏱️'
+        });
+
+        target.addStatusIcon('⏱️', durationMs);
+        this.showTimeStopEffect(target);
+    }
+
+    private applySlowEffect(target: Unit, slowValue: number, durationMs: number, icon: string): void {
+        target.speedModifier = slowValue;
+        target.sprite.setTint(0xaaddff);
+
+        target.addStatusEffect({
+            id: `slow_${Date.now()}`,
+            type: 'time_slow',
+            value: slowValue,
+            remainingMs: durationMs,
+            sourceUnitId: this.instanceId,
+            icon: '🐢'
+        });
+
+        target.addStatusIcon('🐢', durationMs);
+    }
+
+    private applyHasteEffect(target: Unit, hasteValue: number, durationMs: number, icon: string): void {
+        target.attackSpeedModifier = hasteValue;
+
+        target.addStatusEffect({
+            id: `haste_${Date.now()}`,
+            type: 'haste',
+            value: hasteValue,
+            remainingMs: durationMs,
+            sourceUnitId: this.instanceId,
+            icon: '⚡'
+        });
+
+        target.addStatusIcon('⚡', durationMs);
+        this.showHasteEffect(target);
+    }
+
+    private applyChainLightning(mainTarget: Unit, damageRatio: number, chainCount: number, range: number): void {
+        const scene = this.scene as any;
+        const enemies = this.side === 'ally'
+            ? (globalGetEnemyUnits?.() || scene.enemyUnits || [])
+            : (globalGetAllyUnits?.() || scene.allyUnits || []);
+
+        const chainTargets: Unit[] = [];
+        let currentTarget = mainTarget;
+
+        for (let i = 0; i < chainCount; i++) {
+            const nextTarget = enemies.find((e: Unit) =>
+                !e.isDead() &&
+                e !== mainTarget &&
+                !chainTargets.includes(e) &&
+                Math.abs(currentTarget.x - e.x) <= range
+            );
+
+            if (nextTarget) {
+                chainTargets.push(nextTarget);
+                currentTarget = nextTarget;
+            } else {
+                break;
+            }
+        }
+
+        // 連鎖ダメージ適用
+        const chainDamage = Math.floor(this.definition.attackDamage * damageRatio);
+        this.showChainLightningEffect(mainTarget, chainTargets, chainDamage);
+    }
+
+    private applyBurnEffect(target: Unit, damagePerSecond: number, durationMs: number, icon: string): void {
+        // 既存の炎上を上書き
+        const existingBurn = target.statusEffects.find(e => e.type === 'burn');
+        if (existingBurn) {
+            existingBurn.remainingMs = durationMs;
+            return;
+        }
+
+        target.addStatusEffect({
+            id: `burn_${Date.now()}`,
+            type: 'burn',
+            value: damagePerSecond,
+            remainingMs: durationMs,
+            sourceUnitId: this.instanceId,
+            icon: '🔥'
+        });
+
+        target.addStatusIcon('🔥', durationMs);
+        this.startBurnDamage(target, damagePerSecond, durationMs);
+    }
+
+    private startBurnDamage(target: Unit, damagePerTick: number, durationMs: number): void {
+        const tickInterval = 500;
+        let elapsed = 0;
+
+        const timer = this.scene.time.addEvent({
+            delay: tickInterval,
+            callback: () => {
+                elapsed += tickInterval;
+                if (target.isDead() || elapsed > durationMs) {
+                    timer.destroy();
+                    return;
+                }
+
+                target.takeBurnDamage(damagePerTick / 2); // 0.5秒ごとなので半分
+                this.showBurnDamageNumber(target, Math.floor(damagePerTick / 2));
+            },
+            loop: true
+        });
+    }
+
+    public takeBurnDamage(damage: number): void {
+        this.hp -= damage;
+        if (this.hp <= 0) {
+            this.hp = 0;
+            this.die();
+        }
+    }
+
+    private applyStunEffect(target: Unit, durationMs: number, icon: string): void {
+        target.isFrozen = true;
+        if (target.sprite instanceof Phaser.GameObjects.Sprite) {
+            target.sprite.anims.pause();
+        }
+        target.sprite.setTint(0xffff00);
+
+        target.addStatusEffect({
+            id: `stun_${Date.now()}`,
+            type: 'stun',
+            value: 1,
+            remainingMs: durationMs,
+            sourceUnitId: this.instanceId,
+            icon: '💫'
+        });
+
+        target.addStatusIcon('💫', durationMs);
+    }
+
+    private applyInvincibleEffect(durationMs: number, icon: string): void {
+        this.isInvincible = true;
+
+        this.addStatusEffect({
+            id: `invincible_${Date.now()}`,
+            type: 'invincible',
+            value: 1,
+            remainingMs: durationMs,
+            sourceUnitId: this.instanceId,
+            icon: '🛡️'
+        });
+
+        this.addStatusIcon('🛡️', durationMs);
+        this.showDivineShieldEffect();
+    }
+
+    private applyDamageBuffEffect(target: Unit, value: number, durationMs: number, icon: string): void {
+        target.damageModifier = value;
+
+        target.addStatusEffect({
+            id: `dmg_buff_${Date.now()}`,
+            type: 'damage_modifier',
+            value: value,
+            remainingMs: durationMs,
+            sourceUnitId: this.instanceId,
+            icon: '⬆️'
+        });
+
+        target.addStatusIcon('⬆️', durationMs);
+    }
+
+    public addStatusEffect(effect: StatusEffect): void {
+        this.statusEffects.push(effect);
+    }
+
+    // ============================================
+    // ビジュアルエフェクト
+    // ============================================
+
+    private showSkillIcon(icon: string): void {
+        const skillIcon = this.scene.add.text(25, -10, icon, { fontSize: '14px' });
+        skillIcon.setOrigin(0.5);
+        this.add(skillIcon);
+    }
+
+    private showSkillActivationEffect(skill: typeof this.definition.skill): void {
+        if (!skill) return;
+
+        const text = this.scene.add.text(this.x, this.y - this.sprite.displayHeight - 40 - this.flyingOffset,
+            `${skill.icon} ${skill.nameJa}!`, {
+            fontSize: '18px',
+            color: '#ffffff',
+            stroke: '#000000',
+            strokeThickness: 3
+        });
+        text.setOrigin(0.5);
+        text.setDepth(100);
+
+        this.scene.tweens.add({
+            targets: text,
+            y: text.y - 40,
+            alpha: 0,
+            duration: 1200,
+            onComplete: () => text.destroy()
+        });
+    }
+
+    private showTimeStopEffect(target: Unit): void {
+        const wave = this.scene.add.circle(this.x, this.y - 40, 20, 0x00ffff, 0.5);
+        wave.setStrokeStyle(3, 0x00ffff);
+        wave.setDepth(99);
+
+        this.scene.tweens.add({
+            targets: wave,
+            radius: 200,
+            alpha: 0,
+            duration: 500,
+            onComplete: () => wave.destroy()
+        });
+    }
+
+    private showUnfreezeEffect(): void {
+        // 氷砕けエフェクト
+        for (let i = 0; i < 6; i++) {
+            const angle = (i / 6) * Math.PI * 2;
+            const shard = this.scene.add.triangle(this.x, this.y - 40, 0, -8, 6, 4, -6, 4, 0x88ccff, 0.8);
+            shard.setDepth(100);
+
+            this.scene.tweens.add({
+                targets: shard,
+                x: this.x + Math.cos(angle) * 40,
+                y: this.y - 40 + Math.sin(angle) * 40,
+                alpha: 0,
+                angle: 360,
+                duration: 400,
+                onComplete: () => shard.destroy()
+            });
+        }
+    }
+
+    private showHasteEffect(target: Unit): void {
+        // 青い風ライン
+        for (let i = 0; i < 3; i++) {
+            const line = this.scene.add.rectangle(target.x - 20, target.y - 40 + i * 20, 40, 3, 0x00ffff, 0.7);
+            line.setDepth(98);
+
+            this.scene.tweens.add({
+                targets: line,
+                x: target.x + 30,
+                alpha: 0,
+                duration: 300,
+                delay: i * 100,
+                onComplete: () => line.destroy()
+            });
+        }
+    }
+
+    private showCriticalEffect(target: Unit, damage: number): void {
+        // 斬撃ライン
+        const graphics = this.scene.add.graphics();
+        graphics.lineStyle(4, 0xff4444);
+        graphics.lineBetween(target.x - 30, target.y - 80, target.x + 30, target.y - 20);
+        graphics.setDepth(100);
+
+        this.scene.tweens.add({
+            targets: graphics,
+            alpha: 0,
+            duration: 200,
+            onComplete: () => graphics.destroy()
+        });
+
+        // CRITICAL! テキスト
+        const critText = this.scene.add.text(target.x, target.y - 100, 'CRITICAL!', {
+            fontSize: '24px',
+            color: '#ff0000',
+            stroke: '#ffff00',
+            strokeThickness: 3
+        });
+        critText.setOrigin(0.5);
+        critText.setDepth(101);
+
+        this.scene.tweens.add({
+            targets: critText,
+            y: critText.y - 30,
+            alpha: 0,
+            duration: 800,
+            onComplete: () => critText.destroy()
+        });
+
+        // 画面シェイク
+        this.scene.cameras.main.shake(100, 0.01);
+    }
+
+    private showChainLightningEffect(mainTarget: Unit, chainTargets: Unit[], chainDamage: number): void {
+        const graphics = this.scene.add.graphics();
+        graphics.setDepth(100);
+
+        let prev = { x: mainTarget.x, y: mainTarget.y - 40 };
+
+        chainTargets.forEach((target, i) => {
+            const end = { x: target.x, y: target.y - 40 };
+
+            this.scene.time.delayedCall(i * 100, () => {
+                // 稲妻描画
+                graphics.lineStyle(3, 0xffff00);
+                graphics.beginPath();
+                graphics.moveTo(prev.x, prev.y);
+
+                const midX = (prev.x + end.x) / 2 + (Math.random() - 0.5) * 40;
+                const midY = (prev.y + end.y) / 2 + (Math.random() - 0.5) * 20;
+                graphics.lineTo(midX, midY);
+                graphics.lineTo(end.x, end.y);
+                graphics.strokePath();
+
+                // ダメージ適用
+                if (!target.isDead()) {
+                    target.takeDamage(chainDamage, 0, this);
+                    this.showChainDamageNumber(target, chainDamage);
+                }
+
+                // 電撃パーティクル
+                const spark = this.scene.add.circle(end.x, end.y, 10, 0xffff00, 0.8);
+                spark.setDepth(101);
+                this.scene.tweens.add({
+                    targets: spark,
+                    scale: 2,
+                    alpha: 0,
+                    duration: 200,
+                    onComplete: () => spark.destroy()
+                });
+            });
+
+            prev = end;
+        });
+
+        this.scene.time.delayedCall(chainTargets.length * 100 + 300, () => {
+            graphics.destroy();
+        });
+    }
+
+    private showChainDamageNumber(target: Unit, damage: number): void {
+        const text = this.scene.add.text(target.x, target.y - 60, `-${damage}`, {
+            fontSize: '14px',
+            color: '#ffff00',
+            stroke: '#000000',
+            strokeThickness: 2
+        });
+        text.setOrigin(0.5);
+        text.setDepth(102);
+
+        this.scene.tweens.add({
+            targets: text,
+            y: text.y - 25,
+            alpha: 0,
+            duration: 600,
+            onComplete: () => text.destroy()
+        });
+    }
+
+    private showBurnDamageNumber(target: Unit, damage: number): void {
+        const text = this.scene.add.text(target.x + (Math.random() - 0.5) * 20, target.y - 50, `-${damage}`, {
+            fontSize: '12px',
+            color: '#ff6600',
+            stroke: '#000000',
+            strokeThickness: 2
+        });
+        text.setOrigin(0.5);
+        text.setDepth(102);
+
+        this.scene.tweens.add({
+            targets: text,
+            y: text.y - 20,
+            alpha: 0,
+            duration: 500,
+            onComplete: () => text.destroy()
+        });
+    }
+
+    private showDivineShieldEffect(): void {
+        // 金色オーラ
+        const aura = this.scene.add.circle(0, -40, 60, 0xffdd00, 0.3);
+        this.add(aura);
+
+        this.scene.tweens.add({
+            targets: aura,
+            scale: { from: 0.9, to: 1.1 },
+            alpha: { from: 0.2, to: 0.4 },
+            duration: 500,
+            yoyo: true,
+            repeat: -1
+        });
+
+        // 発動テキスト
+        const text = this.scene.add.text(this.x, this.y - this.sprite.displayHeight - 60, '🛡️ DIVINE SHIELD!', {
+            fontSize: '20px',
+            color: '#ffdd00',
+            stroke: '#000000',
+            strokeThickness: 3
+        });
+        text.setOrigin(0.5);
+        text.setDepth(100);
+
+        this.scene.tweens.add({
+            targets: text,
+            y: text.y - 40,
+            alpha: 0,
+            duration: 1500,
+            onComplete: () => text.destroy()
+        });
+    }
+
+    private showShieldBreakEffect(): void {
+        // オーラ破壊エフェクト
+        const burst = this.scene.add.circle(this.x, this.y - 40, 30, 0xffdd00, 0.6);
+        burst.setDepth(100);
+
+        this.scene.tweens.add({
+            targets: burst,
+            scale: 3,
+            alpha: 0,
+            duration: 300,
+            onComplete: () => burst.destroy()
+        });
+    }
+
+    private showBlockedEffect(): void {
+        // バリア波紋
+        const ripple = this.scene.add.circle(this.x, this.y - 40, 20, 0xffdd00, 0.5);
+        ripple.setDepth(100);
+
+        this.scene.tweens.add({
+            targets: ripple,
+            scale: 2,
+            alpha: 0,
+            duration: 200,
+            onComplete: () => ripple.destroy()
+        });
+
+        // "0" 表示
+        const text = this.scene.add.text(this.x, this.y - 60, '0', {
+            fontSize: '16px',
+            color: '#ffdd00',
+            stroke: '#000000',
+            strokeThickness: 2
+        });
+        text.setOrigin(0.5);
+
+        this.scene.tweens.add({
+            targets: text,
+            y: text.y - 20,
+            alpha: 0,
+            duration: 500,
+            onComplete: () => text.destroy()
+        });
+    }
+
+    private showLastStandEffect(): void {
+        // スローモーション風（実際には適用しない）
+        const burst = this.scene.add.circle(this.x, this.y - 40, 30, 0xff0000, 0.8);
+        burst.setDepth(100);
+
+        this.scene.tweens.add({
+            targets: burst,
+            scale: 3,
+            alpha: 0,
+            duration: 500,
+            onComplete: () => burst.destroy()
+        });
+
+        // テキスト
+        const text = this.scene.add.text(this.x, this.y - 100, '💪 LAST STAND!', {
+            fontSize: '24px',
+            color: '#ff4444',
+            stroke: '#000000',
+            strokeThickness: 4
+        });
+        text.setOrigin(0.5);
+        text.setDepth(101);
+
+        this.scene.tweens.add({
+            targets: text,
+            y: text.y - 50,
+            alpha: 0,
+            duration: 1500,
+            onComplete: () => text.destroy()
+        });
+
+        // ユニット赤点滅
+        this.scene.tweens.add({
+            targets: this.sprite,
+            alpha: 0.5,
+            duration: 100,
+            yoyo: true,
+            repeat: 5,
+            onStart: () => this.sprite.setTint(0xff4444),
+            onComplete: () => this.sprite.clearTint()
+        });
+    }
+
+    /**
+     * HP回復
+     */
+    public heal(amount: number): void {
+        const actualHeal = Math.min(amount, this.maxHp - this.hp);
+        if (actualHeal <= 0) return;
+
+        this.hp += actualHeal;
+        this.showHealNumber(actualHeal);
+    }
+
+    private showHealNumber(amount: number): void {
+        const text = this.scene.add.text(this.x, this.y - 60, `+${amount}`, {
+            fontSize: '14px',
+            color: '#00ff00',
+            stroke: '#004400',
+            strokeThickness: 2
+        });
+        text.setOrigin(0.5);
+        text.setDepth(102);
+
+        this.scene.tweens.add({
+            targets: text,
+            y: text.y - 25,
+            alpha: 0,
+            duration: 800,
+            onComplete: () => text.destroy()
+        });
+
+        // 回復パーティクル
+        const heart = this.scene.add.text(this.x, this.y - 40, '💚', { fontSize: '16px' });
+        heart.setOrigin(0.5);
+
+        this.scene.tweens.add({
+            targets: heart,
+            y: heart.y - 30,
+            alpha: 0,
+            duration: 600,
+            onComplete: () => heart.destroy()
+        });
+    }
+
+    // ============================================
+    // ステータスアイコン管理
+    // ============================================
+
+    public addStatusIcon(emoji: string, durationMs: number): void {
+        if (this.statusIcons.has(emoji)) return;
+
+        const container = this.scene.add.container(25 - this.statusIcons.size * 20, 5);
+
+        // 背景
+        const bg = this.scene.add.circle(0, 0, 10, 0x000000, 0.5);
+        container.add(bg);
+
+        // アイコン
+        const icon = this.scene.add.text(0, 0, emoji, { fontSize: '14px' });
+        icon.setOrigin(0.5);
+        container.add(icon);
+
+        this.add(container);
+        this.statusIcons.set(emoji, container);
+    }
+
+    public removeStatusIcon(emoji: string): void {
+        const container = this.statusIcons.get(emoji);
+        if (container) {
+            container.destroy();
+            this.statusIcons.delete(emoji);
+        }
     }
 }

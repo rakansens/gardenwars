@@ -67,7 +67,7 @@ export default function UnitDetailModal({
     dropRate,
 }: UnitDetailModalProps) {
     const modalRef = useRef<HTMLDivElement>(null);
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const unitHasAnimation = hasAnimation(unit.atlasKey || unit.id);
     const [activeTab, setActiveTab] = useState<"stats" | "animation">("stats");
 
@@ -263,6 +263,29 @@ export default function UnitDetailModal({
                                             <div className="text-[10px] text-orange-600 mb-0.5">{t("attack_type")}</div>
                                             <div className="text-base font-bold text-orange-500">
                                                 💥 {t("attack_type_area")} ({unit.areaRadius}px)
+                                            </div>
+                                        </div>
+                                    )}
+                                    {/* スキル表示（URのみ） */}
+                                    {unit.skill && (
+                                        <div className="col-span-2 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg p-3 border border-purple-300 shadow-sm">
+                                            <div className="text-[10px] text-purple-600 mb-1">✨ {t("skill")}</div>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <span className="text-2xl">{unit.skill.icon}</span>
+                                                <span className="text-base font-bold text-purple-700">
+                                                    {language === 'ja' ? unit.skill.nameJa : unit.skill.name}
+                                                </span>
+                                            </div>
+                                            <div className="text-xs text-purple-600">
+                                                {language === 'ja' ? unit.skill.descriptionJa : unit.skill.description}
+                                            </div>
+                                            <div className="text-[10px] text-purple-400 mt-1">
+                                                {unit.skill.trigger === 'on_attack' && `${t("skill_trigger_on_attack")}${unit.skill.triggerChance ? ` (${unit.skill.triggerChance * 100}%)` : ''}`}
+                                                {unit.skill.trigger === 'on_spawn' && t("skill_trigger_on_spawn")}
+                                                {unit.skill.trigger === 'passive' && t("skill_trigger_passive")}
+                                                {unit.skill.trigger === 'hp_threshold' && `${t("skill_threshold")}: ${(unit.skill.triggerThreshold || 0) * 100}%`}
+                                                {unit.skill.trigger === 'interval' && `${t("skill_trigger_interval")}: ${(unit.skill.triggerIntervalMs || 0) / 1000}s`}
+                                                {unit.skill.cooldownMs > 0 && ` | ${t("skill_cooldown")}: ${unit.skill.cooldownMs / 1000}s`}
                                             </div>
                                         </div>
                                     )}
