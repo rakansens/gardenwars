@@ -562,7 +562,10 @@ export class BattleScene extends Phaser.Scene {
             'sr_cappuccino_assassin', 'sr_capybara_ninja', 'sr_capybara_shaman', 'sr_odindindun', 'sr_traffarella',
             // New SR units (2026-02) batch 1
             'sr_amber_fossil_cat', 'sr_angelic_garden', 'sr_bamboo_blaster', 'sr_bamboo_ninja', 'sr_banchou_brawler',
-            'sr_bonsai_cat', 'sr_bonsai_samurai', 'sr_butterfly_fairy_cat', 'sr_celtic_warrior', 'sr_cloud_angel_cat'
+            'sr_bonsai_cat', 'sr_bonsai_samurai', 'sr_butterfly_fairy_cat', 'sr_celtic_warrior', 'sr_cloud_angel_cat',
+            // New SR units (2026-02) batch 2
+            'sr_coffee_ninja', 'sr_crystal_lotus_cat', 'sr_crystal_rose_knight', 'sr_cyber_swordsman', 'sr_demon_mage',
+            'sr_elder_botanist', 'sr_flora_captain', 'sr_flora_hero', 'sr_frost_rose_queen', 'sr_garden_guardian'
         ];
         srUnits.forEach(unit => {
             this.anims.create({
