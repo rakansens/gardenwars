@@ -99,7 +99,7 @@ export default function VirtualizedGrid<T>({
         <div
             ref={parentRef}
             className={`overflow-auto overscroll-contain ${className}`}
-            style={{ height: calculatedHeight }}
+            style={{ height: calculatedHeight, WebkitOverflowScrolling: "touch" }}
         >
             <div
                 style={{

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import unitsData from "@/data/units";
@@ -63,6 +63,12 @@ export default function GachaPage() {
     const [newRarityFilter, setNewRarityFilter] = useState<Rarity | "ALL">("ALL");
     const [urViewMode, setUrViewMode] = useState<"carousel" | "grid">("carousel");
     const [newViewMode, setNewViewMode] = useState<"carousel" | "grid">("carousel");
+
+    const scrollToSection = useCallback((id: string) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, []);
 
     // NEWユニット判定（addedDateがあるユニット）
     const isNewUnit = (unit: UnitDefinition): boolean => {
@@ -210,8 +216,52 @@ export default function GachaPage() {
             </PageHeader>
 
             <div className="container max-w-2xl mx-auto">
+                {/* セクションナビ */}
+                <div className="sticky top-20 z-30 mb-6">
+                    <div className="card flex items-center gap-2 overflow-x-auto whitespace-nowrap py-3">
+                        <button
+                            onClick={() => scrollToSection("gacha-machine")}
+                            className="btn btn-secondary text-xs md:text-sm py-2 px-3"
+                        >
+                            🎰 {t("gacha_machine_title")}
+                        </button>
+                        <button
+                            onClick={() => scrollToSection("ur-showcase")}
+                            className="btn btn-secondary text-xs md:text-sm py-2 px-3"
+                        >
+                            ✨ {t("ur_showcase")}
+                        </button>
+                        <button
+                            onClick={() => scrollToSection("gacha-history")}
+                            className="btn btn-secondary text-xs md:text-sm py-2 px-3"
+                        >
+                            🗂️ {t("gacha_history")}
+                        </button>
+                        {unitsByDate.length > 0 && (
+                            <button
+                                onClick={() => scrollToSection("gacha-new")}
+                                className="btn btn-secondary text-xs md:text-sm py-2 px-3"
+                            >
+                                🆕 {t("gacha_new_units")}
+                            </button>
+                        )}
+                        <button
+                            onClick={() => scrollToSection("gacha-owned")}
+                            className="btn btn-secondary text-xs md:text-sm py-2 px-3"
+                        >
+                            ✅ {t("gacha_owned_units")}
+                        </button>
+                        <button
+                            onClick={() => scrollToSection("gacha-unowned")}
+                            className="btn btn-secondary text-xs md:text-sm py-2 px-3"
+                        >
+                            🔒 {t("unowned_units")}
+                        </button>
+                    </div>
+                </div>
+
                 {/* ガチャマシン */}
-                <div className="card text-center mb-8">
+                <section id="gacha-machine" className="card text-center mb-8 scroll-mt-28">
                     <h2 className="text-2xl font-bold mb-4 text-amber-950">
                         {t("gacha_machine_title")}
                     </h2>
@@ -293,10 +343,13 @@ export default function GachaPage() {
                             <div className="text-yellow-200 font-bold text-lg">💰 {SUPER_MULTI_COST}</div>
                         </button>
                     </div>
-                </div>
+                </section>
 
                 {/* UR ユニットショーケース */}
-                <div className="card mb-8 bg-gradient-to-br from-purple-900 via-pink-900 to-indigo-900 border-2 border-pink-400/50 overflow-hidden">
+                <section
+                    id="ur-showcase"
+                    className="card mb-8 bg-gradient-to-br from-purple-900 via-pink-900 to-indigo-900 border-2 border-pink-400/50 overflow-hidden scroll-mt-28"
+                >
                     <div className="flex items-center justify-between mb-2">
                         <div className="flex-1" />
                         <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-300 via-purple-300 to-cyan-300 text-center">
@@ -326,7 +379,7 @@ export default function GachaPage() {
                     {urViewMode === "carousel" ? (
                         <>
                             <p className="text-pink-300/50 text-center text-xs mb-3">{t("gacha_swipe_hint")}</p>
-                            <div className="overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide">
+                            <div className="overflow-x-auto pt-3 pb-4 -mx-4 px-4 scrollbar-hide">
                                 <div className="flex gap-4" style={{ width: 'max-content' }}>
                                     {gachaPool
                                         .filter(u => u.rarity === "UR")
@@ -401,10 +454,10 @@ export default function GachaPage() {
                                 })}
                         </div>
                     )}
-                </div>
+                </section>
 
                 {/* ガチャ履歴 */}
-                <div className="card mb-8">
+                <section id="gacha-history" className="card mb-8 scroll-mt-28">
                     <div
                         className="flex items-center justify-between cursor-pointer"
                         onClick={() => setShowHistory(!showHistory)}
@@ -495,11 +548,14 @@ export default function GachaPage() {
                             )}
                         </div>
                     )}
-                </div>
+                </section>
 
                 {/* NEWユニット一覧（日付ごとにグループ化） */}
                 {unitsByDate.length > 0 && (
-                    <div className="card mb-6 bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 border-2 border-green-400/50">
+                    <section
+                        id="gacha-new"
+                        className="card mb-6 bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 border-2 border-green-400/50 scroll-mt-28"
+                    >
                         <div className="flex items-center gap-2 mb-4">
                             <span className="px-3 py-1 rounded-full bg-green-500 text-white text-sm font-bold">
                                 📅 UPDATE
@@ -588,7 +644,7 @@ export default function GachaPage() {
                                         </div>
 
                                         {newViewMode === "carousel" ? (
-                                            <div className="overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+                                            <div className="overflow-x-auto pt-3 pb-2 -mx-4 px-4 scrollbar-hide">
                                                 <div className="flex gap-3" style={{ width: 'max-content' }}>
                                                     {filteredUnits.map((unit) => {
                                                         const count = unitInventory[unit.id] || 0;
@@ -676,11 +732,11 @@ export default function GachaPage() {
                                 );
                             })}
                         </div>
-                    </div>
+                    </section>
                 )}
 
                 {/* 所持ユニット一覧 */}
-                <div className="card mb-6">
+                <section id="gacha-owned" className="card mb-6 scroll-mt-28">
                     <h3 className="text-xl font-bold mb-4 text-amber-950">
                         {t("gacha_owned_units")} ({gachaPool.filter(u => (unitInventory[u.id] || 0) > 0).length}/{gachaPool.length})
                     </h3>
@@ -753,10 +809,10 @@ export default function GachaPage() {
                             </div>
                         );
                     })()}
-                </div>
+                </section>
 
                 {/* 未所持ユニット一覧 */}
-                <div className="card">
+                <section id="gacha-unowned" className="card scroll-mt-28">
                     <h3 className="text-xl font-bold mb-4 text-gray-600 dark:text-gray-400">
                         {t("unowned_units")} ({gachaPool.filter(u => (unitInventory[u.id] || 0) === 0).length})
                     </h3>
@@ -828,7 +884,7 @@ export default function GachaPage() {
                             </div>
                         );
                     })()}
-                </div>
+                </section>
 
                 {/* 編成へ */}
                 <div className="mt-8 text-center">
@@ -861,4 +917,3 @@ export default function GachaPage() {
         </main>
     );
 }
-

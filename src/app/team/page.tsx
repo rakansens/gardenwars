@@ -259,6 +259,12 @@ export default function TeamPage() {
 
     const getUnitKey = useCallback((unit: UnitDefinition) => unit.id, []);
 
+    const scrollToSection = useCallback((id: string) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, []);
+
     const renderOwnedUnit = useCallback((unit: UnitDefinition) => {
         const isSelected = selectedTeam.includes(unit.id);
         const count = unitInventory[unit.id] || 0;
@@ -551,8 +557,38 @@ export default function TeamPage() {
             />
 
             <div className="container px-4 md:px-8 pb-8">
+                {/* セクションナビ */}
+                <div className="sticky top-20 z-30 mb-6">
+                    <div className="card flex items-center gap-2 overflow-x-auto whitespace-nowrap py-3">
+                        <button
+                            onClick={() => scrollToSection("team-section")}
+                            className="btn btn-secondary text-xs md:text-sm py-2 px-3"
+                        >
+                            📋 {t("team_members")}
+                        </button>
+                        <button
+                            onClick={() => scrollToSection("filters-section")}
+                            className="btn btn-secondary text-xs md:text-sm py-2 px-3"
+                        >
+                            🧩 {t("filter")}
+                        </button>
+                        <button
+                            onClick={() => scrollToSection("owned-section")}
+                            className="btn btn-secondary text-xs md:text-sm py-2 px-3"
+                        >
+                            ✅ {t("owned_units")}
+                        </button>
+                        <button
+                            onClick={() => scrollToSection("unowned-section")}
+                            className="btn btn-secondary text-xs md:text-sm py-2 px-3"
+                        >
+                            🔒 {t("unowned_units")}
+                        </button>
+                    </div>
+                </div>
+
                 {/* 現在の編成 */}
-                <section className="mb-8">
+                <section id="team-section" className="mb-8 scroll-mt-28">
                     {/* ロードアウト切り替えタブ */}
                     <div className="flex items-center gap-4 mb-4">
                         <h2 className="text-xl font-bold">
@@ -616,8 +652,10 @@ export default function TeamPage() {
                     </div>
                 </section>
 
-                {/* レアリティフィルタータブ */}
-                <section className="mb-3">
+                {/* フィルター全体 */}
+                <section id="filters-section" className="mb-6 scroll-mt-28">
+                    {/* レアリティフィルタータブ */}
+                    <div className="mb-3">
                     <div className="flex gap-2 md:gap-3 flex-wrap">
                         {rarityTabs.map(tab => (
                             <button
@@ -640,10 +678,10 @@ export default function TeamPage() {
                             </button>
                         ))}
                     </div>
-                </section>
+                    </div>
 
-                {/* ロールフィルター */}
-                <section className="mb-3">
+                    {/* ロールフィルター */}
+                    <div className="mb-3">
                     <div className="flex items-center gap-2 md:gap-3 flex-wrap">
                         <span className="text-sm md:text-base font-bold text-gray-600 dark:text-gray-400">{t("role")}:</span>
                         {roleTabs.map(tab => (
@@ -663,10 +701,10 @@ export default function TeamPage() {
                             </button>
                         ))}
                     </div>
-                </section>
+                    </div>
 
-                {/* 特殊フィルター */}
-                <section className="mb-4">
+                    {/* 特殊フィルター */}
+                    <div className="mb-4">
                     <div className="flex items-center gap-2 md:gap-3 flex-wrap">
                         <span className="text-sm md:text-base font-bold text-gray-600 dark:text-gray-400">{t("filter")}:</span>
                         {specialTabs.map(tab => (
@@ -695,10 +733,10 @@ export default function TeamPage() {
                             </button>
                         )}
                     </div>
-                </section>
+                    </div>
 
-                {/* ソートオプション */}
-                <section className="mb-6">
+                    {/* ソートオプション */}
+                    <div>
                     <div className="flex items-center gap-2 md:gap-3 flex-wrap">
                         <span className="text-sm md:text-base font-bold text-gray-600 dark:text-gray-400">{t("sort_by")}:</span>
                         {sortOptions.map(option => (
@@ -721,6 +759,7 @@ export default function TeamPage() {
                             </button>
                         ))}
                     </div>
+                    </div>
                 </section>
 
                 {/* 保有ユニット */}
@@ -730,7 +769,7 @@ export default function TeamPage() {
 
                     return (
                         <>
-                            <section className="mb-8">
+                            <section id="owned-section" className="mb-8 scroll-mt-28">
                                 <div className="flex items-center gap-3 mb-4">
                                     <h2 className="text-xl font-bold text-green-700 dark:text-green-400">✅ {t("owned_units")}</h2>
                                     <span className="px-3 py-1 bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 rounded-full text-sm font-bold">
@@ -755,7 +794,7 @@ export default function TeamPage() {
                             </section>
 
                             {/* 未保有ユニット */}
-                            <section>
+                            <section id="unowned-section" className="scroll-mt-28">
                                 <div className="flex items-center gap-3 mb-4">
                                     <h2 className="text-xl font-bold text-gray-500 dark:text-gray-400">🔒 {t("unowned_units")}</h2>
                                     <span className="px-3 py-1 bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 rounded-full text-sm font-bold">
