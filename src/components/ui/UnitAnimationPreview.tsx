@@ -105,6 +105,8 @@ export default function UnitAnimationPreview({
                         "ur_stone_golem_cat", "ur_thunder_phoenix",
                         // New UR units (2025-01)
                         "ur_cosmic_tiger", "ur_botanical_gundam", "ur_fairy_knight", "ur_golden_paladin", "ur_overlord_rose",
+                        // New UR units (2026-02)
+                        "ur_aurora_mage_cat", "ur_stained_glass_lotus_cat", "ur_phoenix_flame_cat", "ur_rose_crystal_princess_cat",
                         // SR units
                         "sr_bamboo_mech", "sr_corn_tank", "sr_rose_hero", "sr_sun_pirate", "sr_tulip_idol",
                         "sr_cappuccino_assassin", "sr_capybara_ninja", "sr_capybara_shaman", "sr_odindindun", "sr_traffarella",

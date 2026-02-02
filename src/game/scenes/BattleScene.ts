@@ -632,7 +632,9 @@ export class BattleScene extends Phaser.Scene {
             'ur_rose_capybara', 'ur_rose_queen', 'ur_rune_golem', 'ur_sea_leviathan',
             'ur_stone_golem_cat', 'ur_thunder_phoenix',
             // New UR units (2025-01)
-            'ur_cosmic_tiger', 'ur_botanical_gundam', 'ur_fairy_knight', 'ur_golden_paladin', 'ur_overlord_rose'
+            'ur_cosmic_tiger', 'ur_botanical_gundam', 'ur_fairy_knight', 'ur_golden_paladin', 'ur_overlord_rose',
+            // New UR units (2026-02)
+            'ur_aurora_mage_cat', 'ur_stained_glass_lotus_cat', 'ur_phoenix_flame_cat', 'ur_rose_crystal_princess_cat'
         ];
         urUnits.forEach(unit => {
             this.anims.create({
