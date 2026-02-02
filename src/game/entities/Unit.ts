@@ -150,8 +150,9 @@ export class Unit extends Phaser.GameObjects.Container {
         const customScale = definition.scale ?? 1.0;
         this.baseScale = (targetHeight / safeHeight) * customScale;
 
-        // スケールが異常値にならないようにクランプ
-        this.baseScale = Math.max(0.1, Math.min(5.0, this.baseScale));
+        // スケールが異常値にならないようにクランプ（ボスは大きいので上限を高く）
+        const maxScale = definition.isBoss ? 10.0 : 5.0;
+        this.baseScale = Math.max(0.1, Math.min(maxScale, this.baseScale));
         this.sprite.setScale(this.baseScale);
 
         // 原点を下中央に設定

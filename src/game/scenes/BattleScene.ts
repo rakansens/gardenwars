@@ -1424,6 +1424,16 @@ export class BattleScene extends Phaser.Scene {
             this.aiController.start();
         } else {
             this.waveSystem.start();
+
+            // ボスステージの場合、開始3秒後にボスを出現させる（城ダメージ不要）
+            if (this.stageData.isBossStage && this.waveSystem.hasBoss()) {
+                this.time.delayedCall(3000, () => {
+                    if (!this.bossSpawned) {
+                        this.bossSpawned = true;
+                        this.spawnBossWithKnockback();
+                    }
+                });
+            }
         }
         eventBus.emit(GameEvents.BATTLE_STARTED);
     }
