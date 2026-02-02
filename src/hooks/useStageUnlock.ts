@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import stagesData from "@/data/stages";
-import type { StageDefinition, StageDifficulty } from "@/data/types";
+import stagesData, { getStagesByWorld } from "@/data/stages";
+import type { StageDefinition, StageDifficulty, WorldId } from "@/data/types";
 import { usePlayerData } from "@/hooks/usePlayerData";
 
 const stages = stagesData as StageDefinition[];
@@ -15,10 +15,11 @@ stages.forEach((stage, index) => {
 });
 
 // 特定の難易度のステージを元の順序でソートして取得
-export function getStagesInDifficulty(difficulty: StageDifficulty): StageDefinition[] {
-    return stages
-        .filter(s => s.difficulty === difficulty)
-        .sort((a, b) => (stageOrderMap.get(a.id) ?? 0) - (stageOrderMap.get(b.id) ?? 0));
+export function getStagesInDifficulty(difficulty: StageDifficulty, worldId?: WorldId): StageDefinition[] {
+    const filteredStages = worldId
+        ? getStagesByWorld(worldId).filter(s => s.difficulty === difficulty)
+        : stages.filter(s => s.difficulty === difficulty);
+    return filteredStages.sort((a, b) => (stageOrderMap.get(a.id) ?? 0) - (stageOrderMap.get(b.id) ?? 0));
 }
 
 // ステージのインデックスを元の順序で取得
@@ -29,13 +30,13 @@ export function getStageIndexInDifficulty(stage: StageDefinition): number {
 
 export interface StageUnlockInfo {
     // 難易度がアンロックされているかチェック
-    isDifficultyUnlocked: (difficulty: StageDifficulty) => boolean;
+    isDifficultyUnlocked: (difficulty: StageDifficulty, worldId?: WorldId) => boolean;
     // ステージがアンロックされているかチェック
     isStageUnlocked: (stage: StageDefinition) => boolean;
     // クリア済みステージ
     clearedStages: string[];
     // 各難易度のクリア数
-    getClearCount: (difficulty: StageDifficulty | "all") => { cleared: number; total: number };
+    getClearCount: (difficulty: StageDifficulty | "all", worldId?: WorldId) => { cleared: number; total: number };
 }
 
 /**
@@ -47,13 +48,13 @@ export function useStageUnlock(): StageUnlockInfo {
 
     // 難易度がアンロックされているかチェック
     const isDifficultyUnlocked = useMemo(() => {
-        return (difficulty: StageDifficulty): boolean => {
+        return (difficulty: StageDifficulty, worldId?: WorldId): boolean => {
             const difficultyIndex = DIFFICULTY_ORDER.indexOf(difficulty);
             if (difficultyIndex === 0) return true; // tutorialは常にアンロック
 
             // 前の難易度の全ステージをクリアしているかチェック
             const prevDifficulty = DIFFICULTY_ORDER[difficultyIndex - 1];
-            const prevStages = getStagesInDifficulty(prevDifficulty);
+            const prevStages = getStagesInDifficulty(prevDifficulty, worldId);
             return prevStages.every(s => clearedStages.includes(s.id));
         };
     }, [clearedStages]);
@@ -61,10 +62,12 @@ export function useStageUnlock(): StageUnlockInfo {
     // ステージがアンロックされているかチェック
     const isStageUnlocked = useMemo(() => {
         return (stage: StageDefinition): boolean => {
-            // 難易度がアンロックされていなければステージもロック
-            if (!isDifficultyUnlocked(stage.difficulty as StageDifficulty)) return false;
+            const worldId = (stage.worldId || "world1") as WorldId;
 
-            const stagesInDifficulty = getStagesInDifficulty(stage.difficulty as StageDifficulty);
+            // 難易度がアンロックされていなければステージもロック
+            if (!isDifficultyUnlocked(stage.difficulty as StageDifficulty, worldId)) return false;
+
+            const stagesInDifficulty = getStagesInDifficulty(stage.difficulty as StageDifficulty, worldId);
             const stageIndex = stagesInDifficulty.findIndex(s => s.id === stage.id);
 
             // インデックスが無効な場合はロック
@@ -83,10 +86,18 @@ export function useStageUnlock(): StageUnlockInfo {
 
     // 各難易度のクリア数をカウント
     const getClearCount = useMemo(() => {
-        return (difficulty: StageDifficulty | "all"): { cleared: number; total: number } => {
-            const targetStages = difficulty === "all"
-                ? stages
-                : stages.filter(s => s.difficulty === difficulty);
+        return (difficulty: StageDifficulty | "all", worldId?: WorldId): { cleared: number; total: number } => {
+            let targetStages: StageDefinition[];
+            if (worldId) {
+                const worldStages = getStagesByWorld(worldId);
+                targetStages = difficulty === "all"
+                    ? worldStages
+                    : worldStages.filter(s => s.difficulty === difficulty);
+            } else {
+                targetStages = difficulty === "all"
+                    ? stages
+                    : stages.filter(s => s.difficulty === difficulty);
+            }
             const cleared = targetStages.filter(s => clearedStages.includes(s.id)).length;
             return { cleared, total: targetStages.length };
         };

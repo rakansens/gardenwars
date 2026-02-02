@@ -90,9 +90,15 @@ export async function registerPlayer(
     if (dataError) throw new Error(`Failed to create player data: ${dataError.message}`);
 
     // Create rankings entry
-    await supabase
+    const { error: rankingsError } = await supabase
         .from("rankings")
         .insert({ player_id: player.id });
+
+    if (rankingsError) {
+        console.error("Failed to create rankings entry:", rankingsError);
+        // Don't fail registration, but log the error
+        // The upsert logic in updateRankings will handle missing rows
+    }
 
     return {
         pin,
@@ -108,7 +114,7 @@ export async function registerPlayer(
                 garden_units: (playerData.garden_units as unknown as string[]) || [],
                 shop_items: (playerData.shop_items as unknown as ShopItem[]) || [],
                 gacha_history: ((playerData as any).gacha_history as GachaHistoryEntry[]) || [],
-                current_world: (playerData.current_world as unknown as string) || "world1",
+                current_world: ((playerData as any).current_world as string) || "world1",
             },
         },
     };
@@ -152,7 +158,7 @@ export async function loginWithPIN(pin: string): Promise<FullPlayerData | null> 
             garden_units: (playerData.garden_units as unknown as string[]) || [],
             shop_items: (playerData.shop_items as unknown as ShopItem[]) || [],
             gacha_history: ((playerData as any).gacha_history as GachaHistoryEntry[]) || [],
-            current_world: (playerData.current_world as unknown as string) || "world1",
+            current_world: ((playerData as any).current_world as string) || "world1",
         },
     };
 }

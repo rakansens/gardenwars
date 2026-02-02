@@ -4,13 +4,15 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef, useMemo } from "react";
-import stagesData from "@/data/stages";
+import stagesData, { getStagesByWorld } from "@/data/stages";
 import unitsData from "@/data/units";
-import type { StageDefinition, UnitDefinition, StageDifficulty } from "@/data/types";
+import type { StageDefinition, UnitDefinition, StageDifficulty, WorldId } from "@/data/types";
 import { useLanguage } from "@/contexts/LanguageContext";
 import PageHeader from "@/components/layout/PageHeader";
 import { getSpritePath } from "@/lib/sprites";
 import { useStageUnlock } from "@/hooks/useStageUnlock";
+import { usePlayerData } from "@/hooks/usePlayerData";
+import WorldTabs from "@/components/WorldTabs";
 
 const stages = stagesData as StageDefinition[];
 const allUnits = unitsData as UnitDefinition[];
@@ -134,19 +136,31 @@ export default function WorldMapPage() {
     const router = useRouter();
     const { t } = useLanguage();
     const { clearedStages, isDifficultyUnlocked, isStageUnlocked, getClearCount } = useStageUnlock();
+    const { currentWorld, setCurrentWorld } = usePlayerData();
     const [selectedStage, setSelectedStage] = useState<StageDefinition | null>(null);
     const [activeArea, setActiveArea] = useState<StageDifficulty | "all">("tutorial");
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+    // 現在のワールドをWorldIdとして取得
+    const selectedWorld = (currentWorld || "world1") as WorldId;
+
+    const handleSelectWorld = (worldId: WorldId) => {
+        setCurrentWorld(worldId);
+        setActiveArea("tutorial"); // ワールド切り替え時はエリアをリセット
+    };
+
+    // 現在のワールドのステージを取得
+    const worldStages = getStagesByWorld(selectedWorld);
+
     // エリアに応じたステージをフィルタリング
     const filteredStages = useMemo(() => {
-        if (activeArea === "all") return stages;
-        return stages.filter((s) => s.difficulty === activeArea);
-    }, [activeArea]);
+        if (activeArea === "all") return worldStages;
+        return worldStages.filter((s) => s.difficulty === activeArea);
+    }, [activeArea, worldStages]);
 
-    // 進行度計算
-    const totalStages = stages.length;
-    const clearedCount = clearedStages.length;
+    // 進行度計算（現在のワールドのみ）
+    const totalStages = worldStages.length;
+    const clearedCount = worldStages.filter((s) => clearedStages.includes(s.id)).length;
     const progressPercent = totalStages > 0 ? Math.round((clearedCount / totalStages) * 100) : 0;
 
     // ステージ選択
@@ -187,6 +201,12 @@ export default function WorldMapPage() {
                 </Link>
             </PageHeader>
 
+            {/* ワールドタブ */}
+            <WorldTabs
+                selectedWorld={selectedWorld}
+                onSelectWorld={handleSelectWorld}
+            />
+
             {/* プログレスバー */}
             <div className="card mb-4 p-4">
                 <div className="flex justify-between items-center mb-2">
@@ -207,11 +227,11 @@ export default function WorldMapPage() {
             <div className="mb-4">
                 <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3">
                     {AREA_TABS.map((tab) => {
-                        const areaStages = stages.filter((s) => s.difficulty === tab.key);
+                        const areaStages = worldStages.filter((s) => s.difficulty === tab.key);
                         const areaClearedCount = areaStages.filter((s) => clearedStages.includes(s.id)).length;
                         const isActive = activeArea === tab.key;
                         const isAllCleared = areaClearedCount === areaStages.length && areaStages.length > 0;
-                        const isLocked = !isDifficultyUnlocked(tab.key as StageDifficulty);
+                        const isLocked = !isDifficultyUnlocked(tab.key as StageDifficulty, selectedWorld);
 
                         return (
                             <button

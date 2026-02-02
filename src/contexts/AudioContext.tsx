@@ -169,14 +169,15 @@ export function getGlobalAudioSettings(): {
 }
 
 // Audio toggle button component
-export function AudioToggleButton({ className = "" }: { className?: string }) {
+export function AudioToggleButton({ className = "", muteLabel = "Mute", unmuteLabel = "Unmute" }: { className?: string; muteLabel?: string; unmuteLabel?: string }) {
     const { isMuted, toggleMute } = useAudio();
 
     return (
         <button
             onClick={toggleMute}
             className={`px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 text-sm font-bold transition-colors ${className}`}
-            title={isMuted ? "Unmute" : "Mute"}
+            title={isMuted ? unmuteLabel : muteLabel}
+            aria-label={isMuted ? unmuteLabel : muteLabel}
         >
             {isMuted ? "🔇" : "🔊"}
         </button>

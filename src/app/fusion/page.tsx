@@ -325,7 +325,7 @@ export default function FusionPage() {
                     {isFusing ? (
                         <span className="flex items-center justify-center gap-2">
                             <span className="animate-spin">⏳</span>
-                            {language === "ja" ? "処理中..." : "Processing..."}
+                            {t("processing")}
                         </span>
                     ) : (
                         fusionMode === 10 ? t("fusion_10_execute") : `🔮 ${t("fusion_execute")}`
@@ -461,14 +461,10 @@ export default function FusionPage() {
                     handleFusion();
                 }}
                 icon="🔮"
-                title={language === "ja" ? "フュージョン確認" : "Confirm Fusion"}
-                message={
-                    language === "ja"
-                        ? `${fusionMode}体のユニットを消費してフュージョンします。この操作は取り消せません。`
-                        : `${fusionMode} units will be consumed. This cannot be undone.`
-                }
-                confirmText={language === "ja" ? "フュージョン実行" : "Execute Fusion"}
-                cancelText={language === "ja" ? "キャンセル" : "Cancel"}
+                title={t("confirm_fusion")}
+                message={`${t("fusion_consume_units").replace("{count}", String(fusionMode))} ${t("fusion_warning")}`}
+                confirmText={t("fusion_execute")}
+                cancelText={t("cancel")}
                 confirmColor="amber"
                 isLoading={isFusing}
             />

@@ -100,7 +100,9 @@ export default function GardenPage() {
     // Track garden visits for ranking
     useEffect(() => {
         if (playerId && isLoaded) {
-            incrementGardenVisits(playerId);
+            incrementGardenVisits(playerId).catch(err => {
+                console.warn("Failed to increment garden visits:", err);
+            });
         }
     }, [playerId, isLoaded]);
 

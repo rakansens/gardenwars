@@ -221,7 +221,7 @@ export default function Home() {
         <button
           onClick={() => setShowAudioSettings(true)}
           className="px-2 py-1 md:px-3 md:py-1.5 rounded-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 text-sm font-bold transition-colors"
-          title={language === "ja" ? "オーディオ設定" : "Audio Settings"}
+          title={t("audio_settings")}
         >
           {isMuted ? "🔇" : "🔊"}
         </button>
@@ -554,13 +554,13 @@ export default function Home() {
       <Modal isOpen={showAudioSettings} onClose={() => setShowAudioSettings(false)} showCloseButton={false}>
         <div className="p-6">
           <h2 className="text-xl font-bold text-slate-700 dark:text-slate-300 mb-4 text-center flex items-center justify-center gap-2">
-            🔊 {language === "ja" ? "オーディオ設定" : "Audio Settings"}
+            🔊 {t("audio_settings")}
           </h2>
 
           {/* Master Volume */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-              {language === "ja" ? "マスター音量" : "Master Volume"}: {Math.round(masterVolume * 100)}%
+              {t("audio_master_volume")}: {Math.round(masterVolume * 100)}%
             </label>
             <input
               type="range"
@@ -576,7 +576,7 @@ export default function Home() {
           <div className="mb-4">
             <div className="flex items-center justify-between mb-2">
               <label className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                BGM: {Math.round(bgmVolume * 100)}%
+                {t("audio_bgm")}: {Math.round(bgmVolume * 100)}%
               </label>
               <button
                 onClick={() => setBgmEnabled(!bgmEnabled)}
@@ -604,7 +604,7 @@ export default function Home() {
           <div className="mb-6">
             <div className="flex items-center justify-between mb-2">
               <label className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                {language === "ja" ? "効果音" : "SFX"}: {Math.round(sfxVolume * 100)}%
+                {t("audio_sfx")}: {Math.round(sfxVolume * 100)}%
               </label>
               <button
                 onClick={() => setSfxEnabled(!sfxEnabled)}
@@ -631,7 +631,7 @@ export default function Home() {
           {/* Mute indicator */}
           {isMuted && (
             <div className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-sm p-2 rounded-lg text-center mb-4">
-              {language === "ja" ? "全ての音声がミュートされています" : "All audio is muted"}
+              {t("audio_muted_warning")}
             </div>
           )}
 
@@ -639,7 +639,7 @@ export default function Home() {
             onClick={() => setShowAudioSettings(false)}
             className="w-full btn btn-primary"
           >
-            {language === "ja" ? "閉じる" : "Close"}
+            {t("close")}
           </button>
         </div>
       </Modal>

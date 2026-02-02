@@ -3,13 +3,15 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import stagesData from "@/data/stages";
+import stagesData, { getStagesByWorld } from "@/data/stages";
 import unitsData from "@/data/units";
-import type { StageDefinition, UnitDefinition, StageDifficulty } from "@/data/types";
+import type { StageDefinition, UnitDefinition, StageDifficulty, WorldId } from "@/data/types";
 import { useLanguage } from "@/contexts/LanguageContext";
 import PageHeader from "@/components/layout/PageHeader";
 import { getSpritePath } from "@/lib/sprites";
 import { useStageUnlock } from "@/hooks/useStageUnlock";
+import { usePlayerData } from "@/hooks/usePlayerData";
+import WorldTabs from "@/components/WorldTabs";
 
 const stages = stagesData as StageDefinition[];
 const allUnits = unitsData as UnitDefinition[];
@@ -99,16 +101,28 @@ export default function StagesPage() {
     const router = useRouter();
     const { t } = useLanguage();
     const { clearedStages, isDifficultyUnlocked, isStageUnlocked, getClearCount } = useStageUnlock();
+    const { currentWorld, setCurrentWorld } = usePlayerData();
     const [selectedDifficulty, setSelectedDifficulty] = useState<StageDifficulty | "all">("all");
+
+    // 現在のワールドをWorldIdとして取得
+    const selectedWorld = (currentWorld || "world1") as WorldId;
 
     const handleSelectStage = (stageId: string) => {
         router.push(`/battle/${stageId}`);
     };
 
+    const handleSelectWorld = (worldId: WorldId) => {
+        setCurrentWorld(worldId);
+        setSelectedDifficulty("all"); // ワールド切り替え時は難易度をリセット
+    };
+
+    // 現在のワールドのステージを取得
+    const worldStages = getStagesByWorld(selectedWorld);
+
     // 選択された難易度でフィルタ
     const filteredStages = selectedDifficulty === "all"
-        ? stages
-        : stages.filter(s => s.difficulty === selectedDifficulty);
+        ? worldStages
+        : worldStages.filter(s => s.difficulty === selectedDifficulty);
 
     return (
         <main className="min-h-screen">
@@ -121,14 +135,20 @@ export default function StagesPage() {
                 }}
             />
 
+            {/* ワールドタブ */}
+            <WorldTabs
+                selectedWorld={selectedWorld}
+                onSelectWorld={handleSelectWorld}
+            />
+
             {/* 難易度タブ - ビジュアルカード */}
             <div className="mb-6">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-3">
                     {DIFFICULTY_TABS.map(tab => {
-                        const { cleared, total } = getClearCount(tab.key);
+                        const { cleared, total } = getClearCount(tab.key, selectedWorld);
                         const isSelected = selectedDifficulty === tab.key;
                         const isAllCleared = cleared === total && total > 0;
-                        const isLocked = tab.key !== "all" && !isDifficultyUnlocked(tab.key as StageDifficulty);
+                        const isLocked = tab.key !== "all" && !isDifficultyUnlocked(tab.key as StageDifficulty, selectedWorld);
                         return (
                             <button
                                 key={tab.key}

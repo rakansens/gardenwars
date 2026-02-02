@@ -11,6 +11,7 @@ import {
     toFrontendPlayerData,
     toSupabaseSaveData,
     syncRankingStats,
+    ensureRankingsExist,
     INITIAL_COINS,
 } from "@/lib/supabase";
 import type {
@@ -337,6 +338,13 @@ export function usePlayerData() {
                     } else {
                         // リモートにデータがない場合はローカルデータを使用
                         setData(localData);
+                    }
+
+                    // Ensure rankings entry exists for authenticated users
+                    if (isAuthenticated && playerId) {
+                        ensureRankingsExist(playerId).catch(err => {
+                            console.error("Failed to ensure rankings exist:", err);
+                        });
                     }
                 } catch (err) {
                     console.error("Failed to load from Supabase:", err);

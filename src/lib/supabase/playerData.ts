@@ -69,6 +69,7 @@ export async function getPlayerData(playerId: string): Promise<PlayerData | null
         garden_units: (data.garden_units as unknown as string[]) || [],
         shop_items: (data.shop_items as unknown as ShopItem[]) || [],
         gacha_history: ((data as any).gacha_history as GachaHistoryEntry[]) || [],
+        current_world: ((data as any).current_world as string) || "world1",
     };
 }
 
@@ -208,20 +209,55 @@ export interface RankingEntry {
     selected_team: string[];
 }
 
-// Update rankings
+// Ensure rankings row exists for a player
+export async function ensureRankingsExist(playerId: string): Promise<boolean> {
+    const { data, error } = await supabase
+        .from("rankings")
+        .select("player_id")
+        .eq("player_id", playerId)
+        .single();
+
+    if (error && error.code === 'PGRST116') {
+        // Row doesn't exist, create it
+        const { error: insertError } = await supabase
+            .from("rankings")
+            .insert({ player_id: playerId });
+
+        if (insertError) {
+            console.error("Failed to create rankings entry:", insertError);
+            return false;
+        }
+    } else if (error) {
+        console.error("Failed to check rankings existence:", error);
+        return false;
+    }
+
+    return true;
+}
+
+// Update rankings using upsert to handle missing rows
 export async function updateRankings(
     playerId: string,
     data: RankingUpdateData
 ): Promise<boolean> {
+    // Use upsert to create row if it doesn't exist
     const { error } = await supabase
         .from("rankings")
-        .update({
+        .upsert({
+            player_id: playerId,
             ...data,
             updated_at: new Date().toISOString(),
+        }, {
+            onConflict: 'player_id'
         })
-        .eq("player_id", playerId);
+        .select();
 
-    return !error;
+    if (error) {
+        console.error("Failed to update rankings:", error);
+        return false;
+    }
+
+    return true;
 }
 
 // Increment battle stats (called after each battle)
@@ -230,13 +266,31 @@ export async function incrementBattleStats(
     won: boolean,
     stageNum?: number
 ): Promise<boolean> {
-    const { data: rankings, error: fetchError } = await supabase
+    let { data: rankings, error: fetchError } = await supabase
         .from("rankings")
         .select("*")
         .eq("player_id", playerId)
         .single();
 
-    if (fetchError || !rankings) return false;
+    // If row doesn't exist, create it first
+    if (fetchError && fetchError.code === 'PGRST116') {
+        const created = await ensureRankingsExist(playerId);
+        if (!created) return false;
+
+        // Fetch again after creation
+        const result = await supabase
+            .from("rankings")
+            .select("*")
+            .eq("player_id", playerId)
+            .single();
+        rankings = result.data;
+        fetchError = result.error;
+    }
+
+    if (fetchError || !rankings) {
+        console.error("Failed to fetch rankings for battle stats:", fetchError);
+        return false;
+    }
 
     const totalBattles = rankings.total_battles ?? 0;
     const totalWins = rankings.total_wins ?? 0;
@@ -272,13 +326,31 @@ export async function incrementGachaCount(
     playerId: string,
     count: number = 1
 ): Promise<boolean> {
-    const { data: rankings, error: fetchError } = await supabase
+    let { data: rankings, error: fetchError } = await supabase
         .from("rankings")
         .select("gacha_count")
         .eq("player_id", playerId)
         .single();
 
-    if (fetchError || !rankings) return false;
+    // If row doesn't exist, create it first
+    if (fetchError && fetchError.code === 'PGRST116') {
+        const created = await ensureRankingsExist(playerId);
+        if (!created) return false;
+
+        // Fetch again after creation
+        const result = await supabase
+            .from("rankings")
+            .select("gacha_count")
+            .eq("player_id", playerId)
+            .single();
+        rankings = result.data;
+        fetchError = result.error;
+    }
+
+    if (fetchError || !rankings) {
+        console.error("Failed to fetch rankings for gacha count:", fetchError);
+        return false;
+    }
 
     const currentCount = rankings.gacha_count ?? 0;
     return updateRankings(playerId, { gacha_count: currentCount + count });
@@ -288,13 +360,31 @@ export async function incrementGachaCount(
 export async function incrementGardenVisits(
     playerId: string
 ): Promise<boolean> {
-    const { data: rankings, error: fetchError } = await supabase
+    let { data: rankings, error: fetchError } = await supabase
         .from("rankings")
         .select("garden_visits")
         .eq("player_id", playerId)
         .single();
 
-    if (fetchError || !rankings) return false;
+    // If row doesn't exist, create it first
+    if (fetchError && fetchError.code === 'PGRST116') {
+        const created = await ensureRankingsExist(playerId);
+        if (!created) return false;
+
+        // Fetch again after creation
+        const result = await supabase
+            .from("rankings")
+            .select("garden_visits")
+            .eq("player_id", playerId)
+            .single();
+        rankings = result.data;
+        fetchError = result.error;
+    }
+
+    if (fetchError || !rankings) {
+        console.error("Failed to fetch rankings for garden visits:", fetchError);
+        return false;
+    }
 
     const currentVisits = rankings.garden_visits ?? 0;
     return updateRankings(playerId, { garden_visits: currentVisits + 1 });
