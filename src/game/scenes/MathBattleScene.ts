@@ -335,11 +335,16 @@ export class MathBattleScene extends Phaser.Scene {
     const playerBaseId = this.playerUnitData.baseUnitId || this.playerUnitData.id;
 
     if (this.textures.exists(playerAtlas)) {
-      this.playerSprite = this.add.sprite(150, groundY, playerAtlas);
+      // 初期フレームをidleに設定
+      const playerIdleFrame = `${playerBaseId}_idle.png`;
+      const texture = this.textures.get(playerAtlas);
+      const initialFrame = texture?.has(playerIdleFrame) ? playerIdleFrame : undefined;
+
+      this.playerSprite = this.add.sprite(150, groundY, playerAtlas, initialFrame);
 
       if (hasAnimation(playerBaseId)) {
         this.setupAnimation(this.playerSprite, playerAtlas, this.playerUnitData);
-        // アニメーション再生を試みる（失敗しても無視）
+        // idleアニメーション再生を試みる（失敗しても無視）
         this.safePlayAnimation(this.playerSprite, `${playerAtlas}_idle`);
       }
 
@@ -356,11 +361,16 @@ export class MathBattleScene extends Phaser.Scene {
     const enemyBaseId = this.enemyUnitData.baseUnitId || this.enemyUnitData.id;
 
     if (this.textures.exists(enemyAtlas)) {
-      this.enemySprite = this.add.sprite(this.SCREEN_WIDTH - 150, groundY, enemyAtlas);
+      // 初期フレームをidleに設定
+      const enemyIdleFrame = `${enemyBaseId}_idle.png`;
+      const texture = this.textures.get(enemyAtlas);
+      const initialFrame = texture?.has(enemyIdleFrame) ? enemyIdleFrame : undefined;
+
+      this.enemySprite = this.add.sprite(this.SCREEN_WIDTH - 150, groundY, enemyAtlas, initialFrame);
 
       if (hasAnimation(enemyBaseId)) {
         this.setupAnimation(this.enemySprite, enemyAtlas, this.enemyUnitData);
-        // アニメーション再生を試みる（失敗しても無視）
+        // idleアニメーション再生を試みる（失敗しても無視）
         this.safePlayAnimation(this.enemySprite, `${enemyAtlas}_idle`);
       }
 
@@ -383,6 +393,16 @@ export class MathBattleScene extends Phaser.Scene {
         const anim = this.anims.get(animKey);
         if (anim && anim.frames && anim.frames.length > 0) {
           sprite.play(animKey);
+          return;
+        }
+      }
+      // アニメーションがない場合、idleフレームを直接表示
+      if (animKey.endsWith('_idle')) {
+        const atlasKey = sprite.texture.key;
+        const baseId = atlasKey; // atlasKeyがbaseIdと同じ
+        const idleFrame = `${baseId}_idle.png`;
+        if (this.textures.get(atlasKey)?.has(idleFrame)) {
+          sprite.setFrame(idleFrame);
         }
       }
     } catch {
@@ -391,32 +411,51 @@ export class MathBattleScene extends Phaser.Scene {
   }
 
   private setupAnimation(sprite: Phaser.GameObjects.Sprite, atlasKey: string, unit: UnitDefinition) {
+    const baseId = unit.baseUnitId || unit.id;
     const animKeys = unit.animKeys || { idle: 'idle', walk: 'walk', attack: 'attack', die: 'die' };
 
     const animations = [
-      { key: `${atlasKey}_idle`, frames: animKeys.idle, repeat: -1, frameRate: 8 },
-      { key: `${atlasKey}_walk`, frames: animKeys.walk, repeat: -1, frameRate: 10 },
-      { key: `${atlasKey}_attack`, frames: animKeys.attack, repeat: 0, frameRate: 12 },
+      { key: `${atlasKey}_idle`, animType: animKeys.idle, repeat: -1, frameRate: 8, isSingleFrame: true },
+      { key: `${atlasKey}_walk`, animType: animKeys.walk, repeat: -1, frameRate: 10, isSingleFrame: false },
+      { key: `${atlasKey}_attack`, animType: animKeys.attack, repeat: 0, frameRate: 12, isSingleFrame: false },
     ];
 
     if (animKeys.die) {
-      animations.push({ key: `${atlasKey}_die`, frames: animKeys.die, repeat: 0, frameRate: 8 });
+      animations.push({ key: `${atlasKey}_die`, animType: animKeys.die, repeat: 0, frameRate: 8, isSingleFrame: false });
     }
+
+    const texture = this.textures.get(atlasKey);
+    if (!texture) return;
 
     animations.forEach(anim => {
       if (!this.anims.exists(anim.key)) {
         try {
-          this.anims.create({
-            key: anim.key,
-            frames: this.anims.generateFrameNames(atlasKey, {
-              prefix: `${anim.frames}_`,
-              start: 0,
-              end: this.getFrameCount(atlasKey, anim.frames) - 1,
-              zeroPad: 0,
-            }),
-            frameRate: anim.frameRate,
-            repeat: anim.repeat,
-          });
+          // 単一フレームの場合（例: cat_warrior_idle.png）
+          const singleFrameName = `${baseId}_${anim.animType}.png`;
+          if (anim.isSingleFrame && texture.has(singleFrameName)) {
+            this.anims.create({
+              key: anim.key,
+              frames: [{ key: atlasKey, frame: singleFrameName }],
+              frameRate: anim.frameRate,
+              repeat: anim.repeat,
+            });
+            return;
+          }
+
+          // 複数フレームの場合（例: cat_warrior_attack_1.png, cat_warrior_attack_2.png...）
+          const frameCount = this.getFrameCount(atlasKey, baseId, anim.animType);
+          if (frameCount > 0) {
+            const frames: Phaser.Types.Animations.AnimationFrame[] = [];
+            for (let i = 1; i <= frameCount; i++) {
+              frames.push({ key: atlasKey, frame: `${baseId}_${anim.animType}_${i}.png` });
+            }
+            this.anims.create({
+              key: anim.key,
+              frames: frames,
+              frameRate: anim.frameRate,
+              repeat: anim.repeat,
+            });
+          }
         } catch {
           // フレームがない場合は無視
         }
@@ -424,19 +463,20 @@ export class MathBattleScene extends Phaser.Scene {
     });
   }
 
-  private getFrameCount(atlasKey: string, animName: string): number {
+  private getFrameCount(atlasKey: string, baseId: string, animType: string): number {
     const texture = this.textures.get(atlasKey);
-    if (!texture) return 4;
+    if (!texture) return 0;
 
     let count = 0;
-    for (let i = 0; i < 20; i++) {
-      if (texture.has(`${animName}_${i}`)) {
+    // フレーム名形式: {baseId}_{animType}_{n}.png (1から始まる)
+    for (let i = 1; i <= 20; i++) {
+      if (texture.has(`${baseId}_${animType}_${i}.png`)) {
         count++;
       } else {
         break;
       }
     }
-    return count || 4;
+    return count;
   }
 
   private startCountdown() {
