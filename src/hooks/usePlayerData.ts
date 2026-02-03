@@ -64,9 +64,10 @@ const getInitialData = (): PlayerDataWithTimestamp => {
         shopItems: [],
         gachaHistory: [],
         clearedStages: [],
+        clearedChessStages: [],
         gardenUnits: [],
         currentWorld: "world1",
-        lastModified: Date.now(),
+        lastModified: 0, // 初期データは「古い」としてマーク（リモートデータを優先させるため）
     };
 };
 
@@ -110,9 +111,11 @@ const loadFromStorage = (): PlayerDataWithTimestamp => {
                 shopItems: parsed.shopItems ?? [],
                 gachaHistory: parsed.gachaHistory ?? [],
                 clearedStages: parsed.clearedStages ?? [],
+                clearedChessStages: parsed.clearedChessStages ?? [],
                 gardenUnits: parsed.gardenUnits ?? [],
                 currentWorld: parsed.currentWorld ?? "world1",
-                lastModified: parsed.lastModified ?? Date.now(),
+                // lastModifiedが無い場合は0（古い）としてリモートデータを優先
+                lastModified: parsed.lastModified ?? 0,
             });
         }
     } catch (e) {
@@ -161,6 +164,10 @@ const loadFromStorage = (): PlayerDataWithTimestamp => {
     if (!Array.isArray(initial.clearedStages)) {
         console.warn("Invalid clearedStages structure, resetting to empty array");
         initial.clearedStages = [];
+    }
+    if (!Array.isArray(initial.clearedChessStages)) {
+        console.warn("Invalid clearedChessStages structure, resetting to empty array");
+        initial.clearedChessStages = [];
     }
     if (!Array.isArray(initial.gardenUnits)) {
         console.warn("Invalid gardenUnits structure, resetting to empty array");
@@ -310,6 +317,10 @@ export function usePlayerData() {
                         // clearedStagesをマージ（和集合 - クリア履歴は追加のみ、削除されない）
                         const mergedStages = new Set([...mergedData.clearedStages, ...localData.clearedStages]);
                         mergedData.clearedStages = Array.from(mergedStages);
+
+                        // clearedChessStagesをマージ（和集合）
+                        const mergedChessStages = new Set([...mergedData.clearedChessStages, ...localData.clearedChessStages]);
+                        mergedData.clearedChessStages = Array.from(mergedChessStages);
 
                         // loadoutsをマージ（deck-by-deck comparison）
                         // For each deck, use the one with more units (more "complete")
@@ -706,6 +717,19 @@ export function usePlayerData() {
         });
     }, []);
 
+    // チェスステージクリアを追加
+    const clearChessStage = useCallback((stageId: string) => {
+        setData((prev) => {
+            if (prev.clearedChessStages.includes(stageId)) {
+                return prev; // 既にクリア済み
+            }
+            return {
+                ...prev,
+                clearedChessStages: [...prev.clearedChessStages, stageId],
+            };
+        });
+    }, []);
+
     // ガーデンユニットを更新
     const setGardenUnits = useCallback((unitIds: string[]) => {
         setData((prev) => ({
@@ -843,6 +867,7 @@ export function usePlayerData() {
         shopItems: data.shopItems,
         gachaHistory: data.gachaHistory,
         clearedStages: data.clearedStages,
+        clearedChessStages: data.clearedChessStages,
         gardenUnits: data.gardenUnits,
         currentWorld: data.currentWorld,
         isLoaded,
@@ -862,6 +887,7 @@ export function usePlayerData() {
         addGachaHistory,
         clearGachaHistory,
         addClearedStage,
+        clearChessStage,
         setGardenUnits,
         setCurrentWorld,
         executeGacha,

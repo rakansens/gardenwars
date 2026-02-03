@@ -118,6 +118,7 @@ export interface FrontendPlayerData {
     shopItems: ShopItem[];
     gachaHistory: GachaHistoryEntry[];  // Supabase同期
     clearedStages: string[];
+    clearedChessStages: string[];  // チェスステージクリア履歴
     gardenUnits: string[];
     currentWorld: string;  // 現在選択中のワールド（デフォルト: 'world1'）
 }
@@ -197,6 +198,7 @@ export function toFrontendPlayerData(
         shopItems: db.shop_items || [],
         gachaHistory: mergedHistory,
         clearedStages: db.cleared_stages || [],
+        clearedChessStages: [],  // ローカルのみで管理
         gardenUnits: db.garden_units || [],
         currentWorld: db.current_world || "world1",
     };

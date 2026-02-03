@@ -1,22 +1,25 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useSearchParams, useRouter } from "next/navigation";
 import unitsData from "@/data/units";
 import type { Rarity, UnitDefinition } from "@/data/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/contexts/ToastContext";
 import { usePlayerData } from "@/hooks/usePlayerData";
+import { useChessStageUnlock } from "@/hooks/useChessStageUnlock";
 import { getSpritePath } from "@/lib/sprites";
 import { ChessGame, ChessMove, ChessPieceType } from "@/lib/chess";
 import { chessClient, ChessLobbyRoom, Colyseus } from "@/lib/colyseus/chessClient";
+import { getChessStageById, type ChessStageDefinition, type ChessAiLevel as StageAiLevel } from "@/data/chess-stages";
 import Modal from "@/components/ui/Modal";
 import RarityFrame from "@/components/ui/RarityFrame";
 
 type PieceRole = "k" | "q" | "r" | "b" | "n" | "p";
-type ChessAiLevel = "easy" | "normal" | "hard";
-type ChessMode = "cpu" | "online";
+type ChessAiLevel = "easy" | "normal" | "hard" | "expert";
+type ChessMode = "cpu" | "online" | "stage";
 type ChessConnectionStatus = "lobby" | "connecting" | "waiting" | "playing" | "finished" | "error";
 
 interface ChessPlayerInfo {
@@ -51,11 +54,14 @@ const PIECE_ROLES: { id: PieceRole; labelKey: string }[] = [
   { id: "p", labelKey: "chess_piece_pawn" },
 ];
 
-export default function ChessPage() {
+function ChessContent() {
   const { t } = useLanguage();
-  const { showError } = useToast();
+  const { showError, showSuccess } = useToast();
   const { playerName } = useAuth();
-  const { selectedTeam, unitInventory, isLoaded } = usePlayerData();
+  const { selectedTeam, unitInventory, isLoaded, addCoins } = usePlayerData();
+  const { clearChessStage, clearedChessStages } = useChessStageUnlock();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const gameRef = useRef<ChessGame>(new ChessGame());
   const roomRef = useRef<Colyseus.Room | null>(null);
   const serverMovesRef = useRef<ChessMovePayload[]>([]);
@@ -81,7 +87,87 @@ export default function ChessPage() {
   const [onlineWinReason, setOnlineWinReason] = useState<string | null>(null);
   const [awaitingServer, setAwaitingServer] = useState(false);
 
+  // Stage mode states
+  const [currentStage, setCurrentStage] = useState<ChessStageDefinition | null>(null);
+  const [stageTimeRemaining, setStageTimeRemaining] = useState<number | null>(null);
+  const [stageResult, setStageResult] = useState<"win" | "lose" | "timeout" | null>(null);
+  const [showStageResult, setShowStageResult] = useState(false);
+
   const displayName = playerName?.trim() || "Player";
+
+  // Load stage from URL parameters
+  useEffect(() => {
+    const stageId = searchParams.get("stageId");
+    if (stageId) {
+      const stage = getChessStageById(stageId);
+      if (stage) {
+        setCurrentStage(stage);
+        setMode("stage");
+        setAiLevel(stage.aiLevel);
+        if (stage.timeLimitSeconds) {
+          setStageTimeRemaining(stage.timeLimitSeconds);
+        }
+        // Reset game for stage
+        gameRef.current.reset();
+        setSelected(null);
+        setLegalMoves([]);
+        setPendingPromotion(null);
+        setVersion((v) => v + 1);
+        setStageResult(null);
+        setShowStageResult(false);
+      }
+    }
+  }, [searchParams]);
+
+  // Stage timer effect
+  useEffect(() => {
+    if (mode !== "stage" || !currentStage?.timeLimitSeconds || stageTimeRemaining === null) return;
+    if (stageResult) return; // Game already ended
+
+    const interval = setInterval(() => {
+      setStageTimeRemaining((prev) => {
+        if (prev === null || prev <= 0) {
+          clearInterval(interval);
+          // Time's up - player loses
+          setStageResult("timeout");
+          setShowStageResult(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [mode, currentStage, stageTimeRemaining, stageResult]);
+
+  // Detect stage end (checkmate/stalemate)
+  useEffect(() => {
+    if (mode !== "stage" || !currentStage) return;
+    const status = gameRef.current.getStatus();
+
+    if (status.checkmate) {
+      // Checkmate - determine winner
+      const turn = gameRef.current.getTurn();
+      if (turn === "b") {
+        // Black to move but in checkmate = White wins = Player wins
+        setStageResult("win");
+        // Mark stage as cleared and give reward
+        const alreadyCleared = clearedChessStages.includes(currentStage.id);
+        clearChessStage(currentStage.id, alreadyCleared ? 0 : currentStage.reward.coins);
+        if (!alreadyCleared) {
+          showSuccess(`+${currentStage.reward.coins} ${t("coins")}`);
+        }
+      } else {
+        // White to move but in checkmate = Black wins = Player loses
+        setStageResult("lose");
+      }
+      setShowStageResult(true);
+    } else if (status.stalemate) {
+      // Stalemate = draw = lose for stage purposes
+      setStageResult("lose");
+      setShowStageResult(true);
+    }
+  }, [version, mode, currentStage, clearChessStage, clearedChessStages, showSuccess, t]);
 
   const ownedUnits = useMemo(
     () => playableUnits.filter((unit) => (unitInventory[unit.id] ?? 0) > 0),
@@ -425,10 +511,11 @@ export default function ChessPage() {
   const turn = gameRef.current.getTurn();
   const lastMove = gameRef.current.getLastMove();
   const isOnline = mode === "online";
-  const isInMatch = mode === "cpu" || connectionStatus === "playing" || connectionStatus === "finished";
+  const isStage = mode === "stage";
+  const isInMatch = mode === "cpu" || mode === "stage" || connectionStatus === "playing" || connectionStatus === "finished";
   const canInteract =
-    mode === "cpu"
-      ? turn === "w"
+    mode === "cpu" || mode === "stage"
+      ? turn === "w" && !stageResult
       : connectionStatus === "playing" && !!mySide && mySide === turn && !awaitingServer;
   const opponent = isOnline ? onlinePlayers.find((player) => player.side !== mySide) || null : null;
 
@@ -443,6 +530,7 @@ export default function ChessPage() {
   const handleSquareClick = (x: number, y: number) => {
     if (status.checkmate || status.stalemate) return;
     if (connectionStatus === "finished") return;
+    if (stageResult) return; // Stage already ended
     if (!canInteract) return;
     if (pendingPromotion) return;
     const piece = board[y][x];
@@ -510,7 +598,9 @@ export default function ChessPage() {
 
   const handleUndo = () => {
     // Undo twice to undo both player and AI move
-    if (mode !== "cpu") return;
+    if (mode !== "cpu" && mode !== "stage") return;
+    // Check if undo is disabled for stage mode
+    if (mode === "stage" && currentStage?.specialRules?.noUndo) return;
     if (gameRef.current.canUndo()) {
       gameRef.current.undo();
       if (gameRef.current.canUndo() && gameRef.current.getTurn() === "b") {
@@ -523,11 +613,17 @@ export default function ChessPage() {
   };
 
   const handleReset = () => {
-    if (mode !== "cpu") return;
+    if (mode !== "cpu" && mode !== "stage") return;
     gameRef.current.reset();
     setSelected(null);
     setLegalMoves([]);
     setVersion((v) => v + 1);
+    // Reset stage state
+    if (mode === "stage" && currentStage?.timeLimitSeconds) {
+      setStageTimeRemaining(currentStage.timeLimitSeconds);
+    }
+    setStageResult(null);
+    setShowStageResult(false);
   };
 
   const getPieceSymbol = (type: PieceRole, color: "w" | "b") => {
@@ -551,8 +647,9 @@ export default function ChessPage() {
   };
 
   useEffect(() => {
-    if (mode !== "cpu") return;
+    if (mode !== "cpu" && mode !== "stage") return;
     if (status.checkmate || status.stalemate) return;
+    if (stageResult) return; // Stage ended
     if (turn !== "b") return;
 
     let cancelled = false;
@@ -566,6 +663,7 @@ export default function ChessPage() {
       }
 
       let selectedMove = moves[0];
+      const values: Record<string, number> = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 0 };
 
       if (aiLevel === "easy") {
         selectedMove = moves[Math.floor(Math.random() * moves.length)];
@@ -591,8 +689,8 @@ export default function ChessPage() {
             selectedMove = move;
           }
         }
-      } else {
-        const values: Record<string, number> = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 0 };
+      } else if (aiLevel === "hard") {
+        // 2-ply search for hard level
         let bestScore = -Infinity;
         for (const move of moves) {
           const clone = gameRef.current.clone();
@@ -628,6 +726,18 @@ export default function ChessPage() {
             selectedMove = move;
           }
         }
+      } else if (aiLevel === "expert") {
+        // 3-ply minimax for expert level
+        let bestScore = -Infinity;
+        for (const move of moves) {
+          const clone = gameRef.current.clone();
+          clone.move(move.from.x, move.from.y, move.to.x, move.to.y);
+          const score = minimax(clone, 2, false, -Infinity, Infinity, values);
+          if (score > bestScore) {
+            bestScore = score;
+            selectedMove = move;
+          }
+        }
       }
 
       gameRef.current.move(selectedMove.from.x, selectedMove.from.y, selectedMove.to.x, selectedMove.to.y);
@@ -635,13 +745,70 @@ export default function ChessPage() {
       setLegalMoves([]);
       setVersion((v) => v + 1);
       setAiThinking(false);
-    }, aiLevel === "easy" ? 300 : aiLevel === "normal" ? 450 : 600);
+    }, aiLevel === "easy" ? 300 : aiLevel === "normal" ? 450 : aiLevel === "hard" ? 600 : 800);
 
     return () => {
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [turn, aiLevel, status.checkmate, status.stalemate, version, mode]);
+  }, [turn, aiLevel, status.checkmate, status.stalemate, version, mode, stageResult]);
+
+  // Minimax helper for expert AI
+  function minimax(
+    game: ChessGame,
+    depth: number,
+    isMaximizing: boolean,
+    alpha: number,
+    beta: number,
+    values: Record<string, number>
+  ): number {
+    if (depth === 0) {
+      let score = 0;
+      const board = game.getBoard();
+      for (let y = 0; y < 8; y++) {
+        for (let x = 0; x < 8; x++) {
+          const piece = board[y][x];
+          if (!piece) continue;
+          const value = values[piece.type] ?? 0;
+          score += piece.color === "b" ? value : -value;
+        }
+      }
+      return score;
+    }
+
+    const status = game.getStatus();
+    if (status.checkmate) {
+      return isMaximizing ? -100000 - depth : 100000 + depth;
+    }
+    if (status.stalemate) return 0;
+
+    const moves = game.getAllLegalMoves(isMaximizing ? "b" : "w");
+    if (moves.length === 0) return 0;
+
+    if (isMaximizing) {
+      let maxScore = -Infinity;
+      for (const move of moves) {
+        const clone = game.clone();
+        clone.move(move.from.x, move.from.y, move.to.x, move.to.y);
+        const score = minimax(clone, depth - 1, false, alpha, beta, values);
+        maxScore = Math.max(maxScore, score);
+        alpha = Math.max(alpha, score);
+        if (beta <= alpha) break;
+      }
+      return maxScore;
+    } else {
+      let minScore = Infinity;
+      for (const move of moves) {
+        const clone = game.clone();
+        clone.move(move.from.x, move.from.y, move.to.x, move.to.y);
+        const score = minimax(clone, depth - 1, true, alpha, beta, values);
+        minScore = Math.min(minScore, score);
+        beta = Math.min(beta, score);
+        if (beta <= alpha) break;
+      }
+      return minScore;
+    }
+  }
 
   if (!isLoaded || !pieceSkins) {
     return (
@@ -749,24 +916,46 @@ export default function ChessPage() {
       ? t("chess_online_status_finished")
       : t("chess_online_status_waiting");
 
+  // Format time for display
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
   return (
     <main className="min-h-screen p-4 md:p-6">
       <div className="flex items-center justify-between mb-6">
-        <Link href="/" className="btn btn-secondary text-sm py-2 px-3">
-          ← {t("back_to_home")}
+        <Link href={isStage ? "/chess/stages" : "/"} className="btn btn-secondary text-sm py-2 px-3">
+          ← {isStage ? t("back") : t("back_to_home")}
         </Link>
-        <h1 className="text-2xl font-bold text-amber-600 dark:text-amber-400">♟️ {t("menu_chess")}</h1>
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+            ♟️ {isStage && currentStage ? t(currentStage.nameKey) : t("menu_chess")}
+          </h1>
+          {isStage && stageTimeRemaining !== null && (
+            <div className={`text-lg font-mono ${stageTimeRemaining <= 30 ? "text-red-500 animate-pulse" : "text-gray-600"}`}>
+              ⏱️ {formatTime(stageTimeRemaining)}
+            </div>
+          )}
+        </div>
         <div className="flex gap-2">
-          {mode === "cpu" ? (
+          {mode === "cpu" || mode === "stage" ? (
             <>
+              {!(isStage && currentStage?.specialRules?.noUndo) && (
+                <button
+                  onClick={handleUndo}
+                  disabled={!gameRef.current.canUndo() || turn === "b" || !!stageResult}
+                  className="btn btn-secondary text-sm py-2 px-3 disabled:opacity-40"
+                >
+                  ↩ {t("chess_undo")}
+                </button>
+              )}
               <button
-                onClick={handleUndo}
-                disabled={!gameRef.current.canUndo() || turn === "b"}
-                className="btn btn-secondary text-sm py-2 px-3 disabled:opacity-40"
+                onClick={handleReset}
+                className="btn btn-primary text-sm py-2 px-3"
+                disabled={!!stageResult && isStage}
               >
-                ↩ {t("chess_undo")}
-              </button>
-              <button onClick={handleReset} className="btn btn-primary text-sm py-2 px-3">
                 {t("chess_reset")}
               </button>
             </>
@@ -787,6 +976,29 @@ export default function ChessPage() {
         </div>
       </div>
 
+      {/* Stage Mode Banner (only show in free play mode) */}
+      {!isStage && (
+        <div className="max-w-4xl mx-auto mb-4">
+          <Link
+            href="/chess/stages"
+            className="card block w-full hover:scale-[1.02] transition-all duration-200"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-3xl">🎯</span>
+                <div>
+                  <h3 className="font-bold text-lg text-amber-900 dark:text-white">{t("chess_stage_mode")}</h3>
+                  <p className="text-sm text-amber-700/70 dark:text-gray-400">{t("chess_difficulty_beginner_desc")}</p>
+                </div>
+              </div>
+              <div className="btn btn-primary py-2 px-4">
+                <span>{t("play")} →</span>
+              </div>
+            </div>
+          </Link>
+        </div>
+      )}
+
       <div className="max-w-4xl mx-auto mb-6 card">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
@@ -796,7 +1008,7 @@ export default function ChessPage() {
           <div className="grid grid-cols-2 gap-2 w-full md:w-auto">
             <button
               onClick={() => setMode("cpu")}
-              className={`btn ${mode === "cpu" ? "btn-primary" : "btn-secondary"} text-sm`}
+              className={`btn ${mode === "cpu" || mode === "stage" ? "btn-primary" : "btn-secondary"} text-sm`}
             >
               {t("chess_mode_cpu")}
             </button>
@@ -1182,6 +1394,67 @@ export default function ChessPage() {
           </div>
         </div>
       </Modal>
+
+      {/* Stage Result Modal */}
+      <Modal isOpen={showStageResult && !!stageResult} onClose={() => {}} size="md">
+        <div className="p-6 text-center">
+          {stageResult === "win" ? (
+            <>
+              <div className="text-6xl mb-4">🏆</div>
+              <h2 className="text-2xl font-bold text-green-600 mb-2">{t("chess_victory")}</h2>
+              <p className="text-lg text-gray-600 mb-4">{t("chess_stage_cleared")}</p>
+              {currentStage && !clearedChessStages.includes(currentStage.id) && (
+                <div className="bg-yellow-100 rounded-lg p-3 mb-4">
+                  <span className="text-yellow-800 font-bold">+{currentStage.reward.coins} 🪙</span>
+                </div>
+              )}
+            </>
+          ) : stageResult === "timeout" ? (
+            <>
+              <div className="text-6xl mb-4">⏰</div>
+              <h2 className="text-2xl font-bold text-red-600 mb-2">{t("chess_time_up")}</h2>
+              <p className="text-lg text-gray-600 mb-4">{t("chess_defeat")}</p>
+            </>
+          ) : (
+            <>
+              <div className="text-6xl mb-4">😢</div>
+              <h2 className="text-2xl font-bold text-red-600 mb-2">{t("chess_defeat")}</h2>
+              <p className="text-lg text-gray-600 mb-4">{t("result_encourage")}</p>
+            </>
+          )}
+          <div className="flex gap-3 justify-center">
+            <button
+              onClick={() => {
+                setShowStageResult(false);
+                handleReset();
+              }}
+              className="btn btn-secondary px-6 py-3"
+            >
+              🔄 {t("retry")}
+            </button>
+            <button
+              onClick={() => router.push("/chess/stages")}
+              className="btn btn-primary px-6 py-3"
+            >
+              📋 {t("result_select_stage")}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </main>
+  );
+}
+
+export default function ChessPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin text-4xl">♟️</div>
+        </main>
+      }
+    >
+      <ChessContent />
+    </Suspense>
   );
 }
