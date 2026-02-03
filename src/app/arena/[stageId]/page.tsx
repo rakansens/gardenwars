@@ -38,7 +38,7 @@ export default function ArenaBattlePage() {
     const params = useParams();
     const stageId = params.stageId as string;
     const { t } = useLanguage();
-    const { selectedTeam, isLoaded, addCoins } = usePlayerData();
+    const { selectedTeam, isLoaded, executeArenaReward } = usePlayerData();
     const isLandscape = useIsLandscape();
 
     const [stage, setStage] = useState<ArenaStageDefinition | null>(null);
@@ -69,7 +69,8 @@ export default function ArenaBattlePage() {
         setResult({ win, coins: coinsGained });
 
         if (win) {
-            addCoins(coinsGained);
+            // サーバー権威モード: 認証済みユーザーはサーバーで処理
+            await executeArenaReward(coinsGained);
         }
 
         // 3秒後にホームへ

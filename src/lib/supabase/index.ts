@@ -69,6 +69,10 @@ export {
     executeFusionRpc,
     executeBattleRewardRpc,
     getPlayerDataWithTimestamp,
+    // ショップ・アリーナ用
+    executeShopRefreshRpc,
+    executeShopPurchaseRpc,
+    executeArenaRewardRpc,
 } from "./serverAuthority";
 export type {
     ServerTimeResponse,
@@ -76,4 +80,8 @@ export type {
     FusionResult,
     BattleRewardResult,
     PlayerDataResult,
+    // ショップ・アリーナ用
+    ShopRefreshResult,
+    ShopPurchaseResult,
+    ArenaRewardResult,
 } from "./serverAuthority";

@@ -46,11 +46,12 @@ export default function ShopPage() {
         setPurchaseModalOpen(true);
     };
 
-    const handleBuy = () => {
+    const handleBuy = async () => {
         if (targetIndex === -1) return;
         const targetItem = shopItems[targetIndex];
         const targetUnit = targetItem ? allUnits.find(u => u.id === targetItem.unitId) : null;
-        const success = buyShopItem(targetIndex);
+        // サーバー権威モード: 認証済みユーザーはサーバーで処理
+        const success = await buyShopItem(targetIndex);
         if (success) {
             setPurchaseSuccess(true);
             const unitName = targetUnit ? (t(targetUnit.id) !== targetUnit.id ? t(targetUnit.id) : targetUnit.name) : "";
@@ -62,10 +63,10 @@ export default function ShopPage() {
         }
     };
 
-    const handleRefresh = () => {
+    const handleRefresh = async () => {
         if (coins < REFRESH_COST || isRefreshing) return;
-        // spendCoinsの戻り値をチェック（React 18対応）
-        const success = spendCoins(REFRESH_COST);
+        // サーバー権威モード: 認証済みユーザーはサーバーで処理
+        const success = await spendCoins(REFRESH_COST);
         if (!success) return; // コイン消費失敗時は処理しない
 
         setIsRefreshing(true);

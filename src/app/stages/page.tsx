@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import stagesData, { getStagesByWorld } from "@/data/stages";
 import unitsData from "@/data/units";
 import type { StageDefinition, UnitDefinition, StageDifficulty, WorldId } from "@/data/types";
@@ -150,6 +150,14 @@ export default function StagesPage() {
     const [selectedDifficulty, setSelectedDifficulty] = useState<StageDifficulty>(
         worldDifficultyTabs[0]?.key || "tutorial"
     );
+
+    useEffect(() => {
+        const tabs = getDifficultyTabsByWorld(selectedWorld);
+        const hasSelected = tabs.some(tab => tab.key === selectedDifficulty);
+        if (!hasSelected) {
+            setSelectedDifficulty(tabs[0]?.key || "tutorial");
+        }
+    }, [selectedWorld, selectedDifficulty]);
 
     const handleSelectStage = (stageId: string) => {
         router.push(`/battle/${stageId}`);

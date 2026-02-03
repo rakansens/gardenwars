@@ -17,6 +17,9 @@ import {
     executeGachaRpc,
     executeFusionRpc,
     executeBattleRewardRpc,
+    executeShopRefreshRpc,
+    executeShopPurchaseRpc,
+    executeArenaRewardRpc,
 } from "@/lib/supabase";
 import type {
     FrontendPlayerData,
@@ -481,7 +484,7 @@ export function usePlayerData() {
         }
     }, [isAuthenticated, playerId]);
 
-    // コインを増やす
+    // コインを増やす（汎用 - 未認証ユーザー用）
     const addCoins = useCallback((amount: number) => {
         setData((prev) => ({
             ...prev,
@@ -489,9 +492,58 @@ export function usePlayerData() {
         }));
     }, []);
 
-    // コインを減らす（消費）
-    // React 18対応: コールバック内でsuccessを設定するとバッチングで遅延するため、先にチェック
-    const spendCoins = useCallback((amount: number): boolean => {
+    // アリーナ報酬用（サーバー権威モード）
+    // - サーバー側でコイン追加を原子的に実行
+    const executeArenaReward = useCallback(async (coinsGained: number): Promise<boolean> => {
+        // 認証済みユーザーはサーバー権威モードを使用
+        if (isAuthenticated && playerId) {
+            console.log("[executeArenaReward] Using server authority mode");
+            const result = await executeArenaRewardRpc(playerId, coinsGained);
+
+            if (!result.success) {
+                console.error("[executeArenaReward] Server rejected:", result.error);
+                return false;
+            }
+
+            // サーバーからの結果でローカル状態を更新
+            setData((prev) => ({
+                ...prev,
+                coins: result.coins ?? prev.coins,
+            }));
+            return true;
+        }
+
+        // 未認証ユーザーはローカルで処理
+        setData((prev) => ({
+            ...prev,
+            coins: prev.coins + coinsGained,
+        }));
+        return true;
+    }, [isAuthenticated, playerId]);
+
+    // コインを減らす（消費）- ショップリフレッシュ用
+    // サーバー権威モード（認証済みユーザー）:
+    // - サーバー側でコイン残高確認→消費を原子的に実行
+    const spendCoins = useCallback(async (amount: number): Promise<boolean> => {
+        // 認証済みユーザーはサーバー権威モードを使用
+        if (isAuthenticated && playerId) {
+            console.log("[spendCoins] Using server authority mode");
+            const result = await executeShopRefreshRpc(playerId, amount);
+
+            if (!result.success) {
+                console.error("[spendCoins] Server rejected:", result.error);
+                return false;
+            }
+
+            // サーバーからの結果でローカル状態を更新
+            setData((prev) => ({
+                ...prev,
+                coins: result.coins ?? prev.coins,
+            }));
+            return true;
+        }
+
+        // 未認証ユーザーはローカルで処理
         if (data.coins < amount) {
             return false;
         }
@@ -502,7 +554,7 @@ export function usePlayerData() {
             return { ...prev, coins: prev.coins - amount };
         });
         return true;
-    }, [data.coins]);
+    }, [data.coins, isAuthenticated, playerId]);
 
     // ユニットを追加（単体）
     const addUnit = useCallback((unitId: string, count: number = 1) => {
@@ -652,15 +704,41 @@ export function usePlayerData() {
     }, []);
 
     // アイテム購入（アトミック操作）
-    // React 18対応: 先に購入可能かチェックしてから状態更新
-    const buyShopItem = useCallback((index: number): boolean => {
+    // サーバー権威モード（認証済みユーザー）:
+    // - サーバー側でコイン確認→消費→ユニット追加を原子的に実行
+    const buyShopItem = useCallback(async (index: number): Promise<boolean> => {
         // 先に購入可能かチェック
         const currentItem = data.shopItems[index];
         if (!currentItem || currentItem.soldOut || data.coins < currentItem.price) {
             return false; // 購入失敗
         }
 
-        // 購入可能なので、状態を更新
+        // 認証済みユーザーはサーバー権威モードを使用
+        if (isAuthenticated && playerId) {
+            console.log("[buyShopItem] Using server authority mode");
+            const result = await executeShopPurchaseRpc(playerId, currentItem.price, currentItem.unitId);
+
+            if (!result.success) {
+                console.error("[buyShopItem] Server rejected:", result.error);
+                return false;
+            }
+
+            // サーバーからの結果でローカル状態を更新
+            setData(prev => {
+                const items = [...prev.shopItems];
+                items[index] = { ...items[index], soldOut: true };
+
+                return {
+                    ...prev,
+                    coins: result.coins ?? prev.coins,
+                    unitInventory: result.unitInventory ?? prev.unitInventory,
+                    shopItems: items,
+                };
+            });
+            return true;
+        }
+
+        // 未認証ユーザーはローカルで処理
         setData(prev => {
             const items = [...prev.shopItems];
             const item = items[index];
@@ -682,7 +760,7 @@ export function usePlayerData() {
             };
         });
         return true;
-    }, [data.shopItems, data.coins]);
+    }, [data.shopItems, data.coins, isAuthenticated, playerId]);
 
     // ガチャ履歴を追加
     const addGachaHistory = useCallback((unitIds: string[]) => {
@@ -885,6 +963,7 @@ export function usePlayerData() {
     // サーバー権威モード（認証済みユーザー）:
     // - サーバー側でコイン追加→ステージクリア→ユニット追加を原子的に実行
     // - 成功したらローカル状態を更新
+    // - 失敗した場合はローカル処理しない（二重報酬防止）
     const executeBattleReward = useCallback(async (
         coinsGained: number,
         stageId: string,
@@ -896,22 +975,23 @@ export function usePlayerData() {
             const result = await executeBattleRewardRpc(playerId, coinsGained, stageId, droppedUnitIds);
 
             if (!result.success) {
-                console.error("[executeBattleReward] Server rejected:", result.error);
-                // サーバーエラー時はローカルで処理（フォールバック）
-                // ユーザー体験を損なわないため
-            } else {
-                // サーバーからの結果でローカル状態を更新
-                setData((prev) => ({
-                    ...prev,
-                    coins: result.coins ?? prev.coins,
-                    unitInventory: result.unitInventory ?? prev.unitInventory,
-                    clearedStages: result.clearedStages ?? prev.clearedStages,
-                }));
+                // サーバーエラー時はローカル処理しない（二重報酬防止）
+                // サーバーで既に処理されている可能性があるため
+                console.error("[executeBattleReward] Server error - not falling back to local:", result.error);
                 return;
             }
+
+            // サーバーからの結果でローカル状態を更新
+            setData((prev) => ({
+                ...prev,
+                coins: result.coins ?? prev.coins,
+                unitInventory: result.unitInventory ?? prev.unitInventory,
+                clearedStages: result.clearedStages ?? prev.clearedStages,
+            }));
+            return;
         }
 
-        // 未認証ユーザーまたはサーバーエラー時はローカルで処理
+        // 未認証ユーザーのみローカルで処理
         setData((prev) => {
             const newInventory = { ...prev.unitInventory };
             for (const unitId of droppedUnitIds) {
@@ -974,6 +1054,7 @@ export function usePlayerData() {
         executeGacha,
         executeFusion,
         executeBattleReward,
+        executeArenaReward,
         flushToSupabase,
     };
 }

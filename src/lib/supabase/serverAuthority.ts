@@ -328,3 +328,178 @@ export async function getPlayerDataWithTimestamp(
         return { success: false, error: 'Network error' };
     }
 }
+
+// ============================================
+// ショップ・アリーナ用RPC
+// ============================================
+
+/** ショップリフレッシュ結果 */
+export interface ShopRefreshResult {
+    success: boolean;
+    error?: string;
+    coins?: number;
+    serverTime?: Date;
+}
+
+/** ショップ購入結果 */
+export interface ShopPurchaseResult {
+    success: boolean;
+    error?: string;
+    coins?: number;
+    unitInventory?: Record<string, number>;
+    serverTime?: Date;
+}
+
+/** アリーナ報酬結果 */
+export interface ArenaRewardResult {
+    success: boolean;
+    error?: string;
+    coins?: number;
+    serverTime?: Date;
+}
+
+/**
+ * ショップリフレッシュを実行（サーバー側で原子的に処理）
+ *
+ * @param playerId プレイヤーID
+ * @param cost リフレッシュコスト
+ */
+export async function executeShopRefreshRpc(
+    playerId: string,
+    cost: number
+): Promise<ShopRefreshResult> {
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data, error } = await (supabase.rpc as any)('execute_shop_refresh', {
+            p_player_id: playerId,
+            p_cost: cost,
+        });
+
+        if (error) {
+            console.error('[ServerAuthority] executeShopRefresh error:', error);
+            return { success: false, error: error.message };
+        }
+
+        const result = data as {
+            success: boolean;
+            error?: string;
+            coins?: number;
+            server_time?: string;
+        };
+
+        if (!result.success) {
+            return {
+                success: false,
+                error: result.error || 'Unknown error',
+            };
+        }
+
+        return {
+            success: true,
+            coins: result.coins,
+            serverTime: result.server_time ? new Date(result.server_time) : undefined,
+        };
+    } catch (err) {
+        console.error('[ServerAuthority] executeShopRefresh exception:', err);
+        return { success: false, error: 'Network error' };
+    }
+}
+
+/**
+ * ショップ購入を実行（サーバー側で原子的に処理）
+ *
+ * @param playerId プレイヤーID
+ * @param price 購入価格
+ * @param unitId 購入するユニットID
+ */
+export async function executeShopPurchaseRpc(
+    playerId: string,
+    price: number,
+    unitId: string
+): Promise<ShopPurchaseResult> {
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data, error } = await (supabase.rpc as any)('execute_shop_purchase', {
+            p_player_id: playerId,
+            p_price: price,
+            p_unit_id: unitId,
+        });
+
+        if (error) {
+            console.error('[ServerAuthority] executeShopPurchase error:', error);
+            return { success: false, error: error.message };
+        }
+
+        const result = data as {
+            success: boolean;
+            error?: string;
+            coins?: number;
+            unit_inventory?: Record<string, number>;
+            server_time?: string;
+        };
+
+        if (!result.success) {
+            return {
+                success: false,
+                error: result.error || 'Unknown error',
+            };
+        }
+
+        return {
+            success: true,
+            coins: result.coins,
+            unitInventory: result.unit_inventory,
+            serverTime: result.server_time ? new Date(result.server_time) : undefined,
+        };
+    } catch (err) {
+        console.error('[ServerAuthority] executeShopPurchase exception:', err);
+        return { success: false, error: 'Network error' };
+    }
+}
+
+/**
+ * アリーナ報酬を処理（サーバー側で原子的に処理）
+ *
+ * @param playerId プレイヤーID
+ * @param coinsGained 獲得コイン
+ */
+export async function executeArenaRewardRpc(
+    playerId: string,
+    coinsGained: number
+): Promise<ArenaRewardResult> {
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data, error } = await (supabase.rpc as any)('execute_arena_reward', {
+            p_player_id: playerId,
+            p_coins_gained: coinsGained,
+        });
+
+        if (error) {
+            console.error('[ServerAuthority] executeArenaReward error:', error);
+            return { success: false, error: error.message };
+        }
+
+        const result = data as {
+            success: boolean;
+            error?: string;
+            coins?: number;
+            server_time?: string;
+        };
+
+        if (!result.success) {
+            return {
+                success: false,
+                error: result.error || 'Unknown error',
+            };
+        }
+
+        return {
+            success: true,
+            coins: result.coins,
+            serverTime: result.server_time ? new Date(result.server_time) : undefined,
+        };
+    } catch (err) {
+        console.error('[ServerAuthority] executeArenaReward exception:', err);
+        return { success: false, error: 'Network error' };
+    }
+}
