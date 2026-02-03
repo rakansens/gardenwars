@@ -130,9 +130,11 @@ export default function AreaStagesPage({
             {/* ステージ一覧 */}
             <div className="space-y-3">
               {area.stages.map((stage, index) => {
+                // 自分がクリア済みなら絶対にロックしない
+                const isSelfCleared = isStageCleared(stage.id);
                 // 最初のステージは常にアンロック、それ以外は前のステージをクリアで解放
                 const previousStage = area.stages[index - 1];
-                const isLocked = index > 0 && previousStage && !isStageCleared(previousStage.id);
+                const isLocked = !isSelfCleared && index > 0 && previousStage && !isStageCleared(previousStage.id);
                 const enemyUnit = getEnemyUnit(stage.enemyId);
 
                 return (
