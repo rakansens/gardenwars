@@ -619,12 +619,12 @@ export default function TeamPage() {
                                             : "bg-blue-500 text-white shadow-md"
                                         }
                                     `}
-                                    aria-label={isTeamExpanded ? "折りたたむ" : "展開する"}
+                                    aria-label={isTeamExpanded ? t("collapse") : t("expand")}
                                 >
                                     <span className="transition-transform duration-200" style={{ transform: isTeamExpanded ? 'rotate(0deg)' : 'rotate(-90deg)' }}>
                                         ▼
                                     </span>
-                                    <span className="hidden sm:inline">{isTeamExpanded ? "閉じる" : "開く"}</span>
+                                    <span className="hidden sm:inline">{isTeamExpanded ? t("collapse") : t("expand")}</span>
                                 </button>
                                 {/* ロードアウト切り替えタブ */}
                                 {[0, 1, 2].map((idx) => (
@@ -757,11 +757,12 @@ export default function TeamPage() {
                                         : "bg-blue-500 text-white shadow-md"
                                     }
                                 `}
+                                aria-label={isFilterExpanded ? t("collapse") : t("expand")}
                             >
                                 <span className="transition-transform duration-200" style={{ transform: isFilterExpanded ? 'rotate(0deg)' : 'rotate(-90deg)' }}>
                                     ▼
                                 </span>
-                                <span className="hidden sm:inline">{isFilterExpanded ? "閉じる" : "開く"}</span>
+                                <span className="hidden sm:inline">{isFilterExpanded ? t("collapse") : t("expand")}</span>
                             </button>
                         </div>
 
