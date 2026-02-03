@@ -657,6 +657,18 @@ export class MathBattleScene extends Phaser.Scene {
       ? (this.playerUnitData.baseUnitId || this.playerUnitData.id)
       : (this.enemyUnitData.baseUnitId || this.enemyUnitData.id);
 
+    const originalX = sprite.x;
+    const moveDistance = isPlayer ? 80 : -80;
+
+    // 攻撃開始時にスプライトを明るくする
+    sprite.setTint(0xffffff);
+    this.tweens.add({
+      targets: sprite,
+      alpha: 1.2,
+      duration: 100,
+      yoyo: true,
+    });
+
     // アニメーション再生を試みる
     let animPlayed = false;
     if (hasAnimation(baseId)) {
@@ -665,11 +677,30 @@ export class MathBattleScene extends Phaser.Scene {
         if (this.anims.exists(attackAnimKey)) {
           const anim = this.anims.get(attackAnimKey);
           if (anim && anim.frames && anim.frames.length > 0) {
-            sprite.play(attackAnimKey);
-            animPlayed = true;
-            sprite.once('animationcomplete', () => {
-              this.safePlayAnimation(sprite, `${atlasKey}_idle`);
+            // 前に踏み込んでから攻撃アニメーション
+            this.tweens.add({
+              targets: sprite,
+              x: originalX + moveDistance,
+              duration: 150,
+              ease: 'Power2',
+              onComplete: () => {
+                sprite.play(attackAnimKey);
+                sprite.once('animationcomplete', () => {
+                  // 元の位置に戻る
+                  this.tweens.add({
+                    targets: sprite,
+                    x: originalX,
+                    duration: 150,
+                    ease: 'Power2',
+                    onComplete: () => {
+                      sprite.clearTint();
+                      this.safePlayAnimation(sprite, `${atlasKey}_idle`);
+                    },
+                  });
+                });
+              },
             });
+            animPlayed = true;
           }
         }
       } catch {
@@ -678,18 +709,17 @@ export class MathBattleScene extends Phaser.Scene {
     }
 
     if (!animPlayed) {
-      // 簡易アニメーション（スプライト移動）
-      const originalX = sprite.x;
-      const targetX = isPlayer ? sprite.x + 50 : sprite.x - 50;
-
+      // 簡易アニメーション（前に突進して戻る）
       this.tweens.add({
         targets: sprite,
-        x: targetX,
-        duration: 100,
-        yoyo: true,
+        x: originalX + moveDistance,
+        duration: 120,
         ease: 'Power2',
+        yoyo: true,
+        hold: 50,
         onComplete: () => {
           sprite.x = originalX;
+          sprite.clearTint();
         },
       });
     }
