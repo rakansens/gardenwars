@@ -438,3 +438,93 @@ export interface StatusEffect {
   sourceUnitId: string;
   icon: string;
 }
+
+// ============================================
+// Math Battle Types (算数バトルモード)
+// ============================================
+
+/**
+ * 演算タイプ
+ */
+export type MathOperationType = 'addition' | 'subtraction' | 'multiplication' | 'division' | 'mixed';
+
+/**
+ * 算数バトルエリアID
+ */
+export type MathBattleAreaId = 'addition' | 'subtraction' | 'multiplication' | 'division' | 'mixed';
+
+/**
+ * 算数バトルエリア定義
+ */
+export interface MathBattleAreaDefinition {
+  id: MathBattleAreaId;
+  nameKey: string;           // 翻訳キー
+  icon: string;              // 絵文字アイコン
+  operationType: MathOperationType;
+  requiredStars: number;     // アンロックに必要な累計星数
+  stages: MathBattleStageDefinition[];
+}
+
+/**
+ * 算数バトルステージ定義
+ */
+export interface MathBattleStageDefinition {
+  id: string;
+  nameKey: string;           // 翻訳キー
+  areaId: MathBattleAreaId;
+  stageNumber: number;       // エリア内のステージ番号
+  isBoss: boolean;           // ボスステージか
+  questionCount: number;     // 問題数
+  timeLimitMs: number;       // 1問あたりの制限時間（ミリ秒）
+  difficulty: {
+    minNum1: number;         // 最小の数1
+    maxNum1: number;         // 最大の数1
+    minNum2: number;         // 最小の数2
+    maxNum2: number;         // 最大の数2
+  };
+  enemyId: string;           // 敵ユニットID
+  reward: {
+    coins: number;
+  };
+}
+
+/**
+ * 算数問題
+ */
+export interface MathQuestion {
+  num1: number;
+  num2: number;
+  operation: MathOperationType;
+  answer: number;
+  choices: number[];         // 4つの選択肢
+}
+
+/**
+ * 算数バトル進行状態（永続化用）
+ */
+export interface MathBattleProgress {
+  stageResults: {
+    [stageId: string]: {
+      cleared: boolean;
+      stars: number;         // 1-3
+      bestTime?: number;     // 最速クリアタイム（ミリ秒）
+    };
+  };
+  totalStars: number;        // 累計星数
+}
+
+/**
+ * 算数バトルゲーム状態（ランタイム）
+ */
+export interface MathBattleGameState {
+  status: 'ready' | 'countdown' | 'playing' | 'win' | 'lose';
+  currentQuestionIndex: number;
+  totalQuestions: number;
+  playerHp: number;
+  playerMaxHp: number;
+  enemyHp: number;
+  enemyMaxHp: number;
+  missCount: number;
+  timeRemaining: number;     // 現在の問題の残り時間（ミリ秒）
+  totalTime: number;         // 経過時間（ミリ秒）
+}

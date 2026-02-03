@@ -1,0 +1,349 @@
+{
+  "areas": [
+    {
+      "id": "addition",
+      "nameKey": "mathBattle.areas.addition",
+      "icon": "🌲",
+      "operationType": "addition",
+      "requiredStars": 0,
+      "stages": [
+        {
+          "id": "add_1",
+          "nameKey": "mathBattle.stages.stage1",
+          "areaId": "addition",
+          "stageNumber": 1,
+          "isBoss": false,
+          "questionCount": 5,
+          "timeLimitMs": 15000,
+          "difficulty": { "minNum1": 1, "maxNum1": 5, "minNum2": 1, "maxNum2": 5 },
+          "enemyId": "enemy_dog",
+          "reward": { "coins": 50 }
+        },
+        {
+          "id": "add_2",
+          "nameKey": "mathBattle.stages.stage2",
+          "areaId": "addition",
+          "stageNumber": 2,
+          "isBoss": false,
+          "questionCount": 5,
+          "timeLimitMs": 12000,
+          "difficulty": { "minNum1": 1, "maxNum1": 9, "minNum2": 1, "maxNum2": 9 },
+          "enemyId": "enemy_acorn",
+          "reward": { "coins": 60 }
+        },
+        {
+          "id": "add_3",
+          "nameKey": "mathBattle.stages.stage3",
+          "areaId": "addition",
+          "stageNumber": 3,
+          "isBoss": false,
+          "questionCount": 6,
+          "timeLimitMs": 12000,
+          "difficulty": { "minNum1": 5, "maxNum1": 15, "minNum2": 1, "maxNum2": 10 },
+          "enemyId": "enemy_mushroom",
+          "reward": { "coins": 70 }
+        },
+        {
+          "id": "add_4",
+          "nameKey": "mathBattle.stages.stage4",
+          "areaId": "addition",
+          "stageNumber": 4,
+          "isBoss": false,
+          "questionCount": 6,
+          "timeLimitMs": 10000,
+          "difficulty": { "minNum1": 10, "maxNum1": 20, "minNum2": 5, "maxNum2": 15 },
+          "enemyId": "enemy_frog",
+          "reward": { "coins": 80 }
+        },
+        {
+          "id": "add_boss",
+          "nameKey": "mathBattle.stages.boss",
+          "areaId": "addition",
+          "stageNumber": 5,
+          "isBoss": true,
+          "questionCount": 8,
+          "timeLimitMs": 10000,
+          "difficulty": { "minNum1": 10, "maxNum1": 30, "minNum2": 10, "maxNum2": 30 },
+          "enemyId": "boss_tutorial",
+          "reward": { "coins": 150 }
+        }
+      ]
+    },
+    {
+      "id": "subtraction",
+      "nameKey": "mathBattle.areas.subtraction",
+      "icon": "🕳️",
+      "operationType": "subtraction",
+      "requiredStars": 6,
+      "stages": [
+        {
+          "id": "sub_1",
+          "nameKey": "mathBattle.stages.stage1",
+          "areaId": "subtraction",
+          "stageNumber": 1,
+          "isBoss": false,
+          "questionCount": 5,
+          "timeLimitMs": 15000,
+          "difficulty": { "minNum1": 5, "maxNum1": 10, "minNum2": 1, "maxNum2": 5 },
+          "enemyId": "enemy_wolf",
+          "reward": { "coins": 60 }
+        },
+        {
+          "id": "sub_2",
+          "nameKey": "mathBattle.stages.stage2",
+          "areaId": "subtraction",
+          "stageNumber": 2,
+          "isBoss": false,
+          "questionCount": 5,
+          "timeLimitMs": 12000,
+          "difficulty": { "minNum1": 10, "maxNum1": 18, "minNum2": 1, "maxNum2": 9 },
+          "enemyId": "enemy_cat_warrior",
+          "reward": { "coins": 70 }
+        },
+        {
+          "id": "sub_3",
+          "nameKey": "mathBattle.stages.stage3",
+          "areaId": "subtraction",
+          "stageNumber": 3,
+          "isBoss": false,
+          "questionCount": 6,
+          "timeLimitMs": 12000,
+          "difficulty": { "minNum1": 15, "maxNum1": 25, "minNum2": 5, "maxNum2": 15 },
+          "enemyId": "enemy_tomato",
+          "reward": { "coins": 80 }
+        },
+        {
+          "id": "sub_4",
+          "nameKey": "mathBattle.stages.stage4",
+          "areaId": "subtraction",
+          "stageNumber": 4,
+          "isBoss": false,
+          "questionCount": 6,
+          "timeLimitMs": 10000,
+          "difficulty": { "minNum1": 20, "maxNum1": 40, "minNum2": 10, "maxNum2": 25 },
+          "enemyId": "enemy_pepper",
+          "reward": { "coins": 90 }
+        },
+        {
+          "id": "sub_boss",
+          "nameKey": "mathBattle.stages.boss",
+          "areaId": "subtraction",
+          "stageNumber": 5,
+          "isBoss": true,
+          "questionCount": 8,
+          "timeLimitMs": 10000,
+          "difficulty": { "minNum1": 30, "maxNum1": 50, "minNum2": 10, "maxNum2": 30 },
+          "enemyId": "boss_easy",
+          "reward": { "coins": 200 }
+        }
+      ]
+    },
+    {
+      "id": "multiplication",
+      "nameKey": "mathBattle.areas.multiplication",
+      "icon": "🏔️",
+      "operationType": "multiplication",
+      "requiredStars": 15,
+      "stages": [
+        {
+          "id": "mul_1",
+          "nameKey": "mathBattle.stages.stage1",
+          "areaId": "multiplication",
+          "stageNumber": 1,
+          "isBoss": false,
+          "questionCount": 5,
+          "timeLimitMs": 15000,
+          "difficulty": { "minNum1": 1, "maxNum1": 5, "minNum2": 1, "maxNum2": 5 },
+          "enemyId": "enemy_crow",
+          "reward": { "coins": 70 }
+        },
+        {
+          "id": "mul_2",
+          "nameKey": "mathBattle.stages.stage2",
+          "areaId": "multiplication",
+          "stageNumber": 2,
+          "isBoss": false,
+          "questionCount": 5,
+          "timeLimitMs": 12000,
+          "difficulty": { "minNum1": 2, "maxNum1": 7, "minNum2": 2, "maxNum2": 7 },
+          "enemyId": "enemy_archer",
+          "reward": { "coins": 80 }
+        },
+        {
+          "id": "mul_3",
+          "nameKey": "mathBattle.stages.stage3",
+          "areaId": "multiplication",
+          "stageNumber": 3,
+          "isBoss": false,
+          "questionCount": 6,
+          "timeLimitMs": 12000,
+          "difficulty": { "minNum1": 2, "maxNum1": 9, "minNum2": 2, "maxNum2": 9 },
+          "enemyId": "enemy_fire_chili",
+          "reward": { "coins": 90 }
+        },
+        {
+          "id": "mul_4",
+          "nameKey": "mathBattle.stages.stage4",
+          "areaId": "multiplication",
+          "stageNumber": 4,
+          "isBoss": false,
+          "questionCount": 6,
+          "timeLimitMs": 10000,
+          "difficulty": { "minNum1": 3, "maxNum1": 12, "minNum2": 3, "maxNum2": 9 },
+          "enemyId": "enemy_leaf_ninja",
+          "reward": { "coins": 100 }
+        },
+        {
+          "id": "mul_boss",
+          "nameKey": "mathBattle.stages.boss",
+          "areaId": "multiplication",
+          "stageNumber": 5,
+          "isBoss": true,
+          "questionCount": 8,
+          "timeLimitMs": 10000,
+          "difficulty": { "minNum1": 5, "maxNum1": 12, "minNum2": 5, "maxNum2": 12 },
+          "enemyId": "boss_normal",
+          "reward": { "coins": 250 }
+        }
+      ]
+    },
+    {
+      "id": "division",
+      "nameKey": "mathBattle.areas.division",
+      "icon": "🏰",
+      "operationType": "division",
+      "requiredStars": 30,
+      "stages": [
+        {
+          "id": "div_1",
+          "nameKey": "mathBattle.stages.stage1",
+          "areaId": "division",
+          "stageNumber": 1,
+          "isBoss": false,
+          "questionCount": 5,
+          "timeLimitMs": 15000,
+          "difficulty": { "minNum1": 2, "maxNum1": 5, "minNum2": 1, "maxNum2": 5 },
+          "enemyId": "enemy_cat_tank",
+          "reward": { "coins": 80 }
+        },
+        {
+          "id": "div_2",
+          "nameKey": "mathBattle.stages.stage2",
+          "areaId": "division",
+          "stageNumber": 2,
+          "isBoss": false,
+          "questionCount": 5,
+          "timeLimitMs": 12000,
+          "difficulty": { "minNum1": 2, "maxNum1": 7, "minNum2": 2, "maxNum2": 7 },
+          "enemyId": "enemy_mage",
+          "reward": { "coins": 90 }
+        },
+        {
+          "id": "div_3",
+          "nameKey": "mathBattle.stages.stage3",
+          "areaId": "division",
+          "stageNumber": 3,
+          "isBoss": false,
+          "questionCount": 6,
+          "timeLimitMs": 12000,
+          "difficulty": { "minNum1": 2, "maxNum1": 9, "minNum2": 2, "maxNum2": 9 },
+          "enemyId": "enemy_ice_flower",
+          "reward": { "coins": 100 }
+        },
+        {
+          "id": "div_4",
+          "nameKey": "mathBattle.stages.stage4",
+          "areaId": "division",
+          "stageNumber": 4,
+          "isBoss": false,
+          "questionCount": 6,
+          "timeLimitMs": 10000,
+          "difficulty": { "minNum1": 3, "maxNum1": 12, "minNum2": 3, "maxNum2": 9 },
+          "enemyId": "enemy_corn",
+          "reward": { "coins": 110 }
+        },
+        {
+          "id": "div_boss",
+          "nameKey": "mathBattle.stages.boss",
+          "areaId": "division",
+          "stageNumber": 5,
+          "isBoss": true,
+          "questionCount": 8,
+          "timeLimitMs": 10000,
+          "difficulty": { "minNum1": 5, "maxNum1": 12, "minNum2": 5, "maxNum2": 12 },
+          "enemyId": "boss_hard",
+          "reward": { "coins": 300 }
+        }
+      ]
+    },
+    {
+      "id": "mixed",
+      "nameKey": "mathBattle.areas.mixed",
+      "icon": "👑",
+      "operationType": "mixed",
+      "requiredStars": 50,
+      "stages": [
+        {
+          "id": "mix_1",
+          "nameKey": "mathBattle.stages.stage1",
+          "areaId": "mixed",
+          "stageNumber": 1,
+          "isBoss": false,
+          "questionCount": 6,
+          "timeLimitMs": 15000,
+          "difficulty": { "minNum1": 1, "maxNum1": 15, "minNum2": 1, "maxNum2": 10 },
+          "enemyId": "enemy_ribbon",
+          "reward": { "coins": 100 }
+        },
+        {
+          "id": "mix_2",
+          "nameKey": "mathBattle.stages.stage2",
+          "areaId": "mixed",
+          "stageNumber": 2,
+          "isBoss": false,
+          "questionCount": 6,
+          "timeLimitMs": 12000,
+          "difficulty": { "minNum1": 2, "maxNum1": 20, "minNum2": 2, "maxNum2": 12 },
+          "enemyId": "enemy_yumemi",
+          "reward": { "coins": 120 }
+        },
+        {
+          "id": "mix_3",
+          "nameKey": "mathBattle.stages.stage3",
+          "areaId": "mixed",
+          "stageNumber": 3,
+          "isBoss": false,
+          "questionCount": 7,
+          "timeLimitMs": 12000,
+          "difficulty": { "minNum1": 3, "maxNum1": 25, "minNum2": 3, "maxNum2": 12 },
+          "enemyId": "enemy_penguin",
+          "reward": { "coins": 140 }
+        },
+        {
+          "id": "mix_4",
+          "nameKey": "mathBattle.stages.stage4",
+          "areaId": "mixed",
+          "stageNumber": 4,
+          "isBoss": false,
+          "questionCount": 7,
+          "timeLimitMs": 10000,
+          "difficulty": { "minNum1": 5, "maxNum1": 30, "minNum2": 5, "maxNum2": 12 },
+          "enemyId": "enemy_nika",
+          "reward": { "coins": 160 }
+        },
+        {
+          "id": "mix_boss",
+          "nameKey": "mathBattle.stages.boss",
+          "areaId": "mixed",
+          "stageNumber": 5,
+          "isBoss": true,
+          "questionCount": 10,
+          "timeLimitMs": 10000,
+          "difficulty": { "minNum1": 5, "maxNum1": 50, "minNum2": 5, "maxNum2": 12 },
+          "enemyId": "boss_mona",
+          "reward": { "coins": 500 }
+        }
+      ]
+    }
+  ]
+}

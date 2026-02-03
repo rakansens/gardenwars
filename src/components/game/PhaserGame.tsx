@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import type { StageDefinition, UnitDefinition, ArenaStageDefinition, SurvivalDifficulty } from "@/data/types";
+import type { StageDefinition, UnitDefinition, ArenaStageDefinition, SurvivalDifficulty, MathBattleStageDefinition, MathOperationType } from "@/data/types";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { setGameLanguage } from "@/lib/gameTranslations";
 
@@ -26,7 +26,7 @@ function destroyGlobalPhaserGame(): void {
 }
 
 interface PhaserGameProps {
-    mode?: 'battle' | 'garden' | 'arena' | 'survival';
+    mode?: 'battle' | 'garden' | 'arena' | 'survival' | 'math-battle';
     // Battle props
     stage?: StageDefinition;
     team?: UnitDefinition[];
@@ -42,6 +42,12 @@ interface PhaserGameProps {
     // Survival props
     survivalPlayer?: UnitDefinition;
     survivalDifficulty?: SurvivalDifficulty;
+    // Math Battle props
+    mathBattleStage?: MathBattleStageDefinition;
+    mathBattlePlayerUnit?: UnitDefinition;
+    mathBattleEnemyUnit?: UnitDefinition;
+    mathBattleOperationType?: MathOperationType;
+    onMathBattleEnd?: (win: boolean, stars: number, coinsGained: number) => void;
 }
 
 export default function PhaserGame({
@@ -57,6 +63,11 @@ export default function PhaserGame({
     arenaStage,
     survivalPlayer,
     survivalDifficulty,
+    mathBattleStage,
+    mathBattlePlayerUnit,
+    mathBattleEnemyUnit,
+    mathBattleOperationType,
+    onMathBattleEnd,
 }: PhaserGameProps) {
     const gameRef = useRef<HTMLDivElement>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -87,6 +98,13 @@ export default function PhaserGame({
         onBattleEnd(win, coinsGained);
     }, [onBattleEnd, mode]);
 
+    const handleMathBattleEnd = useCallback((win: boolean, stars: number, coinsGained: number) => {
+        if (mode !== 'math-battle' || !onMathBattleEnd) return;
+        if (battleEndedRef.current) return;
+        battleEndedRef.current = true;
+        onMathBattleEnd(win, stars, coinsGained);
+    }, [onMathBattleEnd, mode]);
+
     useEffect(() => {
         if (!gameRef.current) return;
         const initSeq = ++initSeqRef.current;
@@ -114,7 +132,33 @@ export default function PhaserGame({
             let startKey: string;
             let startData: any;
 
-            if (mode === 'garden') {
+            if (mode === 'math-battle') {
+                const { MathBattleScene } = await import("@/game/scenes/MathBattleScene");
+                SceneClass = MathBattleScene;
+                startKey = "MathBattleScene";
+                startData = {
+                    stage: mathBattleStage,
+                    playerUnit: mathBattlePlayerUnit,
+                    enemyUnit: mathBattleEnemyUnit,
+                    operationType: mathBattleOperationType,
+                };
+
+                // MathBattle用イベントリスナー
+                eventBusModule = await import("@/game/utils/EventBus");
+                const { eventBus, GameEvents } = eventBusModule;
+                eventBus.removeAllListeners(GameEvents.MATH_BATTLE_WIN);
+                eventBus.removeAllListeners(GameEvents.MATH_BATTLE_LOSE);
+
+                storedHandleWin = (...args: unknown[]) => {
+                    const result = args[0] as { stars?: number; reward?: { coins?: number } } | undefined;
+                    handleMathBattleEnd(true, result?.stars || 1, result?.reward?.coins || 0);
+                };
+                storedHandleLose = () => {
+                    handleMathBattleEnd(false, 0, 0);
+                };
+                eventBus.on(GameEvents.MATH_BATTLE_WIN, storedHandleWin);
+                eventBus.on(GameEvents.MATH_BATTLE_LOSE, storedHandleLose);
+            } else if (mode === 'garden') {
                 const { GardenScene } = await import("@/game/scenes/GardenScene");
                 SceneClass = GardenScene;
                 startKey = "GardenScene";
@@ -171,10 +215,11 @@ export default function PhaserGame({
                 eventBus.on(GameEvents.BATTLE_LOSE, storedHandleLose);
             }
 
-            // アリーナは縦長、それ以外は横長
+            // アリーナは縦長、算数バトルは小さめ、それ以外は横長
             const isArena = mode === 'arena';
-            const gameWidth = isArena ? 675 : 1200;
-            const gameHeight = isArena ? 1200 : 675;
+            const isMathBattle = mode === 'math-battle';
+            const gameWidth = isArena ? 675 : (isMathBattle ? 800 : 1200);
+            const gameHeight = isArena ? 1200 : (isMathBattle ? 600 : 675);
 
             const config: Phaser.Types.Core.GameConfig = {
                 type: isMobile ? Phaser.CANVAS : Phaser.AUTO,
@@ -217,16 +262,18 @@ export default function PhaserGame({
                 const { eventBus, GameEvents } = eventBusModule;
                 if (storedHandleWin) {
                     eventBus.off(GameEvents.BATTLE_WIN, storedHandleWin);
+                    eventBus.off(GameEvents.MATH_BATTLE_WIN, storedHandleWin);
                 }
                 if (storedHandleLose) {
                     eventBus.off(GameEvents.BATTLE_LOSE, storedHandleLose);
+                    eventBus.off(GameEvents.MATH_BATTLE_LOSE, storedHandleLose);
                 }
             }
 
             // Destroy global Phaser game instance
             destroyGlobalPhaserGame();
         };
-    }, [mode, stage, team, allUnits, gardenUnits, arenaStage, survivalPlayer, survivalDifficulty, handleBattleEnd]);
+    }, [mode, stage, team, allUnits, gardenUnits, arenaStage, survivalPlayer, survivalDifficulty, handleBattleEnd, mathBattleStage, mathBattlePlayerUnit, mathBattleEnemyUnit, mathBattleOperationType, handleMathBattleEnd]);
 
     return (
         <div className="relative w-full h-full">

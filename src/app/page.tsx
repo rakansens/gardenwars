@@ -157,6 +157,7 @@ export default function Home() {
         { href: "/survival", icon: "🧟", label: t("menu_survival") },
         { href: "/chess", icon: "♟️", label: t("menu_chess") },
         { href: "/garden", icon: "🌱", label: t("menu_garden") },
+        { href: "/math-battle", icon: "🧮", label: t("menu_math_battle") },
       ],
     },
     units: {

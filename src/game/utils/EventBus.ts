@@ -67,4 +67,12 @@ export const GameEvents = {
     GARDEN_CLEAN: 'garden:clean',
     GARDEN_BG_CHANGE: 'garden:bg_change',
     GARDEN_MOTION_MODE: 'garden:motion_mode',
+
+    // Math Battle
+    MATH_BATTLE_WIN: 'math:win',
+    MATH_BATTLE_LOSE: 'math:lose',
+    MATH_BATTLE_ANSWER: 'math:answer',
+    MATH_BATTLE_QUESTION: 'math:question',
+    MATH_BATTLE_TIMER: 'math:timer',
+    MATH_BATTLE_HP_CHANGE: 'math:hp_change',
 } as const;
