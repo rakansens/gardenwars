@@ -128,8 +128,18 @@ export class BattleScene extends Phaser.Scene {
             this.pauseOverlay = undefined;
         }
 
-        // BGMを停止
-        this.bgm?.stop();
+        // BGMを完全に停止・削除
+        if (this.bgm) {
+            this.bgm.stop();
+            this.bgm.destroy();
+            this.bgm = undefined;
+        }
+        // 念のため全BGM系サウンドを停止
+        this.sound.getAllPlaying().forEach(sound => {
+            if (sound.key.includes('bgm')) {
+                sound.stop();
+            }
+        });
 
         // システムのクリーンアップ
         this.quizSystem?.destroy();

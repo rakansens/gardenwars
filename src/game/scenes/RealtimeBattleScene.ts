@@ -1384,12 +1384,19 @@ export class RealtimeBattleScene extends Phaser.Scene {
       });
       return;
     }
+    // 既存のBGMがあれば再生を試みる
     if (this.bgm) {
       if (!this.bgm.isPlaying && isBgmEnabled()) {
         this.bgm.play();
       }
       return;
     }
+    // 新しいBGMを作成する前に、既存のBGM系サウンドを停止
+    this.sound.getAllPlaying().forEach(sound => {
+      if (sound.key.includes('battle_bgm')) {
+        sound.stop();
+      }
+    });
     const bgmKey = Math.random() < 0.5 ? 'battle_bgm_1' : 'battle_bgm_2';
     if (this.cache.audio.exists(bgmKey) && isBgmEnabled()) {
       const bgmVol = getBgmVolume(0.3);
@@ -1480,6 +1487,17 @@ export class RealtimeBattleScene extends Phaser.Scene {
     // イベントリスナー削除
     this.networkManager.removeAllListeners();
     this.units.clear();
-    this.bgm?.stop();
+    // BGMを完全に停止・削除
+    if (this.bgm) {
+      this.bgm.stop();
+      this.bgm.destroy();
+      this.bgm = undefined;
+    }
+    // 念のため全BGM系サウンドを停止
+    this.sound.getAllPlaying().forEach(sound => {
+      if (sound.key.includes('bgm')) {
+        sound.stop();
+      }
+    });
   }
 }
