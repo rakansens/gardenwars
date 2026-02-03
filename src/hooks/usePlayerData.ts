@@ -295,14 +295,31 @@ export function usePlayerData() {
                         const localIsNewer = localTimestamp > remoteTimestamp;
                         console.log(`[Merge] Local: ${new Date(localTimestamp).toISOString()}, Remote: ${new Date(remoteTimestamp).toISOString()}, LocalIsNewer: ${localIsNewer}`);
 
-                        // 消費系データ（コイン、インベントリ）はタイムスタンプが新しい方を使用
+                        // 消費系データ（コイン）はタイムスタンプが新しい方を使用
                         // これにより、ガチャ消費やフュージョン後のデータが正しく反映される
+
+                        // インベントリ: 和集合でマージ（各ユニットの最大値を取る）
+                        // 複数デバイス間でデータ消失を防ぐため、両方のインベントリから最大値を採用
+                        const mergedInventory: Record<string, number> = {};
+                        const allUnitIds = new Set([
+                            ...Object.keys(localData.unitInventory),
+                            ...Object.keys(remoteConverted.unitInventory)
+                        ]);
+                        allUnitIds.forEach(unitId => {
+                            const localCount = localData.unitInventory[unitId] || 0;
+                            const remoteCount = remoteConverted.unitInventory[unitId] || 0;
+                            const maxCount = Math.max(localCount, remoteCount);
+                            if (maxCount > 0) {
+                                mergedInventory[unitId] = maxCount;
+                            }
+                        });
+
                         const mergedData: PlayerDataWithTimestamp = {
                             ...remoteConverted,
-                            // コイン: 新しい方のデータを使用（Math.minは使わない！）
+                            // コイン: 新しい方のデータを使用
                             coins: localIsNewer ? localData.coins : remoteConverted.coins,
-                            // インベントリ: 新しい方のデータを使用（Math.maxは使わない！）
-                            unitInventory: localIsNewer ? localData.unitInventory : remoteConverted.unitInventory,
+                            // インベントリ: 和集合でマージ（データ消失防止）
+                            unitInventory: mergedInventory,
                             lastModified: Math.max(localTimestamp, remoteTimestamp),
                         };
 
