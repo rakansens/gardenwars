@@ -1008,6 +1008,10 @@ export class BattleScene extends Phaser.Scene {
         let isDragging = false;
 
         this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+            // ブラウザのデフォルトジェスチャー（ズーム等）を防止
+            if (pointer.event) {
+                pointer.event.preventDefault();
+            }
             // UIボタン上でなければドラッグ開始
             if (pointer.y < this.scale.height - 120) {
                 isDragging = true;

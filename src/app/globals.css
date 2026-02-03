@@ -89,7 +89,7 @@ body {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
-  touch-action: manipulation;
+  touch-action: none;
   overscroll-behavior: none;
   /* セーフエリア対応（ノッチ付きデバイス） */
   padding-top: env(safe-area-inset-top);
