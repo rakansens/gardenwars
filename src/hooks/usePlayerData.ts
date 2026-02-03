@@ -20,6 +20,7 @@ import {
     executeShopRefreshRpc,
     executeShopPurchaseRpc,
     executeArenaRewardRpc,
+    executeGardenRewardRpc,
 } from "@/lib/supabase";
 import type {
     FrontendPlayerData,
@@ -502,6 +503,36 @@ export function usePlayerData() {
 
             if (!result.success) {
                 console.error("[executeArenaReward] Server rejected:", result.error);
+                return false;
+            }
+
+            // サーバーからの結果でローカル状態を更新
+            setData((prev) => ({
+                ...prev,
+                coins: result.coins ?? prev.coins,
+            }));
+            return true;
+        }
+
+        // 未認証ユーザーはローカルで処理
+        setData((prev) => ({
+            ...prev,
+            coins: prev.coins + coinsGained,
+        }));
+        return true;
+    }, [isAuthenticated, playerId]);
+
+    // ガーデン報酬を処理（コイン追加）
+    // サーバー権威モード（認証済みユーザー）:
+    // - サーバー側でコイン追加を原子的に実行
+    const executeGardenReward = useCallback(async (coinsGained: number): Promise<boolean> => {
+        // 認証済みユーザーはサーバー権威モードを使用
+        if (isAuthenticated && playerId) {
+            console.log("[executeGardenReward] Using server authority mode");
+            const result = await executeGardenRewardRpc(playerId, coinsGained);
+
+            if (!result.success) {
+                console.error("[executeGardenReward] Server rejected:", result.error);
                 return false;
             }
 
@@ -1055,6 +1086,7 @@ export function usePlayerData() {
         executeFusion,
         executeBattleReward,
         executeArenaReward,
+        executeGardenReward,
         flushToSupabase,
     };
 }

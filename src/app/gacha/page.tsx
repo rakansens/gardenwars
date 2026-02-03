@@ -15,7 +15,7 @@ import { useUnitDetailModal } from "@/hooks/useUnitDetailModal";
 import { useLanguage } from "@/contexts/LanguageContext";
 import PageHeader from "@/components/layout/PageHeader";
 import { useAuth } from "@/contexts/AuthContext";
-import { incrementGachaCount } from "@/lib/supabase";
+import { incrementGachaCountRpc } from "@/lib/supabase";
 import { secureRandom } from "@/lib/secureRandom";
 
 const allUnits = unitsData as UnitDefinition[];
@@ -169,10 +169,10 @@ export default function GachaPage() {
             // これによりブラウザが閉じられてもデータが失われない
             await flushToSupabase();
 
-            // ランキング用ガチャ回数カウント（エラーハンドリング付き）
+            // ランキング用ガチャ回数カウント（サーバー権威モード）
             if (playerId) {
                 try {
-                    await incrementGachaCount(playerId, count);
+                    await incrementGachaCountRpc(playerId, count);
                 } catch (err) {
                     console.error("Failed to increment gacha count:", err);
                     // ランキング更新失敗してもガチャ自体は続行

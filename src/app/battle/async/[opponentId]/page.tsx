@@ -59,7 +59,7 @@ export default function AsyncBattlePage() {
     const { t } = useLanguage();
     const { showError } = useToast();
     const { playerId } = useAuth();
-    const { selectedTeam, isLoaded, loadouts, activeLoadoutIndex, addCoins } = usePlayerData();
+    const { selectedTeam, isLoaded, loadouts, activeLoadoutIndex, executeArenaReward } = usePlayerData();
 
     const [opponent, setOpponent] = useState<OpponentData | null>(null);
     const [stage, setStage] = useState<StageDefinition | null>(null);
@@ -164,9 +164,9 @@ export default function AsyncBattlePage() {
         setResult({ win, coins: coinsGained });
         setSaveError(null);
 
-        // 勝利時のコイン報酬を実際に付与
+        // 勝利時のコイン報酬を実際に付与（サーバー権威モード）
         if (win && coinsGained > 0) {
-            addCoins(coinsGained);
+            await executeArenaReward(coinsGained);
         }
 
         const battleDuration = Math.floor((Date.now() - battleStartTime) / 1000);

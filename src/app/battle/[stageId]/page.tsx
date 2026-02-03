@@ -10,7 +10,7 @@ import type { StageDefinition, UnitDefinition } from "@/data/types";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { useAuth } from "@/contexts/AuthContext";
-import { incrementBattleStats } from "@/lib/supabase";
+import { incrementBattleStatsRpc } from "@/lib/supabase";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 // ドロップ処理用のユーティリティ
@@ -108,9 +108,9 @@ export default function BattlePage() {
         const stageNumMatch = stageId.match(/stage_(\d+)/);
         const stageNum = stageNumMatch ? parseInt(stageNumMatch[1], 10) : undefined;
 
-        // バトル統計を記録（認証済みの場合のみ）
+        // バトル統計を記録（認証済みの場合のみ）- サーバー権威モード
         if (playerId) {
-            incrementBattleStats(playerId, win, stageNum, stageId).catch(err => {
+            incrementBattleStatsRpc(playerId, win, stageNum, stageId).catch(err => {
                 console.error("Failed to update battle stats:", err);
             });
         }

@@ -73,6 +73,11 @@ export {
     executeShopRefreshRpc,
     executeShopPurchaseRpc,
     executeArenaRewardRpc,
+    // ランキング・ガーデン用
+    incrementBattleStatsRpc,
+    incrementGachaCountRpc,
+    incrementGardenVisitsRpc,
+    executeGardenRewardRpc,
 } from "./serverAuthority";
 export type {
     ServerTimeResponse,
@@ -84,4 +89,9 @@ export type {
     ShopRefreshResult,
     ShopPurchaseResult,
     ArenaRewardResult,
+    // ランキング・ガーデン用
+    BattleStatsResult,
+    GachaCountResult,
+    GardenVisitsResult,
+    GardenRewardResult,
 } from "./serverAuthority";

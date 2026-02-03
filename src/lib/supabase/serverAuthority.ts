@@ -503,3 +503,239 @@ export async function executeArenaRewardRpc(
         return { success: false, error: 'Network error' };
     }
 }
+
+// ============================================
+// ランキング・ガーデン用RPC
+// ============================================
+
+/** バトル統計更新結果 */
+export interface BattleStatsResult {
+    success: boolean;
+    error?: string;
+    totalBattles?: number;
+    totalWins?: number;
+    winStreak?: number;
+    maxWinStreak?: number;
+    serverTime?: Date;
+}
+
+/** ガチャカウント更新結果 */
+export interface GachaCountResult {
+    success: boolean;
+    error?: string;
+    gachaCount?: number;
+    serverTime?: Date;
+}
+
+/** ガーデン訪問更新結果 */
+export interface GardenVisitsResult {
+    success: boolean;
+    error?: string;
+    gardenVisits?: number;
+    serverTime?: Date;
+}
+
+/** ガーデン報酬結果 */
+export interface GardenRewardResult {
+    success: boolean;
+    error?: string;
+    coins?: number;
+    serverTime?: Date;
+}
+
+/**
+ * バトル統計を更新（サーバー側で原子的に処理）
+ *
+ * @param playerId プレイヤーID
+ * @param won 勝利したか
+ * @param stageNum ステージ番号（オプション）
+ * @param stageId ステージID（オプション）
+ */
+export async function incrementBattleStatsRpc(
+    playerId: string,
+    won: boolean,
+    stageNum?: number,
+    stageId?: string
+): Promise<BattleStatsResult> {
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data, error } = await (supabase.rpc as any)('increment_battle_stats', {
+            p_player_id: playerId,
+            p_won: won,
+            p_stage_num: stageNum ?? null,
+            p_stage_id: stageId ?? null,
+        });
+
+        if (error) {
+            console.error('[ServerAuthority] incrementBattleStats error:', error);
+            return { success: false, error: error.message };
+        }
+
+        const result = data as {
+            success: boolean;
+            error?: string;
+            total_battles?: number;
+            total_wins?: number;
+            win_streak?: number;
+            max_win_streak?: number;
+            server_time?: string;
+        };
+
+        if (!result.success) {
+            return {
+                success: false,
+                error: result.error || 'Unknown error',
+            };
+        }
+
+        return {
+            success: true,
+            totalBattles: result.total_battles,
+            totalWins: result.total_wins,
+            winStreak: result.win_streak,
+            maxWinStreak: result.max_win_streak,
+            serverTime: result.server_time ? new Date(result.server_time) : undefined,
+        };
+    } catch (err) {
+        console.error('[ServerAuthority] incrementBattleStats exception:', err);
+        return { success: false, error: 'Network error' };
+    }
+}
+
+/**
+ * ガチャカウントを更新（サーバー側で原子的に処理）
+ *
+ * @param playerId プレイヤーID
+ * @param count 追加するカウント（デフォルト1）
+ */
+export async function incrementGachaCountRpc(
+    playerId: string,
+    count: number = 1
+): Promise<GachaCountResult> {
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data, error } = await (supabase.rpc as any)('increment_gacha_count', {
+            p_player_id: playerId,
+            p_count: count,
+        });
+
+        if (error) {
+            console.error('[ServerAuthority] incrementGachaCount error:', error);
+            return { success: false, error: error.message };
+        }
+
+        const result = data as {
+            success: boolean;
+            error?: string;
+            gacha_count?: number;
+            server_time?: string;
+        };
+
+        if (!result.success) {
+            return {
+                success: false,
+                error: result.error || 'Unknown error',
+            };
+        }
+
+        return {
+            success: true,
+            gachaCount: result.gacha_count,
+            serverTime: result.server_time ? new Date(result.server_time) : undefined,
+        };
+    } catch (err) {
+        console.error('[ServerAuthority] incrementGachaCount exception:', err);
+        return { success: false, error: 'Network error' };
+    }
+}
+
+/**
+ * ガーデン訪問を更新（サーバー側で原子的に処理）
+ *
+ * @param playerId プレイヤーID
+ */
+export async function incrementGardenVisitsRpc(
+    playerId: string
+): Promise<GardenVisitsResult> {
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data, error } = await (supabase.rpc as any)('increment_garden_visits', {
+            p_player_id: playerId,
+        });
+
+        if (error) {
+            console.error('[ServerAuthority] incrementGardenVisits error:', error);
+            return { success: false, error: error.message };
+        }
+
+        const result = data as {
+            success: boolean;
+            error?: string;
+            garden_visits?: number;
+            server_time?: string;
+        };
+
+        if (!result.success) {
+            return {
+                success: false,
+                error: result.error || 'Unknown error',
+            };
+        }
+
+        return {
+            success: true,
+            gardenVisits: result.garden_visits,
+            serverTime: result.server_time ? new Date(result.server_time) : undefined,
+        };
+    } catch (err) {
+        console.error('[ServerAuthority] incrementGardenVisits exception:', err);
+        return { success: false, error: 'Network error' };
+    }
+}
+
+/**
+ * ガーデン報酬を処理（サーバー側で原子的に処理）
+ *
+ * @param playerId プレイヤーID
+ * @param coinsGained 獲得コイン
+ */
+export async function executeGardenRewardRpc(
+    playerId: string,
+    coinsGained: number
+): Promise<GardenRewardResult> {
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data, error } = await (supabase.rpc as any)('execute_garden_reward', {
+            p_player_id: playerId,
+            p_coins_gained: coinsGained,
+        });
+
+        if (error) {
+            console.error('[ServerAuthority] executeGardenReward error:', error);
+            return { success: false, error: error.message };
+        }
+
+        const result = data as {
+            success: boolean;
+            error?: string;
+            coins?: number;
+            server_time?: string;
+        };
+
+        if (!result.success) {
+            return {
+                success: false,
+                error: result.error || 'Unknown error',
+            };
+        }
+
+        return {
+            success: true,
+            coins: result.coins,
+            serverTime: result.server_time ? new Date(result.server_time) : undefined,
+        };
+    } catch (err) {
+        console.error('[ServerAuthority] executeGardenReward exception:', err);
+        return { success: false, error: 'Network error' };
+    }
+}

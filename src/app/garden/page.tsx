@@ -12,7 +12,7 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { eventBus, GameEvents } from "@/game/utils/EventBus";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { incrementGardenVisits } from "@/lib/supabase";
+import { incrementGardenVisitsRpc } from "@/lib/supabase";
 import { GARDEN_BACKGROUNDS, type GardenBackgroundId } from "@/game/constants/gardenBackgrounds";
 import { hasAnimation } from "@/lib/sprites";
 
@@ -28,7 +28,7 @@ const allUnits = unitsData as UnitDefinition[];
 const allyUnits = allUnits.filter(u => !u.id.startsWith("enemy_") && !u.id.startsWith("boss_") && !u.isBoss);
 
 export default function GardenPage() {
-    const { unitInventory, selectedTeam, gardenUnits: savedGardenUnitIds, setGardenUnits: saveGardenUnits, isLoaded, addCoins, coins } = usePlayerData();
+    const { unitInventory, selectedTeam, gardenUnits: savedGardenUnitIds, setGardenUnits: saveGardenUnits, isLoaded, executeGardenReward, coins } = usePlayerData();
     const { t } = useLanguage();
     const { playerId } = useAuth();
     const [displayUnits, setDisplayUnits] = useState<UnitDefinition[]>([]);
@@ -97,10 +97,10 @@ export default function GardenPage() {
         autoPickUnits();
     }, [isLoaded, selectedTeam, unitInventory, savedGardenUnitIds]);
 
-    // Track garden visits for ranking
+    // Track garden visits for ranking (サーバー権威モード)
     useEffect(() => {
         if (playerId && isLoaded) {
-            incrementGardenVisits(playerId).catch(err => {
+            incrementGardenVisitsRpc(playerId).catch(err => {
                 console.warn("Failed to increment garden visits:", err);
             });
         }
@@ -202,19 +202,19 @@ export default function GardenPage() {
         setTimeout(() => setCoinEffect(false), 600);
     };
 
-    const handleFeed = (type: string) => {
+    const handleFeed = async (type: string) => {
         console.log('GardenPage: Emitting FEED', type);
         eventBus.emit(GameEvents.GARDEN_FEED, { type });
-        // コイン報酬
-        addCoins(1);
+        // コイン報酬（サーバー権威モード）
+        await executeGardenReward(1);
         showCoinEffect();
     };
 
-    const handleClean = () => {
+    const handleClean = async () => {
         console.log('GardenPage: Emitting CLEAN');
         eventBus.emit(GameEvents.GARDEN_CLEAN);
-        // コイン報酬
-        addCoins(1);
+        // コイン報酬（サーバー権威モード）
+        await executeGardenReward(1);
         showCoinEffect();
     };
 
