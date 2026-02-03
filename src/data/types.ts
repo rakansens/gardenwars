@@ -462,6 +462,7 @@ export interface MathBattleAreaDefinition {
   icon: string;              // 絵文字アイコン
   operationType: MathOperationType;
   requiredStars: number;     // アンロックに必要な累計星数
+  coverImage?: string;       // カバー画像パス
   stages: MathBattleStageDefinition[];
 }
 

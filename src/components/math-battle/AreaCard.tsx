@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import type { MathBattleAreaDefinition } from "@/data/types";
 import { useMathBattleStore } from "@/store/mathBattleStore";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -39,20 +40,40 @@ export default function AreaCard({ area }: AreaCardProps) {
   }, 0);
   const maxAreaStars = totalStages * 3;
 
+  const isAllCleared = clearedStages === totalStages && totalStages > 0;
+
   if (!isUnlocked) {
     return (
-      <div className="stage-card relative opacity-60 cursor-not-allowed">
-        <div className="absolute inset-0 flex items-center justify-center z-10">
-          <div className="text-center">
-            <div className="text-4xl mb-2">🔒</div>
-            <p className="text-amber-700/70 dark:text-slate-300/70 text-sm">
-              {t('mathBattle.requireStars').replace('{stars}', String(area.requiredStars))}
-            </p>
+      <div className="relative overflow-hidden rounded-xl cursor-not-allowed">
+        {/* カバー画像 */}
+        <div className={`relative h-40 bg-gradient-to-br ${gradient}`}>
+          {area.coverImage && (
+            <Image
+              src={area.coverImage}
+              alt={t(area.nameKey)}
+              fill
+              className="object-cover grayscale opacity-60"
+            />
+          )}
+          {/* 暗いオーバーレイ */}
+          <div className="absolute inset-0 bg-black/50" />
+
+          {/* ロックアイコン */}
+          <div className="absolute inset-0 flex items-center justify-center z-10">
+            <div className="text-center">
+              <div className="text-5xl mb-2">🔒</div>
+              <p className="text-white/90 text-sm font-medium">
+                {t('mathBattle.requireStars').replace('{stars}', String(area.requiredStars))}
+              </p>
+            </div>
           </div>
-        </div>
-        <div className="blur-sm">
-          <div className="text-5xl mb-3">{area.icon}</div>
-          <h3 className="text-xl font-bold text-amber-900 dark:text-white">{t(area.nameKey)}</h3>
+
+          {/* コンテンツ */}
+          <div className="absolute inset-0 flex flex-col justify-end p-4">
+            <div className="text-3xl mb-1">{area.icon}</div>
+            <h3 className="text-xl font-bold text-white/70 drop-shadow-lg">{t(area.nameKey)}</h3>
+            <p className="text-white/50 text-sm">{totalStages} {t('mathBattle.stages')}</p>
+          </div>
         </div>
       </div>
     );
@@ -60,48 +81,54 @@ export default function AreaCard({ area }: AreaCardProps) {
 
   return (
     <Link href={`/math-battle/${area.id}`}>
-      <div className="stage-card relative overflow-hidden transition-all duration-200 hover:scale-[1.02] hover:shadow-xl">
-        {/* 背景グラデーション */}
-        <div className={`absolute top-0 right-0 w-24 h-24 rounded-full bg-gradient-to-br ${gradient} opacity-20 -translate-y-8 translate-x-8`} />
+      <div className="relative overflow-hidden rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl group">
+        {/* カバー画像 */}
+        <div className={`relative h-40 bg-gradient-to-br ${gradient}`}>
+          {area.coverImage && (
+            <Image
+              src={area.coverImage}
+              alt={t(area.nameKey)}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          )}
+          {/* グラデーションオーバーレイ */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
-        {/* 完全クリアマーク */}
-        {clearedStages === totalStages && totalStages > 0 && (
-          <div className="absolute -top-2 -right-2 bg-amber-400 rounded-full p-2 shadow-lg z-10">
-            <span className="text-xl">🏆</span>
-          </div>
-        )}
+          {/* 完全クリアバッジ */}
+          {isAllCleared && (
+            <div className="absolute top-2 right-2 bg-amber-400 rounded-full px-2 py-1 shadow-lg z-10 flex items-center gap-1">
+              <span className="text-lg">🏆</span>
+              <span className="text-xs font-bold text-amber-900">CLEAR</span>
+            </div>
+          )}
 
-        <div className="relative z-[1]">
-          <div className="flex items-start gap-4">
-            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-md bg-gradient-to-br ${gradient}`}>
-              {area.icon}
+          {/* コンテンツ */}
+          <div className="absolute inset-0 flex flex-col justify-end p-4">
+            <div className="flex items-end justify-between">
+              <div>
+                <div className="text-3xl mb-1">{area.icon}</div>
+                <h3 className="text-xl font-bold text-white drop-shadow-lg">{t(area.nameKey)}</h3>
+                <p className="text-white/80 text-sm">{totalStages} {t('mathBattle.stages')}</p>
+              </div>
+              <div className="text-right">
+                <div className="text-white font-bold text-lg drop-shadow-lg">
+                  ⭐ {areaStars}/{maxAreaStars}
+                </div>
+                <div className={`text-xs px-2 py-0.5 rounded-full ${
+                  isAllCleared ? 'bg-green-500/80' : 'bg-white/30'
+                } text-white font-medium`}>
+                  {clearedStages}/{totalStages}
+                </div>
+              </div>
             </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-bold text-amber-900 dark:text-white mb-1">
-                {t(area.nameKey)}
-              </h3>
-              <p className="text-sm text-amber-700/70 dark:text-slate-300/70">
-                {area.stages.length} {t('mathBattle.stages')}
-              </p>
-            </div>
-          </div>
 
-          {/* 進行状況 */}
-          <div className="mt-4 space-y-2">
-            <div className="flex items-center justify-between text-sm text-amber-700/80 dark:text-slate-300/80">
-              <span>{t('mathBattle.progress')}</span>
-              <span className="font-semibold">{clearedStages}/{totalStages}</span>
-            </div>
-            <div className="h-2 bg-amber-200/50 dark:bg-slate-700/50 rounded-full overflow-hidden">
+            {/* プログレスバー */}
+            <div className="mt-3 h-1.5 bg-white/20 rounded-full overflow-hidden">
               <div
-                className={`h-full bg-gradient-to-r ${gradient} rounded-full transition-all`}
+                className={`h-full bg-gradient-to-r ${gradient} rounded-full transition-all duration-500`}
                 style={{ width: `${(clearedStages / totalStages) * 100}%` }}
               />
-            </div>
-            <div className="flex items-center justify-end text-sm">
-              <span className="text-amber-600 dark:text-amber-400 font-semibold">
-                ⭐ {areaStars}/{maxAreaStars}
-              </span>
             </div>
           </div>
         </div>
