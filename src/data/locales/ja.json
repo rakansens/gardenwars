@@ -847,6 +847,7 @@
   "mathBattle.selectArea": "エリアを選択",
   "mathBattle.progress": "進行",
   "mathBattle.requireStars": "あと {stars} 星で解放",
+  "mathBattle.requireClear": "前のエリアで5ステージクリア",
   "mathBattle.areaLocked": "このエリアはロックされています",
   "mathBattle.stages": "ステージ",
   "mathBattle.questions": "問",

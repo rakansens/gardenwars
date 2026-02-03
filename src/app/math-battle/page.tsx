@@ -43,8 +43,8 @@ export default function MathBattlePage() {
           🗺️ {t('mathBattle.selectArea')}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {mathBattleAreas.map(area => (
-            <AreaCard key={area.id} area={area} />
+          {mathBattleAreas.map((area, index) => (
+            <AreaCard key={area.id} area={area} areaIndex={index} />
           ))}
         </div>
       </div>

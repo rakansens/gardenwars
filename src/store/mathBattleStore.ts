@@ -15,7 +15,8 @@ interface MathBattleStore {
   getTotalStars: () => number;
   getStageResult: (stageId: string) => { cleared: boolean; stars: number; bestTime?: number } | undefined;
   isStageCleared: (stageId: string) => boolean;
-  isAreaUnlocked: (requiredStars: number) => boolean;
+  getClearedStagesInArea: (areaId: string) => number;
+  isAreaUnlocked: (areaId: string, areaIndex: number) => boolean;
   resetProgress: () => void;
 }
 
@@ -80,8 +81,39 @@ export const useMathBattleStore = create<MathBattleStore>()(
         return result?.cleared ?? false;
       },
 
-      isAreaUnlocked: (requiredStars) => {
-        return get().progress.totalStars >= requiredStars;
+      // エリア内のクリア済みステージ数を取得
+      getClearedStagesInArea: (areaId) => {
+        const results = get().progress.stageResults;
+        // stageIdは "add_1", "sub_2" などの形式
+        // areaIdに対応するプレフィックスを判定
+        const prefixMap: Record<string, string> = {
+          addition: 'add_',
+          subtraction: 'sub_',
+          multiplication: 'mul_',
+          division: 'div_',
+          mixed: 'mix_',
+        };
+        const prefix = prefixMap[areaId];
+        if (!prefix) return 0;
+
+        return Object.keys(results).filter(
+          stageId => stageId.startsWith(prefix) && results[stageId]?.cleared
+        ).length;
+      },
+
+      // エリアがアンロックされているかチェック（最初のエリアは常にアンロック、それ以外は前のエリアで5ステージクリア）
+      isAreaUnlocked: (areaId, areaIndex) => {
+        // 最初のエリア（addition）は常にアンロック
+        if (areaIndex === 0) return true;
+
+        // 前のエリアのIDを取得
+        const areaOrder = ['addition', 'subtraction', 'multiplication', 'division', 'mixed'];
+        const prevAreaId = areaOrder[areaIndex - 1];
+        if (!prevAreaId) return false;
+
+        // 前のエリアで5ステージ以上クリアしていればアンロック
+        const clearedInPrevArea = get().getClearedStagesInArea(prevAreaId);
+        return clearedInPrevArea >= 5;
       },
 
       resetProgress: () => set({ progress: initialProgress }),

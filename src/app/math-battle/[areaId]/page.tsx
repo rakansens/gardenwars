@@ -4,7 +4,7 @@ import { use } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import PageHeader from "@/components/layout/PageHeader";
 import StageCard from "@/components/math-battle/StageCard";
-import { getMathBattleArea } from "@/data/math-battle";
+import { getMathBattleArea, mathBattleAreas } from "@/data/math-battle";
 import { useMathBattleStore } from "@/store/mathBattleStore";
 import unitsData from "@/data/units";
 import type { UnitDefinition } from "@/data/types";
@@ -45,7 +45,8 @@ export default function AreaStagesPage({
   }
 
   // エリアがロックされている場合はリダイレクト
-  const areaUnlocked = isAreaUnlocked(area.requiredStars);
+  const areaIndex = mathBattleAreas.findIndex(a => a.id === areaId);
+  const areaUnlocked = isAreaUnlocked(areaId, areaIndex);
   const gradient = AREA_GRADIENTS[areaId] || AREA_GRADIENTS.addition;
 
   // このエリアの進行状況

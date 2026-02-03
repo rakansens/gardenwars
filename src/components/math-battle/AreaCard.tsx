@@ -8,6 +8,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 interface AreaCardProps {
   area: MathBattleAreaDefinition;
+  areaIndex: number;
 }
 
 // エリアの背景グラデーション設定
@@ -19,12 +20,15 @@ const AREA_GRADIENTS: Record<string, string> = {
   mixed: "from-rose-400 via-amber-400 to-cyan-400",
 };
 
-export default function AreaCard({ area }: AreaCardProps) {
+export default function AreaCard({ area, areaIndex }: AreaCardProps) {
   const { t } = useLanguage();
   const isAreaUnlocked = useMathBattleStore(state => state.isAreaUnlocked);
+  const getClearedStagesInArea = useMathBattleStore(state => state.getClearedStagesInArea);
   const progress = useMathBattleStore(state => state.progress);
 
-  const isUnlocked = isAreaUnlocked(area.requiredStars);
+  const isUnlocked = isAreaUnlocked(area.id, areaIndex);
+  // 次のエリア解放に必要なクリア数を表示用に取得
+  const clearedInThisArea = getClearedStagesInArea(area.id);
   const gradient = AREA_GRADIENTS[area.id] || AREA_GRADIENTS.addition;
 
   // このエリアのステージ進行状況を計算
@@ -63,7 +67,7 @@ export default function AreaCard({ area }: AreaCardProps) {
             <div className="text-center">
               <div className="text-5xl mb-2">🔒</div>
               <p className="text-white/90 text-sm font-medium">
-                {t('mathBattle.requireStars').replace('{stars}', String(area.requiredStars))}
+                {t('mathBattle.requireClear')}
               </p>
             </div>
           </div>

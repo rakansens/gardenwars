@@ -844,6 +844,7 @@
   "mathBattle.selectArea": "Select Area",
   "mathBattle.progress": "Progress",
   "mathBattle.requireStars": "{stars} more stars to unlock",
+  "mathBattle.requireClear": "Clear 5 stages in previous area",
   "mathBattle.areaLocked": "This area is locked",
   "mathBattle.stages": "stages",
   "mathBattle.questions": "Q",

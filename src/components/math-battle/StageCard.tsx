@@ -82,8 +82,8 @@ export default function StageCard({ stage, areaId, enemyUnit, isLocked = false }
             </div>
 
             {/* テキスト */}
-            <div className="flex-1 ml-3 blur-[1px]">
-              <h4 className="text-white/70 font-bold text-sm drop-shadow-lg">
+            <div className="flex-1 ml-3 min-w-0 blur-[1px]">
+              <h4 className="text-white/70 font-bold text-sm drop-shadow-lg truncate">
                 {stage.isBoss ? '👑 ' : ''}
                 {t(stage.nameKey)}
               </h4>
@@ -98,7 +98,7 @@ export default function StageCard({ stage, areaId, enemyUnit, isLocked = false }
             </div>
 
             {/* 報酬 */}
-            <div className="text-right blur-[1px]">
+            <div className="text-right shrink-0 blur-[1px]">
               <p className="text-white/50 font-bold text-sm drop-shadow-lg">
                 💰 {stage.reward.coins}
               </p>
@@ -161,13 +161,13 @@ export default function StageCard({ stage, areaId, enemyUnit, isLocked = false }
             </div>
 
             {/* テキスト */}
-            <div className="flex-1 ml-3">
-              <h4 className="text-white font-bold text-sm drop-shadow-lg">
+            <div className="flex-1 ml-3 min-w-0">
+              <h4 className="text-white font-bold text-sm drop-shadow-lg truncate">
                 {stage.isBoss ? '👑 ' : ''}
                 {t(stage.nameKey)}
               </h4>
               <p className="text-white/80 text-xs drop-shadow">
-                {stage.questionCount} {t('mathBattle.questions')} • {Math.floor(stage.timeLimitMs / 1000)}s
+                {stage.questionCount} {t('mathBattle.questions')}
               </p>
               {/* 星評価 */}
               <div className="flex items-center gap-0.5 mt-1">
@@ -179,10 +179,13 @@ export default function StageCard({ stage, areaId, enemyUnit, isLocked = false }
               </div>
             </div>
 
-            {/* 報酬 */}
-            <div className="text-right">
+            {/* 報酬・時間 */}
+            <div className="text-right shrink-0">
               <p className="text-amber-300 font-bold text-sm drop-shadow-lg">
                 💰 {stage.reward.coins}
+              </p>
+              <p className="text-white/70 text-xs drop-shadow">
+                ⏱️ {Math.floor(stage.timeLimitMs / 1000)}s
               </p>
             </div>
           </div>
