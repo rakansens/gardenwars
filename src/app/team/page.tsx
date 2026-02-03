@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import unitsData from "@/data/units";
 import type { UnitDefinition, Rarity, UnitRole } from "@/data/types";
 import { SKILL_DEFINITIONS } from "@/data/skills";
@@ -124,6 +124,15 @@ export default function TeamPage() {
     const [skillFilter, setSkillFilter] = useState<string | null>(null);
     const [sortBy, setSortBy] = useState<SortKey>("none");
     const { viewingUnit, openModal, closeModal } = useUnitDetailModal();
+
+    // スマホ判定（768px以下）- スマホではVirtualizedGridを使わない
+    const [isMobile, setIsMobile] = useState(false);
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener("resize", checkMobile);
+        return () => window.removeEventListener("resize", checkMobile);
+    }, []);
 
     // 他のデッキにユニットが含まれているかチェック
     const getOtherDeckIndex = (unitId: string): number | null => {
@@ -844,15 +853,23 @@ export default function TeamPage() {
                         </span>
                     </div>
                     {ownedUnits.length > 0 ? (
-                        <VirtualizedGrid
-                            items={ownedUnits}
-                            getItemKey={getUnitKey}
-                            columnConfig={{ default: 2, sm: 2, md: 3, lg: 4, xl: 5 }}
-                            rowHeight={420}
-                            gap={20}
-                            containerHeight={900}
-                            renderItem={renderOwnedUnit}
-                        />
+                        isMobile ? (
+                            <div className="grid grid-cols-2 gap-4">
+                                {ownedUnits.map((unit) => (
+                                    <div key={unit.id}>{renderOwnedUnit(unit)}</div>
+                                ))}
+                            </div>
+                        ) : (
+                            <VirtualizedGrid
+                                items={ownedUnits}
+                                getItemKey={getUnitKey}
+                                columnConfig={{ default: 2, sm: 2, md: 3, lg: 4, xl: 5 }}
+                                rowHeight={420}
+                                gap={20}
+                                containerHeight={900}
+                                renderItem={renderOwnedUnit}
+                            />
+                        )
                     ) : (
                         <div className="text-center py-8 text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-slate-800 rounded-lg">
                             {t("no_owned_in_rarity")}
@@ -870,15 +887,23 @@ export default function TeamPage() {
                     </div>
                     {unownedUnits.length > 0 ? (
                         <div className="opacity-60">
-                            <VirtualizedGrid
-                                items={unownedUnits}
-                                getItemKey={getUnitKey}
-                                columnConfig={{ default: 2, sm: 2, md: 3, lg: 4, xl: 5 }}
-                                rowHeight={400}
-                                gap={20}
-                                containerHeight={850}
-                                renderItem={renderUnownedUnit}
-                            />
+                            {isMobile ? (
+                                <div className="grid grid-cols-2 gap-4">
+                                    {unownedUnits.map((unit) => (
+                                        <div key={unit.id}>{renderUnownedUnit(unit)}</div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <VirtualizedGrid
+                                    items={unownedUnits}
+                                    getItemKey={getUnitKey}
+                                    columnConfig={{ default: 2, sm: 2, md: 3, lg: 4, xl: 5 }}
+                                    rowHeight={400}
+                                    gap={20}
+                                    containerHeight={850}
+                                    renderItem={renderUnownedUnit}
+                                />
+                            )}
                         </div>
                     ) : (
                         <div className="text-center py-8 text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 rounded-lg font-bold">
