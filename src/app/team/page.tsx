@@ -784,31 +784,6 @@ export default function TeamPage() {
                         </div>
                     )}
 
-                    {/* ソートオプション */}
-                    <div>
-                    <div className="flex items-center gap-2 md:gap-3 flex-wrap">
-                        <span className="text-sm md:text-base font-bold text-gray-600 dark:text-gray-400">{t("sort_by")}:</span>
-                        {sortOptions.map(option => (
-                            <button
-                                key={option.key}
-                                onClick={() => setSortBy(option.key)}
-                                className={`
-                                    px-3 py-2 md:px-4 md:py-2.5 rounded-xl text-sm md:text-base transition-all flex items-center gap-1.5 min-h-[40px] md:min-h-[44px]
-                                    ${sortBy === option.key
-                                        ? "bg-blue-500 text-white shadow-md scale-105"
-                                        : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-600 active:scale-95"
-                                    }
-                                `}
-                            >
-                                <span>{option.icon}</span>
-                                <span>{option.label}</span>
-                                {sortBy === option.key && option.key !== "none" && (
-                                    <span className="text-xs">↓</span>
-                                )}
-                            </button>
-                        ))}
-                    </div>
-                    </div>
                 </section>
 
                 {/* ユニット一覧（タブ切り替え） */}
@@ -845,6 +820,30 @@ export default function TeamPage() {
                                 {unownedUnits.length}
                             </span>
                         </button>
+                    </div>
+
+                    {/* ソートオプション */}
+                    <div className="flex items-center gap-1.5 md:gap-2 overflow-x-auto pb-2 mb-3">
+                        <span className="text-xs md:text-sm font-bold text-gray-500 dark:text-gray-400 whitespace-nowrap">{t("sort_by")}:</span>
+                        {sortOptions.map(option => (
+                            <button
+                                key={option.key}
+                                onClick={() => setSortBy(option.key)}
+                                className={`
+                                    px-2 py-1.5 md:px-3 md:py-2 rounded-lg text-xs md:text-sm transition-all flex items-center gap-1 whitespace-nowrap min-h-[32px] md:min-h-[36px]
+                                    ${sortBy === option.key
+                                        ? "bg-blue-500 text-white shadow-md"
+                                        : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 active:scale-95"
+                                    }
+                                `}
+                            >
+                                <span>{option.icon}</span>
+                                <span className="hidden sm:inline">{option.label}</span>
+                                {sortBy === option.key && option.key !== "none" && (
+                                    <span className="text-xs">↓</span>
+                                )}
+                            </button>
+                        ))}
                     </div>
 
                     {/* 保有ユニット */}
