@@ -418,6 +418,18 @@ export class MathBattleScene extends Phaser.Scene {
 
   private startBattle() {
     this.status = 'playing';
+
+    // ステージ全体のタイマーを開始（1回だけ）
+    this.timeRemaining = this.stageData.timeLimitMs;
+    this.updateTimerDisplay();
+
+    this.timerEvent = this.time.addEvent({
+      delay: 100,
+      callback: this.updateTimer,
+      callbackScope: this,
+      loop: true,
+    });
+
     this.showQuestion();
   }
 
@@ -446,17 +458,7 @@ export class MathBattleScene extends Phaser.Scene {
       container.setAlpha(1);
       container.setInteractive();
     });
-
-    // タイマー開始
-    this.timeRemaining = this.stageData.timeLimitMs;
-    this.updateTimerDisplay();
-
-    this.timerEvent = this.time.addEvent({
-      delay: 100,
-      callback: this.updateTimer,
-      callbackScope: this,
-      loop: true,
-    });
+    // タイマーはstartBattle()で既に開始済み（ステージ全体で1つ）
   }
 
   private updateTimer() {
@@ -465,8 +467,10 @@ export class MathBattleScene extends Phaser.Scene {
     this.updateTimerDisplay();
 
     if (this.timeRemaining <= 0) {
-      // 時間切れ → 不正解扱い
-      this.handleAnswer(-1);
+      // 時間切れ → 敗北
+      this.timerEvent?.destroy();
+      this.timerEvent = undefined;
+      this.endBattle(false);
     }
   }
 
@@ -486,9 +490,7 @@ export class MathBattleScene extends Phaser.Scene {
   }
 
   private handleAnswer(choiceIndex: number) {
-    // タイマー停止
-    this.timerEvent?.destroy();
-    this.timerEvent = undefined;
+    // タイマーはステージ全体で継続（stopしない）
 
     const question = this.questions[this.currentQuestionIndex];
     const isCorrect = choiceIndex >= 0 && question.choices[choiceIndex] === question.answer;

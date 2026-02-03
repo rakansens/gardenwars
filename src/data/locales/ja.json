@@ -859,6 +859,12 @@
   "mathBattle.next": "次のステージへ",
   "mathBattle.retry": "もう一度",
   "mathBattle.backToArea": "エリアに戻る",
+  "mathBattle.seconds": "秒",
+  "mathBattle.changeUnit": "ユニット変更",
+  "mathBattle.selectUnit": "ユニット選択",
+  "mathBattle.selectUnitDesc": "バトルに出すキャラを選んでね",
+  "mathBattle.reward": "クリア報酬",
+  "mathBattle.start": "スタート",
 
   "mathBattle.areas.addition": "足し算の森",
   "mathBattle.areas.subtraction": "引き算の洞窟",

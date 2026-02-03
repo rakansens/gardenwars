@@ -21,9 +21,9 @@ export default function StageCard({ stage, areaId, enemyUnit, isLocked = false }
   const result = getStageResult(stage.id);
   const stars = result?.stars || 0;
 
-  // 敵のスプライト表示
+  // 敵のスプライト表示（baseUnitIdがある場合はレアリティも渡す）
   const enemySpritePath = enemyUnit
-    ? getSpritePath(enemyUnit.baseUnitId || enemyUnit.id)
+    ? getSpritePath(enemyUnit.baseUnitId || enemyUnit.id, enemyUnit.rarity)
     : null;
 
   if (isLocked) {

@@ -830,7 +830,7 @@ export default function TeamPage() {
                     {unitTab === "owned" && (
                         ownedUnits.length > 0 ? (
                             isMobile ? (
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-2 gap-3 pt-3">
                                     {ownedUnits.map((unit) => (
                                         <div key={unit.id}>{renderOwnedUnit(unit)}</div>
                                     ))}
@@ -858,7 +858,7 @@ export default function TeamPage() {
                         unownedUnits.length > 0 ? (
                             <div className="opacity-70">
                                 {isMobile ? (
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="grid grid-cols-2 gap-3 pt-3">
                                         {unownedUnits.map((unit) => (
                                             <div key={unit.id}>{renderUnownedUnit(unit)}</div>
                                         ))}

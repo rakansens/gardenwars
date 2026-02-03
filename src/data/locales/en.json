@@ -856,6 +856,12 @@
   "mathBattle.next": "Next Stage",
   "mathBattle.retry": "Retry",
   "mathBattle.backToArea": "Back to Area",
+  "mathBattle.seconds": "sec",
+  "mathBattle.changeUnit": "Change Unit",
+  "mathBattle.selectUnit": "Select Unit",
+  "mathBattle.selectUnitDesc": "Choose a character for battle",
+  "mathBattle.reward": "Reward",
+  "mathBattle.start": "Start",
 
   "mathBattle.areas.addition": "Addition Forest",
   "mathBattle.areas.subtraction": "Subtraction Cave",
