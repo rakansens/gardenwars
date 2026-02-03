@@ -884,16 +884,6 @@ export default function TradePage() {
             )}
           </div>
 
-          {tradeComplete && (
-            <div className="card border-emerald-300 bg-emerald-50 dark:bg-emerald-900/30">
-              <p className="text-emerald-700 dark:text-emerald-200 font-bold">
-                ✅ {tradeComplete.message || t("trade_complete") || "Trade complete!"}
-              </p>
-              <p className="text-emerald-600/80 dark:text-emerald-300/80 text-sm mt-1">
-                {t("trade_complete_hint") || "Your inventory has been updated."}
-              </p>
-            </div>
-          )}
 
           <div className="card border-amber-200/80 bg-gradient-to-r from-amber-50/80 to-orange-50/80 dark:from-slate-800/70 dark:to-slate-900/70">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -1209,6 +1199,95 @@ export default function TradePage() {
           onToggleTeam={() => {}}
           showTeamAction={false}
         />
+      )}
+
+      {/* トレード完了モーダル */}
+      {connectionStatus === "finished" && tradeComplete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* オーバーレイ */}
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+
+          {/* モーダルコンテンツ */}
+          <div className="relative bg-gradient-to-b from-emerald-50 to-white dark:from-emerald-900/90 dark:to-slate-900 rounded-3xl shadow-2xl max-w-md w-full p-6 animate-slide-in-right border-4 border-emerald-400">
+            {/* 成功アイコン */}
+            <div className="flex justify-center mb-4">
+              <div className="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-emerald-200/60 dark:shadow-emerald-900/60">
+                <span className="text-4xl">✅</span>
+              </div>
+            </div>
+
+            {/* タイトル */}
+            <h2 className="text-2xl font-bold text-center text-emerald-700 dark:text-emerald-300 mb-2">
+              {t("trade_success_title") || "Trade Complete!"}
+            </h2>
+            <p className="text-center text-emerald-600/80 dark:text-emerald-400/80 mb-6">
+              {t("trade_success_message") || "Your trade was completed successfully"}
+            </p>
+
+            {/* 交換内容サマリー */}
+            <div className="space-y-4 mb-6">
+              {/* 渡したもの */}
+              <div className="rounded-xl bg-rose-50/80 dark:bg-rose-900/30 p-4 border border-rose-200/60 dark:border-rose-700/40">
+                <p className="text-sm font-bold text-rose-700 dark:text-rose-300 mb-2 flex items-center gap-2">
+                  <span>📤</span> {t("trade_you_gave") || "You Gave"}
+                </p>
+                {myOffer.coins > 0 && (
+                  <p className="text-sm text-rose-600 dark:text-rose-400 mb-1">
+                    💰 {myOffer.coins.toLocaleString()} {t("trade_offer_coins") || "Coins"}
+                  </p>
+                )}
+                {myOfferList.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {myOfferList.map(({ unit, unitId, count }) => (
+                      <span
+                        key={unitId}
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white/70 dark:bg-slate-800/70 text-xs font-semibold text-rose-800 dark:text-rose-200"
+                      >
+                        {unit ? getUnitName(unit) : unitId} ×{count}
+                      </span>
+                    ))}
+                  </div>
+                ) : myOffer.coins === 0 ? (
+                  <p className="text-sm text-rose-500/70">{t("trade_no_items") || "None"}</p>
+                ) : null}
+              </div>
+
+              {/* もらったもの */}
+              <div className="rounded-xl bg-emerald-50/80 dark:bg-emerald-900/30 p-4 border border-emerald-200/60 dark:border-emerald-700/40">
+                <p className="text-sm font-bold text-emerald-700 dark:text-emerald-300 mb-2 flex items-center gap-2">
+                  <span>📥</span> {t("trade_you_received") || "You Received"}
+                </p>
+                {theirOffer.coins > 0 && (
+                  <p className="text-sm text-emerald-600 dark:text-emerald-400 mb-1">
+                    💰 {theirOffer.coins.toLocaleString()} {t("trade_offer_coins") || "Coins"}
+                  </p>
+                )}
+                {theirOfferList.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {theirOfferList.map(({ unit, unitId, count }) => (
+                      <span
+                        key={unitId}
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white/70 dark:bg-slate-800/70 text-xs font-semibold text-emerald-800 dark:text-emerald-200"
+                      >
+                        {unit ? getUnitName(unit) : unitId} ×{count}
+                      </span>
+                    ))}
+                  </div>
+                ) : theirOffer.coins === 0 ? (
+                  <p className="text-sm text-emerald-500/70">{t("trade_no_items") || "None"}</p>
+                ) : null}
+              </div>
+            </div>
+
+            {/* ロビーに戻るボタン */}
+            <button
+              onClick={handleLeave}
+              className="w-full btn btn-primary py-3 text-lg font-bold"
+            >
+              🏠 {t("trade_back_to_lobby") || "Back to Lobby"}
+            </button>
+          </div>
+        </div>
       )}
     </main>
   );
