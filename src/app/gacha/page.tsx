@@ -156,7 +156,8 @@ export default function GachaPage() {
 
             // アトミック操作: コイン消費 + ユニット追加を同時に実行
             // これによりブラウザが閉じられてもデータ損失を防ぐ
-            const success = executeGacha(cost, unitIds);
+            // サーバー権威モード: 認証済みユーザーはサーバーで処理
+            const success = await executeGacha(cost, unitIds);
             if (!success) {
                 return; // finally will still run
             }

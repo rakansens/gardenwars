@@ -159,7 +159,8 @@ export default function FusionPage() {
 
             // アトミック操作: 素材消費 + 結果追加を同時に実行
             // これにより素材だけ消費されて結果が得られないケースを防ぐ
-            const success = executeFusion(selectedUnits, resultUnit.id);
+            // サーバー権威モード: 認証済みユーザーはサーバーで処理
+            const success = await executeFusion(selectedUnits, resultUnit.id);
             if (!success) {
                 setFusionError(language === "ja" ? "素材が不足しています" : "Insufficient materials");
                 setIsFusing(false);

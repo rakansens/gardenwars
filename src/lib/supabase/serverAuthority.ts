@@ -1,0 +1,330 @@
+/**
+ * サーバー権威モード用RPC関数
+ *
+ * これらの関数はSupabaseのRPC（リモートプロシージャコール）を使用して、
+ * サーバー側で原子的（アトミック）に処理を実行します。
+ *
+ * メリット:
+ * - データの整合性が保証される（コイン消費とユニット追加が同時に行われる）
+ * - チート対策（クライアント側での改ざんが不可能）
+ * - 競合状態（レースコンディション）の防止
+ */
+
+import { supabase } from "./client";
+
+// ============================================
+// 型定義
+// ============================================
+
+/** サーバー時刻レスポンス */
+export interface ServerTimeResponse {
+    success: boolean;
+    serverTime: Date;
+}
+
+/** ガチャ実行結果 */
+export interface GachaResult {
+    success: boolean;
+    error?: string;
+    coins?: number;
+    unitInventory?: Record<string, number>;
+    serverTime?: Date;
+}
+
+/** フュージョン実行結果 */
+export interface FusionResult {
+    success: boolean;
+    error?: string;
+    unitInventory?: Record<string, number>;
+    resultUnitId?: string;
+    serverTime?: Date;
+}
+
+/** バトル報酬実行結果 */
+export interface BattleRewardResult {
+    success: boolean;
+    error?: string;
+    coins?: number;
+    unitInventory?: Record<string, number>;
+    clearedStages?: string[];
+    serverTime?: Date;
+}
+
+/** プレイヤーデータ取得結果 */
+export interface PlayerDataResult {
+    success: boolean;
+    error?: string;
+    data?: {
+        coins: number;
+        unit_inventory: Record<string, number>;
+        selected_team: string[];
+        loadouts: string[][];
+        active_loadout_index: number;
+        cleared_stages: string[];
+        garden_units: string[];
+        shop_items: unknown[];
+        current_world: string;
+        updated_at: string;
+    };
+    serverTime?: Date;
+}
+
+// ============================================
+// RPC関数
+// ============================================
+
+/**
+ * サーバー時刻を取得
+ * クライアントとサーバーの時刻差を計算するために使用
+ */
+export async function getServerTime(): Promise<ServerTimeResponse> {
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data, error } = await (supabase.rpc as any)('get_server_time');
+
+        if (error) {
+            console.error('[ServerAuthority] getServerTime error:', error);
+            return { success: false, serverTime: new Date() };
+        }
+
+        return {
+            success: true,
+            serverTime: new Date(data),
+        };
+    } catch (err) {
+        console.error('[ServerAuthority] getServerTime exception:', err);
+        return { success: false, serverTime: new Date() };
+    }
+}
+
+/**
+ * ガチャを実行（サーバー側で原子的に処理）
+ *
+ * 処理内容:
+ * 1. コイン残高を確認
+ * 2. コインを消費
+ * 3. ユニットをインベントリに追加
+ *
+ * @param playerId プレイヤーID
+ * @param cost ガチャのコスト
+ * @param unitIds 追加するユニットIDの配列
+ */
+export async function executeGachaRpc(
+    playerId: string,
+    cost: number,
+    unitIds: string[]
+): Promise<GachaResult> {
+    try {
+        const { data, error } = await (supabase.rpc as any)('execute_gacha', {
+            p_player_id: playerId,
+            p_cost: cost,
+            p_unit_ids: unitIds,
+        });
+
+        if (error) {
+            console.error('[ServerAuthority] executeGacha error:', error);
+            return { success: false, error: error.message };
+        }
+
+        const result = data as {
+            success: boolean;
+            error?: string;
+            coins?: number;
+            unit_inventory?: Record<string, number>;
+            server_time?: string;
+        };
+
+        if (!result.success) {
+            return {
+                success: false,
+                error: result.error || 'Unknown error',
+            };
+        }
+
+        return {
+            success: true,
+            coins: result.coins,
+            unitInventory: result.unit_inventory,
+            serverTime: result.server_time ? new Date(result.server_time) : undefined,
+        };
+    } catch (err) {
+        console.error('[ServerAuthority] executeGacha exception:', err);
+        return { success: false, error: 'Network error' };
+    }
+}
+
+/**
+ * フュージョンを実行（サーバー側で原子的に処理）
+ *
+ * 処理内容:
+ * 1. 素材ユニットが全て揃っているか確認
+ * 2. 素材を消費
+ * 3. 結果ユニットを追加
+ *
+ * @param playerId プレイヤーID
+ * @param materialIds 素材ユニットIDの配列
+ * @param resultUnitId 結果として得られるユニットID
+ */
+export async function executeFusionRpc(
+    playerId: string,
+    materialIds: string[],
+    resultUnitId: string
+): Promise<FusionResult> {
+    try {
+        const { data, error } = await (supabase.rpc as any)('execute_fusion', {
+            p_player_id: playerId,
+            p_material_ids: materialIds,
+            p_result_unit_id: resultUnitId,
+        });
+
+        if (error) {
+            console.error('[ServerAuthority] executeFusion error:', error);
+            return { success: false, error: error.message };
+        }
+
+        const result = data as {
+            success: boolean;
+            error?: string;
+            unit_inventory?: Record<string, number>;
+            result_unit_id?: string;
+            server_time?: string;
+        };
+
+        if (!result.success) {
+            return {
+                success: false,
+                error: result.error || 'Unknown error',
+            };
+        }
+
+        return {
+            success: true,
+            unitInventory: result.unit_inventory,
+            resultUnitId: result.result_unit_id,
+            serverTime: result.server_time ? new Date(result.server_time) : undefined,
+        };
+    } catch (err) {
+        console.error('[ServerAuthority] executeFusion exception:', err);
+        return { success: false, error: 'Network error' };
+    }
+}
+
+/**
+ * バトル報酬を処理（サーバー側で原子的に処理）
+ *
+ * 処理内容:
+ * 1. コインを追加
+ * 2. ステージクリアを記録
+ * 3. ドロップユニットを追加
+ *
+ * @param playerId プレイヤーID
+ * @param coinsGained 獲得コイン
+ * @param stageId クリアしたステージID
+ * @param droppedUnitIds ドロップしたユニットIDの配列
+ */
+export async function executeBattleRewardRpc(
+    playerId: string,
+    coinsGained: number,
+    stageId: string,
+    droppedUnitIds: string[]
+): Promise<BattleRewardResult> {
+    try {
+        const { data, error } = await (supabase.rpc as any)('execute_battle_reward', {
+            p_player_id: playerId,
+            p_coins_gained: coinsGained,
+            p_stage_id: stageId,
+            p_dropped_unit_ids: droppedUnitIds,
+        });
+
+        if (error) {
+            console.error('[ServerAuthority] executeBattleReward error:', error);
+            return { success: false, error: error.message };
+        }
+
+        const result = data as {
+            success: boolean;
+            error?: string;
+            coins?: number;
+            unit_inventory?: Record<string, number>;
+            cleared_stages?: string[];
+            server_time?: string;
+        };
+
+        if (!result.success) {
+            return {
+                success: false,
+                error: result.error || 'Unknown error',
+            };
+        }
+
+        return {
+            success: true,
+            coins: result.coins,
+            unitInventory: result.unit_inventory,
+            clearedStages: result.cleared_stages,
+            serverTime: result.server_time ? new Date(result.server_time) : undefined,
+        };
+    } catch (err) {
+        console.error('[ServerAuthority] executeBattleReward exception:', err);
+        return { success: false, error: 'Network error' };
+    }
+}
+
+/**
+ * プレイヤーデータをサーバーから取得（タイムスタンプ付き）
+ *
+ * @param playerId プレイヤーID
+ */
+export async function getPlayerDataWithTimestamp(
+    playerId: string
+): Promise<PlayerDataResult> {
+    try {
+        const { data, error } = await (supabase.rpc as any)('get_player_data_with_timestamp', {
+            p_player_id: playerId,
+        });
+
+        if (error) {
+            console.error('[ServerAuthority] getPlayerDataWithTimestamp error:', error);
+            return { success: false, error: error.message };
+        }
+
+        const result = data as {
+            success: boolean;
+            error?: string;
+            data?: Record<string, unknown>;
+            server_time?: string;
+        };
+
+        if (!result.success) {
+            return {
+                success: false,
+                error: result.error || 'Unknown error',
+            };
+        }
+
+        const playerData = result.data;
+        if (!playerData) {
+            return { success: false, error: 'No data returned' };
+        }
+
+        return {
+            success: true,
+            data: {
+                coins: (playerData.coins as number) ?? 0,
+                unit_inventory: (playerData.unit_inventory as Record<string, number>) ?? {},
+                selected_team: (playerData.selected_team as string[]) ?? [],
+                loadouts: (playerData.loadouts as string[][]) ?? [[], [], []],
+                active_loadout_index: (playerData.active_loadout_index as number) ?? 0,
+                cleared_stages: (playerData.cleared_stages as string[]) ?? [],
+                garden_units: (playerData.garden_units as string[]) ?? [],
+                shop_items: (playerData.shop_items as unknown[]) ?? [],
+                current_world: (playerData.current_world as string) ?? 'world1',
+                updated_at: (playerData.updated_at as string) ?? new Date().toISOString(),
+            },
+            serverTime: result.server_time ? new Date(result.server_time) : undefined,
+        };
+    } catch (err) {
+        console.error('[ServerAuthority] getPlayerDataWithTimestamp exception:', err);
+        return { success: false, error: 'Network error' };
+    }
+}

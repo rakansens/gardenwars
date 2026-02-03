@@ -13,6 +13,10 @@ import {
     syncRankingStats,
     ensureRankingsExist,
     INITIAL_COINS,
+    // サーバー権威モード用RPC
+    executeGachaRpc,
+    executeFusionRpc,
+    executeBattleRewardRpc,
 } from "@/lib/supabase";
 import type {
     FrontendPlayerData,
@@ -750,7 +754,33 @@ export function usePlayerData() {
     // これにより、ブラウザが閉じられてもデータ損失を防ぐ
     // 注意: React 18ではsetDataコールバックが遅延実行されるため、
     // 事前にコイン残高をチェックしてから実行する
-    const executeGacha = useCallback((cost: number, unitIds: string[]): boolean => {
+    //
+    // サーバー権威モード（認証済みユーザー）:
+    // - サーバー側でコイン確認→消費→ユニット追加を原子的に実行
+    // - 成功したらローカル状態を更新
+    // - 失敗したらfalseを返す
+    const executeGacha = useCallback(async (cost: number, unitIds: string[]): Promise<boolean> => {
+        // 認証済みユーザーはサーバー権威モードを使用
+        if (isAuthenticated && playerId) {
+            console.log("[executeGacha] Using server authority mode");
+            const result = await executeGachaRpc(playerId, cost, unitIds);
+
+            if (!result.success) {
+                console.error("[executeGacha] Server rejected:", result.error);
+                return false;
+            }
+
+            // サーバーからの結果でローカル状態を更新
+            setData((prev) => ({
+                ...prev,
+                coins: result.coins ?? prev.coins,
+                unitInventory: result.unitInventory ?? prev.unitInventory,
+            }));
+
+            return true;
+        }
+
+        // 未認証ユーザーはローカルで処理（従来の動作）
         // 先にコイン残高をチェック（data.coinsは現在の状態）
         if (data.coins < cost) {
             console.log("[executeGacha] Not enough coins:", data.coins, "<", cost);
@@ -775,12 +805,37 @@ export function usePlayerData() {
         });
 
         return true;
-    }, [data.coins]);
+    }, [data.coins, isAuthenticated, playerId]);
 
     // フュージョン用アトミック操作（素材消費 + 結果追加を1つのsetData内で実行）
     // これにより、素材だけ消費されて結果が得られないケースを防ぐ
     // React 18対応: 先に素材チェックを行い、その結果を返す
-    const executeFusion = useCallback((materialIds: string[], resultUnitId: string): boolean => {
+    //
+    // サーバー権威モード（認証済みユーザー）:
+    // - サーバー側で素材確認→消費→結果追加を原子的に実行
+    // - 成功したらローカル状態を更新
+    // - 失敗したらfalseを返す
+    const executeFusion = useCallback(async (materialIds: string[], resultUnitId: string): Promise<boolean> => {
+        // 認証済みユーザーはサーバー権威モードを使用
+        if (isAuthenticated && playerId) {
+            console.log("[executeFusion] Using server authority mode");
+            const result = await executeFusionRpc(playerId, materialIds, resultUnitId);
+
+            if (!result.success) {
+                console.error("[executeFusion] Server rejected:", result.error);
+                return false;
+            }
+
+            // サーバーからの結果でローカル状態を更新
+            setData((prev) => ({
+                ...prev,
+                unitInventory: result.unitInventory ?? prev.unitInventory,
+            }));
+
+            return true;
+        }
+
+        // 未認証ユーザーはローカルで処理（従来の動作）
         // 先に素材が全て揃っているか確認
         const materialCounts: Record<string, number> = {};
         for (const id of materialIds) {
@@ -822,15 +877,41 @@ export function usePlayerData() {
             };
         });
         return true;
-    }, [data.unitInventory]);
+    }, [data.unitInventory, isAuthenticated, playerId]);
 
     // バトル報酬用アトミック操作（コイン + ステージクリア + ドロップユニットを1つのsetData内で実行）
     // これにより、報酬の一部だけ反映されるケースを防ぐ
-    const executeBattleReward = useCallback((
+    //
+    // サーバー権威モード（認証済みユーザー）:
+    // - サーバー側でコイン追加→ステージクリア→ユニット追加を原子的に実行
+    // - 成功したらローカル状態を更新
+    const executeBattleReward = useCallback(async (
         coinsGained: number,
         stageId: string,
         droppedUnitIds: string[]
-    ): void => {
+    ): Promise<void> => {
+        // 認証済みユーザーはサーバー権威モードを使用
+        if (isAuthenticated && playerId) {
+            console.log("[executeBattleReward] Using server authority mode");
+            const result = await executeBattleRewardRpc(playerId, coinsGained, stageId, droppedUnitIds);
+
+            if (!result.success) {
+                console.error("[executeBattleReward] Server rejected:", result.error);
+                // サーバーエラー時はローカルで処理（フォールバック）
+                // ユーザー体験を損なわないため
+            } else {
+                // サーバーからの結果でローカル状態を更新
+                setData((prev) => ({
+                    ...prev,
+                    coins: result.coins ?? prev.coins,
+                    unitInventory: result.unitInventory ?? prev.unitInventory,
+                    clearedStages: result.clearedStages ?? prev.clearedStages,
+                }));
+                return;
+            }
+        }
+
+        // 未認証ユーザーまたはサーバーエラー時はローカルで処理
         setData((prev) => {
             const newInventory = { ...prev.unitInventory };
             for (const unitId of droppedUnitIds) {
@@ -848,7 +929,7 @@ export function usePlayerData() {
                 clearedStages: newClearedStages,
             };
         });
-    }, []);
+    }, [isAuthenticated, playerId]);
 
     // 初期ロード時にショップが空なら更新
     useEffect(() => {

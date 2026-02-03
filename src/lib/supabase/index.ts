@@ -61,3 +61,19 @@ export {
     getAsyncBattleHistory,
 } from "./playerData";
 export type { RankingEntry, RankingSortBy, RankingUpdateData, AsyncBattleResult, AsyncOpponent, DataResult } from "./playerData";
+
+// Server Authority RPCs (サーバー権威モード)
+export {
+    getServerTime,
+    executeGachaRpc,
+    executeFusionRpc,
+    executeBattleRewardRpc,
+    getPlayerDataWithTimestamp,
+} from "./serverAuthority";
+export type {
+    ServerTimeResponse,
+    GachaResult,
+    FusionResult,
+    BattleRewardResult,
+    PlayerDataResult,
+} from "./serverAuthority";

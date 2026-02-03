@@ -18,28 +18,34 @@ const allUnits = unitsData as UnitDefinition[];
 
 // 難易度タブ設定（順番が重要 - アンロック順）
 const DIFFICULTY_TABS: {
-    key: StageDifficulty | "all";
+    key: StageDifficulty;
     labelKey: string;
     subKey: string;
     icon: string;
     color: string;
     banner?: string;
     gradient: string;
+    worldId: WorldId;
 }[] = [
-    { key: "all", labelKey: "difficulty_all", subKey: "", icon: "📋", color: "bg-gray-500", gradient: "from-gray-600 to-gray-800" },
-    { key: "tutorial", labelKey: "difficulty_tutorial", subKey: "difficulty_tutorial_sub", icon: "🌱", color: "bg-green-400", banner: "/assets/stages/tutorial_banner.webp", gradient: "from-green-400 to-emerald-600" },
-    { key: "easy", labelKey: "difficulty_easy", subKey: "difficulty_easy_sub", icon: "🌲", color: "bg-blue-400", banner: "/assets/stages/easy_banner.webp", gradient: "from-green-500 to-teal-600" },
-    { key: "normal", labelKey: "difficulty_normal", subKey: "difficulty_normal_sub", icon: "🌅", color: "bg-yellow-500", banner: "/assets/stages/normal_banner.webp", gradient: "from-orange-400 to-rose-500" },
-    { key: "hard", labelKey: "difficulty_hard", subKey: "difficulty_hard_sub", icon: "🌑", color: "bg-orange-500", banner: "/assets/stages/hard_banner.webp", gradient: "from-purple-600 to-indigo-900" },
-    { key: "extreme", labelKey: "difficulty_extreme", subKey: "difficulty_extreme_sub", icon: "🔥", color: "bg-red-600", banner: "/assets/stages/extreme_banner.webp", gradient: "from-red-600 to-red-900" },
-    { key: "boss", labelKey: "difficulty_boss", subKey: "difficulty_boss_sub", icon: "🏰", color: "bg-purple-600", banner: "/assets/stages/boss_banner.webp", gradient: "from-purple-700 to-black" },
-    { key: "special", labelKey: "difficulty_special", subKey: "difficulty_special_sub", icon: "✨", color: "bg-gradient-to-r from-pink-500 to-cyan-500", banner: "/assets/stages/special_banner.webp", gradient: "from-pink-400 via-purple-500 to-cyan-400" },
+    // World 1 難易度
+    { key: "tutorial", labelKey: "difficulty_tutorial", subKey: "difficulty_tutorial_sub", icon: "🌱", color: "bg-green-400", banner: "/assets/stages/tutorial_banner.webp", gradient: "from-green-400 to-emerald-600", worldId: "world1" },
+    { key: "easy", labelKey: "difficulty_easy", subKey: "difficulty_easy_sub", icon: "🌲", color: "bg-blue-400", banner: "/assets/stages/easy_banner.webp", gradient: "from-green-500 to-teal-600", worldId: "world1" },
+    { key: "normal", labelKey: "difficulty_normal", subKey: "difficulty_normal_sub", icon: "🌅", color: "bg-yellow-500", banner: "/assets/stages/normal_banner.webp", gradient: "from-orange-400 to-rose-500", worldId: "world1" },
+    { key: "hard", labelKey: "difficulty_hard", subKey: "difficulty_hard_sub", icon: "🌑", color: "bg-orange-500", banner: "/assets/stages/hard_banner.webp", gradient: "from-purple-600 to-indigo-900", worldId: "world1" },
+    { key: "extreme", labelKey: "difficulty_extreme", subKey: "difficulty_extreme_sub", icon: "🔥", color: "bg-red-600", banner: "/assets/stages/extreme_banner.webp", gradient: "from-red-600 to-red-900", worldId: "world1" },
+    { key: "boss", labelKey: "difficulty_boss", subKey: "difficulty_boss_sub", icon: "🏰", color: "bg-purple-600", banner: "/assets/stages/boss_banner.webp", gradient: "from-purple-700 to-black", worldId: "world1" },
+    { key: "special", labelKey: "difficulty_special", subKey: "difficulty_special_sub", icon: "✨", color: "bg-gradient-to-r from-pink-500 to-cyan-500", banner: "/assets/stages/special_banner.webp", gradient: "from-pink-400 via-purple-500 to-cyan-400", worldId: "world1" },
     // World 2 難易度
-    { key: "purgatory", labelKey: "difficulty_purgatory", subKey: "difficulty_purgatory_sub", icon: "🔥", color: "bg-orange-700", banner: "/assets/stages/purgatory_banner.webp", gradient: "from-orange-700 to-red-900" },
-    { key: "hellfire", labelKey: "difficulty_hellfire", subKey: "difficulty_hellfire_sub", icon: "🌋", color: "bg-red-700", banner: "/assets/stages/hellfire_banner.webp", gradient: "from-red-700 to-orange-900" },
-    { key: "abyss", labelKey: "difficulty_abyss", subKey: "difficulty_abyss_sub", icon: "🕳️", color: "bg-purple-900", banner: "/assets/stages/abyss_banner.webp", gradient: "from-purple-900 to-gray-900" },
-    { key: "inferno_boss", labelKey: "difficulty_inferno_boss", subKey: "difficulty_inferno_boss_sub", icon: "👹", color: "bg-red-900", banner: "/assets/stages/inferno_boss_banner.webp", gradient: "from-red-900 to-black" },
+    { key: "purgatory", labelKey: "difficulty_purgatory", subKey: "difficulty_purgatory_sub", icon: "🔥", color: "bg-orange-700", banner: "/assets/stages/purgatory_banner.webp", gradient: "from-orange-700 to-red-900", worldId: "world2" },
+    { key: "hellfire", labelKey: "difficulty_hellfire", subKey: "difficulty_hellfire_sub", icon: "🌋", color: "bg-red-700", banner: "/assets/stages/hellfire_banner.webp", gradient: "from-red-700 to-orange-900", worldId: "world2" },
+    { key: "abyss", labelKey: "difficulty_abyss", subKey: "difficulty_abyss_sub", icon: "🕳️", color: "bg-purple-900", banner: "/assets/stages/abyss_banner.webp", gradient: "from-purple-900 to-gray-900", worldId: "world2" },
+    { key: "inferno_boss", labelKey: "difficulty_inferno_boss", subKey: "difficulty_inferno_boss_sub", icon: "👹", color: "bg-red-900", banner: "/assets/stages/inferno_boss_banner.webp", gradient: "from-red-900 to-black", worldId: "world2" },
 ];
+
+// ワールドごとの難易度タブを取得
+const getDifficultyTabsByWorld = (worldId: WorldId) => {
+    return DIFFICULTY_TABS.filter(tab => tab.worldId === worldId);
+};
 
 // ステージのテーマアイコン
 const stageIcons: { [key: string]: string } = {
@@ -133,10 +139,17 @@ export default function StagesPage() {
     const { t } = useLanguage();
     const { clearedStages, isDifficultyUnlocked, isStageUnlocked, getClearCount } = useStageUnlock();
     const { currentWorld, setCurrentWorld } = usePlayerData();
-    const [selectedDifficulty, setSelectedDifficulty] = useState<StageDifficulty | "all">("all");
 
     // 現在のワールドをWorldIdとして取得
     const selectedWorld = (currentWorld || "world1") as WorldId;
+
+    // 現在のワールドの難易度タブを取得
+    const worldDifficultyTabs = getDifficultyTabsByWorld(selectedWorld);
+
+    // 最初のタブをデフォルトに
+    const [selectedDifficulty, setSelectedDifficulty] = useState<StageDifficulty>(
+        worldDifficultyTabs[0]?.key || "tutorial"
+    );
 
     const handleSelectStage = (stageId: string) => {
         router.push(`/battle/${stageId}`);
@@ -144,16 +157,16 @@ export default function StagesPage() {
 
     const handleSelectWorld = (worldId: WorldId) => {
         setCurrentWorld(worldId);
-        setSelectedDifficulty("all"); // ワールド切り替え時は難易度をリセット
+        // ワールド切り替え時は最初の難易度にリセット
+        const tabs = getDifficultyTabsByWorld(worldId);
+        setSelectedDifficulty(tabs[0]?.key || "tutorial");
     };
 
     // 現在のワールドのステージを取得
     const worldStages = getStagesByWorld(selectedWorld);
 
     // 選択された難易度でフィルタ
-    const filteredStages = selectedDifficulty === "all"
-        ? worldStages
-        : worldStages.filter(s => s.difficulty === selectedDifficulty);
+    const filteredStages = worldStages.filter(s => s.difficulty === selectedDifficulty);
 
     return (
         <main className="min-h-screen">
@@ -174,12 +187,12 @@ export default function StagesPage() {
 
             {/* 難易度タブ - ビジュアルカード */}
             <div className="mb-6">
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-3">
-                    {DIFFICULTY_TABS.map(tab => {
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3">
+                    {worldDifficultyTabs.map(tab => {
                         const { cleared, total } = getClearCount(tab.key, selectedWorld);
                         const isSelected = selectedDifficulty === tab.key;
                         const isAllCleared = cleared === total && total > 0;
-                        const isLocked = tab.key !== "all" && !isDifficultyUnlocked(tab.key as StageDifficulty, selectedWorld);
+                        const isLocked = !isDifficultyUnlocked(tab.key, selectedWorld);
                         return (
                             <button
                                 key={tab.key}

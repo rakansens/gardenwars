@@ -121,7 +121,8 @@ export default function BattlePage() {
 
             // アトミック操作: コイン + ステージクリア + ドロップを同時に実行
             // これにより報酬の一部だけ反映されるケースを防ぐ
-            executeBattleReward(coinsGained, stageId, droppedUnitIds);
+            // サーバー権威モード: 認証済みユーザーはサーバーで処理
+            await executeBattleReward(coinsGained, stageId, droppedUnitIds);
 
             // Ensure rewards are persisted to Supabase before navigation
             await flushToSupabase();
