@@ -85,6 +85,7 @@ function ChessContent() {
   const [onlineError, setOnlineError] = useState<string | null>(null);
   const [onlineWinner, setOnlineWinner] = useState<"w" | "b" | null>(null);
   const [onlineWinReason, setOnlineWinReason] = useState<string | null>(null);
+  const [isZoomed, setIsZoomed] = useState(false);
   const [awaitingServer, setAwaitingServer] = useState(false);
 
   // Stage mode states
@@ -1121,8 +1122,14 @@ function ChessContent() {
       )}
 
       {isInMatch && (
-        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-6 items-start">
-          <div className="card">
+        <div
+          className={`mx-auto items-start ${
+            isZoomed
+              ? "max-w-3xl"
+              : "max-w-5xl grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-6"
+          }`}
+        >
+          <div className="card relative">
             <div className="grid grid-cols-8 border-4 border-amber-200 rounded-2xl overflow-hidden shadow-lg">
               {board.map((row, y) =>
                 row.map((piece, x) => {
@@ -1154,19 +1161,31 @@ function ChessContent() {
                         <div className="absolute w-3 h-3 rounded-full bg-emerald-500/80" />
                       )}
                       {piece && (
-                        <div className="relative">
+                        <div
+                          className={`relative transition-transform duration-150 ${
+                            isSelected
+                              ? "scale-125 drop-shadow-[0_0_8px_rgba(52,211,153,0.8)]"
+                              : isLastTo
+                                ? "scale-110 drop-shadow-[0_0_6px_rgba(251,146,60,0.7)]"
+                                : "hover:scale-110"
+                          }`}
+                        >
                           <img
                             src={getSpritePath(
                               getPieceSkin(piece.type as PieceRole).baseUnitId || getPieceSkin(piece.type as PieceRole).unitId,
                               getPieceSkin(piece.type as PieceRole).rarity
                             )}
                             alt={piece.type}
-                            className={`w-10 h-10 sm:w-12 sm:h-12 object-contain drop-shadow ${
+                            className={`w-11 h-11 sm:w-14 sm:h-14 object-contain drop-shadow-md ${
                               piece.color === "b" ? "grayscale brightness-75 contrast-125" : ""
                             }`}
                             style={piece.color === "b" ? { transform: "scaleX(-1)" } : undefined}
                           />
-                          <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white/90 text-amber-900 text-sm font-bold flex items-center justify-center shadow">
+                          <span
+                            className={`absolute -top-2 -right-2 rounded-full bg-white/90 text-amber-900 font-bold flex items-center justify-center shadow transition-all duration-150 ${
+                              isSelected ? "w-8 h-8 text-base" : "w-6 h-6 text-sm"
+                            }`}
+                          >
                             {getPieceSymbol(piece.type as PieceRole, piece.color)}
                           </span>
                           {isCapture && (
@@ -1182,6 +1201,15 @@ function ChessContent() {
               )}
             </div>
 
+            {/* 拡大/縮小ボタン */}
+            <button
+              onClick={() => setIsZoomed(!isZoomed)}
+              className="absolute top-2 right-2 w-10 h-10 rounded-full bg-white/90 shadow-lg flex items-center justify-center text-xl hover:bg-white hover:scale-110 transition-all z-10"
+              title={isZoomed ? "縮小" : "拡大"}
+            >
+              {isZoomed ? "🔍" : "🔎"}
+            </button>
+
             {(status.checkmate || status.stalemate) && (
               <div className="mt-4 text-center text-sm font-semibold text-rose-600">
                 {status.checkmate ? t("chess_checkmate") : t("chess_stalemate")}
@@ -1189,6 +1217,7 @@ function ChessContent() {
             )}
           </div>
 
+          {!isZoomed && (
           <div className="space-y-4">
             {mode === "online" ? (
               <div className="card">
@@ -1292,6 +1321,7 @@ function ChessContent() {
               <p>{t("chess_hint_body")}</p>
             </div>
           </div>
+          )}
         </div>
       )}
 
