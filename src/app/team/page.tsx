@@ -311,12 +311,6 @@ export default function TeamPage() {
 
     const getUnitKey = useCallback((unit: UnitDefinition) => unit.id, []);
 
-    const scrollToSection = useCallback((id: string) => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, []);
-
     const renderOwnedUnit = useCallback((unit: UnitDefinition) => {
         const isSelected = selectedTeam.includes(unit.id);
         const count = unitInventory[unit.id] || 0;
@@ -595,56 +589,33 @@ export default function TeamPage() {
             />
 
             <div className="w-full px-3 md:container md:px-8 pb-8">
-                {/* セクションナビ */}
-                <div className="sticky top-20 z-30 mb-6">
-                    <div className="card flex items-center gap-2 overflow-x-auto whitespace-nowrap py-3">
-                        <button
-                            onClick={() => scrollToSection("team-section")}
-                            className="btn btn-secondary text-xs md:text-sm py-2 px-3"
-                        >
-                            📋 {t("team_members")}
-                        </button>
-                        <button
-                            onClick={() => scrollToSection("filters-section")}
-                            className="btn btn-secondary text-xs md:text-sm py-2 px-3"
-                        >
-                            🧩 {t("filter")}
-                        </button>
-                        <button
-                            onClick={() => scrollToSection("units-section")}
-                            className="btn btn-secondary text-xs md:text-sm py-2 px-3"
-                        >
-                            🎴 {t("unit_list")}
-                        </button>
-                    </div>
-                </div>
-
-                {/* 現在の編成 */}
-                <section id="team-section" className="mb-8 scroll-mt-28">
-                    {/* ロードアウト切り替えタブ */}
-                    <div className="flex items-center gap-4 mb-4">
-                        <h2 className="text-xl font-bold">
-                            📋 {t("team_members")} ({validTeamCount}/{MAX_TEAM_SIZE})
-                        </h2>
-                        <div className="flex gap-2 md:gap-3">
-                            {[0, 1, 2].map((idx) => (
-                                <button
-                                    key={idx}
-                                    onClick={() => switchLoadout(idx)}
-                                    className={`
-                                        px-4 py-2.5 md:px-6 md:py-3 rounded-xl font-bold text-sm md:text-base transition-all min-h-[44px]
-                                        ${activeLoadoutIndex === idx
-                                            ? "bg-orange-500 text-white shadow-lg scale-105"
-                                            : "bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-slate-600 active:scale-95"
-                                        }
-                                    `}
-                                >
-                                    {idx === 0 ? "🅰️" : idx === 1 ? "🅱️" : "🅲"} Deck {idx + 1}
-                                </button>
-                            ))}
+                {/* 現在の編成（スティッキー） */}
+                <div className="sticky top-16 z-30 -mx-3 px-3 md:mx-0 md:px-0 py-3 bg-gradient-to-b from-amber-50 via-amber-50 to-transparent dark:from-slate-900 dark:via-slate-900">
+                    <div className="card p-3 md:p-4">
+                        {/* ロードアウト切り替えタブ */}
+                        <div className="flex items-center justify-between gap-2 mb-3">
+                            <h2 className="text-base md:text-lg font-bold whitespace-nowrap">
+                                📋 {t("team_members")} ({validTeamCount}/{MAX_TEAM_SIZE})
+                            </h2>
+                            <div className="flex gap-1.5 md:gap-2">
+                                {[0, 1, 2].map((idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => switchLoadout(idx)}
+                                        className={`
+                                            px-2.5 py-1.5 md:px-4 md:py-2 rounded-lg font-bold text-xs md:text-sm transition-all min-h-[36px] md:min-h-[40px]
+                                            ${activeLoadoutIndex === idx
+                                                ? "bg-orange-500 text-white shadow-md"
+                                                : "bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-400 active:scale-95"
+                                            }
+                                        `}
+                                    >
+                                        {idx === 0 ? "🅰️" : idx === 1 ? "🅱️" : "🅲"}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                    <div className="flex gap-3 md:gap-4 flex-wrap">
+                        <div className="flex gap-2 md:gap-3 overflow-x-auto pb-1">
                         {Array.from({ length: MAX_TEAM_SIZE }).map((_, index) => {
                             const unit = getSelectedTeamDefs()[index];
                             return (
@@ -677,15 +648,16 @@ export default function TeamPage() {
                                 </div>
                             );
                         })}
+                        </div>
+                        {/* 合計コスト表示 */}
+                        <div className="mt-2 text-sm md:text-base font-bold text-amber-700 dark:text-amber-400 text-right">
+                            💰 {t("total_cost")}: ¥{getTotalCost()}
+                        </div>
                     </div>
-                    {/* 合計コスト表示 */}
-                    <div className="mt-4 text-lg font-bold text-amber-700 dark:text-amber-400">
-                        💰 {t("total_cost")}: ¥{getTotalCost()}
-                    </div>
-                </section>
+                </div>
 
                 {/* フィルター全体 */}
-                <section id="filters-section" className="mb-6 scroll-mt-28">
+                <section id="filters-section" className="mb-6 pt-2">
                     {/* レアリティフィルタータブ */}
                     <div className="mb-3">
                     <div className="flex gap-2 md:gap-3 flex-wrap">
