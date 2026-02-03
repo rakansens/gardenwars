@@ -616,28 +616,16 @@ export async function getAsyncBattleHistory(
         if (row.defender_id) playerIds.add(row.defender_id);
     });
 
+    const { data: players } = await supabase
+        .from("players")
+        .select("id, name")
+        .in("id", Array.from(playerIds));
+
     const playerNameMap = new Map<string, string>();
-
-    if (playerIds.size > 0) {
-        const playerIdsArray = Array.from(playerIds);
-        console.log("[getAsyncBattleHistory] Looking up player names for IDs:", playerIdsArray);
-
-        const { data: players, error: playersError } = await supabase
-            .from("players")
-            .select("id, name")
-            .in("id", playerIdsArray);
-
-        if (playersError) {
-            console.error("[getAsyncBattleHistory] Error fetching player names:", playersError);
-        } else {
-            console.log("[getAsyncBattleHistory] Found players:", players?.length || 0);
-        }
-
-        if (players) {
-            players.forEach(p => {
-                if (p.id) playerNameMap.set(p.id, p.name || "Unknown");
-            });
-        }
+    if (players) {
+        players.forEach(p => {
+            if (p.id) playerNameMap.set(p.id, p.name || "Unknown");
+        });
     }
 
     return {
@@ -695,28 +683,16 @@ export async function getAllBattleHistory(
         if (row.defender_id) playerIds.add(row.defender_id);
     });
 
+    const { data: players } = await supabase
+        .from("players")
+        .select("id, name")
+        .in("id", Array.from(playerIds));
+
     const playerNameMap = new Map<string, string>();
-
-    if (playerIds.size > 0) {
-        const playerIdsArray = Array.from(playerIds);
-        console.log("[getAllBattleHistory] Looking up player names for IDs:", playerIdsArray);
-
-        const { data: players, error: playersError } = await supabase
-            .from("players")
-            .select("id, name")
-            .in("id", playerIdsArray);
-
-        if (playersError) {
-            console.error("[getAllBattleHistory] Error fetching player names:", playersError);
-        } else {
-            console.log("[getAllBattleHistory] Found players:", players?.length || 0);
-        }
-
-        if (players) {
-            players.forEach(p => {
-                if (p.id) playerNameMap.set(p.id, p.name || "Unknown");
-            });
-        }
+    if (players) {
+        players.forEach(p => {
+            if (p.id) playerNameMap.set(p.id, p.name || "Unknown");
+        });
     }
 
     return {

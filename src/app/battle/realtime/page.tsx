@@ -415,40 +415,37 @@ export default function RealtimeBattlePage() {
   const handleQuickMatch = useCallback(async () => {
     try {
       await actions.quickMatch({
-        odeyoId: playerId || undefined,  // データベースのプレイヤーIDを渡す
         displayName: displayName || "Player",
         deck: selectedTeam,
       });
     } catch (error) {
       console.error("Quick match failed:", error);
     }
-  }, [actions, selectedTeam, displayName, playerId]);
+  }, [actions, selectedTeam, displayName]);
 
   // 部屋を作成
   const handleCreateRoom = useCallback(async () => {
     try {
       await actions.createRoom({
-        odeyoId: playerId || undefined,  // データベースのプレイヤーIDを渡す
         displayName: displayName || "Player",
         deck: selectedTeam,
       });
     } catch (error) {
       console.error("Create room failed:", error);
     }
-  }, [actions, selectedTeam, displayName, playerId]);
+  }, [actions, selectedTeam, displayName]);
 
   // 部屋に参加
   const handleJoinRoom = useCallback(async (roomId: string) => {
     try {
       await actions.joinRoom(roomId, {
-        odeyoId: playerId || undefined,  // データベースのプレイヤーIDを渡す
         displayName: displayName || "Player",
         deck: selectedTeam,
       });
     } catch (error) {
       console.error("Join room failed:", error);
     }
-  }, [actions, selectedTeam, displayName, playerId]);
+  }, [actions, selectedTeam, displayName]);
 
   // キャンセル（ロビーに戻る）
   const handleCancel = useCallback(async () => {
