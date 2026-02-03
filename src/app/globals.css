@@ -78,19 +78,25 @@
   --text-muted: #808080;
 }
 
+html {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
 body {
   background: linear-gradient(180deg, #f9efd9 0%, #f1dfbd 100%);
   color: var(--foreground);
   font-family: "Hiragino Maru Gothic ProN", "Hiragino Sans", "Noto Sans JP", Arial, sans-serif;
   min-height: 100vh;
+  min-height: 100dvh; /* iOS Safari用 */
   transition: background 0.3s ease, color 0.3s ease;
   /* モバイル最適化 */
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
-  touch-action: none;
   overscroll-behavior: none;
+  overscroll-behavior-y: none;
   /* セーフエリア対応（ノッチ付きデバイス） */
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
