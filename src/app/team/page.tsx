@@ -588,9 +588,9 @@ export default function TeamPage() {
                 }}
             />
 
-            <div className="w-full px-3 md:container md:px-8 pb-8">
+            <div className="w-full px-5 md:container md:px-8 pb-8">
                 {/* 現在の編成（スティッキー） */}
-                <div className="sticky top-16 z-30 -mx-3 px-3 md:mx-0 md:px-0 py-3 bg-gradient-to-b from-amber-50 via-amber-50 to-transparent dark:from-slate-900 dark:via-slate-900">
+                <div className="sticky top-16 z-30 -mx-5 px-5 md:mx-0 md:px-0 py-3 bg-gradient-to-b from-amber-50 via-amber-50 to-transparent dark:from-slate-900 dark:via-slate-900">
                     <div className="card p-3 md:p-4">
                         {/* ロードアウト切り替えタブ */}
                         <div className="flex items-center justify-between gap-2 mb-3">
