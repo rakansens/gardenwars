@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Suspense, useMemo } from "react";
-import stages from "@/data/stages";
+import stages, { getNextStage } from "@/data/stages";
 import allUnits from "@/data/units";
 import type { StageDefinition, UnitDefinition } from "@/data/types";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -97,6 +97,12 @@ function ResultContent() {
         }).filter((d): d is DroppedUnit => d !== null);
     }, [dropsParam, stageId]);
 
+    // 次のステージを取得
+    const nextStage = useMemo(() => {
+        if (!win) return null;
+        return getNextStage(stageId) || null;
+    }, [win, stageId]);
+
     return (
         <main className="min-h-screen flex flex-col items-center justify-center p-8 dark:bg-slate-900">
             {/* Validation error warning */}
@@ -174,19 +180,31 @@ function ResultContent() {
             )}
 
             {/* アクションボタン */}
-            <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
-                <Link
-                    href={`/battle/${stageId}`}
-                    className="btn btn-secondary text-center flex-1 text-lg py-4"
-                >
-                    {t("result_retry")}
-                </Link>
-                <Link
-                    href="/stages"
-                    className="btn btn-primary text-center flex-1 text-lg py-4"
-                >
-                    {t("result_select_stage")}
-                </Link>
+            <div className="flex flex-col gap-4 w-full max-w-md">
+                {/* 次のステージへ（勝利時のみ） */}
+                {win && nextStage && (
+                    <Link
+                        href={`/battle/${nextStage.id}`}
+                        className="btn btn-primary text-center text-lg py-4 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 border-emerald-600 shadow-lg shadow-emerald-200/50"
+                    >
+                        ➡️ {t("result_next_stage")}
+                    </Link>
+                )}
+
+                <div className="flex flex-col sm:flex-row gap-4">
+                    <Link
+                        href={`/battle/${stageId}`}
+                        className="btn btn-secondary text-center flex-1 text-lg py-4"
+                    >
+                        {t("result_retry")}
+                    </Link>
+                    <Link
+                        href="/stages"
+                        className="btn btn-primary text-center flex-1 text-lg py-4"
+                    >
+                        {t("result_select_stage")}
+                    </Link>
+                </div>
             </div>
 
             {/* ホームへ */}

@@ -93,4 +93,24 @@ export function getStageProgressInfo(stageId: string): {
     };
 }
 
+/**
+ * 次のステージを取得
+ * 同じワールド内で、allStages配列の次のインデックスにあるステージを返す
+ * 次のステージがない場合はundefinedを返す
+ */
+export function getNextStage(currentStageId: string): StageDefinition | undefined {
+    const currentStage = getStageById(currentStageId);
+    if (!currentStage) return undefined;
+
+    const currentWorldId = currentStage.worldId || "world1";
+    const worldStages = getStagesByWorld(currentWorldId);
+
+    const currentIndex = worldStages.findIndex((s) => s.id === currentStageId);
+    if (currentIndex === -1 || currentIndex >= worldStages.length - 1) {
+        return undefined; // 次のステージがない
+    }
+
+    return worldStages[currentIndex + 1];
+}
+
 export default allStages;

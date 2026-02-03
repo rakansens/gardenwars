@@ -331,6 +331,7 @@
   "result_unit_drop": "✨ Unit Drop!",
   "result_no_drop": "No unit drops... better luck next time!",
   "result_retry": "🔄 Retry",
+  "result_next_stage": "Next Stage",
   "result_select_stage": "📋 Stage Select",
   "result_home": "🏠 Back Home",
   "result_encourage": "Review your team and try again!",
