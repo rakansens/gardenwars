@@ -1131,10 +1131,10 @@ function ChessContent() {
                   const moveData = legalMoveTargets.get(`${x}-${y}`);
                   const legalMove = !!moveData;
                   const isCapture = moveData?.capture || moveData?.enPassant;
-                  const isLast =
-                    lastMove &&
-                    ((lastMove.from.x === x && lastMove.from.y === y) ||
-                      (lastMove.to.x === x && lastMove.to.y === y));
+                  const isLastFrom =
+                    lastMove && lastMove.from.x === x && lastMove.from.y === y;
+                  const isLastTo =
+                    lastMove && lastMove.to.x === x && lastMove.to.y === y;
 
                   return (
                     <button
@@ -1142,9 +1142,13 @@ function ChessContent() {
                       onClick={() => handleSquareClick(x, y)}
                       className={`relative aspect-square flex items-center justify-center transition-colors ${
                         isLight ? "bg-amber-100/80" : "bg-amber-300/70"
-                      } ${isSelected ? "ring-4 ring-emerald-400" : ""} ${isLast ? "outline outline-2 outline-orange-300" : ""} ${
-                        isCapture ? "ring-4 ring-rose-500 bg-rose-200/50" : ""
-                      }`}
+                      } ${isSelected ? "ring-4 ring-emerald-400" : ""} ${
+                        isLastTo
+                          ? "bg-orange-400/60 ring-4 ring-orange-500 animate-pulse"
+                          : isLastFrom
+                            ? "bg-orange-200/50 outline outline-2 outline-dashed outline-orange-400"
+                            : ""
+                      } ${isCapture ? "ring-4 ring-rose-500 bg-rose-200/50" : ""}`}
                     >
                       {legalMove && !isCapture && (
                         <div className="absolute w-3 h-3 rounded-full bg-emerald-500/80" />

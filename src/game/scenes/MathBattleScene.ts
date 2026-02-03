@@ -141,7 +141,14 @@ export class MathBattleScene extends Phaser.Scene {
         this.load.atlas(atlasKey, sheetPath.image, sheetPath.json);
       }
     } else {
-      const imagePath = getSpritePath(baseId);
+      // ボスのbaseUnitIdはbossesフォルダにある
+      let imagePath: string;
+      if (unit.isBoss && unit.baseUnitId) {
+        imagePath = `/assets/sprites/bosses/${unit.baseUnitId}.webp`;
+      } else {
+        // 通常ユニット・敵はgetSpritePathでrarityを渡す
+        imagePath = getSpritePath(baseId, unit.rarity);
+      }
       if (!this.textures.exists(atlasKey)) {
         this.load.image(atlasKey, imagePath);
       }
@@ -285,8 +292,8 @@ export class MathBattleScene extends Phaser.Scene {
         this.safePlayAnimation(this.playerSprite, `${playerAtlas}_idle`);
       }
 
-      // スケールを小さめに（画面800x600に対して適切なサイズ）
-      const scale = (this.playerUnitData.scale || 1) * 0.08;
+      // スケール（画面800x600に対して見やすいサイズ）
+      const scale = (this.playerUnitData.scale || 1) * 0.12;
       this.playerSprite.setScale(scale);
       this.playerSprite.setOrigin(0.5, 1);
     }
@@ -304,8 +311,8 @@ export class MathBattleScene extends Phaser.Scene {
         this.safePlayAnimation(this.enemySprite, `${enemyAtlas}_idle`);
       }
 
-      // ボスは少し大きめ、通常敵は標準サイズ
-      const scale = (this.enemyUnitData.scale || 1) * (this.stageData.isBoss ? 0.12 : 0.08);
+      // ボスは大きめ、通常敵は標準サイズ
+      const scale = (this.enemyUnitData.scale || 1) * (this.stageData.isBoss ? 0.18 : 0.12);
       this.enemySprite.setScale(scale);
       this.enemySprite.setOrigin(0.5, 1);
       // 敵は左向きにする

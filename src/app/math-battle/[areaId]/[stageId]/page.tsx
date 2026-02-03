@@ -172,21 +172,30 @@ export default function MathBattleStagePage({
             <div className="flex items-center justify-around">
               {/* プレイヤーユニット */}
               <div className="text-center">
-                <RarityFrame
-                  unitId={playerUnit.id}
-                  unitName={getUnitName(playerUnit)}
-                  rarity={playerUnit.rarity}
-                  size="lg"
-                  baseUnitId={playerUnit.baseUnitId || playerUnit.atlasKey}
-                />
+                <button
+                  onClick={() => setIsUnitModalOpen(true)}
+                  className="relative group"
+                >
+                  <RarityFrame
+                    unitId={playerUnit.id}
+                    unitName={getUnitName(playerUnit)}
+                    rarity={playerUnit.rarity}
+                    size="lg"
+                    baseUnitId={playerUnit.baseUnitId || playerUnit.atlasKey}
+                  />
+                  {/* 変更バッジ */}
+                  <div className="absolute -bottom-1 -right-1 bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-lg group-hover:bg-amber-600 transition-colors">
+                    ✏️
+                  </div>
+                </button>
                 <p className="mt-2 font-bold text-amber-900 dark:text-white">
                   {getUnitName(playerUnit)}
                 </p>
                 <button
                   onClick={() => setIsUnitModalOpen(true)}
-                  className="mt-2 text-sm text-amber-600 dark:text-amber-400 hover:underline"
+                  className="mt-1 btn btn-secondary text-xs py-1 px-3"
                 >
-                  {t('mathBattle.changeUnit')}
+                  🔄 {t('mathBattle.changeUnit')}
                 </button>
               </div>
 
@@ -205,10 +214,16 @@ export default function MathBattleStagePage({
                       rarity={enemyUnit.rarity}
                       size="lg"
                       baseUnitId={enemyUnit.baseUnitId || enemyUnit.atlasKey}
+                      isBoss={enemyUnit.isBoss}
                     />
                     <p className="mt-2 font-bold text-amber-900 dark:text-white">
                       {enemyUnit.name}
                     </p>
+                    {stage.isBoss && (
+                      <span className="inline-block mt-1 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                        BOSS
+                      </span>
+                    )}
                   </>
                 )}
               </div>

@@ -13,6 +13,7 @@ interface RarityFrameProps {
     count?: number;
     baseUnitId?: string; // 画像表示用のベースユニットID
     grayscale?: boolean;
+    isBoss?: boolean; // ボスユニットの場合（スプライトパス解決用）
 }
 
 // レアリティごとのスタイル定義
@@ -114,6 +115,7 @@ const RarityFrame = memo(function RarityFrame({
     count,
     baseUnitId,
     grayscale = false,
+    isBoss = false,
 }: RarityFrameProps) {
     const style = rarityStyles[rarity];
     const sizeClass = sizeClasses[size];
@@ -121,6 +123,10 @@ const RarityFrame = memo(function RarityFrame({
 
     // スプライトパスを決定
     const getSpritePath = (id: string): string => {
+        // ボスユニットの場合、baseUnitIdはbossesフォルダにある
+        if (isBoss && baseUnitId) {
+            return `/assets/sprites/bosses/${baseUnitId}.webp`;
+        }
         if (id.startsWith("enemy_")) {
             return `/assets/sprites/enemies/${id}.webp`;
         }
