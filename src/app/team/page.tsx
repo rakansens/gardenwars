@@ -124,7 +124,8 @@ export default function TeamPage() {
     const [skillFilter, setSkillFilter] = useState<string | null>(null);
     const [sortBy, setSortBy] = useState<SortKey>("none");
     const [unitTab, setUnitTab] = useState<"owned" | "unowned">("owned");
-    const [isTeamExpanded, setIsTeamExpanded] = useState(true); // アコーディオン状態
+    const [isTeamExpanded, setIsTeamExpanded] = useState(true); // チームアコーディオン状態
+    const [isFilterExpanded, setIsFilterExpanded] = useState(true); // フィルターアコーディオン状態
     const { viewingUnit, openModal, closeModal } = useUnitDetailModal();
 
     // スマホ判定（768px以下）- スマホではVirtualizedGridを使わない
@@ -594,30 +595,38 @@ export default function TeamPage() {
                 <div className="sticky top-16 z-30 -mx-5 px-5 md:mx-0 md:px-0 py-3 bg-gradient-to-b from-amber-50 via-amber-50 to-transparent dark:from-slate-900 dark:via-slate-900">
                     <div className="card p-3 md:p-4">
                         {/* ヘッダー（常に表示） */}
-                        <div
-                            className="flex items-center justify-between gap-2 cursor-pointer select-none"
-                            onClick={() => setIsTeamExpanded(!isTeamExpanded)}
-                        >
-                            <div className="flex items-center gap-2">
-                                <button
-                                    className="w-6 h-6 flex items-center justify-center text-amber-600 dark:text-amber-400 transition-transform duration-200"
-                                    style={{ transform: isTeamExpanded ? 'rotate(0deg)' : 'rotate(-90deg)' }}
-                                    aria-label={isTeamExpanded ? "折りたたむ" : "展開する"}
-                                >
-                                    ▼
-                                </button>
+                        <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
                                 <h2 className="text-base md:text-lg font-bold whitespace-nowrap">
                                     📋 {t("team_members")} ({validTeamCount}/{MAX_TEAM_SIZE})
                                 </h2>
                                 {/* 折りたたみ時のコスト表示 */}
                                 {!isTeamExpanded && (
-                                    <span className="text-sm font-bold text-amber-600 dark:text-amber-400 ml-2">
+                                    <span className="text-sm font-bold text-amber-600 dark:text-amber-400">
                                         💰 ¥{getTotalCost()}
                                     </span>
                                 )}
                             </div>
-                            {/* ロードアウト切り替えタブ */}
-                            <div className="flex gap-1.5 md:gap-2" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-center gap-2">
+                                {/* 折りたたみボタン */}
+                                <button
+                                    onClick={() => setIsTeamExpanded(!isTeamExpanded)}
+                                    className={`
+                                        px-3 py-1.5 rounded-lg font-bold text-xs transition-all min-h-[36px]
+                                        flex items-center gap-1
+                                        ${isTeamExpanded
+                                            ? "bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-400"
+                                            : "bg-blue-500 text-white shadow-md"
+                                        }
+                                    `}
+                                    aria-label={isTeamExpanded ? "折りたたむ" : "展開する"}
+                                >
+                                    <span className="transition-transform duration-200" style={{ transform: isTeamExpanded ? 'rotate(0deg)' : 'rotate(-90deg)' }}>
+                                        ▼
+                                    </span>
+                                    <span className="hidden sm:inline">{isTeamExpanded ? "閉じる" : "開く"}</span>
+                                </button>
+                                {/* ロードアウト切り替えタブ */}
                                 {[0, 1, 2].map((idx) => (
                                     <button
                                         key={idx}
@@ -719,137 +728,181 @@ export default function TeamPage() {
                         </button>
                     </div>
 
-                    {/* フィルター・ソート */}
-                    <div className="card p-3 mb-4 space-y-2">
-                        {/* レアリティ */}
-                        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-                            {rarityTabs.map(tab => (
-                                <button
-                                    key={tab.key}
-                                    onClick={() => {
-                                        setRarityFilter(tab.key);
-                                        if (tab.key !== "UR" && tab.key !== "SSR" && tab.key !== "ALL") setSkillFilter(null);
-                                    }}
-                                    className={`
-                                        px-2.5 py-1.5 rounded-lg font-bold text-xs transition-all whitespace-nowrap min-h-[32px]
-                                        ${rarityFilter === tab.key
-                                            ? `${tab.color} text-white shadow-md`
-                                            : "bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-400 active:scale-95"
-                                        }
-                                    `}
-                                >
-                                    {tab.label}
-                                    <span className="ml-1 text-xs opacity-75">({rarityUnitCounts[tab.key]})</span>
-                                </button>
-                            ))}
+                    {/* フィルター・ソート（アコーディオン） */}
+                    <div className="card p-3 mb-4">
+                        {/* ヘッダー */}
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                🔍 {t("filter")} / {t("sort_by")}
+                                {/* アクティブなフィルター数を表示 */}
+                                {(rarityFilter !== "ALL" || roleFilter !== "ALL" || specialFilter !== "none" || skillFilter !== null || sortBy !== "none") && (
+                                    <span className="px-1.5 py-0.5 rounded-full text-xs bg-blue-500 text-white">
+                                        {[
+                                            rarityFilter !== "ALL",
+                                            roleFilter !== "ALL",
+                                            specialFilter !== "none",
+                                            skillFilter !== null,
+                                            sortBy !== "none"
+                                        ].filter(Boolean).length}
+                                    </span>
+                                )}
+                            </h3>
+                            <button
+                                onClick={() => setIsFilterExpanded(!isFilterExpanded)}
+                                className={`
+                                    px-3 py-1.5 rounded-lg font-bold text-xs transition-all min-h-[32px]
+                                    flex items-center gap-1
+                                    ${isFilterExpanded
+                                        ? "bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-400"
+                                        : "bg-blue-500 text-white shadow-md"
+                                    }
+                                `}
+                            >
+                                <span className="transition-transform duration-200" style={{ transform: isFilterExpanded ? 'rotate(0deg)' : 'rotate(-90deg)' }}>
+                                    ▼
+                                </span>
+                                <span className="hidden sm:inline">{isFilterExpanded ? "閉じる" : "開く"}</span>
+                            </button>
                         </div>
 
-                        {/* ロール */}
-                        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-                            <span className="text-xs font-bold text-gray-500 dark:text-gray-400">{t("role")}:</span>
-                            {roleTabs.map(tab => (
-                                <button
-                                    key={tab.key}
-                                    onClick={() => setRoleFilter(tab.key)}
-                                    className={`
-                                        px-2 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1 whitespace-nowrap min-h-[32px]
-                                        ${roleFilter === tab.key
-                                            ? `${tab.color} text-white shadow-md`
-                                            : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 active:scale-95"
-                                        }
-                                    `}
-                                >
-                                    <span>{tab.icon}</span>
-                                </button>
-                            ))}
-                        </div>
-
-                        {/* 特殊フィルター */}
-                        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-                            <span className="text-xs font-bold text-gray-500 dark:text-gray-400">{t("filter")}:</span>
-                            {specialTabs.map(tab => (
-                                <button
-                                    key={tab.key}
-                                    onClick={() => setSpecialFilter(tab.key)}
-                                    className={`
-                                        px-2 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1 whitespace-nowrap min-h-[32px]
-                                        ${specialFilter === tab.key
-                                            ? `${tab.color} text-white shadow-md`
-                                            : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 active:scale-95"
-                                        }
-                                    `}
-                                >
-                                    <span>{tab.icon}</span>
-                                    <span>{tab.label}</span>
-                                </button>
-                            ))}
-                            {(roleFilter !== "ALL" || specialFilter !== "none" || skillFilter !== null) && (
-                                <button
-                                    onClick={() => { setRoleFilter("ALL"); setSpecialFilter("none"); setSkillFilter(null); }}
-                                    className="px-2 py-1.5 rounded-lg text-xs bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 active:scale-95"
-                                >
-                                    ✕
-                                </button>
-                            )}
-                        </div>
-
-                        {/* スキルフィルター */}
-                        {(rarityFilter === "UR" || rarityFilter === "SSR" || rarityFilter === "ALL") && (
-                            <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-                                <span className="text-xs font-bold text-purple-600 dark:text-purple-400">{t("skill")}:</span>
-                                <button
-                                    onClick={() => setSkillFilter(null)}
-                                    className={`
-                                        px-2 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1 whitespace-nowrap min-h-[32px]
-                                        ${skillFilter === null
-                                            ? "bg-gray-500 text-white shadow-md"
-                                            : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 active:scale-95"
-                                        }
-                                    `}
-                                >
-                                    📋
-                                </button>
-                                {skillTabs.map(tab => {
-                                    const skillUnitCount = allyUnits.filter(u => u.skill?.id === tab.key).length;
-                                    return (
+                        {/* フィルター内容（アコーディオン） */}
+                        <div
+                            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                                isFilterExpanded ? 'max-h-[500px] opacity-100 mt-3' : 'max-h-0 opacity-0 mt-0'
+                            }`}
+                        >
+                            <div className="space-y-2">
+                                {/* レアリティ */}
+                                <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                                    {rarityTabs.map(tab => (
                                         <button
                                             key={tab.key}
-                                            onClick={() => setSkillFilter(tab.key)}
+                                            onClick={() => {
+                                                setRarityFilter(tab.key);
+                                                if (tab.key !== "UR" && tab.key !== "SSR" && tab.key !== "ALL") setSkillFilter(null);
+                                            }}
+                                            className={`
+                                                px-2.5 py-1.5 rounded-lg font-bold text-xs transition-all whitespace-nowrap min-h-[32px]
+                                                ${rarityFilter === tab.key
+                                                    ? `${tab.color} text-white shadow-md`
+                                                    : "bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-400 active:scale-95"
+                                                }
+                                            `}
+                                        >
+                                            {tab.label}
+                                            <span className="ml-1 text-xs opacity-75">({rarityUnitCounts[tab.key]})</span>
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {/* ロール */}
+                                <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                                    <span className="text-xs font-bold text-gray-500 dark:text-gray-400">{t("role")}:</span>
+                                    {roleTabs.map(tab => (
+                                        <button
+                                            key={tab.key}
+                                            onClick={() => setRoleFilter(tab.key)}
                                             className={`
                                                 px-2 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1 whitespace-nowrap min-h-[32px]
-                                                ${skillFilter === tab.key
+                                                ${roleFilter === tab.key
                                                     ? `${tab.color} text-white shadow-md`
                                                     : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 active:scale-95"
                                                 }
                                             `}
                                         >
                                             <span>{tab.icon}</span>
-                                            <span className="text-xs opacity-75">({skillUnitCount})</span>
                                         </button>
-                                    );
-                                })}
-                            </div>
-                        )}
+                                    ))}
+                                </div>
 
-                        {/* ソート */}
-                        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 border-t border-gray-200 dark:border-slate-600 pt-2">
-                            <span className="text-xs font-bold text-blue-500 dark:text-blue-400">{t("sort_by")}:</span>
-                            {sortOptions.map(option => (
-                                <button
-                                    key={option.key}
-                                    onClick={() => setSortBy(option.key)}
-                                    className={`
-                                        px-2 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1 whitespace-nowrap min-h-[32px]
-                                        ${sortBy === option.key
-                                            ? "bg-blue-500 text-white shadow-md"
-                                            : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 active:scale-95"
-                                        }
-                                    `}
-                                >
-                                    <span>{option.icon}</span>
-                                    {sortBy === option.key && option.key !== "none" && <span>↓</span>}
-                                </button>
-                            ))}
+                                {/* 特殊フィルター */}
+                                <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                                    <span className="text-xs font-bold text-gray-500 dark:text-gray-400">{t("filter")}:</span>
+                                    {specialTabs.map(tab => (
+                                        <button
+                                            key={tab.key}
+                                            onClick={() => setSpecialFilter(tab.key)}
+                                            className={`
+                                                px-2 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1 whitespace-nowrap min-h-[32px]
+                                                ${specialFilter === tab.key
+                                                    ? `${tab.color} text-white shadow-md`
+                                                    : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 active:scale-95"
+                                                }
+                                            `}
+                                        >
+                                            <span>{tab.icon}</span>
+                                            <span>{tab.label}</span>
+                                        </button>
+                                    ))}
+                                    {(roleFilter !== "ALL" || specialFilter !== "none" || skillFilter !== null) && (
+                                        <button
+                                            onClick={() => { setRoleFilter("ALL"); setSpecialFilter("none"); setSkillFilter(null); }}
+                                            className="px-2 py-1.5 rounded-lg text-xs bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 active:scale-95"
+                                        >
+                                            ✕
+                                        </button>
+                                    )}
+                                </div>
+
+                                {/* スキルフィルター */}
+                                {(rarityFilter === "UR" || rarityFilter === "SSR" || rarityFilter === "ALL") && (
+                                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                                        <span className="text-xs font-bold text-purple-600 dark:text-purple-400">{t("skill")}:</span>
+                                        <button
+                                            onClick={() => setSkillFilter(null)}
+                                            className={`
+                                                px-2 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1 whitespace-nowrap min-h-[32px]
+                                                ${skillFilter === null
+                                                    ? "bg-gray-500 text-white shadow-md"
+                                                    : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 active:scale-95"
+                                                }
+                                            `}
+                                        >
+                                            📋
+                                        </button>
+                                        {skillTabs.map(tab => {
+                                            const skillUnitCount = allyUnits.filter(u => u.skill?.id === tab.key).length;
+                                            return (
+                                                <button
+                                                    key={tab.key}
+                                                    onClick={() => setSkillFilter(tab.key)}
+                                                    className={`
+                                                        px-2 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1 whitespace-nowrap min-h-[32px]
+                                                        ${skillFilter === tab.key
+                                                            ? `${tab.color} text-white shadow-md`
+                                                            : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 active:scale-95"
+                                                        }
+                                                    `}
+                                                >
+                                                    <span>{tab.icon}</span>
+                                                    <span className="text-xs opacity-75">({skillUnitCount})</span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+
+                                {/* ソート */}
+                                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 border-t border-gray-200 dark:border-slate-600 pt-2">
+                                    <span className="text-xs font-bold text-blue-500 dark:text-blue-400">{t("sort_by")}:</span>
+                                    {sortOptions.map(option => (
+                                        <button
+                                            key={option.key}
+                                            onClick={() => setSortBy(option.key)}
+                                            className={`
+                                                px-2 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1 whitespace-nowrap min-h-[32px]
+                                                ${sortBy === option.key
+                                                    ? "bg-blue-500 text-white shadow-md"
+                                                    : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-400 active:scale-95"
+                                                }
+                                            `}
+                                        >
+                                            <span>{option.icon}</span>
+                                            {sortBy === option.key && option.key !== "none" && <span>↓</span>}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     </div>
 
