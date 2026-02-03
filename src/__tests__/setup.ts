@@ -16,7 +16,11 @@ vi.mock('@/lib/supabase', () => ({
     toFrontendPlayerData: vi.fn(),
     toSupabaseSaveData: vi.fn((data) => data),
     syncRankingStats: vi.fn().mockResolvedValue(undefined),
-    incrementGachaCount: vi.fn().mockResolvedValue(true),
+    // Server Authority RPCs
+    incrementBattleStatsRpc: vi.fn().mockResolvedValue({ success: true }),
+    incrementGachaCountRpc: vi.fn().mockResolvedValue({ success: true }),
+    incrementGardenVisitsRpc: vi.fn().mockResolvedValue({ success: true }),
+    executeGardenRewardRpc: vi.fn().mockResolvedValue({ success: true, coins: 1000 }),
     INITIAL_COINS: 1000,
 }));
 

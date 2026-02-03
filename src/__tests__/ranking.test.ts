@@ -7,6 +7,12 @@
  * 3. Gacha Count Updates - ガチャカウントの更新
  * 4. Sync Rankings Stats - ランキング統計の同期
  * 5. Error Handling - エラーハンドリング
+ *
+ * NOTE: 実際の実装はサーバー権威モード（RPC）を使用:
+ * - incrementBattleStatsRpc (serverAuthority.ts)
+ * - incrementGachaCountRpc (serverAuthority.ts)
+ * - incrementGardenVisitsRpc (serverAuthority.ts)
+ * このテストはビジネスロジックの検証用シミュレーター
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';

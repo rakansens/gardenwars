@@ -50,9 +50,6 @@ export {
     markShopItemSold,
     ensureRankingsExist,
     updateRankings,
-    incrementBattleStats,
-    incrementGachaCount,
-    incrementGardenVisits,
     syncRankingStats,
     getRankings,
     // Async battle
