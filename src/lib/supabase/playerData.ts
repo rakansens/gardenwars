@@ -410,8 +410,67 @@ export async function getRankings(
 }
 
 // ============================================
+// Player Battle Stats
+// ============================================
+
+export interface PlayerBattleStats {
+    total_battles: number;
+    total_wins: number;
+    win_streak: number;
+    max_win_streak: number;
+    stages_cleared: number;
+    max_stage: number;
+}
+
+/**
+ * Get a single player's battle statistics
+ */
+export async function getPlayerBattleStats(
+    playerId: string
+): Promise<DataResult<PlayerBattleStats | null>> {
+    const { data, error } = await supabase
+        .from("rankings")
+        .select("total_battles, total_wins, win_streak, max_win_streak, stages_cleared, max_stage")
+        .eq("player_id", playerId)
+        .single();
+
+    if (error) {
+        // Not found is OK - player may not have stats yet
+        if (error.code === "PGRST116") {
+            return {
+                data: {
+                    total_battles: 0,
+                    total_wins: 0,
+                    win_streak: 0,
+                    max_win_streak: 0,
+                    stages_cleared: 0,
+                    max_stage: 0,
+                },
+                error: null,
+            };
+        }
+        console.error("getPlayerBattleStats error:", error);
+        return { data: null, error: error.message };
+    }
+
+    return {
+        data: {
+            total_battles: data.total_battles ?? 0,
+            total_wins: data.total_wins ?? 0,
+            win_streak: data.win_streak ?? 0,
+            max_win_streak: data.max_win_streak ?? 0,
+            stages_cleared: data.stages_cleared ?? 0,
+            max_stage: data.max_stage ?? 0,
+        },
+        error: null,
+    };
+}
+
+// ============================================
 // Async Battle functions
 // ============================================
+
+export type BattleType = 'async' | 'realtime';
 
 export interface AsyncBattleResult {
     id?: string;
@@ -427,6 +486,7 @@ export interface AsyncBattleResult {
     attacker_kills: number;
     defender_kills: number;
     battle_duration: number;
+    battle_type?: BattleType;
     created_at?: string;
 }
 
@@ -509,6 +569,7 @@ export async function saveAsyncBattleResult(
             attacker_kills: result.attacker_kills,
             defender_kills: result.defender_kills,
             battle_duration: result.battle_duration,
+            battle_type: result.battle_type ?? 'async',
         });
 
     if (error) {
@@ -524,15 +585,23 @@ export async function saveAsyncBattleResult(
 // Note: async_battles table needs to be created in Supabase first
 export async function getAsyncBattleHistory(
     playerId: string,
-    limit: number = 20
+    limit: number = 20,
+    battleType?: BattleType
 ): Promise<DataResult<AsyncBattleResult[]>> {
     // Use type assertion since async_battles isn't in generated types yet
-    const { data, error } = await (supabase as any)
+    let query = (supabase as any)
         .from("async_battles")
         .select("*")
         .or(`attacker_id.eq.${playerId},defender_id.eq.${playerId}`)
         .order("created_at", { ascending: false })
         .limit(limit);
+
+    // Filter by battle type if specified
+    if (battleType) {
+        query = query.eq("battle_type", battleType);
+    }
+
+    const { data, error } = await query;
 
     if (error || !data) {
         const errorMsg = error?.message || "Failed to fetch battle history";
@@ -574,6 +643,75 @@ export async function getAsyncBattleHistory(
             attacker_kills: row.attacker_kills ?? 0,
             defender_kills: row.defender_kills ?? 0,
             battle_duration: row.battle_duration ?? 0,
+            created_at: row.created_at,
+        })),
+        error: null,
+    };
+}
+
+// Get all battle history (for ranking page)
+export async function getAllBattleHistory(
+    limit: number = 50,
+    battleType?: BattleType
+): Promise<DataResult<AsyncBattleResult[]>> {
+    // Use type assertion since async_battles isn't in generated types yet
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let query = (supabase as any)
+        .from("async_battles")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(limit);
+
+    // Filter by battle type if specified
+    if (battleType) {
+        query = query.eq("battle_type", battleType);
+    }
+
+    const { data, error } = await query;
+
+    if (error || !data) {
+        const errorMsg = error?.message || "Failed to fetch battle history";
+        console.error("getAllBattleHistory error:", error);
+        return { data: [], error: errorMsg };
+    }
+
+    // Get player names
+    const playerIds = new Set<string>();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (data as any[]).forEach((row: any) => {
+        if (row.attacker_id) playerIds.add(row.attacker_id);
+        if (row.defender_id) playerIds.add(row.defender_id);
+    });
+
+    const { data: players } = await supabase
+        .from("players")
+        .select("id, name")
+        .in("id", Array.from(playerIds));
+
+    const playerNameMap = new Map<string, string>();
+    if (players) {
+        players.forEach(p => {
+            if (p.id) playerNameMap.set(p.id, p.name || "Unknown");
+        });
+    }
+
+    return {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data: (data as any[]).map((row: any) => ({
+            id: row.id,
+            attacker_id: row.attacker_id || "",
+            defender_id: row.defender_id || "",
+            attacker_name: playerNameMap.get(row.attacker_id || "") || "Unknown",
+            defender_name: playerNameMap.get(row.defender_id || "") || "Unknown",
+            attacker_deck: (row.attacker_deck as string[]) || [],
+            defender_deck: (row.defender_deck as string[]) || [],
+            winner: row.winner as 'attacker' | 'defender',
+            attacker_castle_hp: row.attacker_castle_hp ?? 0,
+            defender_castle_hp: row.defender_castle_hp ?? 0,
+            attacker_kills: row.attacker_kills ?? 0,
+            defender_kills: row.defender_kills ?? 0,
+            battle_duration: row.battle_duration ?? 0,
+            battle_type: (row.battle_type as BattleType) || 'async',
             created_at: row.created_at,
         })),
         error: null,

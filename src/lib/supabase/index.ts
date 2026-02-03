@@ -56,8 +56,12 @@ export {
     getAsyncOpponents,
     saveAsyncBattleResult,
     getAsyncBattleHistory,
+    getAllBattleHistory,
+    // Player stats
+    getPlayerBattleStats,
 } from "./playerData";
-export type { RankingEntry, RankingSortBy, RankingUpdateData, AsyncBattleResult, AsyncOpponent, DataResult } from "./playerData";
+export type { RankingEntry, RankingSortBy, RankingUpdateData, AsyncBattleResult, AsyncOpponent, DataResult, PlayerBattleStats, BattleType } from "./playerData";
+export { type AsyncBattleResult as BattleHistoryEntry } from "./playerData";
 
 // Server Authority RPCs (サーバー権威モード)
 export {

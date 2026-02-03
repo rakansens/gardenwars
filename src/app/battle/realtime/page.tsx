@@ -13,6 +13,7 @@ import { RealtimeBattleHUD } from "./components/RealtimeBattleHUD";
 import { LobbyRoom } from "@/lib/colyseus/client";
 import allUnits from "@/data/units";
 import { getSpritePath } from "@/lib/sprites";
+import { getAsyncBattleHistory, type AsyncBattleResult } from "@/lib/supabase";
 
 // ============================================
 // Realtime Battle Page with Lobby
@@ -37,6 +38,22 @@ function getUnitImagePath(unitId: string): string {
   return "/assets/sprites/unknown.webp";
 }
 
+// Helper function for relative time
+function getTimeAgo(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMins < 1) return "just now";
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays < 7) return `${diffDays}d ago`;
+  return date.toLocaleDateString();
+}
+
 // ロビー画面コンポーネント
 function LobbyView({
   rooms,
@@ -46,6 +63,8 @@ function LobbyView({
   onCreateRoom,
   onJoinRoom,
   onBack,
+  battleHistory,
+  playerId,
 }: {
   rooms: LobbyRoom[];
   isLoading: boolean;
@@ -54,8 +73,11 @@ function LobbyView({
   onCreateRoom: () => void;
   onJoinRoom: (roomId: string) => void;
   onBack: () => void;
+  battleHistory: AsyncBattleResult[];
+  playerId: string | null;
 }) {
   const { t } = useLanguage();
+  const [showHistory, setShowHistory] = useState(true);
 
   return (
     <main className="min-h-screen flex flex-col items-center p-4 md:p-6">
@@ -171,6 +193,98 @@ function LobbyView({
         )}
       </div>
 
+      {/* バトル履歴セクション */}
+      {playerId && (
+        <div className="w-full max-w-2xl mt-6">
+          <button
+            onClick={() => setShowHistory(!showHistory)}
+            className="flex items-center justify-between w-full text-left mb-3"
+          >
+            <h2 className="text-lg font-bold text-amber-800 dark:text-amber-200 flex items-center gap-2">
+              <span>📜</span> {t("battle_history") || "Battle History"}
+              {battleHistory.length > 0 && (
+                <span className="text-sm font-normal text-amber-600/70 dark:text-amber-400/70">
+                  ({battleHistory.length})
+                </span>
+              )}
+            </h2>
+            <span className="text-amber-600 dark:text-amber-400">
+              {showHistory ? "▼" : "▶"}
+            </span>
+          </button>
+
+          {showHistory && (
+            battleHistory.length === 0 ? (
+              <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur rounded-2xl p-6 text-center shadow-lg border border-amber-200/50 dark:border-amber-700/30">
+                <div className="text-4xl mb-3">⚔️</div>
+                <p className="text-amber-700 dark:text-amber-300 font-medium">
+                  {t("no_battle_history") || "No battle history yet"}
+                </p>
+                <p className="text-amber-600/60 dark:text-amber-400/60 text-sm mt-2">
+                  {t("realtime_history_hint") || "Your realtime battle results will appear here"}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {battleHistory.map((battle) => {
+                  const isAttacker = battle.attacker_id === playerId;
+                  const won = (isAttacker && battle.winner === "attacker") || (!isAttacker && battle.winner === "defender");
+                  const opponentName = isAttacker ? battle.defender_name : battle.attacker_name;
+                  const opponentDeck = isAttacker ? battle.defender_deck : battle.attacker_deck;
+                  const timeAgo = getTimeAgo(battle.created_at || "");
+
+                  return (
+                    <div
+                      key={battle.id}
+                      className={`bg-white/70 dark:bg-slate-800/70 backdrop-blur rounded-xl p-3 border-l-4 ${
+                        won
+                          ? "border-green-500"
+                          : "border-red-500"
+                      } shadow`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className={`text-lg ${won ? "text-green-600" : "text-red-600"}`}>
+                            {won ? "👑" : "💀"}
+                          </span>
+                          <span className="font-medium text-amber-800 dark:text-amber-200">
+                            vs {opponentName}
+                          </span>
+                          <span className={`text-sm font-bold ${won ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+                            {won ? (t("victory") || "Victory") : (t("defeat") || "Defeat")}
+                          </span>
+                        </div>
+                        <span className="text-xs text-amber-600/60 dark:text-amber-400/60">
+                          {timeAgo}
+                        </span>
+                      </div>
+
+                      {/* Deck preview */}
+                      <div className="flex gap-1 mt-2">
+                        {(opponentDeck || []).slice(0, 5).map((unitId, idx) => (
+                          <div
+                            key={idx}
+                            className="w-8 h-8 rounded-lg overflow-hidden bg-amber-100 dark:bg-amber-900/50 shadow"
+                          >
+                            <Image
+                              src={getUnitImagePath(unitId)}
+                              alt={unitId}
+                              width={32}
+                              height={32}
+                              className="object-cover"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )
+          )}
+        </div>
+      )}
+
       {/* 戻るボタン */}
       <button
         onClick={onBack}
@@ -235,10 +349,11 @@ function WaitingView({
 export default function RealtimeBattlePage() {
   const router = useRouter();
   const { selectedTeam, isLoaded } = usePlayerData();
-  const { playerName } = useAuth();
+  const { playerName, playerId, status } = useAuth();
   const { t } = useLanguage();
   const [state, actions] = useRealtime();
   const [mode, setMode] = useState<"lobby" | "connecting" | "waiting" | "game">("lobby");
+  const [battleHistory, setBattleHistory] = useState<AsyncBattleResult[]>([]);
   const displayName = playerName || "Player";
 
   // ロビー画面を開いたら部屋一覧を取得
@@ -247,6 +362,26 @@ export default function RealtimeBattlePage() {
       actions.fetchRooms();
     }
   }, [mode, actions]);
+
+  // Fetch battle history (realtime battles only)
+  useEffect(() => {
+    const fetchHistory = async () => {
+      if (!playerId || mode !== "lobby") return;
+      try {
+        // Only fetch realtime battle history
+        const result = await getAsyncBattleHistory(playerId, 10, 'realtime');
+        if (result.data) {
+          setBattleHistory(result.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch battle history:", err);
+      }
+    };
+
+    if (status === "authenticated" && playerId && mode === "lobby") {
+      fetchHistory();
+    }
+  }, [playerId, status, mode]);
 
   // 接続状態に応じてモードを更新
   useEffect(() => {
@@ -370,6 +505,8 @@ export default function RealtimeBattlePage() {
         onCreateRoom={handleCreateRoom}
         onJoinRoom={handleJoinRoom}
         onBack={() => router.push("/battle")}
+        battleHistory={battleHistory}
+        playerId={playerId}
       />
     );
   }

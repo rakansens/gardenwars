@@ -774,5 +774,12 @@
   "chess_all_stages": "All Stages",
   "chess_opponent": "Opponent",
   "chess_stage_hint": "Clear all stages in a difficulty to unlock the next level!",
-  "stage_locked_hint": "Clear previous stages to unlock"
+  "stage_locked_hint": "Clear previous stages to unlock",
+
+  "you": "You",
+  "attacker": "Attacker",
+  "defender": "Defender",
+  "battle_history": "Battle History",
+  "no_battle_history": "No battle history yet",
+  "realtime_history_hint": "Your realtime battle results will appear here"
 }

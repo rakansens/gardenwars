@@ -11,6 +11,7 @@ import RarityFrame from "@/components/ui/RarityFrame";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { eventBus, GameEvents } from "@/game/utils/EventBus";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useToast } from "@/contexts/ToastContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { incrementGardenVisitsRpc } from "@/lib/supabase";
 import { GARDEN_BACKGROUNDS, type GardenBackgroundId } from "@/game/constants/gardenBackgrounds";
@@ -30,6 +31,7 @@ const allyUnits = allUnits.filter(u => !u.id.startsWith("enemy_") && !u.id.start
 export default function GardenPage() {
     const { unitInventory, selectedTeam, gardenUnits: savedGardenUnitIds, setGardenUnits: saveGardenUnits, isLoaded, executeGardenReward, coins } = usePlayerData();
     const { t } = useLanguage();
+    const { showError } = useToast();
     const { playerId } = useAuth();
     const [displayUnits, setDisplayUnits] = useState<UnitDefinition[]>([]);
     const [ready, setReady] = useState(false);
@@ -206,16 +208,24 @@ export default function GardenPage() {
         console.log('GardenPage: Emitting FEED', type);
         eventBus.emit(GameEvents.GARDEN_FEED, { type });
         // コイン報酬（サーバー権威モード）
-        await executeGardenReward(1);
-        showCoinEffect();
+        const rewardSuccess = await executeGardenReward(1);
+        if (rewardSuccess) {
+            showCoinEffect();
+            return;
+        }
+        showError(t("connection_error") || "Failed to apply reward. Please try again.");
     };
 
     const handleClean = async () => {
         console.log('GardenPage: Emitting CLEAN');
         eventBus.emit(GameEvents.GARDEN_CLEAN);
         // コイン報酬（サーバー権威モード）
-        await executeGardenReward(1);
-        showCoinEffect();
+        const rewardSuccess = await executeGardenReward(1);
+        if (rewardSuccess) {
+            showCoinEffect();
+            return;
+        }
+        showError(t("connection_error") || "Failed to apply reward. Please try again.");
     };
 
     const toggleMotionMode = () => {

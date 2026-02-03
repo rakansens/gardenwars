@@ -166,7 +166,13 @@ export default function AsyncBattlePage() {
 
         // 勝利時のコイン報酬を実際に付与（サーバー権威モード）
         if (win && coinsGained > 0) {
-            await executeArenaReward(coinsGained);
+            const rewardSuccess = await executeArenaReward(coinsGained);
+            if (!rewardSuccess) {
+                const errorMsg = t("connection_error") || "Failed to apply reward. Please try again.";
+                setSaveError(errorMsg);
+                showError(errorMsg);
+                return;
+            }
         }
 
         const battleDuration = Math.floor((Date.now() - battleStartTime) / 1000);
@@ -190,6 +196,7 @@ export default function AsyncBattlePage() {
                         attacker_kills: 0, // TODO: 実際のキル数を取得
                         defender_kills: 0,
                         battle_duration: battleDuration,
+                        battle_type: 'async',
                     });
                     if (saveResult.error) {
                         throw new Error(typeof saveResult.error === 'string' ? saveResult.error : "Failed to save battle result");

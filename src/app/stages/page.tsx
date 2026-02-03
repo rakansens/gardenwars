@@ -7,11 +7,13 @@ import stagesData, { getStagesByWorld } from "@/data/stages";
 import unitsData from "@/data/units";
 import type { StageDefinition, UnitDefinition, StageDifficulty, WorldId } from "@/data/types";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import PageHeader from "@/components/layout/PageHeader";
 import { getSpritePath } from "@/lib/sprites";
 import { useStageUnlock } from "@/hooks/useStageUnlock";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import WorldTabs from "@/components/WorldTabs";
+import { getPlayerBattleStats, type PlayerBattleStats } from "@/lib/supabase";
 
 const stages = stagesData as StageDefinition[];
 const allUnits = unitsData as UnitDefinition[];
@@ -137,8 +139,10 @@ const getDifficultyStars = (difficulty?: StageDifficulty): string => {
 export default function StagesPage() {
     const router = useRouter();
     const { t } = useLanguage();
+    const { playerId, status } = useAuth();
     const { clearedStages, isDifficultyUnlocked, isStageUnlocked, getClearCount } = useStageUnlock();
     const { currentWorld, setCurrentWorld } = usePlayerData();
+    const [battleStats, setBattleStats] = useState<PlayerBattleStats | null>(null);
 
     // 現在のワールドをWorldIdとして取得
     const selectedWorld = (currentWorld || "world1") as WorldId;
@@ -158,6 +162,25 @@ export default function StagesPage() {
             setSelectedDifficulty(tabs[0]?.key || "tutorial");
         }
     }, [selectedWorld, selectedDifficulty]);
+
+    // Fetch player battle stats
+    useEffect(() => {
+        const fetchStats = async () => {
+            if (!playerId) return;
+            try {
+                const result = await getPlayerBattleStats(playerId);
+                if (result.data) {
+                    setBattleStats(result.data);
+                }
+            } catch (err) {
+                console.error("Failed to fetch battle stats:", err);
+            }
+        };
+
+        if (status === "authenticated" && playerId) {
+            fetchStats();
+        }
+    }, [playerId, status]);
 
     const handleSelectStage = (stageId: string) => {
         router.push(`/battle/${stageId}`);
@@ -192,6 +215,33 @@ export default function StagesPage() {
                 selectedWorld={selectedWorld}
                 onSelectWorld={handleSelectWorld}
             />
+
+            {/* 戦績バー（コンパクト表示） */}
+            {status === "authenticated" && battleStats && battleStats.total_battles > 0 && (
+                <div className="container mb-4">
+                    <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm text-amber-800/80 dark:text-amber-200/80">
+                        <span className="flex items-center gap-1">
+                            ⚔️ <strong>{battleStats.total_battles}</strong> {t("battles") || "battles"}
+                        </span>
+                        <span className="flex items-center gap-1">
+                            ✅ <strong>{battleStats.total_wins}</strong> {t("wins") || "wins"}
+                        </span>
+                        <span className="flex items-center gap-1">
+                            📈 <strong>{Math.round((battleStats.total_wins / battleStats.total_battles) * 100)}%</strong>
+                        </span>
+                        {battleStats.win_streak > 0 && (
+                            <span className="flex items-center gap-1 text-orange-600 dark:text-orange-400">
+                                🔥 <strong>{battleStats.win_streak}</strong> {t("streak") || "streak"}
+                            </span>
+                        )}
+                        {battleStats.max_win_streak > 0 && (
+                            <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
+                                👑 <strong>{battleStats.max_win_streak}</strong> {t("best") || "best"}
+                            </span>
+                        )}
+                    </div>
+                </div>
+            )}
 
             {/* 難易度タブ - ビジュアルカード */}
             <div className="mb-6">

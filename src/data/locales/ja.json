@@ -777,5 +777,12 @@
   "chess_all_stages": "全ステージ",
   "chess_opponent": "対戦相手",
   "chess_stage_hint": "難易度の全ステージをクリアすると次のレベルが解放されます！",
-  "stage_locked_hint": "前のステージをクリアして解放"
+  "stage_locked_hint": "前のステージをクリアして解放",
+
+  "you": "あなた",
+  "attacker": "攻撃側",
+  "defender": "防御側",
+  "battle_history": "対戦履歴",
+  "no_battle_history": "まだ対戦履歴がありません",
+  "realtime_history_hint": "リアルタイム対戦の結果がここに表示されます"
 }

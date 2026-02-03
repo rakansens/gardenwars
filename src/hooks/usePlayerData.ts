@@ -259,6 +259,7 @@ export function usePlayerData() {
     const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const dataRef = useRef<PlayerDataWithTimestamp>(data); // Ref to capture latest data for debounced save
     const pendingSaveRef = useRef<boolean>(false); // 保存待ちフラグ
+    const pendingShopPurchaseRef = useRef<Set<string>>(new Set()); // 購入中のショップアイテム（重複購入防止）
     const isAuthenticated = status === "authenticated" && playerId;
 
     // Keep dataRef in sync with data
@@ -746,27 +747,37 @@ export function usePlayerData() {
 
         // 認証済みユーザーはサーバー権威モードを使用
         if (isAuthenticated && playerId) {
-            console.log("[buyShopItem] Using server authority mode");
-            const result = await executeShopPurchaseRpc(playerId, currentItem.price, currentItem.unitId);
-
-            if (!result.success) {
-                console.error("[buyShopItem] Server rejected:", result.error);
+            if (pendingShopPurchaseRef.current.has(currentItem.uid)) {
+                console.warn("[buyShopItem] Duplicate purchase blocked:", currentItem.uid);
                 return false;
             }
 
-            // サーバーからの結果でローカル状態を更新
-            setData(prev => {
-                const items = [...prev.shopItems];
-                items[index] = { ...items[index], soldOut: true };
+            pendingShopPurchaseRef.current.add(currentItem.uid);
+            console.log("[buyShopItem] Using server authority mode");
+            try {
+                const result = await executeShopPurchaseRpc(playerId, currentItem.price, currentItem.unitId);
 
-                return {
-                    ...prev,
-                    coins: result.coins ?? prev.coins,
-                    unitInventory: result.unitInventory ?? prev.unitInventory,
-                    shopItems: items,
-                };
-            });
-            return true;
+                if (!result.success) {
+                    console.error("[buyShopItem] Server rejected:", result.error);
+                    return false;
+                }
+
+                // サーバーからの結果でローカル状態を更新
+                setData(prev => {
+                    const items = [...prev.shopItems];
+                    items[index] = { ...items[index], soldOut: true };
+
+                    return {
+                        ...prev,
+                        coins: result.coins ?? prev.coins,
+                        unitInventory: result.unitInventory ?? prev.unitInventory,
+                        shopItems: items,
+                    };
+                });
+                return true;
+            } finally {
+                pendingShopPurchaseRef.current.delete(currentItem.uid);
+            }
         }
 
         // 未認証ユーザーはローカルで処理
