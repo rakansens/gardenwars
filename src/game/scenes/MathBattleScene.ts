@@ -348,10 +348,11 @@ export class MathBattleScene extends Phaser.Scene {
         this.safePlayAnimation(this.playerSprite, `${playerAtlas}_idle`);
       }
 
-      // スケール（全ユニット同じサイズ）
-      // アニメ付きスプライトは静止画より小さいので補正
+      // スケール（目標の高さに合わせて動的計算）
       const isAnimated = hasAnimation(playerBaseId);
-      const scale = isAnimated ? 0.35 : 0.15;
+      const targetHeight = isAnimated ? 150 : 120; // 目標の表示高さ
+      const spriteHeight = this.playerSprite.height;
+      const scale = spriteHeight > 0 ? targetHeight / spriteHeight : 0.35;
       this.playerSprite.setScale(scale);
       this.playerSprite.setOrigin(0.5, 1);
     }
@@ -374,11 +375,12 @@ export class MathBattleScene extends Phaser.Scene {
         this.safePlayAnimation(this.enemySprite, `${enemyAtlas}_idle`);
       }
 
-      // スケール（ボスは大きめ、通常敵はプレイヤーと同じ）
-      // アニメ付きスプライトは静止画より小さいので補正
+      // スケール（目標の高さに合わせて動的計算、ボスは大きめ）
       const isAnimated = hasAnimation(enemyBaseId);
-      const baseScale = this.stageData.isBoss ? 0.22 : 0.15;
-      const scale = isAnimated ? baseScale * 2.3 : baseScale;
+      const baseTargetHeight = this.stageData.isBoss ? 180 : 120;
+      const targetHeight = isAnimated ? baseTargetHeight * 1.2 : baseTargetHeight;
+      const spriteHeight = this.enemySprite.height;
+      const scale = spriteHeight > 0 ? targetHeight / spriteHeight : 0.15;
       this.enemySprite.setScale(scale);
       this.enemySprite.setOrigin(0.5, 1);
       // 敵は左向きにする
