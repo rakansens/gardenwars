@@ -348,10 +348,10 @@ export class MathBattleScene extends Phaser.Scene {
         this.safePlayAnimation(this.playerSprite, `${playerAtlas}_idle`);
       }
 
-      // スケール（画面サイズに合わせて調整）
-      // アニメ付きスプライトは元が大きいので小さめに
+      // スケール（全ユニット同じサイズ）
+      // アニメ付きスプライトは静止画より小さいので補正
       const isAnimated = hasAnimation(playerBaseId);
-      const scale = isAnimated ? 0.18 : 0.15;
+      const scale = isAnimated ? 0.35 : 0.15;
       this.playerSprite.setScale(scale);
       this.playerSprite.setOrigin(0.5, 1);
     }
@@ -375,9 +375,10 @@ export class MathBattleScene extends Phaser.Scene {
       }
 
       // スケール（ボスは大きめ、通常敵はプレイヤーと同じ）
+      // アニメ付きスプライトは静止画より小さいので補正
       const isAnimated = hasAnimation(enemyBaseId);
-      const baseScale = this.stageData.isBoss ? 0.20 : 0.15;
-      const scale = isAnimated ? 0.18 : baseScale;
+      const baseScale = this.stageData.isBoss ? 0.22 : 0.15;
+      const scale = isAnimated ? baseScale * 2.3 : baseScale;
       this.enemySprite.setScale(scale);
       this.enemySprite.setOrigin(0.5, 1);
       // 敵は左向きにする
