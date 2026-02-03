@@ -123,6 +123,7 @@ export default function TeamPage() {
     const [specialFilter, setSpecialFilter] = useState<SpecialFilter>("none");
     const [skillFilter, setSkillFilter] = useState<string | null>(null);
     const [sortBy, setSortBy] = useState<SortKey>("none");
+    const [unitTab, setUnitTab] = useState<"owned" | "unowned">("owned");
     const { viewingUnit, openModal, closeModal } = useUnitDetailModal();
 
     // スマホ判定（768px以下）- スマホではVirtualizedGridを使わない
@@ -593,7 +594,7 @@ export default function TeamPage() {
                 }}
             />
 
-            <div className="container px-4 md:px-8 pb-8">
+            <div className="w-full px-3 md:container md:px-8 pb-8">
                 {/* セクションナビ */}
                 <div className="sticky top-20 z-30 mb-6">
                     <div className="card flex items-center gap-2 overflow-x-auto whitespace-nowrap py-3">
@@ -610,16 +611,10 @@ export default function TeamPage() {
                             🧩 {t("filter")}
                         </button>
                         <button
-                            onClick={() => scrollToSection("owned-section")}
+                            onClick={() => scrollToSection("units-section")}
                             className="btn btn-secondary text-xs md:text-sm py-2 px-3"
                         >
-                            ✅ {t("owned_units")}
-                        </button>
-                        <button
-                            onClick={() => scrollToSection("unowned-section")}
-                            className="btn btn-secondary text-xs md:text-sm py-2 px-3"
-                        >
-                            🔒 {t("unowned_units")}
+                            🎴 {t("unit_list")}
                         </button>
                     </div>
                 </div>
@@ -844,71 +839,96 @@ export default function TeamPage() {
                     </div>
                 </section>
 
-                {/* 保有ユニット */}
-                <section id="owned-section" className="mb-8 scroll-mt-28">
-                    <div className="flex items-center gap-3 mb-4">
-                        <h2 className="text-xl font-bold text-green-700 dark:text-green-400">✅ {t("owned_units")}</h2>
-                        <span className="px-3 py-1 bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 rounded-full text-sm font-bold">
-                            {ownedUnits.length} {t("units_count")}
-                        </span>
+                {/* ユニット一覧（タブ切り替え） */}
+                <section id="units-section" className="scroll-mt-28">
+                    {/* タブ切り替え */}
+                    <div className="flex gap-2 mb-4">
+                        <button
+                            onClick={() => setUnitTab("owned")}
+                            className={`
+                                flex-1 py-3 px-4 rounded-xl font-bold text-base transition-all min-h-[48px]
+                                ${unitTab === "owned"
+                                    ? "bg-green-500 text-white shadow-lg"
+                                    : "bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-400"
+                                }
+                            `}
+                        >
+                            ✅ {t("owned_units")}
+                            <span className="ml-2 px-2 py-0.5 rounded-full text-sm bg-white/20">
+                                {ownedUnits.length}
+                            </span>
+                        </button>
+                        <button
+                            onClick={() => setUnitTab("unowned")}
+                            className={`
+                                flex-1 py-3 px-4 rounded-xl font-bold text-base transition-all min-h-[48px]
+                                ${unitTab === "unowned"
+                                    ? "bg-gray-500 text-white shadow-lg"
+                                    : "bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-400"
+                                }
+                            `}
+                        >
+                            🔒 {t("unowned_units")}
+                            <span className="ml-2 px-2 py-0.5 rounded-full text-sm bg-white/20">
+                                {unownedUnits.length}
+                            </span>
+                        </button>
                     </div>
-                    {ownedUnits.length > 0 ? (
-                        isMobile ? (
-                            <div className="grid grid-cols-2 gap-4">
-                                {ownedUnits.map((unit) => (
-                                    <div key={unit.id}>{renderOwnedUnit(unit)}</div>
-                                ))}
-                            </div>
-                        ) : (
-                            <VirtualizedGrid
-                                items={ownedUnits}
-                                getItemKey={getUnitKey}
-                                columnConfig={{ default: 2, sm: 2, md: 3, lg: 4, xl: 5 }}
-                                rowHeight={420}
-                                gap={20}
-                                containerHeight={900}
-                                renderItem={renderOwnedUnit}
-                            />
-                        )
-                    ) : (
-                        <div className="text-center py-8 text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-slate-800 rounded-lg">
-                            {t("no_owned_in_rarity")}
-                        </div>
-                    )}
-                </section>
 
-                {/* 未保有ユニット */}
-                <section id="unowned-section" className="scroll-mt-28">
-                    <div className="flex items-center gap-3 mb-4">
-                        <h2 className="text-xl font-bold text-gray-500 dark:text-gray-400">🔒 {t("unowned_units")}</h2>
-                        <span className="px-3 py-1 bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 rounded-full text-sm font-bold">
-                            {unownedUnits.length} {t("units_count")}
-                        </span>
-                    </div>
-                    {unownedUnits.length > 0 ? (
-                        <div className="opacity-60">
-                            {isMobile ? (
-                                <div className="grid grid-cols-2 gap-4">
-                                    {unownedUnits.map((unit) => (
-                                        <div key={unit.id}>{renderUnownedUnit(unit)}</div>
+                    {/* 保有ユニット */}
+                    {unitTab === "owned" && (
+                        ownedUnits.length > 0 ? (
+                            isMobile ? (
+                                <div className="grid grid-cols-2 gap-3">
+                                    {ownedUnits.map((unit) => (
+                                        <div key={unit.id}>{renderOwnedUnit(unit)}</div>
                                     ))}
                                 </div>
                             ) : (
                                 <VirtualizedGrid
-                                    items={unownedUnits}
+                                    items={ownedUnits}
                                     getItemKey={getUnitKey}
                                     columnConfig={{ default: 2, sm: 2, md: 3, lg: 4, xl: 5 }}
-                                    rowHeight={400}
+                                    rowHeight={420}
                                     gap={20}
-                                    containerHeight={850}
-                                    renderItem={renderUnownedUnit}
+                                    containerHeight={900}
+                                    renderItem={renderOwnedUnit}
                                 />
-                            )}
-                        </div>
-                    ) : (
-                        <div className="text-center py-8 text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 rounded-lg font-bold">
-                            {t("all_owned_in_rarity")}
-                        </div>
+                            )
+                        ) : (
+                            <div className="text-center py-8 text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-slate-800 rounded-lg">
+                                {t("no_owned_in_rarity")}
+                            </div>
+                        )
+                    )}
+
+                    {/* 未保有ユニット */}
+                    {unitTab === "unowned" && (
+                        unownedUnits.length > 0 ? (
+                            <div className="opacity-70">
+                                {isMobile ? (
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {unownedUnits.map((unit) => (
+                                            <div key={unit.id}>{renderUnownedUnit(unit)}</div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <VirtualizedGrid
+                                        items={unownedUnits}
+                                        getItemKey={getUnitKey}
+                                        columnConfig={{ default: 2, sm: 2, md: 3, lg: 4, xl: 5 }}
+                                        rowHeight={400}
+                                        gap={20}
+                                        containerHeight={850}
+                                        renderItem={renderUnownedUnit}
+                                    />
+                                )}
+                            </div>
+                        ) : (
+                            <div className="text-center py-8 text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 rounded-lg font-bold">
+                                {t("all_owned_in_rarity")}
+                            </div>
+                        )
                     )}
                 </section>
             </div>
