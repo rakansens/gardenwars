@@ -651,6 +651,9 @@
   "area_radius": "Area Radius",
   "filter": "Filter",
   "clear_filter": "Clear",
+  "collapse": "Hide",
+  "expand": "Show",
+  "filter_sort": "Filter / Sort",
 
   "skill": "Skill",
   "skill_trigger": "Trigger",

@@ -654,6 +654,9 @@
   "area_radius": "範囲半径",
   "filter": "フィルター",
   "clear_filter": "クリア",
+  "collapse": "閉じる",
+  "expand": "開く",
+  "filter_sort": "フィルター / ソート",
 
   "skill": "スキル",
   "skill_trigger": "発動条件",

@@ -256,7 +256,8 @@ export class MathBattleScene extends Phaser.Scene {
   }
 
   private createTimer() {
-    this.timerText = this.add.text(this.SCREEN_WIDTH / 2, 50, '', {
+    // ヘッダーと重ならないように下に配置
+    this.timerText = this.add.text(this.SCREEN_WIDTH / 2, 90, '', {
       fontSize: '32px',
       color: '#ffffff',
       fontStyle: 'bold',
@@ -264,8 +265,8 @@ export class MathBattleScene extends Phaser.Scene {
   }
 
   private createQuestionArea() {
-    // 問題カウンター
-    this.questionCountText = this.add.text(this.SCREEN_WIDTH / 2, 100, '', {
+    // 問題カウンター（タイマーの下）
+    this.questionCountText = this.add.text(this.SCREEN_WIDTH / 2, 130, '', {
       fontSize: '18px',
       color: '#cccccc',
     }).setOrigin(0.5);
