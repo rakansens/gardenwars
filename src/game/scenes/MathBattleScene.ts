@@ -31,6 +31,18 @@ function getMathBattleText(key: keyof typeof MATH_BATTLE_TRANSLATIONS.en): strin
   return MATH_BATTLE_TRANSLATIONS[lang][key];
 }
 
+// ステージ番号から背景画像パスを取得
+function getStageBackgroundPath(stageNumber: number, isBoss: boolean): string {
+  if (isBoss) {
+    // ボスステージ用画像 (2-5の範囲でサイクル)
+    const bossIndex = ((stageNumber - 1) % 4) + 2;
+    return `/assets/stages/boss_stage_${bossIndex}.webp`;
+  }
+  // 通常ステージ用画像 (1-20の範囲でサイクル)
+  const stageIndex = ((stageNumber - 1) % 20) + 1;
+  return `/assets/stages/stage_${stageIndex}.webp`;
+}
+
 // ============================================
 // MathBattleScene - 算数バトルシーン
 // ============================================
@@ -80,6 +92,10 @@ export class MathBattleScene extends Phaser.Scene {
   private countdownText?: Phaser.GameObjects.Text;
   private resultContainer?: Phaser.GameObjects.Container;
 
+  // 背景画像
+  private backgroundImage?: Phaser.GameObjects.Image;
+  private backgroundKey: string = '';
+
   // 定数
   private readonly SCREEN_WIDTH = 800;
   private readonly SCREEN_HEIGHT = 600;
@@ -125,6 +141,13 @@ export class MathBattleScene extends Phaser.Scene {
     this.load.audio('win', '/assets/audio/sfx/win.mp3');
     this.load.audio('lose', '/assets/audio/sfx/lose.mp3');
 
+    // 背景画像をロード
+    const bgPath = getStageBackgroundPath(this.stageData.stageNumber, this.stageData.isBoss);
+    this.backgroundKey = `bg_stage_${this.stageData.stageNumber}`;
+    if (!this.textures.exists(this.backgroundKey)) {
+      this.load.image(this.backgroundKey, bgPath);
+    }
+
     // プレイヤーユニットのスプライトをロード
     this.loadUnitSprite(this.playerUnitData);
     // 敵ユニットのスプライトをロード
@@ -156,17 +179,45 @@ export class MathBattleScene extends Phaser.Scene {
   }
 
   create() {
-    // 背景
-    this.cameras.main.setBackgroundColor('#2d5a27');
+    // 背景画像を表示
+    if (this.textures.exists(this.backgroundKey)) {
+      this.backgroundImage = this.add.image(
+        this.SCREEN_WIDTH / 2,
+        this.SCREEN_HEIGHT / 2,
+        this.backgroundKey
+      );
+      // 画面全体を覆うようにスケール
+      const scaleX = this.SCREEN_WIDTH / this.backgroundImage.width;
+      const scaleY = this.SCREEN_HEIGHT / this.backgroundImage.height;
+      const scale = Math.max(scaleX, scaleY);
+      this.backgroundImage.setScale(scale);
+      this.backgroundImage.setDepth(-10);
 
-    // 地面
-    this.add.rectangle(
+      // 暗いオーバーレイを追加して見やすくする
+      const overlay = this.add.rectangle(
+        this.SCREEN_WIDTH / 2,
+        this.SCREEN_HEIGHT / 2,
+        this.SCREEN_WIDTH,
+        this.SCREEN_HEIGHT,
+        0x000000,
+        0.3
+      );
+      overlay.setDepth(-9);
+    } else {
+      // フォールバック: 単色背景
+      this.cameras.main.setBackgroundColor('#2d5a27');
+    }
+
+    // 地面（半透明にして背景を活かす）
+    const ground = this.add.rectangle(
       this.SCREEN_WIDTH / 2,
       this.SCREEN_HEIGHT - 50,
       this.SCREEN_WIDTH,
       100,
-      0x8b4513
+      0x000000,
+      0.4
     );
+    ground.setDepth(-8);
 
     // UIを作成
     this.createHpBars();
