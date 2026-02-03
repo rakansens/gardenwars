@@ -173,6 +173,7 @@ export default function Home() {
       items: [
         { href: "/shop", icon: "🛒", label: t("menu_shop") },
         { href: "/marketplace", icon: "🏪", label: t("menu_marketplace") },
+        { href: "/trade", icon: "🤝", label: t("menu_trade") },
       ],
     },
     other: {

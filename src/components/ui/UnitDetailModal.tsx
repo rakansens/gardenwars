@@ -56,6 +56,7 @@ interface UnitDetailModalProps {
     isInTeam: boolean;
     onClose: () => void;
     onToggleTeam: () => void;
+    showTeamAction?: boolean;
     dropRate?: number; // ガチャ排出率（%）
 }
 
@@ -65,6 +66,7 @@ export default function UnitDetailModal({
     isInTeam,
     onClose,
     onToggleTeam,
+    showTeamAction = true,
     dropRate,
 }: UnitDetailModalProps) {
     const modalRef = useRef<HTMLDivElement>(null);
@@ -330,7 +332,8 @@ export default function UnitDetailModal({
                                 </div>
 
                                 {/* Action Button */}
-                                <div className="mt-4">
+                                {showTeamAction && (
+                                    <div className="mt-4">
                                     {isOwned ? (
                                         <button
                                             onClick={() => {
@@ -349,7 +352,8 @@ export default function UnitDetailModal({
                                             {t("not_owned")}
                                         </div>
                                     )}
-                                </div>
+                                    </div>
+                                )}
                             </>
                         ) : (
                             /* Animation Tab */
@@ -361,7 +365,8 @@ export default function UnitDetailModal({
                                     defaultAnimation="attack"
                                 />
                                 {/* Action Button */}
-                                <div className="mt-4 w-full">
+                                {showTeamAction && (
+                                    <div className="mt-4 w-full">
                                     {isOwned ? (
                                         <button
                                             onClick={() => {
@@ -380,7 +385,8 @@ export default function UnitDetailModal({
                                             {t("not_owned")}
                                         </div>
                                     )}
-                                </div>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>

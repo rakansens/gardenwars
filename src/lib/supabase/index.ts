@@ -63,6 +63,10 @@ export {
 export type { RankingEntry, RankingSortBy, RankingUpdateData, AsyncBattleResult, AsyncOpponent, DataResult, PlayerBattleStats, BattleType } from "./playerData";
 export { type AsyncBattleResult as BattleHistoryEntry } from "./playerData";
 
+// Trade history
+export { getTradeHistory } from "./trade";
+export type { TradeHistoryEntry } from "./trade";
+
 // Server Authority RPCs (サーバー権威モード)
 export {
     getServerTime,
