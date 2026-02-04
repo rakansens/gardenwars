@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import type { UnitDefinition, Rarity } from "@/data/types";
-import { getRarityStars, getRarityGradientClass } from "@/components/ui/RarityFrame";
-import RarityFrame from "@/components/ui/RarityFrame";
+import RarityFrame, { getRarityStars, getRarityGradientClass } from "@/components/ui/RarityFrame";
 import UnitDetailModal from "@/components/ui/UnitDetailModal";
 import { useUnitDetailModal } from "@/hooks/useUnitDetailModal";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -31,41 +30,47 @@ const rarityEffects: Record<Rarity, {
     flipDuration: number;
     particles: string;
     sound: string;
+    vibration: number[]; // Vibration pattern for haptics
 }> = {
     N: {
         glowColor: "",
-        bgEffect: "bg-black/80",
+        bgEffect: "bg-black/80 backdrop-blur-sm",
         flipDuration: 0.4,
         particles: "",
-        sound: "normal"
+        sound: "normal",
+        vibration: [10]
     },
     R: {
         glowColor: "shadow-lg shadow-blue-400/70",
-        bgEffect: "bg-gradient-to-b from-blue-900/90 to-black/90",
+        bgEffect: "bg-gradient-to-b from-blue-900/90 to-black/90 backdrop-blur-md",
         flipDuration: 0.5,
         particles: "particles-blue",
-        sound: "rare"
+        sound: "rare",
+        vibration: [30]
     },
     SR: {
         glowColor: "shadow-lg shadow-purple-400/80",
-        bgEffect: "bg-gradient-to-b from-purple-900/90 to-black/90",
+        bgEffect: "bg-gradient-to-b from-purple-900/90 to-black/90 backdrop-blur-md",
         flipDuration: 0.6,
         particles: "particles-purple",
-        sound: "super"
+        sound: "super",
+        vibration: [50, 30, 50]
     },
     SSR: {
         glowColor: "shadow-2xl shadow-yellow-400",
-        bgEffect: "bg-gradient-to-b from-amber-900/90 via-orange-900/90 to-black/90",
+        bgEffect: "bg-gradient-to-b from-amber-900/90 via-orange-900/90 to-black/90 backdrop-blur-xl",
         flipDuration: 0.8,
         particles: "particles-rainbow",
-        sound: "legendary"
+        sound: "legendary",
+        vibration: [100, 50, 100, 50, 200]
     },
     UR: {
         glowColor: "shadow-2xl shadow-pink-400 ring-4 ring-pink-300/50",
-        bgEffect: "bg-gradient-to-b from-pink-900/90 via-purple-900/90 to-black/90",
+        bgEffect: "bg-gradient-to-b from-pink-900/90 via-purple-900/90 to-black/90 backdrop-blur-xl",
         flipDuration: 1.0,
         particles: "particles-rainbow",
-        sound: "legendary"
+        sound: "legendary",
+        vibration: [200, 100, 200, 100, 400]
     },
 };
 
@@ -77,6 +82,13 @@ export default function GachaReveal({ results, onComplete, dropRates }: GachaRev
     const [currentSingleIndex, setCurrentSingleIndex] = useState<number>(0);
     const { viewingUnit, openModal, closeModal } = useUnitDetailModal();
     const videoRef = useRef<HTMLVideoElement>(null);
+
+    // Trigger haptics
+    const vibrate = (pattern: number[]) => {
+        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+            navigator.vibrate(pattern);
+        }
+    };
 
     // 動画終了時の処理
     const handleVideoEnd = () => {
@@ -113,6 +125,10 @@ export default function GachaReveal({ results, onComplete, dropRates }: GachaRev
         newRevealed[currentSingleIndex] = true;
         setRevealedCards(newRevealed);
 
+        // Haptic feedback based on rarity
+        const unit = results[currentSingleIndex];
+        vibrate(rarityEffects[unit.rarity].vibration);
+
         const nextUnrevealed = newRevealed.findIndex((r, i) => !r && i > currentSingleIndex);
 
         if (nextUnrevealed !== -1) {
@@ -139,13 +155,14 @@ export default function GachaReveal({ results, onComplete, dropRates }: GachaRev
                 />
                 <button
                     onClick={handleSkip}
-                    className="absolute bottom-8 right-8 px-4 py-2 bg-white/20 hover:bg-white/30 text-white font-bold rounded-lg transition-colors"
+                    className="absolute bottom-8 right-8 px-6 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 text-white font-bold rounded-full transition-all hover:scale-105 active:scale-95"
                 >
                     {t("skip_video")}
                 </button>
             </div>
         );
     }
+
 
     // 個別カード表示フェーズ（レアリティ別演出）
     if (phase === "single") {
