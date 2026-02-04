@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useCallback, useEffect } from "react";
+import { use, useState, useCallback, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -9,11 +9,12 @@ import { useMathBattleStore } from "@/store/mathBattleStore";
 import { useGameStore } from "@/store/gameStore";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import unitsData from "@/data/units";
-import type { UnitDefinition } from "@/data/types";
+import type { UnitDefinition, Rarity } from "@/data/types";
 import { notFound } from "next/navigation";
 import dynamic from "next/dynamic";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import RarityFrame from "@/components/ui/RarityFrame";
+import RarityFilter, { RarityFilterValue } from "@/components/ui/RarityFilter";
 import Modal from "@/components/ui/Modal";
 
 // PhaserGameはSSR不可
@@ -49,6 +50,7 @@ export default function MathBattleStagePage({
   const [gameEnded, setGameEnded] = useState(false);
   const [result, setResult] = useState<{ win: boolean; stars: number; coins: number } | null>(null);
   const [isUnitModalOpen, setIsUnitModalOpen] = useState(false);
+  const [rarityFilter, setRarityFilter] = useState<RarityFilterValue>("ALL");
 
   const stage = getMathBattleStage(stageId);
   const area = getMathBattleArea(areaId);
@@ -86,6 +88,25 @@ export default function MathBattleStagePage({
 
   const ownedUnits = playableUnits.filter((unit) => (unitInventory[unit.id] ?? 0) > 0);
   const selectableUnits = ownedUnits.length > 0 ? ownedUnits : playableUnits;
+
+  // レアリティでフィルタリング
+  const filteredUnits = useMemo(() => {
+    if (rarityFilter === "ALL") return selectableUnits;
+    return selectableUnits.filter(u => u.rarity === rarityFilter);
+  }, [selectableUnits, rarityFilter]);
+
+  // レアリティごとのカウント
+  const rarityCounts = useMemo(() => {
+    const counts: Partial<Record<RarityFilterValue, { total: number }>> = {
+      ALL: { total: selectableUnits.length },
+    };
+    const rarities: Rarity[] = ["N", "R", "SR", "SSR", "UR"];
+    rarities.forEach(r => {
+      const count = selectableUnits.filter(u => u.rarity === r).length;
+      if (count > 0) counts[r] = { total: count };
+    });
+    return counts;
+  }, [selectableUnits]);
 
   const getUnitName = (unit: UnitDefinition) => {
     const translated = t(unit.id);
@@ -257,36 +278,54 @@ export default function MathBattleStagePage({
             <h2 className="text-xl font-bold text-amber-900 dark:text-white mb-2">
               {t('mathBattle.selectUnit')}
             </h2>
-            <p className="text-sm text-amber-700/70 dark:text-slate-300/70 mb-4">
+            <p className="text-sm text-amber-700/70 dark:text-slate-300/70 mb-3">
               {t('mathBattle.selectUnitDesc')}
             </p>
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 max-h-[60vh] overflow-y-auto pr-1">
-              {selectableUnits.map((unit) => {
-                const isSelected = playerUnit?.id === unit.id;
-                return (
-                  <button
-                    key={unit.id}
-                    onClick={() => handleSelectUnit(unit)}
-                    className={`flex flex-col items-center gap-2 p-2 rounded-xl border transition-all ${
-                      isSelected
-                        ? "border-amber-400 bg-amber-50 dark:bg-amber-900/30"
-                        : "border-transparent hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
-                    }`}
-                  >
-                    <RarityFrame
-                      unitId={unit.id}
-                      unitName={getUnitName(unit)}
-                      rarity={unit.rarity}
-                      size="sm"
-                      baseUnitId={unit.baseUnitId || unit.atlasKey}
-                      count={unitInventory[unit.id]}
-                    />
-                    <span className="text-[11px] text-slate-600 dark:text-slate-300 line-clamp-2">
-                      {getUnitName(unit)}
-                    </span>
-                  </button>
-                );
-              })}
+
+            {/* レアリティフィルター */}
+            <div className="mb-4">
+              <RarityFilter
+                value={rarityFilter}
+                onChange={setRarityFilter}
+                counts={rarityCounts}
+                compact
+              />
+            </div>
+
+            {/* ユニット一覧 */}
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 max-h-[50vh] overflow-y-auto pr-1">
+              {filteredUnits.length > 0 ? (
+                filteredUnits.map((unit) => {
+                  const isSelected = playerUnit?.id === unit.id;
+                  return (
+                    <button
+                      key={unit.id}
+                      onClick={() => handleSelectUnit(unit)}
+                      className={`flex flex-col items-center gap-2 p-2 rounded-xl border transition-all ${
+                        isSelected
+                          ? "border-amber-400 bg-amber-50 dark:bg-amber-900/30"
+                          : "border-transparent hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      <RarityFrame
+                        unitId={unit.id}
+                        unitName={getUnitName(unit)}
+                        rarity={unit.rarity}
+                        size="sm"
+                        baseUnitId={unit.baseUnitId || unit.atlasKey}
+                        count={unitInventory[unit.id]}
+                      />
+                      <span className="text-[11px] text-slate-600 dark:text-slate-300 line-clamp-2">
+                        {getUnitName(unit)}
+                      </span>
+                    </button>
+                  );
+                })
+              ) : (
+                <div className="col-span-full text-center py-8 text-slate-500">
+                  {t('no_units_in_filter')}
+                </div>
+              )}
             </div>
           </div>
         </Modal>
