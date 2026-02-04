@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import stagesData, { getStagesByWorld } from "@/data/stages";
 import unitsData from "@/data/units";
+import worlds from "@/data/worlds";
 import type { StageDefinition, UnitDefinition, StageDifficulty, WorldId } from "@/data/types";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -12,7 +13,7 @@ import PageHeader from "@/components/layout/PageHeader";
 import { getSpritePath } from "@/lib/sprites";
 import { useStageUnlock } from "@/hooks/useStageUnlock";
 import { usePlayerData } from "@/hooks/usePlayerData";
-import WorldTabs from "@/components/WorldTabs";
+import { useWorldUnlock } from "@/hooks/useWorldUnlock";
 import { getPlayerBattleStats, type PlayerBattleStats } from "@/lib/supabase";
 
 const stages = stagesData as StageDefinition[];
@@ -56,11 +57,9 @@ const stageIcons: { [key: string]: string } = {
     tutorial_1: "🌱",
     tutorial_2: "🌿",
     tutorial_3: "🌻",
-    // Easy (stage_1-3)
     stage_1: "🌿",
     stage_2: "🌲",
     stage_3: "🏜️",
-    // Normal (stage_4-11)
     stage_4: "🌅",
     stage_5: "🦇",
     stage_6: "🌈",
@@ -69,32 +68,27 @@ const stageIcons: { [key: string]: string } = {
     stage_9: "🧟",
     stage_10: "💀",
     stage_11: "🔥",
-    // Frozen (stage_12-17)
     stage_12: "❄️",
     stage_13: "🏔️",
     stage_14: "🌨️",
     stage_15: "🧊",
     stage_16: "⛄",
     stage_17: "🥶",
-    // Hard (stage_18-21)
     stage_18: "🌑",
     stage_19: "☠️",
     stage_20: "🥷",
     stage_21: "🛡️",
-    // Extreme (stage_22-26)
     stage_22: "🔥",
     stage_23: "🐕",
     stage_24: "🦅",
     stage_25: "🐺",
     stage_26: "☠️",
-    // Nightmare (stage_27-32)
     stage_27: "👻",
     stage_28: "💀",
     stage_29: "🧟",
     stage_30: "👹",
     stage_31: "😈",
     stage_32: "☠️",
-    // Boss stages
     boss_stage_1: "🧑",
     boss_stage_2: "🎸",
     boss_stage_3: "👩",
@@ -102,7 +96,6 @@ const stageIcons: { [key: string]: string } = {
     boss_stage_5: "🌙",
     stage_ur_rush: "⚔️",
     stage_sr_rush: "🔥",
-    // World 2 ステージ
     purgatory_1: "🔥",
     purgatory_2: "💨",
     purgatory_3: "💀",
@@ -138,34 +131,15 @@ const getUniqueEnemyUnits = (stage: StageDefinition): UnitDefinition[] => {
         .filter((u): u is UnitDefinition => u !== undefined);
 };
 
-// 難易度に基づく星表示
-const getDifficultyStars = (difficulty?: StageDifficulty): string => {
-    switch (difficulty) {
-        case "tutorial": return "🌱";
-        case "easy": return "⭐";
-        case "normal": return "⭐⭐";
-        case "frozen": return "❄️❄️";
-        case "hard": return "⭐⭐⭐";
-        case "extreme": return "💀💀💀";
-        case "nightmare": return "👻👻👻";
-        case "boss": return "👑";
-        case "special": return "✨";
-        // World 2 難易度
-        case "purgatory": return "🔥";
-        case "hellfire": return "🔥🔥";
-        case "abyss": return "🔥🔥🔥";
-        case "inferno_boss": return "👹";
-        default: return "⭐";
-    }
-};
-
 export default function StagesPage() {
     const router = useRouter();
     const { t } = useLanguage();
     const { playerId, status } = useAuth();
     const { clearedStages, isDifficultyUnlocked, isStageUnlocked, getClearCount } = useStageUnlock();
     const { currentWorld, setCurrentWorld } = usePlayerData();
+    const { isWorldUnlocked, getWorldProgress } = useWorldUnlock();
     const [battleStats, setBattleStats] = useState<PlayerBattleStats | null>(null);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     // 現在のワールドをWorldIdとして取得
     const selectedWorld = (currentWorld || "world1") as WorldId;
@@ -177,6 +151,9 @@ export default function StagesPage() {
     const [selectedDifficulty, setSelectedDifficulty] = useState<StageDifficulty>(
         worldDifficultyTabs[0]?.key || "tutorial"
     );
+
+    // 現在選択中のエリア情報
+    const selectedAreaTab = DIFFICULTY_TABS.find(tab => tab.key === selectedDifficulty && tab.worldId === selectedWorld);
 
     useEffect(() => {
         const tabs = getDifficultyTabsByWorld(selectedWorld);
@@ -211,9 +188,13 @@ export default function StagesPage() {
 
     const handleSelectWorld = (worldId: WorldId) => {
         setCurrentWorld(worldId);
-        // ワールド切り替え時は最初の難易度にリセット
         const tabs = getDifficultyTabsByWorld(worldId);
         setSelectedDifficulty(tabs[0]?.key || "tutorial");
+    };
+
+    const handleSelectDifficulty = (difficulty: StageDifficulty) => {
+        setSelectedDifficulty(difficulty);
+        setIsSidebarOpen(false); // モバイルでサイドバーを閉じる
     };
 
     // 現在のワールドのステージを取得
@@ -221,6 +202,9 @@ export default function StagesPage() {
 
     // 選択された難易度でフィルタ
     const filteredStages = worldStages.filter(s => s.difficulty === selectedDifficulty);
+
+    // 次にプレイすべきステージ（未クリアの最初のステージ）
+    const nextStage = filteredStages.find(stage => !clearedStages.includes(stage.id) && isStageUnlocked(stage));
 
     return (
         <main className="min-h-screen">
@@ -233,284 +217,463 @@ export default function StagesPage() {
                 }}
             />
 
-            {/* ワールドタブ */}
-            <WorldTabs
-                selectedWorld={selectedWorld}
-                onSelectWorld={handleSelectWorld}
-            />
-
-            {/* 戦績バー（コンパクト表示） */}
-            {status === "authenticated" && battleStats && battleStats.total_battles > 0 && (
-                <div className="container mb-4">
-                    <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm text-amber-800/80 dark:text-amber-200/80">
-                        <span className="flex items-center gap-1">
-                            ⚔️ <strong>{battleStats.total_battles}</strong> {t("battles") || "battles"}
-                        </span>
-                        <span className="flex items-center gap-1">
-                            ✅ <strong>{battleStats.total_wins}</strong> {t("wins") || "wins"}
-                        </span>
-                        <span className="flex items-center gap-1">
-                            📈 <strong>{Math.round((battleStats.total_wins / battleStats.total_battles) * 100)}%</strong>
-                        </span>
-                        {battleStats.win_streak > 0 && (
-                            <span className="flex items-center gap-1 text-orange-600 dark:text-orange-400">
-                                🔥 <strong>{battleStats.win_streak}</strong> {t("streak") || "streak"}
-                            </span>
-                        )}
-                        {battleStats.max_win_streak > 0 && (
-                            <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
-                                👑 <strong>{battleStats.max_win_streak}</strong> {t("best") || "best"}
-                            </span>
-                        )}
+            {/* モバイル用サイドバートグル */}
+            <div className="lg:hidden container mb-4">
+                <button
+                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                    className="w-full card flex items-center justify-between p-4"
+                >
+                    <div className="flex items-center gap-3">
+                        <span className="text-2xl">{selectedAreaTab?.icon}</span>
+                        <div>
+                            <div className="font-bold text-amber-900 dark:text-white">
+                                {t(selectedAreaTab?.labelKey || "")}
+                            </div>
+                            <div className="text-xs text-amber-700 dark:text-slate-400">
+                                {t(selectedAreaTab?.subKey || "")}
+                            </div>
+                        </div>
                     </div>
-                </div>
-            )}
-
-            {/* 難易度タブ - ビジュアルカード（横スクロール対応） */}
-            <div className="mb-6 overflow-x-auto pb-2">
-                <div className="flex gap-3 min-w-max px-4">
-                    {worldDifficultyTabs.map(tab => {
-                        const { cleared, total } = getClearCount(tab.key, selectedWorld);
-                        const isSelected = selectedDifficulty === tab.key;
-                        const isAllCleared = cleared === total && total > 0;
-                        const isLocked = !isDifficultyUnlocked(tab.key, selectedWorld);
-                        return (
-                            <button
-                                key={tab.key}
-                                onClick={() => !isLocked && setSelectedDifficulty(tab.key)}
-                                disabled={isLocked}
-                                className={`relative overflow-hidden rounded-xl transition-all duration-300 flex-shrink-0 w-32 sm:w-36 ${
-                                    isLocked
-                                        ? "opacity-50 cursor-not-allowed grayscale"
-                                        : isSelected
-                                            ? "ring-4 ring-yellow-400 scale-105 shadow-2xl z-10"
-                                            : "hover:scale-102 hover:shadow-lg opacity-80 hover:opacity-100"
-                                }`}
-                            >
-                                {/* バナー画像背景 */}
-                                <div className={`relative h-24 sm:h-28 w-full bg-gradient-to-br ${tab.gradient}`}>
-                                    {tab.banner && (
-                                        <Image
-                                            src={tab.banner}
-                                            alt={t(tab.labelKey)}
-                                            fill
-                                            className="object-cover opacity-80"
-                                        />
-                                    )}
-                                    {/* オーバーレイ */}
-                                    <div className={`absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent`} />
-
-                                    {/* ロックアイコン */}
-                                    {isLocked && (
-                                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
-                                            <span className="text-3xl">🔒</span>
-                                        </div>
-                                    )}
-
-                                    {/* クリア済みバッジ */}
-                                    {isAllCleared && !isLocked && (
-                                        <div className="absolute top-1 right-1 bg-green-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
-                                            ✓
-                                        </div>
-                                    )}
-
-                                    {/* コンテンツ */}
-                                    <div className="absolute inset-0 flex flex-col justify-end p-2">
-                                        <div className="text-xl mb-0.5">{tab.icon}</div>
-                                        <div className="text-white font-bold text-xs sm:text-sm leading-tight drop-shadow-lg">
-                                            {t(tab.labelKey)}
-                                        </div>
-                                        {tab.subKey && (
-                                            <div className="text-white/70 text-[10px] drop-shadow">
-                                                {t(tab.subKey)}
-                                            </div>
-                                        )}
-                                        <div className={`text-[10px] font-bold mt-1 px-1.5 py-0.5 rounded-full inline-block w-fit ${
-                                            isAllCleared ? "bg-green-500/80" : "bg-white/30"
-                                        } text-white`}>
-                                            {cleared}/{total}
-                                        </div>
-                                    </div>
-                                </div>
-                            </button>
-                        );
-                    })}
-                </div>
+                    <span className="text-xl">{isSidebarOpen ? "✕" : "☰"}</span>
+                </button>
             </div>
 
-            {/* ステージ一覧 */}
-            <div className="container">
-                {filteredStages.length === 0 ? (
-                    <div className="text-center py-12 text-amber-700 dark:text-amber-400">
-                        <div className="text-4xl mb-4">🏜️</div>
-                        <p>{t("no_stages_in_category")}</p>
+            <div className="container flex gap-6">
+                {/* サイドバー */}
+                <div className={`
+                    fixed lg:relative inset-0 lg:inset-auto z-40 lg:z-auto
+                    ${isSidebarOpen ? "block" : "hidden lg:block"}
+                `}>
+                    {/* オーバーレイ（モバイル用） */}
+                    <div
+                        className="fixed inset-0 bg-black/50 lg:hidden"
+                        onClick={() => setIsSidebarOpen(false)}
+                    />
+
+                    {/* サイドバー本体 */}
+                    <div className="
+                        fixed lg:sticky top-0 lg:top-20 left-0 h-full lg:h-auto
+                        w-80 max-w-[85vw] lg:max-w-none
+                        bg-white dark:bg-slate-800 lg:bg-transparent
+                        overflow-y-auto lg:overflow-visible
+                        z-50 lg:z-auto
+                        lg:w-72 flex-shrink-0
+                    ">
+                        <div className="card lg:bg-white/90 lg:dark:bg-slate-800/90 backdrop-blur p-4 lg:rounded-2xl">
+                            {/* モバイル用閉じるボタン */}
+                            <div className="lg:hidden flex justify-between items-center mb-4 pb-3 border-b border-amber-200 dark:border-slate-600">
+                                <span className="font-bold text-amber-900 dark:text-white">ステージ選択</span>
+                                <button onClick={() => setIsSidebarOpen(false)} className="text-2xl">✕</button>
+                            </div>
+
+                            {/* ワールド選択 */}
+                            <div className="mb-6">
+                                <h3 className="text-sm font-bold text-amber-800 dark:text-amber-400 mb-3 flex items-center gap-2">
+                                    <span>🌍</span> {t("world_select") || "ワールド選択"}
+                                </h3>
+                                <div className="space-y-3">
+                                    {worlds.map((world) => {
+                                        const { cleared, total } = getWorldProgress(world.id);
+                                        const isSelected = selectedWorld === world.id;
+                                        const isLocked = !isWorldUnlocked(world.id);
+
+                                        return (
+                                            <button
+                                                key={world.id}
+                                                onClick={() => !isLocked && handleSelectWorld(world.id)}
+                                                disabled={isLocked}
+                                                className={`
+                                                    relative w-full rounded-xl h-24 overflow-hidden transition-all
+                                                    ${isSelected ? "ring-4 ring-yellow-400 shadow-xl scale-[1.02]" : ""}
+                                                    ${isLocked ? "opacity-50 cursor-not-allowed grayscale" : "hover:shadow-lg hover:scale-[1.01]"}
+                                                `}
+                                            >
+                                                {/* 背景 */}
+                                                <div className={`absolute inset-0 bg-gradient-to-br ${world.gradient}`}>
+                                                    {world.banner && (
+                                                        <Image
+                                                            src={world.banner}
+                                                            alt={t(world.nameKey)}
+                                                            fill
+                                                            className="object-cover opacity-60"
+                                                        />
+                                                    )}
+                                                </div>
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+                                                {/* ロックオーバーレイ */}
+                                                {isLocked && (
+                                                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
+                                                        <div className="text-center">
+                                                            <span className="text-3xl">🔒</span>
+                                                            <p className="text-white/80 text-xs mt-1">Coming Soon</p>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* コンテンツ */}
+                                                <div className="absolute inset-0 p-3 flex flex-col justify-end">
+                                                    <div className="flex items-end justify-between">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-2xl">{world.icon}</span>
+                                                            <div className="text-left">
+                                                                <div className="text-white font-bold drop-shadow-lg">
+                                                                    {t(world.nameKey)}
+                                                                </div>
+                                                                <div className="text-white/70 text-xs">
+                                                                    {t(world.subtitleKey)}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        {!isLocked && (
+                                                            <div className="bg-white/20 backdrop-blur px-2 py-1 rounded-lg">
+                                                                <div className="text-sm font-bold text-white">
+                                                                    {cleared}/{total}
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* エリア選択 */}
+                            <div>
+                                <h3 className="text-sm font-bold text-amber-800 dark:text-amber-400 mb-3 flex items-center gap-2">
+                                    <span>🗺️</span> {t("area_select") || "エリア選択"}
+                                </h3>
+                                <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+                                    {worldDifficultyTabs.map(tab => {
+                                        const { cleared, total } = getClearCount(tab.key, selectedWorld);
+                                        const isSelected = selectedDifficulty === tab.key;
+                                        const isAllCleared = cleared === total && total > 0;
+                                        const isLocked = !isDifficultyUnlocked(tab.key, selectedWorld);
+
+                                        return (
+                                            <button
+                                                key={tab.key}
+                                                onClick={() => !isLocked && handleSelectDifficulty(tab.key)}
+                                                disabled={isLocked}
+                                                className={`
+                                                    relative w-full rounded-xl h-16 overflow-hidden transition-all
+                                                    ${isSelected ? "ring-4 ring-yellow-400 shadow-lg" : ""}
+                                                    ${isLocked ? "opacity-50 cursor-not-allowed" : "hover:translate-x-1"}
+                                                `}
+                                            >
+                                                {/* 背景 */}
+                                                <div className={`absolute inset-0 bg-gradient-to-r ${tab.gradient}`}>
+                                                    {tab.banner && (
+                                                        <Image
+                                                            src={tab.banner}
+                                                            alt={t(tab.labelKey)}
+                                                            fill
+                                                            className="object-cover opacity-50"
+                                                        />
+                                                    )}
+                                                </div>
+                                                <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-transparent" />
+
+                                                {/* ロックオーバーレイ */}
+                                                {isLocked && (
+                                                    <div className="absolute inset-0 bg-black/50 flex items-center justify-between px-3">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-xl grayscale">{tab.icon}</span>
+                                                            <div className="text-left">
+                                                                <div className="text-sm font-bold text-white/60">{t(tab.labelKey)}</div>
+                                                                <div className="text-xs text-white/40">{t("area_locked") || "前のエリアをクリア"}</div>
+                                                            </div>
+                                                        </div>
+                                                        <span className="text-xl">🔒</span>
+                                                    </div>
+                                                )}
+
+                                                {/* コンテンツ */}
+                                                {!isLocked && (
+                                                    <div className="absolute inset-0 p-3 flex items-center justify-between">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-2xl drop-shadow">{tab.icon}</span>
+                                                            <div className="text-left">
+                                                                <div className="text-sm font-bold text-white drop-shadow">
+                                                                    {t(tab.labelKey)}
+                                                                </div>
+                                                                <div className="text-xs text-white/70">
+                                                                    {t(tab.subKey)}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <span className={`
+                                                            text-xs font-bold px-2 py-1 rounded-full shadow
+                                                            ${isAllCleared
+                                                                ? "bg-green-500 text-white"
+                                                                : "bg-white/20 backdrop-blur text-white"
+                                                            }
+                                                        `}>
+                                                            {isAllCleared ? `${cleared}/${total} ✓` : `${cleared}/${total}`}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                ) : (
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                        {filteredStages.map((stage) => {
-                            const enemyUnits = getUniqueEnemyUnits(stage);
-                            const isCleared = clearedStages.includes(stage.id);
-                            const stageImage = stage.background?.image || `/assets/stages/${stage.id}.webp`;
+                </div>
 
-                            // ステージのロック判定（共有フックを使用）
-                            const isLocked = !isStageUnlocked(stage);
+                {/* メインコンテンツ */}
+                <div className="flex-1 min-w-0">
+                    {/* エリアヘッダーバナー */}
+                    {selectedAreaTab && (
+                        <div className="relative rounded-2xl overflow-hidden mb-6 h-36 shadow-xl">
+                            <div className={`absolute inset-0 bg-gradient-to-br ${selectedAreaTab.gradient}`}>
+                                {selectedAreaTab.banner && (
+                                    <Image
+                                        src={selectedAreaTab.banner}
+                                        alt={t(selectedAreaTab.labelKey)}
+                                        fill
+                                        className="object-cover opacity-60"
+                                    />
+                                )}
+                            </div>
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                            <div className="absolute inset-0 p-5 flex flex-col justify-end">
+                                <div className="flex items-end justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-4xl drop-shadow-lg">{selectedAreaTab.icon}</span>
+                                        <div>
+                                            <h2 className="text-2xl font-bold text-white drop-shadow-lg">
+                                                {t(selectedAreaTab.labelKey)}
+                                            </h2>
+                                            <p className="text-white/80 text-sm">
+                                                {t(selectedAreaTab.subKey)}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="bg-white/20 backdrop-blur px-4 py-2 rounded-xl">
+                                        <div className="text-2xl font-bold text-white">
+                                            {getClearCount(selectedDifficulty, selectedWorld).cleared}/
+                                            {getClearCount(selectedDifficulty, selectedWorld).total}
+                                        </div>
+                                        <div className="text-xs text-white/80">{t("stages_cleared") || "ステージクリア"}</div>
+                                    </div>
+                                </div>
+                                {/* 進捗バー */}
+                                <div className="mt-3 h-2 bg-white/20 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-gradient-to-r from-yellow-400 to-green-400 rounded-full transition-all"
+                                        style={{
+                                            width: `${(getClearCount(selectedDifficulty, selectedWorld).cleared / getClearCount(selectedDifficulty, selectedWorld).total * 100) || 0}%`
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
-                            return (
-                                <div
-                                    key={stage.id}
-                                    className={`stage-card relative overflow-hidden ${
-                                        isLocked
-                                            ? 'opacity-60 cursor-not-allowed'
-                                            : isCleared
-                                                ? 'ring-2 ring-green-400 cursor-pointer'
-                                                : 'cursor-pointer'
-                                    }`}
-                                    onClick={() => !isLocked && handleSelectStage(stage.id)}
-                                >
-                                    {/* サムネイル画像 - ロック時も色を保持 */}
-                                    <div className="relative h-32 -mx-4 -mt-4 mb-3 overflow-hidden">
-                                        <Image
-                                            src={stageImage}
-                                            alt={t(stage.name)}
-                                            fill
-                                            className="object-cover"
-                                        />
-                                        <div className={`absolute inset-0 bg-gradient-to-t from-amber-50 dark:from-slate-800 via-transparent to-transparent ${isLocked ? 'bg-black/30' : ''}`} />
+                    {/* 戦績バー（コンパクト表示） */}
+                    {status === "authenticated" && battleStats && battleStats.total_battles > 0 && (
+                        <div className="mb-4">
+                            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm text-amber-800/80 dark:text-amber-200/80">
+                                <span className="flex items-center gap-1">
+                                    ⚔️ <strong>{battleStats.total_battles}</strong> {t("battles") || "battles"}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                    ✅ <strong>{battleStats.total_wins}</strong> {t("wins") || "wins"}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                    📈 <strong>{Math.round((battleStats.total_wins / battleStats.total_battles) * 100)}%</strong>
+                                </span>
+                                {battleStats.win_streak > 0 && (
+                                    <span className="flex items-center gap-1 text-orange-600 dark:text-orange-400">
+                                        🔥 <strong>{battleStats.win_streak}</strong> {t("streak") || "streak"}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    )}
 
-                                        {/* ロックオーバーレイ */}
-                                        {isLocked && (
-                                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
-                                                <span className="text-4xl">🔒</span>
+                    {/* ステージ一覧 */}
+                    {filteredStages.length === 0 ? (
+                        <div className="text-center py-12 text-amber-700 dark:text-amber-400">
+                            <div className="text-4xl mb-4">🏜️</div>
+                            <p>{t("no_stages_in_category")}</p>
+                        </div>
+                    ) : (
+                        <div className="grid gap-4 md:grid-cols-2">
+                            {filteredStages.map((stage) => {
+                                const enemyUnits = getUniqueEnemyUnits(stage);
+                                const isCleared = clearedStages.includes(stage.id);
+                                const stageImage = stage.background?.image || `/assets/stages/${stage.id}.webp`;
+                                const isLocked = !isStageUnlocked(stage);
+                                const isNext = nextStage?.id === stage.id;
+
+                                return (
+                                    <div
+                                        key={stage.id}
+                                        className={`
+                                            card relative overflow-hidden transition-all
+                                            ${isNext ? "ring-4 ring-yellow-400 shadow-xl md:col-span-2" : ""}
+                                            ${isLocked ? "opacity-60 cursor-not-allowed" : "cursor-pointer hover:-translate-y-1 hover:shadow-lg"}
+                                            ${isCleared && !isNext ? "ring-2 ring-green-400" : ""}
+                                        `}
+                                        onClick={() => !isLocked && handleSelectStage(stage.id)}
+                                    >
+                                        {/* サムネイル画像 */}
+                                        <div className={`relative ${isNext ? "h-40" : "h-32"} -mx-4 -mt-4 mb-3 overflow-hidden`}>
+                                            <Image
+                                                src={stageImage}
+                                                alt={t(stage.name)}
+                                                fill
+                                                className="object-cover transition-transform group-hover:scale-105"
+                                            />
+                                            <div className={`absolute inset-0 bg-gradient-to-t from-amber-50 dark:from-slate-800 via-transparent to-transparent ${isLocked ? "bg-black/30" : ""}`} />
+
+                                            {/* ロックオーバーレイ */}
+                                            {isLocked && (
+                                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
+                                                    <span className="text-4xl">🔒</span>
+                                                </div>
+                                            )}
+
+                                            {/* バッジ */}
+                                            {isNext && !isLocked && (
+                                                <div className="absolute top-3 left-3 bg-amber-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg animate-pulse z-10">
+                                                    ⭐ NEXT!
+                                                </div>
+                                            )}
+                                            {isCleared && !isLocked && !isNext && (
+                                                <div className="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg z-10">
+                                                    ✓ CLEAR
+                                                </div>
+                                            )}
+
+                                            {/* ステージ番号 */}
+                                            <div className="absolute bottom-2 left-3 text-white">
+                                                <div className="text-xs opacity-80">STAGE</div>
+                                                <div className={`${isNext ? "text-3xl" : "text-xl"} font-bold drop-shadow-lg`}>
+                                                    {stage.id.replace(/[^0-9]/g, '') || stageIcons[stage.id] || "?"}
+                                                </div>
                                             </div>
-                                        )}
-
-                                        {/* クリアバッジ */}
-                                        {isCleared && !isLocked && (
-                                            <div className="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg z-10">
-                                                ✓ CLEAR
-                                            </div>
-                                        )}
-
-                                        {/* ステージ番号とアイコン */}
-                                        <div className="absolute bottom-2 left-3 right-3 flex items-center justify-between">
-                                            <span className="text-sm text-white drop-shadow-lg font-medium">
-                                                {stage.id}
-                                            </span>
-                                            <span className="text-2xl drop-shadow-lg">
+                                            <span className={`absolute bottom-2 right-3 ${isNext ? "text-4xl" : "text-2xl"} drop-shadow-lg`}>
                                                 {stageIcons[stage.id] || "🎮"}
                                             </span>
                                         </div>
-                                    </div>
 
-                                    {/* コンテンツ部分 - ロック時はグレースケール */}
-                                    <div className={isLocked ? 'grayscale' : ''}>
-                                        {/* ステージ名 */}
-                                        <h2 className="text-xl font-bold mb-2 text-amber-950 dark:text-white">
-                                            {t(stage.name)}
-                                        </h2>
+                                        {/* コンテンツ */}
+                                        <div className={isLocked ? "grayscale" : ""}>
+                                            <h2 className={`${isNext ? "text-xl" : "text-lg"} font-bold mb-1 text-amber-950 dark:text-white`}>
+                                                {t(stage.name)}
+                                            </h2>
+                                            <p className="text-amber-900/70 dark:text-gray-400 mb-3 text-sm">
+                                                {t(stage.description)}
+                                            </p>
 
-                                        {/* 説明 */}
-                                        <p className="text-amber-900/70 dark:text-gray-400 mb-3 text-sm">{t(stage.description)}</p>
-
-                                        {/* 出現する敵ユニット */}
-                                        <div className="mb-3">
-                                            <div className="text-xs text-amber-800 dark:text-gray-400 mb-1.5">{t("encounter_units")}:</div>
-                                            <div className="flex gap-2 flex-wrap">
-                                                {enemyUnits.slice(0, 6).map((unit) => {
-                                                    const isBoss = unit.isBoss;
-                                                    return (
-                                                        <div
-                                                            key={unit.id}
-                                                            className={`w-11 h-11 rounded-lg flex items-center justify-center overflow-hidden ${isBoss
-                                                                    ? 'bg-purple-900 border-2 border-purple-500'
-                                                                    : 'bg-red-100 border-2 border-red-300'
-                                                                }`}
-                                                            title={isBoss ? "???" : unit.name}
-                                                        >
-                                                            {isBoss ? (
-                                                                <span className="text-purple-300 font-bold text-lg">?</span>
-                                                            ) : (
-                                                                <Image
-                                                                    src={getSpritePath(unit.baseUnitId || unit.id, unit.rarity)}
-                                                                    alt={unit.name}
-                                                                    width={36}
-                                                                    height={36}
-                                                                    className="object-contain"
-                                                                    style={{ transform: unit.flipSprite ? "scaleX(-1)" : "none" }}
-                                                                />
-                                                            )}
-                                                        </div>
-                                                    );
-                                                })}
-                                                {enemyUnits.length > 6 && (
-                                                    <div className="w-11 h-11 rounded-lg bg-amber-200 dark:bg-slate-700 flex items-center justify-center text-sm font-bold text-amber-700 dark:text-gray-300">
-                                                        +{enemyUnits.length - 6}
+                                            {/* 敵ユニット（NEXT以外はコンパクト表示） */}
+                                            {isNext ? (
+                                                <div className="mb-3">
+                                                    <div className="text-xs text-amber-800 dark:text-gray-400 mb-1.5">{t("encounter_units")}:</div>
+                                                    <div className="flex gap-2 flex-wrap">
+                                                        {enemyUnits.slice(0, 6).map((unit) => {
+                                                            const isBoss = unit.isBoss;
+                                                            return (
+                                                                <div
+                                                                    key={unit.id}
+                                                                    className={`w-11 h-11 rounded-lg flex items-center justify-center overflow-hidden ${
+                                                                        isBoss ? "bg-purple-900 border-2 border-purple-500" : "bg-red-100 border-2 border-red-300"
+                                                                    }`}
+                                                                    title={isBoss ? "???" : unit.name}
+                                                                >
+                                                                    {isBoss ? (
+                                                                        <span className="text-purple-300 font-bold text-lg">?</span>
+                                                                    ) : (
+                                                                        <Image
+                                                                            src={getSpritePath(unit.baseUnitId || unit.id, unit.rarity)}
+                                                                            alt={unit.name}
+                                                                            width={36}
+                                                                            height={36}
+                                                                            className="object-contain"
+                                                                            style={{ transform: unit.flipSprite ? "scaleX(-1)" : "none" }}
+                                                                        />
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        })}
+                                                        {enemyUnits.length > 6 && (
+                                                            <div className="w-11 h-11 rounded-lg bg-amber-200 dark:bg-slate-700 flex items-center justify-center text-sm font-bold text-amber-700 dark:text-gray-300">
+                                                                +{enemyUnits.length - 6}
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                )}
-                                            </div>
-                                        </div>
+                                                </div>
+                                            ) : null}
 
-                                        {/* 敵情報（コンパクト） */}
-                                        <div className="bg-amber-200/70 dark:bg-slate-700/50 rounded-lg p-2 mb-3 text-xs text-amber-900 dark:text-gray-300 font-medium">
-                                            <div className="flex justify-between">
+                                            {/* 敵情報 */}
+                                            <div className="flex gap-4 text-sm text-amber-700 dark:text-amber-400 mb-3">
                                                 <span>👾 {getTotalEnemies(stage)}</span>
                                                 <span>🌊 {stage.enemyWaves.length}</span>
-                                                <span>🏰 {stage.enemyCastleHp}</span>
+                                                <span>💰 {stage.reward.coins.toLocaleString()}</span>
                                             </div>
-                                        </div>
 
-                                        {/* ドロップ報酬 */}
-                                        {stage.reward.drops && stage.reward.drops.length > 0 && (
-                                            <div className="mb-3">
-                                                <div className="text-xs text-green-700 dark:text-green-400 mb-1.5">🎁 {t("drops")}:</div>
-                                                <div className="flex gap-2 flex-wrap">
-                                                    {stage.reward.drops.slice(0, 4).map((drop) => {
-                                                        const unit = allUnits.find(u => u.id === drop.unitId);
-                                                        if (!unit) return null;
-                                                        return (
-                                                            <div
-                                                                key={drop.unitId}
-                                                                className="flex items-center gap-1.5 bg-green-100 dark:bg-green-900/50 border-2 border-green-300 dark:border-green-700 rounded-lg px-2 py-1"
-                                                                title={`${unit.name} (${drop.rate}%)`}
-                                                            >
-                                                                <div className="w-8 h-8 rounded bg-white dark:bg-slate-700 flex items-center justify-center overflow-hidden">
-                                                                    <Image
-                                                                        src={getSpritePath(unit.baseUnitId || unit.id, unit.rarity)}
-                                                                        alt={unit.name}
-                                                                        width={28}
-                                                                        height={28}
-                                                                        className="object-contain"
-                                                                    />
+                                            {/* ドロップ報酬（NEXT時のみ） */}
+                                            {isNext && stage.reward.drops && stage.reward.drops.length > 0 && (
+                                                <div className="mb-3">
+                                                    <div className="text-xs text-green-700 dark:text-green-400 mb-1.5">🎁 {t("drops")}:</div>
+                                                    <div className="flex gap-2 flex-wrap">
+                                                        {stage.reward.drops.slice(0, 4).map((drop) => {
+                                                            const unit = allUnits.find(u => u.id === drop.unitId);
+                                                            if (!unit) return null;
+                                                            return (
+                                                                <div
+                                                                    key={drop.unitId}
+                                                                    className="flex items-center gap-1.5 bg-green-100 dark:bg-green-900/50 border-2 border-green-300 dark:border-green-700 rounded-lg px-2 py-1"
+                                                                    title={`${unit.name} (${drop.rate}%)`}
+                                                                >
+                                                                    <div className="w-8 h-8 rounded bg-white dark:bg-slate-700 flex items-center justify-center overflow-hidden">
+                                                                        <Image
+                                                                            src={getSpritePath(unit.baseUnitId || unit.id, unit.rarity)}
+                                                                            alt={unit.name}
+                                                                            width={28}
+                                                                            height={28}
+                                                                            className="object-contain"
+                                                                        />
+                                                                    </div>
+                                                                    <span className="text-sm font-bold text-green-700 dark:text-green-400">{drop.rate}%</span>
                                                                 </div>
-                                                                <span className="text-sm font-bold text-green-700 dark:text-green-400">{drop.rate}%</span>
-                                                            </div>
-                                                        );
-                                                    })}
+                                                            );
+                                                        })}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        )}
+                                            )}
 
-                                        {/* 難易度と報酬 */}
-                                        <div className="flex justify-between items-center text-sm">
-                                            <span className="text-amber-700 dark:text-amber-400">
-                                                {getDifficultyStars(stage.difficulty)}
-                                            </span>
-                                            <span className="text-amber-700 dark:text-amber-400 font-bold">
-                                                💰 {stage.reward.coins.toLocaleString()}
-                                            </span>
+                                            {/* バトル開始ボタン（NEXT時のみ） */}
+                                            {isNext && !isLocked && (
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleSelectStage(stage.id);
+                                                    }}
+                                                    className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold py-3 rounded-xl shadow-lg hover:shadow-xl transition"
+                                                >
+                                                    ⚔️ {t("battle_start") || "バトル開始"}
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                )}
-            </div>
+                                );
+                            })}
+                        </div>
+                    )}
 
-            {/* ヒント */}
-            <div className="container mt-6">
-                <div className="card text-center text-amber-900/70 dark:text-gray-400 text-sm">
-                    {t("stage_hint")}
+                    {/* ヒント */}
+                    <div className="mt-6">
+                        <div className="card text-center text-amber-900/70 dark:text-gray-400 text-sm">
+                            {t("stage_hint")}
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>

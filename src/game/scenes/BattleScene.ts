@@ -972,16 +972,16 @@ export class BattleScene extends Phaser.Scene {
             }
         });
 
-        // ゲーム状態表示
-        const statePanelW = 180;
+        // ゲーム状態表示（ポーズボタンの左に配置）
+        const statePanelW = 140;
         const statePanelH = 40;
-        const statePanel = this.add.rectangle(width - 18, 40, statePanelW, statePanelH, 0xf8e7b6);
+        const statePanel = this.add.rectangle(width - 78, 40, statePanelW, statePanelH, 0xf8e7b6);
         statePanel.setOrigin(1, 0);
         statePanel.setStrokeStyle(3, 0x3b2a1a);
         statePanel.setScrollFactor(0);
         statePanel.setDepth(100);
 
-        this.stateText = this.add.text(width - 30, 58, '', {
+        this.stateText = this.add.text(width - 90, 58, '', {
             fontSize: '16px',
             color: '#3b2a1a',
             fontStyle: 'bold',
