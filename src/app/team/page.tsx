@@ -150,7 +150,8 @@ export default function TeamPage() {
 
     // フィルター展開状態が変わったら高さを再計算
     useEffect(() => {
-        const headerOffset = isMobile ? 180 : (isFilterExpanded ? 280 : 160);
+        // オフセットを少し小さくして、より多くのカードを表示
+        const headerOffset = isMobile ? 150 : (isFilterExpanded ? 240 : 120);
         const availableHeight = window.innerHeight - headerOffset;
         setGridHeight(Math.max(400, availableHeight));
     }, [isFilterExpanded, isMobile]);
