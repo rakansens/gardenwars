@@ -61,6 +61,11 @@ export const ANIMATED_UNITS = [
     'ur_cosmic_tiger', 'ur_botanical_gundam', 'ur_fairy_knight', 'ur_golden_paladin', 'ur_overlord_rose',
     // New UR units (2026-02)
     'ur_aurora_mage_cat', 'ur_stained_glass_lotus_cat', 'ur_phoenix_flame_cat', 'ur_rose_crystal_princess_cat',
+    // Boss units (World 1)
+    'boss_tutorial', 'boss_easy', 'boss_normal', 'boss_hard', 'boss_extreme', 'boss_nightmare',
+    // Boss units (World 2)
+    'boss_purgatory', 'boss_hellfire', 'boss_abyss',
+    'boss_inferno_1', 'boss_inferno_2', 'boss_inferno_3', 'boss_inferno_4', 'boss_inferno_final',
 ] as const;
 
 export type AnimatedUnitId = (typeof ANIMATED_UNITS)[number];

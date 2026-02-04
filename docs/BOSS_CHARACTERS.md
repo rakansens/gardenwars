@@ -139,6 +139,34 @@ Pixel art style, 2D side-scrolling game character.
 
 ---
 
+### 6. Nightmare Boss - Nightmare Wraith
+| 項目 | 値 |
+|------|-----|
+| **ステージID** | `nightmare_boss` |
+| **ボスID** | `boss_nightmare` |
+| **名前** | Nightmare Wraith |
+| **レアリティ** | UR |
+| **HP** | 1,800,000 |
+| **攻撃力** | 4,000 |
+| **攻撃範囲** | 160 |
+| **速度** | 30 |
+| **スケール** | 8.5x |
+| **AoE範囲** | 300 |
+
+**キャラクター説明プロンプト:**
+```
+A terrifying spectral entity from the realm of nightmares.
+Ghostly translucent form with flowing ethereal robes.
+Dark purple and black coloring with glowing violet eyes.
+Shadowy tendrils extending from body, causing fear and despair.
+Floating above the ground, phasing through reality.
+Nightmarish presence, distorting the air around it.
+Boss of the Nightmare realm, embodiment of fear itself.
+Pixel art style, 2D side-scrolling game character, haunting and ethereal.
+```
+
+---
+
 ## エクストラボスステージ
 
 ### 1. Boss Stage 1 - Emp. Penguin (Emperor Penguin)

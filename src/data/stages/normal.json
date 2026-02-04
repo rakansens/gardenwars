@@ -2291,5 +2291,672 @@
       "image": "/assets/stages/stage_20.webp"
     },
     "difficulty": "extreme"
+  },
+  {
+    "id": "stage_21",
+    "name": "stage_21_name",
+    "description": "stage_21_desc",
+    "length": 5000,
+    "baseCastleHp": 60000,
+    "enemyCastleHp": 400000,
+    "enemyWaves": [
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_ninja",
+        "count": 60,
+        "intervalMs": 100
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_sr_rose",
+        "count": 15,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_wolf",
+        "count": 40,
+        "intervalMs": 150
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 10,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_ribbon",
+        "count": 20,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 52000,
+        "unitId": "enemy_yumemi",
+        "count": 12,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 62000,
+        "unitId": "enemy_ur_knight",
+        "count": 10,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 75000,
+        "unitId": "enemy_lennon",
+        "count": 6,
+        "intervalMs": 1200
+      }
+    ],
+    "reward": {
+      "coins": 250000,
+      "drops": [
+        {
+          "unitId": "ur_knight",
+          "rate": 8
+        },
+        {
+          "unitId": "ur_mage",
+          "rate": 8
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x150020",
+      "groundColor": "0x0a0010",
+      "cloudColor": "0x300050",
+      "image": "/assets/stages/stage_21.webp"
+    },
+    "difficulty": "nightmare"
+  },
+  {
+    "id": "stage_22",
+    "name": "stage_22_name",
+    "description": "stage_22_desc",
+    "length": 5500,
+    "baseCastleHp": 70000,
+    "enemyCastleHp": 500000,
+    "enemyWaves": [
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_crow",
+        "count": 80,
+        "intervalMs": 80
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_sr_tulip",
+        "count": 15,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_leaf_ninja",
+        "count": 50,
+        "intervalMs": 120
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 12,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_yumemi",
+        "count": 15,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 52000,
+        "unitId": "enemy_penguin",
+        "count": 10,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 62000,
+        "unitId": "enemy_ur_angel",
+        "count": 12,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 75000,
+        "unitId": "enemy_ur_dragon",
+        "count": 8,
+        "intervalMs": 1200
+      }
+    ],
+    "reward": {
+      "coins": 300000,
+      "drops": [
+        {
+          "unitId": "ur_dragon",
+          "rate": 8
+        },
+        {
+          "unitId": "ur_angel",
+          "rate": 8
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x100025",
+      "groundColor": "0x080015",
+      "cloudColor": "0x250045",
+      "image": "/assets/stages/stage_22.webp"
+    },
+    "difficulty": "nightmare"
+  },
+  {
+    "id": "stage_23",
+    "name": "stage_23_name",
+    "description": "stage_23_desc",
+    "length": 6000,
+    "baseCastleHp": 80000,
+    "enemyCastleHp": 600000,
+    "enemyWaves": [
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_ninja",
+        "count": 70,
+        "intervalMs": 90
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_sr_pirate",
+        "count": 15,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_wolf",
+        "count": 50,
+        "intervalMs": 120
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 12,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_ribbon",
+        "count": 25,
+        "intervalMs": 300
+      },
+      {
+        "timeMs": 52000,
+        "unitId": "enemy_nika",
+        "count": 8,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 62000,
+        "unitId": "enemy_ur_tank",
+        "count": 15,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 75000,
+        "unitId": "enemy_ur_mage",
+        "count": 20,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 90000,
+        "unitId": "enemy_lennon",
+        "count": 8,
+        "intervalMs": 1000
+      }
+    ],
+    "reward": {
+      "coins": 350000,
+      "drops": [
+        {
+          "unitId": "ur_tank",
+          "rate": 10
+        },
+        {
+          "unitId": "ur_ninja",
+          "rate": 8
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x0d001a",
+      "groundColor": "0x06000d",
+      "cloudColor": "0x200035",
+      "image": "/assets/stages/stage_23.webp"
+    },
+    "difficulty": "nightmare"
+  },
+  {
+    "id": "stage_24",
+    "name": "stage_24_name",
+    "description": "stage_24_desc",
+    "length": 6500,
+    "baseCastleHp": 90000,
+    "enemyCastleHp": 750000,
+    "enemyWaves": [
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_leaf_ninja",
+        "count": 80,
+        "intervalMs": 80
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_sr_rose",
+        "count": 20,
+        "intervalMs": 300
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_ninja",
+        "count": 60,
+        "intervalMs": 100
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_sr_tulip",
+        "count": 15,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_yumemi",
+        "count": 18,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 52000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 15,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 62000,
+        "unitId": "enemy_penguin",
+        "count": 12,
+        "intervalMs": 700
+      },
+      {
+        "timeMs": 72000,
+        "unitId": "enemy_ur_knight",
+        "count": 15,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 85000,
+        "unitId": "enemy_nika",
+        "count": 10,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 100000,
+        "unitId": "enemy_ur_dragon",
+        "count": 12,
+        "intervalMs": 800
+      }
+    ],
+    "reward": {
+      "coins": 400000,
+      "drops": [
+        {
+          "unitId": "ur_phoenix",
+          "rate": 8
+        },
+        {
+          "unitId": "ur_spirit",
+          "rate": 8
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x0a0015",
+      "groundColor": "0x050008",
+      "cloudColor": "0x180028",
+      "image": "/assets/stages/stage_24.webp"
+    },
+    "difficulty": "nightmare"
+  },
+  {
+    "id": "stage_25",
+    "name": "stage_25_name",
+    "description": "stage_25_desc",
+    "length": 7000,
+    "baseCastleHp": 100000,
+    "enemyCastleHp": 900000,
+    "enemyWaves": [
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_crow",
+        "count": 100,
+        "intervalMs": 60
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 15,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_wolf",
+        "count": 60,
+        "intervalMs": 100
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_sr_pirate",
+        "count": 18,
+        "intervalMs": 350
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_ribbon",
+        "count": 30,
+        "intervalMs": 250
+      },
+      {
+        "timeMs": 52000,
+        "unitId": "enemy_yumemi",
+        "count": 20,
+        "intervalMs": 450
+      },
+      {
+        "timeMs": 62000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 18,
+        "intervalMs": 450
+      },
+      {
+        "timeMs": 72000,
+        "unitId": "enemy_nika",
+        "count": 12,
+        "intervalMs": 700
+      },
+      {
+        "timeMs": 82000,
+        "unitId": "enemy_ur_tank",
+        "count": 20,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 95000,
+        "unitId": "enemy_lennon",
+        "count": 10,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 110000,
+        "unitId": "enemy_ur_mage",
+        "count": 30,
+        "intervalMs": 300
+      }
+    ],
+    "reward": {
+      "coins": 500000,
+      "drops": [
+        {
+          "unitId": "ur_golem",
+          "rate": 10
+        },
+        {
+          "unitId": "ur_ancient_treant",
+          "rate": 10
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x08000f",
+      "groundColor": "0x040006",
+      "cloudColor": "0x12001c",
+      "image": "/assets/stages/stage_25.webp"
+    },
+    "difficulty": "nightmare"
+  },
+  {
+    "id": "stage_26",
+    "name": "stage_26_name",
+    "description": "stage_26_desc",
+    "length": 7500,
+    "baseCastleHp": 120000,
+    "enemyCastleHp": 1200000,
+    "enemyWaves": [
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_ninja",
+        "count": 100,
+        "intervalMs": 60
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_sr_rose",
+        "count": 25,
+        "intervalMs": 250
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_leaf_ninja",
+        "count": 80,
+        "intervalMs": 80
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_sr_tulip",
+        "count": 20,
+        "intervalMs": 300
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_ribbon",
+        "count": 35,
+        "intervalMs": 200
+      },
+      {
+        "timeMs": 52000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 15,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 62000,
+        "unitId": "enemy_yumemi",
+        "count": 25,
+        "intervalMs": 350
+      },
+      {
+        "timeMs": 72000,
+        "unitId": "enemy_penguin",
+        "count": 15,
+        "intervalMs": 550
+      },
+      {
+        "timeMs": 82000,
+        "unitId": "enemy_ur_angel",
+        "count": 20,
+        "intervalMs": 450
+      },
+      {
+        "timeMs": 95000,
+        "unitId": "enemy_nika",
+        "count": 15,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 110000,
+        "unitId": "enemy_ur_dragon",
+        "count": 18,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 125000,
+        "unitId": "enemy_lennon",
+        "count": 12,
+        "intervalMs": 700
+      }
+    ],
+    "reward": {
+      "coins": 600000,
+      "drops": [
+        {
+          "unitId": "ur_healer",
+          "rate": 8
+        },
+        {
+          "unitId": "yumemi",
+          "rate": 5
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x060008",
+      "groundColor": "0x030004",
+      "cloudColor": "0x0e0012",
+      "image": "/assets/stages/stage_26.webp"
+    },
+    "difficulty": "nightmare"
+  },
+  {
+    "id": "nightmare_boss",
+    "name": "nightmare_boss_name",
+    "description": "nightmare_boss_desc",
+    "length": 6000,
+    "baseCastleHp": 150000,
+    "enemyCastleHp": 1,
+    "isBossStage": true,
+    "enemyWaves": [
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_ninja",
+        "count": 80,
+        "intervalMs": 80
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_sr_rose",
+        "count": 20,
+        "intervalMs": 300
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_leaf_ninja",
+        "count": 60,
+        "intervalMs": 100
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_sr_tulip",
+        "count": 15,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_wolf",
+        "count": 50,
+        "intervalMs": 120
+      },
+      {
+        "timeMs": 52000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 12,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 62000,
+        "unitId": "enemy_ribbon",
+        "count": 25,
+        "intervalMs": 300
+      },
+      {
+        "timeMs": 72000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 10,
+        "intervalMs": 700
+      },
+      {
+        "timeMs": 82000,
+        "unitId": "enemy_yumemi",
+        "count": 15,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 92000,
+        "unitId": "enemy_sr_pirate",
+        "count": 15,
+        "intervalMs": 450
+      },
+      {
+        "timeMs": 102000,
+        "unitId": "enemy_penguin",
+        "count": 12,
+        "intervalMs": 700
+      },
+      {
+        "timeMs": 112000,
+        "unitId": "enemy_nika",
+        "count": 10,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 122000,
+        "unitId": "enemy_ur_tank",
+        "count": 15,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 132000,
+        "unitId": "enemy_lennon",
+        "count": 8,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 145000,
+        "unitId": "enemy_ur_dragon",
+        "count": 12,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 160000,
+        "unitId": "boss_nightmare",
+        "count": 1,
+        "intervalMs": 0
+      }
+    ],
+    "reward": {
+      "coins": 500000,
+      "drops": [
+        {
+          "unitId": "ur_dragon",
+          "rate": 40
+        },
+        {
+          "unitId": "ur_phoenix",
+          "rate": 35
+        },
+        {
+          "unitId": "ur_golem",
+          "rate": 30
+        },
+        {
+          "unitId": "yumemi",
+          "rate": 15
+        },
+        {
+          "unitId": "lennon",
+          "rate": 10
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x050008",
+      "groundColor": "0x020003",
+      "cloudColor": "0x0a000e",
+      "image": "/assets/stages/stage_26.webp"
+    },
+    "difficulty": "nightmare"
   }
 ]
