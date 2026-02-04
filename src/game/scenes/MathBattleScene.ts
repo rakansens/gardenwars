@@ -118,12 +118,15 @@ export class MathBattleScene extends Phaser.Scene {
     this.missCount = 0;
     this.totalTime = 0;
 
-    // HP設定（ボスは問題数に応じてHP増加）
+    // HP設定
+    // 敵HPは問題数×ダメージで計算（全問正解で敵を倒せるように）
+    // ボスは+1問分のHPを追加
     this.playerMaxHp = 100;
     this.playerHp = 100;
-    const baseEnemyHp = this.stageData.isBoss ? 150 : 100;
-    this.enemyMaxHp = baseEnemyHp;
-    this.enemyHp = baseEnemyHp;
+    const baseEnemyHp = this.stageData.questionCount * this.ENEMY_DAMAGE_BASE;
+    const bossBonus = this.stageData.isBoss ? this.ENEMY_DAMAGE_BASE : 0;
+    this.enemyMaxHp = baseEnemyHp + bossBonus;
+    this.enemyHp = this.enemyMaxHp;
 
     // 問題生成
     this.questions = generateQuestions(
@@ -401,8 +404,8 @@ export class MathBattleScene extends Phaser.Scene {
       }
       this.enemySprite.setScale(finalScale);
       this.enemySprite.setOrigin(0.5, 1);
-      // 敵は左向きにする
-      this.enemySprite.setFlipX(!this.enemyUnitData.flipSprite);
+      // 敵は左向きにする（常に反転）
+      this.enemySprite.setFlipX(true);
     }
   }
 
@@ -558,8 +561,10 @@ export class MathBattleScene extends Phaser.Scene {
 
   private showQuestion() {
     if (this.currentQuestionIndex >= this.questions.length) {
-      // 全問終了 → 勝利
-      this.endBattle(true);
+      // 全問終了 → 敵HPで勝敗判定
+      // 敵を倒していれば勝利、そうでなければ敗北
+      const isWin = this.enemyHp <= 0;
+      this.endBattle(isWin);
       return;
     }
 
