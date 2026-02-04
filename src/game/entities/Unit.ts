@@ -172,6 +172,14 @@ export class Unit extends Phaser.GameObjects.Container {
 
         this.add(this.sprite);
 
+        // ボス専用スプライト（boss_で始まるbaseUnitId）の場合、Y位置を調整
+        // ボススプライトはフレーム内でキャラが上部に配置されているため下にオフセット
+        if (definition.isBoss && spriteUnitId.startsWith('boss_')) {
+            // スケールに応じてオフセットを調整（大きいボスほど大きなオフセット）
+            const bossOffset = 80 * this.baseScale;
+            this.sprite.setY(bossOffset);
+        }
+
         // 飛行ユニットの場合、スプライトを上にずらす
         if (definition.isFlying) {
             this.flyingOffset = 40; // 40px上に浮遊
@@ -842,6 +850,11 @@ export class Unit extends Phaser.GameObjects.Container {
     }
 
     public takeDamage(damage: number, knockback: number, attacker?: Unit): void {
+        // シーンが破棄されている場合は何もしない
+        if (!this.scene || !this.scene.add) {
+            return;
+        }
+
         // 無敵中はダメージ無効
         if (this.isInvincible) {
             this.showBlockedEffect();
@@ -929,6 +942,10 @@ export class Unit extends Phaser.GameObjects.Container {
     }
 
     private showDamageNumber(damage: number): void {
+        // シーンが破棄されている場合は何もしない
+        if (!this.scene || !this.scene.add) {
+            return;
+        }
         const text = this.scene.add.text(this.x, this.y - this.sprite.displayHeight - 20 - this.flyingOffset, `-${damage}`, {
             fontSize: '16px',
             color: '#ff0000',

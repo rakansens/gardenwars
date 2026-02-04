@@ -517,9 +517,16 @@ export class BattleScene extends Phaser.Scene {
             repeat: 0,
         });
 
-        // ペンギンボーイのアニメーション
+        // ペンギンボーイのアニメーション（ボス用にwalkも追加）
         this.anims.create({
             key: 'penguin_boy_idle',
+            frames: [{ key: 'penguin_boy_atlas', frame: 'penguin_boy_idle.png' }],
+            frameRate: 1,
+            repeat: -1,
+        });
+
+        this.anims.create({
+            key: 'penguin_boy_walk',
             frames: [{ key: 'penguin_boy_atlas', frame: 'penguin_boy_idle.png' }],
             frameRate: 1,
             repeat: -1,
@@ -536,9 +543,16 @@ export class BattleScene extends Phaser.Scene {
             repeat: 0,
         });
 
-        // Yume (cinnamon_girl) animations
+        // Yume (cinnamon_girl) animations（ボス用にwalkも追加）
         this.anims.create({
             key: 'cinnamon_girl_idle',
+            frames: [{ key: 'cinnamon_girl_atlas', frame: 'cinnamon_girl_idle.png' }],
+            frameRate: 1,
+            repeat: -1,
+        });
+
+        this.anims.create({
+            key: 'cinnamon_girl_walk',
             frames: [{ key: 'cinnamon_girl_atlas', frame: 'cinnamon_girl_idle.png' }],
             frameRate: 1,
             repeat: -1,
@@ -554,9 +568,16 @@ export class BattleScene extends Phaser.Scene {
             repeat: 0,
         });
 
-        // Nika animations
+        // Nika animations（ボス用にwalkも追加）
         this.anims.create({
             key: 'nika_idle',
+            frames: [{ key: 'nika_atlas', frame: 'nika_idle.png' }],
+            frameRate: 1,
+            repeat: -1,
+        });
+
+        this.anims.create({
+            key: 'nika_walk',
             frames: [{ key: 'nika_atlas', frame: 'nika_idle.png' }],
             frameRate: 1,
             repeat: -1,
@@ -572,9 +593,16 @@ export class BattleScene extends Phaser.Scene {
             repeat: 0,
         });
 
-        // Lennon animations
+        // Lennon animations（ボス用にwalkも追加）
         this.anims.create({
             key: 'lennon_idle',
+            frames: [{ key: 'lennon_atlas', frame: 'lennon_idle.png' }],
+            frameRate: 1,
+            repeat: -1,
+        });
+
+        this.anims.create({
+            key: 'lennon_walk',
             frames: [{ key: 'lennon_atlas', frame: 'lennon_idle.png' }],
             frameRate: 1,
             repeat: -1,
@@ -798,6 +826,42 @@ export class BattleScene extends Phaser.Scene {
                     { key: `${unit}_atlas`, frame: `${unit}_attack_4.png` },
                 ],
                 frameRate: 10,
+                repeat: 0,
+            });
+        });
+
+        // ボス専用スプライトのアニメーション
+        const bossSprites = [
+            'boss_tutorial', 'boss_easy', 'boss_normal', 'boss_frozen', 'boss_hard',
+            'boss_extreme', 'boss_nightmare', 'boss_purgatory', 'boss_hellfire', 'boss_abyss',
+            'boss_inferno_1', 'boss_inferno_2', 'boss_inferno_3', 'boss_inferno_4', 'boss_inferno_final'
+        ];
+        bossSprites.forEach(boss => {
+            this.anims.create({
+                key: `${boss}_idle`,
+                frames: [{ key: `${boss}_atlas`, frame: `${boss}_idle.png` }],
+                frameRate: 1,
+                repeat: -1,
+            });
+            this.anims.create({
+                key: `${boss}_walk`,
+                frames: [
+                    { key: `${boss}_atlas`, frame: `${boss}_walk_1.png` },
+                    { key: `${boss}_atlas`, frame: `${boss}_walk_2.png` },
+                    { key: `${boss}_atlas`, frame: `${boss}_walk_3.png` },
+                ],
+                frameRate: 6,
+                repeat: -1,
+            });
+            this.anims.create({
+                key: `${boss}_attack`,
+                frames: [
+                    { key: `${boss}_atlas`, frame: `${boss}_attack_1.png` },
+                    { key: `${boss}_atlas`, frame: `${boss}_attack_2.png` },
+                    { key: `${boss}_atlas`, frame: `${boss}_attack_3.png` },
+                    { key: `${boss}_atlas`, frame: `${boss}_attack_4.png` },
+                ],
+                frameRate: 8,
                 repeat: 0,
             });
         });

@@ -519,6 +519,7 @@ export default function StagesPage() {
                                             ${isNext ? "ring-4 ring-yellow-400 shadow-xl md:col-span-2" : ""}
                                             ${isLocked ? "opacity-60 cursor-not-allowed" : "cursor-pointer hover:-translate-y-1 hover:shadow-lg"}
                                             ${isCleared && !isNext ? "ring-2 ring-green-400" : ""}
+                                            ${stage.isBossStage && !isNext && !isCleared ? "ring-2 ring-red-400/70" : ""}
                                         `}
                                         onClick={() => !isLocked && handleSelectStage(stage.id)}
                                     >
@@ -548,6 +549,12 @@ export default function StagesPage() {
                                             {isCleared && !isLocked && !isNext && (
                                                 <div className="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg z-10">
                                                     ✓ CLEAR
+                                                </div>
+                                            )}
+                                            {/* ボスステージバッジ */}
+                                            {stage.isBossStage && (
+                                                <div className={`absolute ${isCleared && !isNext ? "top-8" : "top-2"} right-2 bg-gradient-to-r from-red-600 to-purple-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg z-10 flex items-center gap-1`}>
+                                                    👑 BOSS
                                                 </div>
                                             )}
 
