@@ -349,12 +349,14 @@ export class MathBattleScene extends Phaser.Scene {
         this.safePlayAnimation(this.playerSprite, `${playerAtlas}_idle`);
       }
 
-      // スケール（目標の高さに合わせて動的計算）
+      // スケール（目標の高さに合わせて動的計算 + ユニットのscale倍率を適用）
       const isAnimated = hasAnimation(playerBaseId);
       const targetHeight = isAnimated ? 150 : 120; // 目標の表示高さ
       const spriteHeight = this.playerSprite.height;
-      const scale = spriteHeight > 0 ? targetHeight / spriteHeight : 0.35;
-      this.playerSprite.setScale(scale);
+      const customScale = this.playerUnitData.scale ?? 1.0; // ユニット固有のスケール倍率
+      const baseScale = spriteHeight > 0 ? targetHeight / spriteHeight : 0.35;
+      const finalScale = baseScale * customScale;
+      this.playerSprite.setScale(finalScale);
       this.playerSprite.setOrigin(0.5, 1);
     }
 
@@ -376,13 +378,15 @@ export class MathBattleScene extends Phaser.Scene {
         this.safePlayAnimation(this.enemySprite, `${enemyAtlas}_idle`);
       }
 
-      // スケール（目標の高さに合わせて動的計算、ボスは大きめ）
+      // スケール（目標の高さに合わせて動的計算 + ユニットのscale倍率を適用、ボスは大きめ）
       const isAnimated = hasAnimation(enemyBaseId);
       const baseTargetHeight = this.stageData.isBoss ? 180 : 120;
       const targetHeight = isAnimated ? baseTargetHeight * 1.2 : baseTargetHeight;
       const spriteHeight = this.enemySprite.height;
-      const scale = spriteHeight > 0 ? targetHeight / spriteHeight : 0.15;
-      this.enemySprite.setScale(scale);
+      const customScale = this.enemyUnitData.scale ?? 1.0; // ユニット固有のスケール倍率
+      const baseScale = spriteHeight > 0 ? targetHeight / spriteHeight : 0.15;
+      const finalScale = baseScale * customScale;
+      this.enemySprite.setScale(finalScale);
       this.enemySprite.setOrigin(0.5, 1);
       // 敵は左向きにする
       this.enemySprite.setFlipX(!this.enemyUnitData.flipSprite);
