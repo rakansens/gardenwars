@@ -270,6 +270,18 @@ export class Unit extends Phaser.GameObjects.Container {
         this.updateHpBar();
     }
 
+    /**
+     * ユニットの表示幅を取得（スプライトの幅 * スケール）
+     * ターゲット判定で正確な「端」を計算するために使用
+     */
+    public getWidth(): number {
+        if (this.sprite instanceof Phaser.GameObjects.Sprite || this.sprite instanceof Phaser.GameObjects.Image) {
+            // displayWidthはスケール適用後の表示幅
+            return this.sprite.displayWidth;
+        }
+        return 40; // フォールバック
+    }
+
     private setUnitState(newState: UnitState): void {
         this.state = newState;
         this.stateTimer = 0;
@@ -773,9 +785,9 @@ export class Unit extends Phaser.GameObjects.Container {
         // 衝撃波（レアリティで色を変える）
         const rarity = this.definition.rarity;
         const waveColor = rarity === 'UR' ? 0xff00ff :
-                          rarity === 'SSR' ? 0xffaa00 :
-                          rarity === 'SR' ? 0x9933ff :
-                          0xff6600;
+            rarity === 'SSR' ? 0xffaa00 :
+                rarity === 'SR' ? 0x9933ff :
+                    0xff6600;
 
         // メイン衝撃波
         const wave = this.scene.add.circle(centerX, centerY - 40, 20, waveColor, 0.5);
@@ -806,7 +818,7 @@ export class Unit extends Phaser.GameObjects.Container {
 
         // 爆発絵文字（レアリティで変更）
         const emoji = rarity === 'UR' || rarity === 'SSR' ? '✨' :
-                      rarity === 'SR' ? '💫' : '💥';
+            rarity === 'SR' ? '💫' : '💥';
         const emojiText = this.scene.add.text(centerX, centerY - 60, emoji, {
             fontSize: rarity === 'UR' || rarity === 'SSR' ? '48px' : '36px',
         });

@@ -21,6 +21,9 @@ export class CombatSystem {
         allyCastle: Castle,
         enemyCastle: Castle
     ): void {
+        const enemyBossAlive = this.hasAliveBoss(enemyUnits);
+        const allyBossAlive = this.hasAliveBoss(allyUnits);
+
         // 味方ユニットのターゲット割り当て
         for (const ally of allyUnits) {
             if (ally.isDead()) continue;
@@ -35,7 +38,8 @@ export class CombatSystem {
             ally.target = this.findTarget(ally, enemyUnits);
 
             // 敵がいなければ城を攻撃（射程内の場合）
-            if (!ally.target && this.isInRangeOfCastle(ally, enemyCastle)) {
+            // 重要: ボス生存中は城をターゲットしない（ボスが城の前にいるため、城を通り越して攻撃してしまう問題を防ぐ）
+            if (!ally.target && !enemyBossAlive && this.isInRangeOfCastle(ally, enemyCastle)) {
                 ally.castleTarget = enemyCastle;
             } else {
                 ally.castleTarget = null;
@@ -56,7 +60,8 @@ export class CombatSystem {
             enemy.target = this.findTarget(enemy, allyUnits);
 
             // 味方がいなければ城を攻撃（射程内の場合）
-            if (!enemy.target && this.isInRangeOfCastle(enemy, allyCastle)) {
+            // 重要: ボス生存中ガード（対戦モードでボス召喚がある場合用）
+            if (!enemy.target && !allyBossAlive && this.isInRangeOfCastle(enemy, allyCastle)) {
                 enemy.castleTarget = allyCastle;
             } else {
                 enemy.castleTarget = null;
@@ -65,7 +70,16 @@ export class CombatSystem {
     }
 
     /**
+     * 生存しているボスがいるかチェック
+     */
+    private hasAliveBoss(units: Unit[]): boolean {
+        return units.some(u => u.definition.isBoss && !u.isDead());
+    }
+
+    /**
      * 最も近い敵を探す
+     * 修正: 中心距離ではなく、相手の「端（Edge）」との距離で計算
+     * これにより、巨大なボス（中心が遠い）に対しても正しく射程判定が行われる
      */
     private findTarget(attacker: Unit, enemies: Unit[]): Unit | null {
         let closestInFront: Unit | null = null;
@@ -73,33 +87,47 @@ export class CombatSystem {
         let closestAny: Unit | null = null;
         let minDistanceAny = Infinity;
 
+        const attackerX = attacker.getX();
+        const attackRange = attacker.definition.attackRange;
+
         for (const enemy of enemies) {
             if (enemy.isDead()) continue;
 
-            // 攻撃者の幅を考慮
-            const attackerHalfWidth = (attacker.getAll('image')[0] as any)?.displayWidth / 2 || 20; // 概算
-            // ※ Unit.ts側で正確に計算しているので、ここでは簡易チェックまたはUnitのメソッドを使うべきだが
-            // Unit.tsのisInRangeを使うのが確実。しかしここではループ内で距離チェックしている。
+            const enemyX = enemy.getX(); // 中心座標
+            const enemyWidth = enemy.getWidth(); // 表示幅
+            const enemyHalfWidth = enemyWidth / 2;
 
-            // 簡易的に補正（Unit.tsのisInRangeと合わせる）
-            const rangeWithBody = attacker.definition.attackRange + 50; // 安全マージン含めて広めに探す
+            // 敵の「自分に近い側の端」の座標を計算
+            let enemyEdgeX = enemyX;
+            if (attackerX < enemyX) {
+                // 敵が右にいる場合、敵の左端
+                enemyEdgeX = enemyX - enemyHalfWidth;
+            } else {
+                // 敵が左にいる場合、敵の右端
+                enemyEdgeX = enemyX + enemyHalfWidth;
+            }
 
-            const distance = Math.abs(attacker.getX() - enemy.getX());
-            if (distance > rangeWithBody) continue;
+            // 距離計算（絶対値）
+            const distanceToEdge = Math.abs(attackerX - enemyEdgeX);
 
-            // 厳密な判定はUnit.isInRangeで行われるので、ここでは候補として広めに拾う
+            // 射程チェック（エッジまでの距離で判定）
+            if (distanceToEdge > attackRange) continue;
 
             // 攻撃者の前方にいる敵のみ
             const isInFront = attacker.side === 'ally'
-                ? enemy.getX() > attacker.getX()
-                : enemy.getX() < attacker.getX();
+                ? enemyX > attackerX // X座標の単純比較（中心点基準で十分）
+                : enemyX < attackerX;
 
-            if (isInFront && distance < minDistanceFront) {
-                minDistanceFront = distance;
-                closestInFront = enemy;
+            if (isInFront) {
+                if (distanceToEdge < minDistanceFront) {
+                    minDistanceFront = distanceToEdge;
+                    closestInFront = enemy;
+                }
             }
-            if (distance < minDistanceAny) {
-                minDistanceAny = distance;
+
+            // 全方向（背後含む）の最短も記録（前方優先が見つからない場合のバックアップ）
+            if (distanceToEdge < minDistanceAny) {
+                minDistanceAny = distanceToEdge;
                 closestAny = enemy;
             }
         }
