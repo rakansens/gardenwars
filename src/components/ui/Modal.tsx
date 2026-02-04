@@ -147,7 +147,7 @@ interface ConfirmModalProps {
     message?: string;
     confirmText?: string;
     cancelText?: string;
-    confirmColor?: "red" | "green" | "amber";
+    confirmColor?: "red" | "green" | "amber" | "blue" | "purple" | "pink";
     isLoading?: boolean;
 }
 
@@ -164,13 +164,16 @@ export function ConfirmModal({
     isLoading = false,
 }: ConfirmModalProps) {
     const colorClasses = {
-        red: "from-red-500 to-red-600",
-        green: "from-green-500 to-green-600",
-        amber: "from-amber-500 to-orange-500",
+        red: "bg-gradient-to-r from-red-500 to-red-600 border-red-400 hover:from-red-600 hover:to-red-700",
+        green: "bg-gradient-to-r from-green-500 to-green-600 border-green-400 hover:from-green-600 hover:to-green-700",
+        amber: "bg-gradient-to-r from-amber-500 to-orange-500 border-amber-400 hover:from-amber-600 hover:to-orange-600",
+        blue: "bg-gradient-to-r from-blue-500 to-blue-600 border-blue-400 hover:from-blue-600 hover:to-blue-700",
+        purple: "bg-gradient-to-r from-purple-500 to-purple-600 border-purple-400 hover:from-purple-600 hover:to-purple-700",
+        pink: "bg-gradient-to-r from-pink-500 to-pink-600 border-pink-400 hover:from-pink-600 hover:to-pink-700",
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={isLoading ? () => {} : onClose} showCloseButton={false} closeOnOutsideClick={!isLoading}>
+        <Modal isOpen={isOpen} onClose={isLoading ? () => { } : onClose} showCloseButton={false} closeOnOutsideClick={!isLoading}>
             <div className="p-6 text-center">
                 <div className="text-5xl mb-4">{isLoading ? <span className="animate-spin inline-block">⏳</span> : icon}</div>
                 <h2 className="text-xl font-bold text-gray-800 mb-2">{title}</h2>
@@ -188,7 +191,7 @@ export function ConfirmModal({
                             onConfirm();
                         }}
                         disabled={isLoading}
-                        className={`btn btn-primary px-6 ${confirmColor === "red" ? "bg-gradient-to-r from-red-500 to-red-600 border-red-400" : ""} ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                        className={`btn btn-primary px-6 text-white border-0 ${colorClasses[confirmColor]} ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                     >
                         {isLoading ? (
                             <span className="flex items-center gap-2">
