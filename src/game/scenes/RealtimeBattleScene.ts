@@ -1311,10 +1311,7 @@ export class RealtimeBattleScene extends Phaser.Scene {
     unit.container.setVisible(false);
 
     // ターゲット線を削除
-    if (unit.targetLine) {
-      unit.targetLine.destroy();
-      unit.targetLine = undefined;
-    }
+    this.destroyTargetLine(unit);
 
     // hitstunタイマーをクリア
     if (unit.hitstunTimer) {
@@ -1322,12 +1319,23 @@ export class RealtimeBattleScene extends Phaser.Scene {
       unit.hitstunTimer = undefined;
     }
 
-    // 少し遅延してからコンテナを破棄（アニメーション用）
-    this.time.delayedCall(100, () => {
-      if (unit.container && unit.container.active) {
-        unit.container.destroy();
+    // stateTweenをクリア
+    if (unit.stateTween) {
+      unit.stateTween.stop();
+      unit.stateTween = undefined;
+    }
+
+    // コンテナへの参照を保持（遅延削除時のチェック用）
+    const containerToDestroy = unit.container;
+
+    // 即座にMapから削除（新しい同IDユニットとの競合防止）
+    this.units.delete(instanceId);
+
+    // コンテナの破棄は少し遅延（視覚的なフィードバック用）
+    this.time.delayedCall(50, () => {
+      if (containerToDestroy && containerToDestroy.active) {
+        containerToDestroy.destroy();
       }
-      this.units.delete(instanceId);
     });
   }
 
@@ -1547,75 +1555,86 @@ export class RealtimeBattleScene extends Phaser.Scene {
   /**
    * ユニット同士の衝突判定と押し出し処理
    * 同じ陣営のユニット同士が重ならないようにする
+   * 注意: サーバーのtargetXは変更しない（サーバーとの整合性を維持）
    */
   private resolveUnitCollisions() {
     const unitArray = Array.from(this.units.values()).filter(u => !u.isDead && !u.isRemoving);
+    if (unitArray.length < 2) return;  // 1体以下なら衝突なし
 
-    for (let i = 0; i < unitArray.length; i++) {
-      const unitA = unitArray[i];
+    // 陣営別に分離（O(n²)からO(n*m)への最適化）
+    const player1Units = unitArray.filter(u => u.side === 'player1');
+    const player2Units = unitArray.filter(u => u.side === 'player2');
+
+    // 同陣営の衝突判定（味方同士の押し出し）
+    this.resolveAllyCollisions(player1Units);
+    this.resolveAllyCollisions(player2Units);
+
+    // 敵陣営との衝突判定（前進停止）
+    this.resolveEnemyCollisions(player1Units, player2Units);
+    this.resolveEnemyCollisions(player2Units, player1Units);
+  }
+
+  /**
+   * 同陣営ユニット間の衝突判定
+   */
+  private resolveAllyCollisions(units: RealtimeUnit[]) {
+    for (let i = 0; i < units.length; i++) {
+      const unitA = units[i];
       const xA = unitA.container.x;
       const widthA = unitA.width || 60;
 
-      for (let j = i + 1; j < unitArray.length; j++) {
-        const unitB = unitArray[j];
-
-        // 同じ陣営同士のみ衝突判定
-        if (unitA.side !== unitB.side) continue;
-
+      for (let j = i + 1; j < units.length; j++) {
+        const unitB = units[j];
         const xB = unitB.container.x;
         const widthB = unitB.width || 60;
 
-        // 距離計算
         const distance = Math.abs(xA - xB);
         const minDistance = (widthA + widthB) / 2 * 0.6 + this.UNIT_MIN_DISTANCE;
 
-        if (distance < minDistance) {
-          // 衝突：押し出し処理
+        if (distance < minDistance && distance > 0) {
+          // 衝突：視覚的な押し出しのみ（targetXは変更しない）
           const overlap = minDistance - distance;
           const pushAmount = overlap * this.COLLISION_PUSH_STRENGTH;
 
           if (xA < xB) {
-            // Aが左、Bが右
             unitA.container.x -= pushAmount / 2;
             unitB.container.x += pushAmount / 2;
-            // targetXも調整（補間が過剰に追いつかないように）
-            unitA.targetX = Math.min(unitA.targetX, unitA.container.x + 10);
-            unitB.targetX = Math.max(unitB.targetX, unitB.container.x - 10);
           } else {
-            // Aが右、Bが左
             unitA.container.x += pushAmount / 2;
             unitB.container.x -= pushAmount / 2;
-            unitA.targetX = Math.max(unitA.targetX, unitA.container.x - 10);
-            unitB.targetX = Math.min(unitB.targetX, unitB.container.x + 10);
           }
         }
       }
+    }
+  }
 
-      // 敵ユニットとの衝突（前進停止）
-      for (const unitB of unitArray) {
-        if (unitA.side === unitB.side) continue;
+  /**
+   * 敵陣営ユニットとの衝突判定（前進停止）
+   */
+  private resolveEnemyCollisions(myUnits: RealtimeUnit[], enemyUnits: RealtimeUnit[]) {
+    for (const unitA of myUnits) {
+      const xA = unitA.container.x;
+      const widthA = unitA.width || 60;
+      const isMovingRight = unitA.side === 'player1';
+
+      for (const unitB of enemyUnits) {
         if (unitB.isDead || unitB.isRemoving) continue;
 
         const xB = unitB.container.x;
         const widthB = unitB.width || 60;
         const distance = Math.abs(xA - xB);
-        const minDistance = (widthA + widthB) / 2 * 0.5 + 20;  // 敵との最小距離
+        const minDistance = (widthA + widthB) / 2 * 0.5 + 25;
 
         if (distance < minDistance) {
-          // 敵と近すぎる場合、それ以上近づかない
-          // （サーバー側の判定を尊重しつつ、視覚的なすり抜けを防ぐ）
           const overlap = minDistance - distance;
 
-          if (unitA.side === 'player1') {
-            // player1は右へ進む → 敵に近づきすぎたら左へ押し戻す
-            if (xA < xB) {
-              unitA.container.x -= overlap * 0.3;
-            }
-          } else {
-            // player2は左へ進む → 敵に近づきすぎたら右へ押し戻す
-            if (xA > xB) {
-              unitA.container.x += overlap * 0.3;
-            }
+          // 敵の手前で止まる（すり抜け防止）
+          if (isMovingRight && xA < xB) {
+            // 右へ進むユニットが敵の左にいる場合、左へ押し戻す
+            unitA.container.x = xB - minDistance;
+          } else if (!isMovingRight && xA > xB) {
+            // 左へ進むユニットが敵の右にいる場合、右へ押し戻す
+            unitA.container.x = xB + minDistance;
           }
         }
       }
@@ -1624,32 +1643,26 @@ export class RealtimeBattleScene extends Phaser.Scene {
 
   /**
    * ターゲット線の更新（攻撃対象の可視化）
+   * メモリリーク対策: 不要な線はdestroy()で完全削除
    */
   private updateTargetLines() {
     this.units.forEach(unit => {
+      // 死亡ユニットのターゲット線を削除
       if (unit.isDead || unit.isRemoving) {
-        // 死亡ユニットのターゲット線を削除
-        if (unit.targetLine) {
-          unit.targetLine.destroy();
-          unit.targetLine = undefined;
-        }
+        this.destroyTargetLine(unit);
         return;
       }
 
-      // ターゲットがない場合は線を非表示
+      // ターゲットがない場合は線を削除
       if (!unit.targetId) {
-        if (unit.targetLine) {
-          unit.targetLine.clear();
-        }
+        this.destroyTargetLine(unit);
         return;
       }
 
       // ターゲットユニットを取得
       const target = this.units.get(unit.targetId);
       if (!target || target.isDead || target.isRemoving) {
-        if (unit.targetLine) {
-          unit.targetLine.clear();
-        }
+        this.destroyTargetLine(unit);
         return;
       }
 
@@ -1669,11 +1682,20 @@ export class RealtimeBattleScene extends Phaser.Scene {
           target.container.y - 50
         );
       } else {
-        if (unit.targetLine) {
-          unit.targetLine.clear();
-        }
+        // 攻撃状態でない場合は線を削除（メモリ解放）
+        this.destroyTargetLine(unit);
       }
     });
+  }
+
+  /**
+   * ターゲット線を完全に削除（メモリリーク対策）
+   */
+  private destroyTargetLine(unit: RealtimeUnit) {
+    if (unit.targetLine) {
+      unit.targetLine.destroy();
+      unit.targetLine = undefined;
+    }
   }
 
   shutdown() {
