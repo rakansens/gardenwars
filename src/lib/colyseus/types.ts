@@ -17,6 +17,7 @@ export interface UnitState {
   state: 'SPAWN' | 'WALK' | 'ATTACK_WINDUP' | 'ATTACK_COOLDOWN' | 'HITSTUN' | 'DIE';
   stateTimer: number;
   targetId: string;
+  width?: number;  // ユニットの幅（サーバーから同期）
 }
 
 export interface PlayerState {

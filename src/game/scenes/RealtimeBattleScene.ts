@@ -1229,8 +1229,10 @@ export class RealtimeBattleScene extends Phaser.Scene {
 
     this.layoutUnitVisuals(realtimeUnit, sprite, def);
 
-    // ユニット幅を計算
-    realtimeUnit.width = sprite.displayWidth || 60;
+    // ユニット幅をサーバーから取得、なければスプライトから計算
+    realtimeUnit.width = (unitState.width && unitState.width > 0)
+      ? unitState.width
+      : (sprite.displayWidth || 60);
 
     this.units.set(unitState.instanceId, realtimeUnit);
 
@@ -1264,8 +1266,10 @@ export class RealtimeBattleScene extends Phaser.Scene {
     // ターゲットID更新（サーバーから同期）
     unit.targetId = unitState.targetId;
 
-    // ユニット幅を計算（衝突判定用）
-    if (!unit.width) {
+    // ユニット幅をサーバーから同期（衝突判定用）
+    if (unitState.width && unitState.width > 0) {
+      unit.width = unitState.width;
+    } else if (!unit.width) {
       unit.width = unit.sprite.displayWidth || 60;
     }
 
