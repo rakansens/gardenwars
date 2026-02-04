@@ -404,8 +404,10 @@ export class MathBattleScene extends Phaser.Scene {
       }
       this.enemySprite.setScale(finalScale);
       this.enemySprite.setOrigin(0.5, 1);
-      // 敵は左向きにする（常に反転）
-      this.enemySprite.setFlipX(true);
+      // 敵は左向きにする
+      // flipSprite=true: 敵スプライトは既に左向きで描画 → 反転不要
+      // flipSprite=false/undefined: 右向きスプライト → 反転して左向きに
+      this.enemySprite.setFlipX(!this.enemyUnitData.flipSprite);
     }
   }
 
@@ -729,7 +731,7 @@ export class MathBattleScene extends Phaser.Scene {
     sprite.setTint(0xffffff);
     this.tweens.add({
       targets: sprite,
-      alpha: 1.2,
+      alpha: { from: 1.0, to: 0.8 },  // フラッシュ効果（alpha > 1.0は無効なので修正）
       duration: 100,
       yoyo: true,
     });
@@ -843,6 +845,11 @@ export class MathBattleScene extends Phaser.Scene {
   }
 
   private endBattle(win: boolean) {
+    // 既に終了している場合は何もしない（重複呼び出し防止）
+    if (this.status === 'win' || this.status === 'lose') {
+      return;
+    }
+
     this.status = win ? 'win' : 'lose';
 
     // タイマー停止

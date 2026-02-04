@@ -1703,6 +1703,10 @@ export class RealtimeBattleScene extends Phaser.Scene {
   }
 
   shutdown() {
+    // Tweensとタイマーイベントをクリーンアップ（メモリリーク防止）
+    this.tweens.killAll();
+    this.time.removeAllEvents();
+
     // ターゲット線をクリーンアップ
     this.units.forEach(unit => {
       if (unit.targetLine) {
