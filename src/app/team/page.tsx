@@ -131,12 +131,29 @@ export default function TeamPage() {
 
     // スマホ判定（768px以下）- スマホではVirtualizedGridを使わない
     const [isMobile, setIsMobile] = useState(false);
+    // グリッドコンテナの高さ（動的計算）
+    const [gridHeight, setGridHeight] = useState(800);
+
     useEffect(() => {
-        const checkMobile = () => setIsMobile(window.innerWidth < 768);
-        checkMobile();
-        window.addEventListener("resize", checkMobile);
-        return () => window.removeEventListener("resize", checkMobile);
+        const updateLayout = () => {
+            const mobile = window.innerWidth < 768;
+            setIsMobile(mobile);
+            // ヘッダー(64px) + タブ(60px) + フィルター(推定) + padding
+            const headerOffset = mobile ? 180 : 160;
+            const availableHeight = window.innerHeight - headerOffset;
+            setGridHeight(Math.max(400, availableHeight));
+        };
+        updateLayout();
+        window.addEventListener("resize", updateLayout);
+        return () => window.removeEventListener("resize", updateLayout);
     }, []);
+
+    // フィルター展開状態が変わったら高さを再計算
+    useEffect(() => {
+        const headerOffset = isMobile ? 180 : (isFilterExpanded ? 280 : 160);
+        const availableHeight = window.innerHeight - headerOffset;
+        setGridHeight(Math.max(400, availableHeight));
+    }, [isFilterExpanded, isMobile]);
 
     // 他のデッキにユニットが含まれているかチェック
     const getOtherDeckIndex = (unitId: string): number | null => {
@@ -974,7 +991,7 @@ export default function TeamPage() {
                                     columnConfig={{ default: 2, sm: 2, md: 3, lg: 4, xl: 5 }}
                                     rowHeight={420}
                                     gap={20}
-                                    containerHeight={900}
+                                    containerHeight={gridHeight}
                                     renderItem={renderOwnedUnit}
                                 />
                             )
@@ -1002,7 +1019,7 @@ export default function TeamPage() {
                                         columnConfig={{ default: 2, sm: 2, md: 3, lg: 4, xl: 5 }}
                                         rowHeight={400}
                                         gap={20}
-                                        containerHeight={850}
+                                        containerHeight={gridHeight}
                                         renderItem={renderUnownedUnit}
                                     />
                                 )}
