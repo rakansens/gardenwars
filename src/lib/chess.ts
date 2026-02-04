@@ -139,6 +139,21 @@ export class ChessGame {
     };
   }
 
+  /**
+   * Get the position of the king for a given color
+   */
+  getKingPosition(color: ChessColor): ChessPosition | null {
+    for (let y = 0; y < 8; y += 1) {
+      for (let x = 0; x < 8; x += 1) {
+        const piece = this.board[y][x];
+        if (piece && piece.type === "k" && piece.color === color) {
+          return { x, y };
+        }
+      }
+    }
+    return null;
+  }
+
   getLegalMovesFrom(x: number, y: number, colorOverride?: ChessColor): ChessMove[] {
     const piece = this.board[y]?.[x];
     const color = colorOverride ?? this.turn;

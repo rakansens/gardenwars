@@ -124,6 +124,7 @@ export default function TeamPage() {
     const [skillFilter, setSkillFilter] = useState<string | null>(null);
     const [sortBy, setSortBy] = useState<SortKey>("none");
     const [unitTab, setUnitTab] = useState<"owned" | "unowned">("owned");
+    const [searchQuery, setSearchQuery] = useState<string>("");
     const [isTeamExpanded, setIsTeamExpanded] = useState(true); // チームアコーディオン状態
     const [isFilterExpanded, setIsFilterExpanded] = useState(true); // フィルターアコーディオン状態
     const { viewingUnit, openModal, closeModal } = useUnitDetailModal();
@@ -244,8 +245,21 @@ export default function TeamPage() {
         color: "bg-purple-500"
     }));
 
+    // ユニット名取得（翻訳対応）
+    const getUnitName = useCallback((unit: UnitDefinition) => {
+        const translated = t(unit.id);
+        return translated !== unit.id ? translated : unit.name;
+    }, [t]);
+
     // フィルタリング処理
     const filteredUnits = useMemo(() => allyUnits.filter(u => {
+        // 検索フィルター
+        if (searchQuery) {
+            const query = searchQuery.toLowerCase();
+            const unitName = getUnitName(u).toLowerCase();
+            const unitId = u.id.toLowerCase();
+            if (!unitName.includes(query) && !unitId.includes(query)) return false;
+        }
         // レアリティフィルター
         if (rarityFilter !== "ALL" && u.rarity !== rarityFilter) return false;
         // ロールフィルター
@@ -257,7 +271,7 @@ export default function TeamPage() {
         // スキルフィルター（UR/SSR対象）
         if (skillFilter && u.skill?.id !== skillFilter) return false;
         return true;
-    }), [rarityFilter, roleFilter, specialFilter, skillFilter]);
+    }), [rarityFilter, roleFilter, specialFilter, skillFilter, searchQuery, getUnitName]);
 
     // Memoize owned/unowned unit lists to avoid repeated filtering
     const { ownedUnits, unownedUnits } = useMemo(() => {
@@ -735,14 +749,15 @@ export default function TeamPage() {
                             <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center gap-2">
                                 🔍 {t("filter")} / {t("sort_by")}
                                 {/* アクティブなフィルター数を表示 */}
-                                {(rarityFilter !== "ALL" || roleFilter !== "ALL" || specialFilter !== "none" || skillFilter !== null || sortBy !== "none") && (
+                                {(rarityFilter !== "ALL" || roleFilter !== "ALL" || specialFilter !== "none" || skillFilter !== null || sortBy !== "none" || searchQuery) && (
                                     <span className="px-1.5 py-0.5 rounded-full text-xs bg-blue-500 text-white">
                                         {[
                                             rarityFilter !== "ALL",
                                             roleFilter !== "ALL",
                                             specialFilter !== "none",
                                             skillFilter !== null,
-                                            sortBy !== "none"
+                                            sortBy !== "none",
+                                            searchQuery !== ""
                                         ].filter(Boolean).length}
                                     </span>
                                 )}
@@ -769,10 +784,30 @@ export default function TeamPage() {
                         {/* フィルター内容（アコーディオン） */}
                         <div
                             className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                                isFilterExpanded ? 'max-h-[500px] opacity-100 mt-3' : 'max-h-0 opacity-0 mt-0'
+                                isFilterExpanded ? 'max-h-[600px] opacity-100 mt-3' : 'max-h-0 opacity-0 mt-0'
                             }`}
                         >
                             <div className="space-y-2">
+                                {/* 検索 */}
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        placeholder={t("search_units")}
+                                        className="w-full px-3 py-2 pl-9 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔎</span>
+                                    {searchQuery && (
+                                        <button
+                                            onClick={() => setSearchQuery("")}
+                                            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1"
+                                        >
+                                            ✕
+                                        </button>
+                                    )}
+                                </div>
+
                                 {/* レアリティ */}
                                 <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
                                     {rarityTabs.map(tab => (

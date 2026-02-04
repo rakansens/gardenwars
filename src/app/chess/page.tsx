@@ -511,6 +511,8 @@ function ChessContent() {
   const status = gameRef.current.getStatus();
   const turn = gameRef.current.getTurn();
   const lastMove = gameRef.current.getLastMove();
+  // Get king position for check highlighting
+  const checkedKingPos = status.inCheck ? gameRef.current.getKingPosition(turn) : null;
   const isOnline = mode === "online";
   const isStage = mode === "stage";
   const isInMatch = mode === "cpu" || mode === "stage" || connectionStatus === "playing" || connectionStatus === "finished";
@@ -1028,9 +1030,16 @@ function ChessContent() {
           <p>{t("chess_subtitle")}</p>
           <p className="text-sm mt-1">
             {turn === "w" ? t("chess_turn_white") : t("chess_turn_black")}
-            {status.inCheck && !status.checkmate && ` • ${t("chess_check")}`}
             {mode === "cpu" && aiThinking && turn === "b" && ` • ${t("chess_ai_thinking")}`}
           </p>
+          {/* チェックバナー */}
+          {status.inCheck && !status.checkmate && (
+            <div className="mt-3 py-2 px-4 bg-gradient-to-r from-red-500 to-rose-600 text-white font-bold text-lg rounded-xl shadow-lg animate-pulse inline-flex items-center gap-2">
+              <span className="text-2xl">⚠️</span>
+              <span>{t("chess_check")}</span>
+              <span className="text-2xl">⚠️</span>
+            </div>
+          )}
         </div>
       )}
 
@@ -1142,6 +1151,8 @@ function ChessContent() {
                     lastMove && lastMove.from.x === x && lastMove.from.y === y;
                   const isLastTo =
                     lastMove && lastMove.to.x === x && lastMove.to.y === y;
+                  // Check if this square has the checked king
+                  const isCheckedKing = checkedKingPos && checkedKingPos.x === x && checkedKingPos.y === y;
 
                   return (
                     <button
@@ -1150,11 +1161,13 @@ function ChessContent() {
                       className={`relative aspect-square flex items-center justify-center transition-colors ${
                         isLight ? "bg-amber-100/80" : "bg-amber-300/70"
                       } ${isSelected ? "ring-4 ring-emerald-400" : ""} ${
-                        isLastTo
-                          ? "bg-orange-400/60 ring-4 ring-orange-500 animate-pulse"
-                          : isLastFrom
-                            ? "bg-orange-200/50 outline outline-2 outline-dashed outline-orange-400"
-                            : ""
+                        isCheckedKing
+                          ? "bg-red-500/70 ring-4 ring-red-600 animate-pulse"
+                          : isLastTo
+                            ? "bg-orange-400/60 ring-4 ring-orange-500 animate-pulse"
+                            : isLastFrom
+                              ? "bg-orange-200/50 outline outline-2 outline-dashed outline-orange-400"
+                              : ""
                       } ${isCapture ? "ring-4 ring-rose-500 bg-rose-200/50" : ""}`}
                     >
                       {legalMove && !isCapture && (
