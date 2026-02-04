@@ -622,8 +622,54 @@ export default function TeamPage() {
                 }}
             />
 
+            {/* ========== モバイル用デッキ（md未満で表示） ========== */}
+            <div className="md:hidden sticky top-16 z-30 w-full bg-gradient-to-b from-amber-50 via-amber-50 to-transparent dark:from-slate-900 dark:via-slate-900 px-3 py-2">
+                <div className="card p-2">
+                    <div className="flex items-center gap-2">
+                        {/* ロードアウト */}
+                        <div className="flex gap-1">
+                            {[0, 1, 2].map((idx) => (
+                                <button
+                                    key={idx}
+                                    onClick={() => switchLoadout(idx)}
+                                    className={`w-7 h-7 rounded font-bold text-xs ${activeLoadoutIndex === idx ? "bg-orange-500 text-white" : "bg-gray-200 dark:bg-slate-700 text-gray-500"}`}
+                                >
+                                    {idx === 0 ? "A" : idx === 1 ? "B" : "C"}
+                                </button>
+                            ))}
+                        </div>
+                        {/* デッキスロット（横並び・スクロール） */}
+                        <div className="flex gap-1.5 flex-1 overflow-x-auto pb-1">
+                            {Array.from({ length: MAX_TEAM_SIZE }).map((_, index) => {
+                                const unit = getSelectedTeamDefs()[index];
+                                return (
+                                    <div
+                                        key={index}
+                                        onClick={() => unit && handleToggleUnit(unit.id)}
+                                        className={`w-11 h-11 flex-shrink-0 rounded-lg flex items-center justify-center ${unit ? "cursor-pointer" : "bg-slate-200 dark:bg-slate-700 border border-dashed border-slate-300 dark:border-slate-600"}`}
+                                    >
+                                        {unit ? (
+                                            <div className="relative w-full h-full">
+                                                <RarityFrame unitId={unit.id} unitName={unit.name} rarity={unit.rarity} size="sm" baseUnitId={unit.baseUnitId} />
+                                                <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-[10px] flex items-center justify-center">×</div>
+                                            </div>
+                                        ) : (
+                                            <span className="text-amber-400 text-sm">+</span>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        {/* コスト */}
+                        <div className="text-amber-600 dark:text-amber-400 text-xs font-bold whitespace-nowrap">
+                            {validTeamCount}/{MAX_TEAM_SIZE}<br/>💰¥{getTotalCost()}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* サイドバーレイアウト（md以上で2カラム） */}
-            <div className="flex">
+            <div className="md:flex">
                 {/* ========== 左サイドバー: デッキ（md以上で表示） ========== */}
                 <aside className="hidden md:flex flex-col w-32 lg:w-36 flex-shrink-0 sticky top-16 h-[calc(100vh-4rem)] bg-slate-100 dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 p-2 overflow-y-auto">
                     {/* デッキヘッダー */}
@@ -692,52 +738,6 @@ export default function TeamPage() {
                         })}
                     </div>
                 </aside>
-
-                {/* ========== モバイル用デッキ（md未満で表示） ========== */}
-                <div className="md:hidden sticky top-16 z-30 w-full bg-gradient-to-b from-amber-50 via-amber-50 to-transparent dark:from-slate-900 dark:via-slate-900 px-3 py-2">
-                    <div className="card p-2">
-                        <div className="flex items-center gap-2">
-                            {/* ロードアウト */}
-                            <div className="flex gap-1">
-                                {[0, 1, 2].map((idx) => (
-                                    <button
-                                        key={idx}
-                                        onClick={() => switchLoadout(idx)}
-                                        className={`w-7 h-7 rounded font-bold text-xs ${activeLoadoutIndex === idx ? "bg-orange-500 text-white" : "bg-gray-200 dark:bg-slate-700 text-gray-500"}`}
-                                    >
-                                        {idx === 0 ? "A" : idx === 1 ? "B" : "C"}
-                                    </button>
-                                ))}
-                            </div>
-                            {/* デッキスロット（横並び・スクロール） */}
-                            <div className="flex gap-1.5 flex-1 overflow-x-auto pb-1">
-                                {Array.from({ length: MAX_TEAM_SIZE }).map((_, index) => {
-                                    const unit = getSelectedTeamDefs()[index];
-                                    return (
-                                        <div
-                                            key={index}
-                                            onClick={() => unit && handleToggleUnit(unit.id)}
-                                            className={`w-11 h-11 flex-shrink-0 rounded-lg flex items-center justify-center ${unit ? "cursor-pointer" : "bg-slate-200 dark:bg-slate-700 border border-dashed border-slate-300 dark:border-slate-600"}`}
-                                        >
-                                            {unit ? (
-                                                <div className="relative w-full h-full">
-                                                    <RarityFrame unitId={unit.id} unitName={unit.name} rarity={unit.rarity} size="sm" baseUnitId={unit.baseUnitId} />
-                                                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-[10px] flex items-center justify-center">×</div>
-                                                </div>
-                                            ) : (
-                                                <span className="text-amber-400 text-sm">+</span>
-                                            )}
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                            {/* コスト */}
-                            <div className="text-amber-600 dark:text-amber-400 text-xs font-bold whitespace-nowrap">
-                                {validTeamCount}/{MAX_TEAM_SIZE}<br/>💰¥{getTotalCost()}
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 {/* ========== 右メイン: ユニット一覧 ========== */}
                 <div className="flex-1 min-w-0 px-3 md:px-6 pb-8">
