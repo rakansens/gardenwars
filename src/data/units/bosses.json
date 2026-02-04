@@ -365,6 +365,39 @@
     }
   },
   {
+    "id": "boss_frozen",
+    "name": "Frost Giant",
+    "rarity": "SSR",
+    "cost": 2000,
+    "maxHp": 750000,
+    "speed": 22,
+    "attackDamage": 1600,
+    "attackRange": 180,
+    "attackCooldownMs": 3000,
+    "attackWindupMs": 1000,
+    "knockback": 180,
+    "atlasKey": "boss_frozen",
+    "baseUnitId": "boss_frozen",
+    "flipSprite": true,
+    "scale": 7.5,
+    "isBoss": true,
+    "bossAoe": {
+      "enabled": true,
+      "hpThreshold": 0.5,
+      "probability": 0.35,
+      "damage": 900,
+      "range": 250,
+      "cooldownMs": 2800,
+      "knockback": 120
+    },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    }
+  },
+  {
     "id": "boss_purgatory",
     "name": "Purgatory Demon",
     "rarity": "SSR",

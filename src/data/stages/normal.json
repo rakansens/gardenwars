@@ -2958,5 +2958,566 @@
       "image": "/assets/stages/stage_26.webp"
     },
     "difficulty": "nightmare"
+  },
+  {
+    "id": "stage_27",
+    "name": "stage_27_name",
+    "description": "stage_27_desc",
+    "length": 2500,
+    "baseCastleHp": 5000,
+    "enemyCastleHp": 10000,
+    "enemyWaves": [
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_cat_tank",
+        "count": 6,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_penguin",
+        "count": 8,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_corn",
+        "count": 12,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_sr_tulip",
+        "count": 4,
+        "intervalMs": 1500
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_block",
+        "count": 8,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 52000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 5,
+        "intervalMs": 1200
+      }
+    ],
+    "reward": {
+      "coins": 200,
+      "drops": [
+        {
+          "unitId": "penguin",
+          "rate": 40
+        },
+        {
+          "unitId": "sr_tulip",
+          "rate": 20
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0xc5e8f7",
+      "groundColor": "0xe8f4fc",
+      "cloudColor": "0xffffff",
+      "image": "/assets/stages/stage_27.webp"
+    },
+    "difficulty": "frozen"
+  },
+  {
+    "id": "stage_28",
+    "name": "stage_28_name",
+    "description": "stage_28_desc",
+    "length": 2600,
+    "baseCastleHp": 6000,
+    "enemyCastleHp": 15000,
+    "enemyWaves": [
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_ninja",
+        "count": 15,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_penguin",
+        "count": 10,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 5,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_wolf",
+        "count": 12,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_mage",
+        "count": 10,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 52000,
+        "unitId": "enemy_sr_rose",
+        "count": 5,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 62000,
+        "unitId": "enemy_yumemi",
+        "count": 2,
+        "intervalMs": 3000
+      }
+    ],
+    "reward": {
+      "coins": 220,
+      "drops": [
+        {
+          "unitId": "penguin",
+          "rate": 35
+        },
+        {
+          "unitId": "sr_rose",
+          "rate": 20
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0xb8e0f0",
+      "groundColor": "0xddeef8",
+      "cloudColor": "0xf0f8ff",
+      "image": "/assets/stages/stage_28.webp"
+    },
+    "difficulty": "frozen"
+  },
+  {
+    "id": "stage_29",
+    "name": "stage_29_name",
+    "description": "stage_29_desc",
+    "length": 2700,
+    "baseCastleHp": 7000,
+    "enemyCastleHp": 20000,
+    "enemyWaves": [
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_leaf_ninja",
+        "count": 20,
+        "intervalMs": 300
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_sr_pirate",
+        "count": 6,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_penguin",
+        "count": 12,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 6,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_ribbon",
+        "count": 10,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 52000,
+        "unitId": "enemy_sr_tulip",
+        "count": 6,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 62000,
+        "unitId": "enemy_nika",
+        "count": 3,
+        "intervalMs": 2000
+      }
+    ],
+    "reward": {
+      "coins": 240,
+      "drops": [
+        {
+          "unitId": "sr_pirate",
+          "rate": 25
+        },
+        {
+          "unitId": "sr_bamboo",
+          "rate": 20
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0xa0d4e8",
+      "groundColor": "0xd0e8f4",
+      "cloudColor": "0xe8f4fc",
+      "image": "/assets/stages/stage_29.webp"
+    },
+    "difficulty": "frozen"
+  },
+  {
+    "id": "stage_30",
+    "name": "stage_30_name",
+    "description": "stage_30_desc",
+    "length": 2800,
+    "baseCastleHp": 8000,
+    "enemyCastleHp": 25000,
+    "enemyWaves": [
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_cat_tank",
+        "count": 10,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_penguin",
+        "count": 15,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 8,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_wolf",
+        "count": 18,
+        "intervalMs": 350
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_sr_rose",
+        "count": 8,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 52000,
+        "unitId": "enemy_block",
+        "count": 12,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 62000,
+        "unitId": "enemy_yumemi",
+        "count": 4,
+        "intervalMs": 1500
+      },
+      {
+        "timeMs": 72000,
+        "unitId": "enemy_lennon",
+        "count": 2,
+        "intervalMs": 3000
+      }
+    ],
+    "reward": {
+      "coins": 260,
+      "drops": [
+        {
+          "unitId": "sr_corn_tank",
+          "rate": 25
+        },
+        {
+          "unitId": "yumemi",
+          "rate": 10
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x8ec8e0",
+      "groundColor": "0xc0dce8",
+      "cloudColor": "0xd8eaf2",
+      "image": "/assets/stages/stage_30.webp"
+    },
+    "difficulty": "frozen"
+  },
+  {
+    "id": "stage_31",
+    "name": "stage_31_name",
+    "description": "stage_31_desc",
+    "length": 3000,
+    "baseCastleHp": 10000,
+    "enemyCastleHp": 35000,
+    "enemyWaves": [
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_ninja",
+        "count": 25,
+        "intervalMs": 250
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_penguin",
+        "count": 18,
+        "intervalMs": 350
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 10,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_ribbon",
+        "count": 15,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_sr_tulip",
+        "count": 10,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 52000,
+        "unitId": "enemy_nika",
+        "count": 5,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 62000,
+        "unitId": "enemy_sr_pirate",
+        "count": 10,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 72000,
+        "unitId": "enemy_ur_tank",
+        "count": 3,
+        "intervalMs": 2000
+      }
+    ],
+    "reward": {
+      "coins": 280,
+      "drops": [
+        {
+          "unitId": "sr_tulip",
+          "rate": 25
+        },
+        {
+          "unitId": "nika",
+          "rate": 8
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x7cbcd8",
+      "groundColor": "0xb0d0e0",
+      "cloudColor": "0xc8e0ec",
+      "image": "/assets/stages/stage_31.webp"
+    },
+    "difficulty": "frozen"
+  },
+  {
+    "id": "stage_32",
+    "name": "stage_32_name",
+    "description": "stage_32_desc",
+    "length": 3200,
+    "baseCastleHp": 12000,
+    "enemyCastleHp": 45000,
+    "enemyWaves": [
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_leaf_ninja",
+        "count": 30,
+        "intervalMs": 200
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_penguin",
+        "count": 20,
+        "intervalMs": 300
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_sr_rose",
+        "count": 12,
+        "intervalMs": 500
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_wolf",
+        "count": 22,
+        "intervalMs": 280
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 10,
+        "intervalMs": 600
+      },
+      {
+        "timeMs": 52000,
+        "unitId": "enemy_yumemi",
+        "count": 6,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 62000,
+        "unitId": "enemy_mage",
+        "count": 18,
+        "intervalMs": 350
+      },
+      {
+        "timeMs": 72000,
+        "unitId": "enemy_lennon",
+        "count": 4,
+        "intervalMs": 1500
+      },
+      {
+        "timeMs": 82000,
+        "unitId": "enemy_ur_dragon",
+        "count": 2,
+        "intervalMs": 3000
+      }
+    ],
+    "reward": {
+      "coins": 300,
+      "drops": [
+        {
+          "unitId": "sr_rose",
+          "rate": 25
+        },
+        {
+          "unitId": "lennon",
+          "rate": 5
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x6ab0d0",
+      "groundColor": "0xa0c8d8",
+      "cloudColor": "0xb8d8e4",
+      "image": "/assets/stages/stage_32.webp"
+    },
+    "difficulty": "frozen"
+  },
+  {
+    "id": "frozen_boss",
+    "name": "frozen_boss_name",
+    "description": "frozen_boss_desc",
+    "length": 3500,
+    "baseCastleHp": 15000,
+    "enemyCastleHp": 1,
+    "isBossStage": true,
+    "enemyWaves": [
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_ninja",
+        "count": 25,
+        "intervalMs": 250
+      },
+      {
+        "timeMs": 12000,
+        "unitId": "enemy_penguin",
+        "count": 20,
+        "intervalMs": 300
+      },
+      {
+        "timeMs": 22000,
+        "unitId": "enemy_sr_rose",
+        "count": 8,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_wolf",
+        "count": 20,
+        "intervalMs": 300
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_sr_tulip",
+        "count": 8,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 52000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 8,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 62000,
+        "unitId": "enemy_ribbon",
+        "count": 15,
+        "intervalMs": 400
+      },
+      {
+        "timeMs": 72000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 8,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 82000,
+        "unitId": "enemy_yumemi",
+        "count": 5,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 92000,
+        "unitId": "enemy_nika",
+        "count": 5,
+        "intervalMs": 1200
+      },
+      {
+        "timeMs": 102000,
+        "unitId": "enemy_lennon",
+        "count": 3,
+        "intervalMs": 2000
+      },
+      {
+        "timeMs": 115000,
+        "unitId": "boss_frozen",
+        "count": 1,
+        "intervalMs": 0
+      }
+    ],
+    "reward": {
+      "coins": 5000,
+      "drops": [
+        {
+          "unitId": "penguin",
+          "rate": 60
+        },
+        {
+          "unitId": "sr_tulip",
+          "rate": 40
+        },
+        {
+          "unitId": "sr_rose",
+          "rate": 35
+        },
+        {
+          "unitId": "yumemi",
+          "rate": 15
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x4a90b8",
+      "groundColor": "0x80b0c8",
+      "cloudColor": "0xa8c8d8",
+      "image": "/assets/stages/stage_32.webp"
+    },
+    "difficulty": "frozen"
   }
 ]

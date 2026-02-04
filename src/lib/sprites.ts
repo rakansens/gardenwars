@@ -62,7 +62,7 @@ export const ANIMATED_UNITS = [
     // New UR units (2026-02)
     'ur_aurora_mage_cat', 'ur_stained_glass_lotus_cat', 'ur_phoenix_flame_cat', 'ur_rose_crystal_princess_cat',
     // Boss units (World 1)
-    'boss_tutorial', 'boss_easy', 'boss_normal', 'boss_hard', 'boss_extreme', 'boss_nightmare',
+    'boss_tutorial', 'boss_easy', 'boss_normal', 'boss_hard', 'boss_extreme', 'boss_nightmare', 'boss_frozen',
     // Boss units (World 2)
     'boss_purgatory', 'boss_hellfire', 'boss_abyss',
     'boss_inferno_1', 'boss_inferno_2', 'boss_inferno_3', 'boss_inferno_4', 'boss_inferno_final',
