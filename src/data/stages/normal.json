@@ -4,30 +4,30 @@
     "name": "tutorial_1_name",
     "description": "tutorial_1_desc",
     "length": 800,
-    "baseCastleHp": 800,
-    "enemyCastleHp": 200,
+    "baseCastleHp": 1350,
+    "enemyCastleHp": 270,
     "enemyWaves": [
       {
         "timeMs": 3000,
         "unitId": "enemy_acorn",
-        "count": 3,
+        "count": 6,
         "intervalMs": 2000
       },
       {
         "timeMs": 10000,
         "unitId": "enemy_sunflower",
-        "count": 2,
+        "count": 4,
         "intervalMs": 2500
       },
       {
         "timeMs": 18000,
         "unitId": "enemy_acorn",
-        "count": 4,
+        "count": 8,
         "intervalMs": 1500
       }
     ],
     "reward": {
-      "coins": 50,
+      "coins": 180,
       "drops": [
         {
           "unitId": "cat_warrior",
@@ -48,42 +48,42 @@
     "name": "tutorial_2_name",
     "description": "tutorial_2_desc",
     "length": 900,
-    "baseCastleHp": 1000,
+    "baseCastleHp": 1500,
     "enemyCastleHp": 300,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_acorn",
-        "count": 4,
+        "count": 5,
         "intervalMs": 1500
       },
       {
         "timeMs": 8000,
         "unitId": "enemy_sunflower",
-        "count": 3,
+        "count": 4,
         "intervalMs": 1800
       },
       {
         "timeMs": 15000,
         "unitId": "enemy_mushroom",
-        "count": 3,
+        "count": 4,
         "intervalMs": 1500
       },
       {
         "timeMs": 22000,
         "unitId": "enemy_corn_kid",
-        "count": 3,
+        "count": 4,
         "intervalMs": 1500
       },
       {
         "timeMs": 30000,
         "unitId": "enemy_dog",
-        "count": 2,
+        "count": 3,
         "intervalMs": 2000
       }
     ],
     "reward": {
-      "coins": 80,
+      "coins": 200,
       "drops": [
         {
           "unitId": "sunflower",
@@ -108,42 +108,42 @@
     "name": "tutorial_3_name",
     "description": "tutorial_3_desc",
     "length": 1000,
-    "baseCastleHp": 1200,
-    "enemyCastleHp": 400,
+    "baseCastleHp": 1650,
+    "enemyCastleHp": 330,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_mushroom",
-        "count": 4,
+        "count": 5,
         "intervalMs": 1200
       },
       {
         "timeMs": 8000,
         "unitId": "enemy_dog",
-        "count": 3,
+        "count": 4,
         "intervalMs": 1500
       },
       {
         "timeMs": 15000,
         "unitId": "enemy_frog",
-        "count": 4,
+        "count": 5,
         "intervalMs": 1200
       },
       {
         "timeMs": 22000,
         "unitId": "enemy_corn_kid",
-        "count": 4,
+        "count": 5,
         "intervalMs": 1000
       },
       {
         "timeMs": 30000,
         "unitId": "enemy_cat_warrior",
-        "count": 3,
+        "count": 4,
         "intervalMs": 1500
       }
     ],
     "reward": {
-      "coins": 120,
+      "coins": 220,
       "drops": [
         {
           "unitId": "cat_archer",
@@ -168,8 +168,8 @@
     "name": "tutorial_boss_name",
     "description": "tutorial_boss_desc",
     "length": 1500,
-    "baseCastleHp": 2000,
-    "enemyCastleHp": 1,
+    "baseCastleHp": 1800,
+    "enemyCastleHp": 390,
     "isBossStage": true,
     "enemyWaves": [
       {
@@ -222,7 +222,7 @@
       }
     ],
     "reward": {
-      "coins": 500,
+      "coins": 300,
       "drops": [
         {
           "unitId": "cat_warrior",
@@ -247,13 +247,13 @@
     "name": "stage_1_name",
     "description": "stage_1_desc",
     "length": 1200,
-    "baseCastleHp": 1200,
-    "enemyCastleHp": 800,
+    "baseCastleHp": 2250,
+    "enemyCastleHp": 900,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_acorn",
-        "count": 8,
+        "count": 9,
         "intervalMs": 800
       },
       {
@@ -288,7 +288,7 @@
       }
     ],
     "reward": {
-      "coins": 150,
+      "coins": 450,
       "drops": [
         {
           "unitId": "cat_warrior",
@@ -313,48 +313,48 @@
     "name": "stage_2_name",
     "description": "stage_2_desc",
     "length": 1400,
-    "baseCastleHp": 1400,
+    "baseCastleHp": 2500,
     "enemyCastleHp": 1000,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_dog",
-        "count": 5,
+        "count": 7,
         "intervalMs": 1000
       },
       {
         "timeMs": 8000,
         "unitId": "enemy_frog",
-        "count": 5,
+        "count": 7,
         "intervalMs": 1000
       },
       {
         "timeMs": 15000,
         "unitId": "enemy_root",
-        "count": 4,
+        "count": 6,
         "intervalMs": 1200
       },
       {
         "timeMs": 22000,
         "unitId": "enemy_capybara",
-        "count": 3,
+        "count": 4,
         "intervalMs": 1500
       },
       {
         "timeMs": 30000,
         "unitId": "enemy_tomato",
-        "count": 4,
+        "count": 6,
         "intervalMs": 1200
       },
       {
         "timeMs": 38000,
         "unitId": "enemy_bean",
-        "count": 3,
+        "count": 4,
         "intervalMs": 1500
       }
     ],
     "reward": {
-      "coins": 200,
+      "coins": 500,
       "drops": [
         {
           "unitId": "cat_archer",
@@ -379,54 +379,54 @@
     "name": "stage_3_name",
     "description": "stage_3_desc",
     "length": 1600,
-    "baseCastleHp": 1600,
-    "enemyCastleHp": 1500,
+    "baseCastleHp": 2750,
+    "enemyCastleHp": 1100,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_corn_kid",
-        "count": 6,
+        "count": 8,
         "intervalMs": 800
       },
       {
         "timeMs": 8000,
         "unitId": "enemy_capybara",
-        "count": 4,
+        "count": 5,
         "intervalMs": 1200
       },
       {
         "timeMs": 15000,
         "unitId": "enemy_pepper",
-        "count": 5,
+        "count": 7,
         "intervalMs": 1000
       },
       {
         "timeMs": 22000,
         "unitId": "enemy_wolf",
-        "count": 3,
+        "count": 4,
         "intervalMs": 1500
       },
       {
         "timeMs": 30000,
         "unitId": "enemy_bean",
-        "count": 4,
+        "count": 5,
         "intervalMs": 1200
       },
       {
         "timeMs": 38000,
         "unitId": "enemy_tomato",
-        "count": 5,
+        "count": 7,
         "intervalMs": 1000
       },
       {
         "timeMs": 46000,
         "unitId": "enemy_pebble",
-        "count": 3,
+        "count": 4,
         "intervalMs": 1500
       }
     ],
     "reward": {
-      "coins": 350,
+      "coins": 550,
       "drops": [
         {
           "unitId": "cat_tank",
@@ -452,7 +452,7 @@
     "description": "easy_boss_desc",
     "length": 2000,
     "baseCastleHp": 3000,
-    "enemyCastleHp": 1,
+    "enemyCastleHp": 1300,
     "isBossStage": true,
     "enemyWaves": [
       {
@@ -517,7 +517,7 @@
       }
     ],
     "reward": {
-      "coins": 1000,
+      "coins": 750,
       "drops": [
         {
           "unitId": "cat_warrior",
@@ -546,48 +546,48 @@
     "name": "stage_4_name",
     "description": "stage_4_desc",
     "length": 1500,
-    "baseCastleHp": 2000,
-    "enemyCastleHp": 1800,
+    "baseCastleHp": 3378,
+    "enemyCastleHp": 3378,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_cat_warrior",
-        "count": 5,
+        "count": 7,
         "intervalMs": 1000
       },
       {
         "timeMs": 8000,
         "unitId": "enemy_archer",
-        "count": 5,
+        "count": 7,
         "intervalMs": 1000
       },
       {
         "timeMs": 15000,
         "unitId": "enemy_ninja",
-        "count": 6,
+        "count": 8,
         "intervalMs": 800
       },
       {
         "timeMs": 22000,
         "unitId": "enemy_fire_chili",
-        "count": 6,
+        "count": 8,
         "intervalMs": 800
       },
       {
         "timeMs": 30000,
         "unitId": "enemy_leaf_ninja",
-        "count": 8,
+        "count": 11,
         "intervalMs": 600
       },
       {
         "timeMs": 38000,
         "unitId": "enemy_pepper",
-        "count": 5,
+        "count": 7,
         "intervalMs": 1000
       }
     ],
     "reward": {
-      "coins": 450,
+      "coins": 1689,
       "drops": [
         {
           "unitId": "cat_ninja",
@@ -612,48 +612,48 @@
     "name": "stage_5_name",
     "description": "stage_5_desc",
     "length": 1700,
-    "baseCastleHp": 2200,
-    "enemyCastleHp": 2000,
+    "baseCastleHp": 3556,
+    "enemyCastleHp": 3556,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_block",
-        "count": 3,
+        "count": 6,
         "intervalMs": 2000
       },
       {
         "timeMs": 10000,
         "unitId": "enemy_pebble",
-        "count": 5,
+        "count": 10,
         "intervalMs": 1200
       },
       {
         "timeMs": 18000,
         "unitId": "enemy_corn",
-        "count": 5,
+        "count": 10,
         "intervalMs": 1000
       },
       {
         "timeMs": 26000,
         "unitId": "enemy_watermelon",
-        "count": 4,
+        "count": 8,
         "intervalMs": 1200
       },
       {
         "timeMs": 34000,
         "unitId": "enemy_cat_tank",
-        "count": 3,
+        "count": 6,
         "intervalMs": 2000
       },
       {
         "timeMs": 44000,
         "unitId": "enemy_ice_flower",
-        "count": 4,
+        "count": 8,
         "intervalMs": 1200
       }
     ],
     "reward": {
-      "coins": 550,
+      "coins": 1778,
       "drops": [
         {
           "unitId": "cat_mage",
@@ -678,8 +678,8 @@
     "name": "stage_6_name",
     "description": "stage_6_desc",
     "length": 1800,
-    "baseCastleHp": 2500,
-    "enemyCastleHp": 2500,
+    "baseCastleHp": 3733,
+    "enemyCastleHp": 3733,
     "enemyWaves": [
       {
         "timeMs": 2000,
@@ -719,7 +719,7 @@
       }
     ],
     "reward": {
-      "coins": 700,
+      "coins": 1867,
       "drops": [
         {
           "unitId": "ice_flower",
@@ -744,54 +744,54 @@
     "name": "stage_7_name",
     "description": "stage_7_desc",
     "length": 2000,
-    "baseCastleHp": 3000,
-    "enemyCastleHp": 3000,
+    "baseCastleHp": 3911,
+    "enemyCastleHp": 3911,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_frog",
-        "count": 8,
+        "count": 9,
         "intervalMs": 600
       },
       {
         "timeMs": 10000,
         "unitId": "enemy_mushroom",
-        "count": 8,
+        "count": 9,
         "intervalMs": 600
       },
       {
         "timeMs": 18000,
         "unitId": "enemy_leaf_ninja",
-        "count": 8,
+        "count": 9,
         "intervalMs": 600
       },
       {
         "timeMs": 26000,
         "unitId": "enemy_tomato",
-        "count": 6,
+        "count": 7,
         "intervalMs": 800
       },
       {
         "timeMs": 34000,
         "unitId": "enemy_sr_rose",
-        "count": 4,
+        "count": 5,
         "intervalMs": 1500
       },
       {
         "timeMs": 44000,
         "unitId": "enemy_wolf",
-        "count": 6,
+        "count": 7,
         "intervalMs": 1000
       },
       {
         "timeMs": 54000,
         "unitId": "enemy_pepper",
-        "count": 8,
+        "count": 9,
         "intervalMs": 600
       }
     ],
     "reward": {
-      "coins": 1000,
+      "coins": 1956,
       "drops": [
         {
           "unitId": "watermelon",
@@ -816,54 +816,54 @@
     "name": "stage_8_name",
     "description": "stage_8_desc",
     "length": 2200,
-    "baseCastleHp": 3500,
-    "enemyCastleHp": 4000,
+    "baseCastleHp": 4089,
+    "enemyCastleHp": 4089,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_capybara",
-        "count": 5,
+        "count": 6,
         "intervalMs": 1200
       },
       {
         "timeMs": 10000,
         "unitId": "enemy_bean",
-        "count": 6,
+        "count": 7,
         "intervalMs": 1000
       },
       {
         "timeMs": 18000,
         "unitId": "enemy_wolf",
-        "count": 6,
+        "count": 7,
         "intervalMs": 1000
       },
       {
         "timeMs": 26000,
         "unitId": "enemy_pepper",
-        "count": 8,
+        "count": 10,
         "intervalMs": 700
       },
       {
         "timeMs": 34000,
         "unitId": "enemy_sr_pirate",
-        "count": 4,
+        "count": 5,
         "intervalMs": 1500
       },
       {
         "timeMs": 44000,
         "unitId": "enemy_fire_chili",
-        "count": 10,
+        "count": 12,
         "intervalMs": 500
       },
       {
         "timeMs": 54000,
         "unitId": "enemy_corn",
-        "count": 6,
+        "count": 7,
         "intervalMs": 1000
       }
     ],
     "reward": {
-      "coins": 1500,
+      "coins": 2044,
       "drops": [
         {
           "unitId": "ribbon_girl",
@@ -888,19 +888,19 @@
     "name": "stage_9_name",
     "description": "stage_9_desc",
     "length": 2000,
-    "baseCastleHp": 4000,
-    "enemyCastleHp": 4500,
+    "baseCastleHp": 4267,
+    "enemyCastleHp": 4267,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_wolf",
-        "count": 8,
+        "count": 9,
         "intervalMs": 700
       },
       {
         "timeMs": 10000,
         "unitId": "enemy_fire_chili",
-        "count": 10,
+        "count": 11,
         "intervalMs": 500
       },
       {
@@ -912,19 +912,19 @@
       {
         "timeMs": 30000,
         "unitId": "enemy_sr_rose",
-        "count": 6,
+        "count": 7,
         "intervalMs": 1000
       },
       {
         "timeMs": 40000,
         "unitId": "enemy_ninja",
-        "count": 12,
+        "count": 13,
         "intervalMs": 500
       },
       {
         "timeMs": 50000,
         "unitId": "enemy_corn",
-        "count": 8,
+        "count": 9,
         "intervalMs": 800
       },
       {
@@ -935,7 +935,7 @@
       }
     ],
     "reward": {
-      "coins": 2000,
+      "coins": 2133,
       "drops": [
         {
           "unitId": "cat_tank",
@@ -960,19 +960,19 @@
     "name": "stage_10_name",
     "description": "stage_10_desc",
     "length": 2200,
-    "baseCastleHp": 4000,
-    "enemyCastleHp": 5500,
+    "baseCastleHp": 4444,
+    "enemyCastleHp": 4444,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_crow",
-        "count": 20,
+        "count": 18,
         "intervalMs": 300
       },
       {
         "timeMs": 12000,
         "unitId": "enemy_ice_flower",
-        "count": 8,
+        "count": 7,
         "intervalMs": 800
       },
       {
@@ -984,7 +984,7 @@
       {
         "timeMs": 32000,
         "unitId": "enemy_dew",
-        "count": 15,
+        "count": 14,
         "intervalMs": 400
       },
       {
@@ -1007,7 +1007,7 @@
       }
     ],
     "reward": {
-      "coins": 3000,
+      "coins": 2222,
       "drops": [
         {
           "unitId": "ribbon_girl",
@@ -1032,19 +1032,19 @@
     "name": "stage_11_name",
     "description": "stage_11_desc",
     "length": 2300,
-    "baseCastleHp": 4500,
-    "enemyCastleHp": 7000,
+    "baseCastleHp": 4622,
+    "enemyCastleHp": 4622,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_ninja",
-        "count": 15,
+        "count": 14,
         "intervalMs": 400
       },
       {
         "timeMs": 12000,
         "unitId": "enemy_leaf_ninja",
-        "count": 12,
+        "count": 11,
         "intervalMs": 500
       },
       {
@@ -1062,7 +1062,7 @@
       {
         "timeMs": 42000,
         "unitId": "enemy_wolf",
-        "count": 10,
+        "count": 9,
         "intervalMs": 600
       },
       {
@@ -1074,12 +1074,12 @@
       {
         "timeMs": 62000,
         "unitId": "enemy_fire_chili",
-        "count": 15,
+        "count": 14,
         "intervalMs": 400
       }
     ],
     "reward": {
-      "coins": 5000,
+      "coins": 2311,
       "drops": [
         {
           "unitId": "cinnamon_girl",
@@ -1104,8 +1104,8 @@
     "name": "normal_boss_name",
     "description": "normal_boss_desc",
     "length": 2500,
-    "baseCastleHp": 5000,
-    "enemyCastleHp": 1,
+    "baseCastleHp": 4800,
+    "enemyCastleHp": 5200,
     "isBossStage": true,
     "enemyWaves": [
       {
@@ -1205,48 +1205,48 @@
     "name": "stage_12_name",
     "description": "stage_12_desc",
     "length": 2500,
-    "baseCastleHp": 5000,
-    "enemyCastleHp": 10000,
+    "baseCastleHp": 5143,
+    "enemyCastleHp": 8571,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_cat_tank",
-        "count": 6,
+        "count": 8,
         "intervalMs": 1000
       },
       {
         "timeMs": 12000,
         "unitId": "enemy_penguin",
-        "count": 8,
+        "count": 11,
         "intervalMs": 800
       },
       {
         "timeMs": 22000,
         "unitId": "enemy_corn",
-        "count": 12,
+        "count": 17,
         "intervalMs": 500
       },
       {
         "timeMs": 32000,
         "unitId": "enemy_sr_tulip",
-        "count": 4,
+        "count": 6,
         "intervalMs": 1500
       },
       {
         "timeMs": 42000,
         "unitId": "enemy_block",
-        "count": 8,
+        "count": 11,
         "intervalMs": 800
       },
       {
         "timeMs": 52000,
         "unitId": "enemy_sr_bamboo",
-        "count": 5,
+        "count": 7,
         "intervalMs": 1200
       }
     ],
     "reward": {
-      "coins": 200,
+      "coins": 4286,
       "drops": [
         {
           "unitId": "penguin",
@@ -1271,19 +1271,19 @@
     "name": "stage_13_name",
     "description": "stage_13_desc",
     "length": 2600,
-    "baseCastleHp": 6000,
-    "enemyCastleHp": 15000,
+    "baseCastleHp": 5486,
+    "enemyCastleHp": 9143,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_ninja",
-        "count": 15,
+        "count": 16,
         "intervalMs": 400
       },
       {
         "timeMs": 12000,
         "unitId": "enemy_penguin",
-        "count": 10,
+        "count": 11,
         "intervalMs": 600
       },
       {
@@ -1295,13 +1295,13 @@
       {
         "timeMs": 32000,
         "unitId": "enemy_wolf",
-        "count": 12,
+        "count": 13,
         "intervalMs": 500
       },
       {
         "timeMs": 42000,
         "unitId": "enemy_mage",
-        "count": 10,
+        "count": 11,
         "intervalMs": 600
       },
       {
@@ -1318,7 +1318,7 @@
       }
     ],
     "reward": {
-      "coins": 220,
+      "coins": 4571,
       "drops": [
         {
           "unitId": "penguin",
@@ -1343,13 +1343,13 @@
     "name": "stage_14_name",
     "description": "stage_14_desc",
     "length": 2700,
-    "baseCastleHp": 7000,
-    "enemyCastleHp": 20000,
+    "baseCastleHp": 5829,
+    "enemyCastleHp": 9714,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_leaf_ninja",
-        "count": 20,
+        "count": 22,
         "intervalMs": 300
       },
       {
@@ -1361,7 +1361,7 @@
       {
         "timeMs": 22000,
         "unitId": "enemy_penguin",
-        "count": 12,
+        "count": 13,
         "intervalMs": 500
       },
       {
@@ -1373,7 +1373,7 @@
       {
         "timeMs": 42000,
         "unitId": "enemy_ribbon",
-        "count": 10,
+        "count": 11,
         "intervalMs": 600
       },
       {
@@ -1390,7 +1390,7 @@
       }
     ],
     "reward": {
-      "coins": 240,
+      "coins": 4857,
       "drops": [
         {
           "unitId": "sr_pirate",
@@ -1415,43 +1415,43 @@
     "name": "stage_15_name",
     "description": "stage_15_desc",
     "length": 2800,
-    "baseCastleHp": 8000,
-    "enemyCastleHp": 25000,
+    "baseCastleHp": 6171,
+    "enemyCastleHp": 10286,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_cat_tank",
-        "count": 10,
+        "count": 9,
         "intervalMs": 600
       },
       {
         "timeMs": 12000,
         "unitId": "enemy_penguin",
-        "count": 15,
+        "count": 14,
         "intervalMs": 400
       },
       {
         "timeMs": 22000,
         "unitId": "enemy_sr_corn_tank",
-        "count": 8,
+        "count": 7,
         "intervalMs": 800
       },
       {
         "timeMs": 32000,
         "unitId": "enemy_wolf",
-        "count": 18,
+        "count": 17,
         "intervalMs": 350
       },
       {
         "timeMs": 42000,
         "unitId": "enemy_sr_rose",
-        "count": 8,
+        "count": 7,
         "intervalMs": 800
       },
       {
         "timeMs": 52000,
         "unitId": "enemy_block",
-        "count": 12,
+        "count": 11,
         "intervalMs": 500
       },
       {
@@ -1468,7 +1468,7 @@
       }
     ],
     "reward": {
-      "coins": 260,
+      "coins": 5143,
       "drops": [
         {
           "unitId": "sr_corn_tank",
@@ -1493,60 +1493,60 @@
     "name": "stage_16_name",
     "description": "stage_16_desc",
     "length": 3000,
-    "baseCastleHp": 10000,
-    "enemyCastleHp": 35000,
+    "baseCastleHp": 6514,
+    "enemyCastleHp": 10857,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_ninja",
-        "count": 25,
+        "count": 20,
         "intervalMs": 250
       },
       {
         "timeMs": 12000,
         "unitId": "enemy_penguin",
-        "count": 18,
+        "count": 14,
         "intervalMs": 350
       },
       {
         "timeMs": 22000,
         "unitId": "enemy_sr_bamboo",
-        "count": 10,
+        "count": 8,
         "intervalMs": 600
       },
       {
         "timeMs": 32000,
         "unitId": "enemy_ribbon",
-        "count": 15,
+        "count": 12,
         "intervalMs": 400
       },
       {
         "timeMs": 42000,
         "unitId": "enemy_sr_tulip",
-        "count": 10,
+        "count": 8,
         "intervalMs": 600
       },
       {
         "timeMs": 52000,
         "unitId": "enemy_nika",
-        "count": 5,
+        "count": 4,
         "intervalMs": 1200
       },
       {
         "timeMs": 62000,
         "unitId": "enemy_sr_pirate",
-        "count": 10,
+        "count": 8,
         "intervalMs": 600
       },
       {
         "timeMs": 72000,
         "unitId": "enemy_ur_tank",
-        "count": 3,
+        "count": 2,
         "intervalMs": 2000
       }
     ],
     "reward": {
-      "coins": 280,
+      "coins": 5429,
       "drops": [
         {
           "unitId": "sr_tulip",
@@ -1571,66 +1571,66 @@
     "name": "stage_17_name",
     "description": "stage_17_desc",
     "length": 3200,
-    "baseCastleHp": 12000,
-    "enemyCastleHp": 45000,
+    "baseCastleHp": 6857,
+    "enemyCastleHp": 11429,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_leaf_ninja",
-        "count": 30,
+        "count": 19,
         "intervalMs": 200
       },
       {
         "timeMs": 12000,
         "unitId": "enemy_penguin",
-        "count": 20,
+        "count": 13,
         "intervalMs": 300
       },
       {
         "timeMs": 22000,
         "unitId": "enemy_sr_rose",
-        "count": 12,
+        "count": 8,
         "intervalMs": 500
       },
       {
         "timeMs": 32000,
         "unitId": "enemy_wolf",
-        "count": 22,
+        "count": 14,
         "intervalMs": 280
       },
       {
         "timeMs": 42000,
         "unitId": "enemy_sr_corn_tank",
-        "count": 10,
+        "count": 6,
         "intervalMs": 600
       },
       {
         "timeMs": 52000,
         "unitId": "enemy_yumemi",
-        "count": 6,
+        "count": 4,
         "intervalMs": 1000
       },
       {
         "timeMs": 62000,
         "unitId": "enemy_mage",
-        "count": 18,
+        "count": 12,
         "intervalMs": 350
       },
       {
         "timeMs": 72000,
         "unitId": "enemy_lennon",
-        "count": 4,
+        "count": 3,
         "intervalMs": 1500
       },
       {
         "timeMs": 82000,
         "unitId": "enemy_ur_dragon",
-        "count": 2,
+        "count": 1,
         "intervalMs": 3000
       }
     ],
     "reward": {
-      "coins": 300,
+      "coins": 5714,
       "drops": [
         {
           "unitId": "sr_rose",
@@ -1655,8 +1655,8 @@
     "name": "frozen_boss_name",
     "description": "frozen_boss_desc",
     "length": 3500,
-    "baseCastleHp": 15000,
-    "enemyCastleHp": 1,
+    "baseCastleHp": 7200,
+    "enemyCastleHp": 13000,
     "isBossStage": true,
     "enemyWaves": [
       {
@@ -1733,7 +1733,7 @@
       }
     ],
     "reward": {
-      "coins": 5000,
+      "coins": 7500,
       "drops": [
         {
           "unitId": "penguin",
@@ -1766,60 +1766,60 @@
     "name": "stage_18_name",
     "description": "stage_18_desc",
     "length": 2500,
-    "baseCastleHp": 5000,
-    "enemyCastleHp": 10000,
+    "baseCastleHp": 8800,
+    "enemyCastleHp": 22000,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_cat_tank",
-        "count": 5,
+        "count": 7,
         "intervalMs": 1200
       },
       {
         "timeMs": 12000,
         "unitId": "enemy_corn",
-        "count": 10,
+        "count": 14,
         "intervalMs": 600
       },
       {
         "timeMs": 22000,
         "unitId": "enemy_sr_corn_tank",
-        "count": 5,
+        "count": 7,
         "intervalMs": 1200
       },
       {
         "timeMs": 32000,
         "unitId": "enemy_mage",
-        "count": 8,
+        "count": 12,
         "intervalMs": 800
       },
       {
         "timeMs": 42000,
         "unitId": "enemy_block",
-        "count": 6,
+        "count": 9,
         "intervalMs": 1000
       },
       {
         "timeMs": 52000,
         "unitId": "enemy_sr_bamboo",
-        "count": 6,
+        "count": 9,
         "intervalMs": 1000
       },
       {
         "timeMs": 62000,
         "unitId": "enemy_yumemi",
-        "count": 2,
+        "count": 3,
         "intervalMs": 3000
       },
       {
         "timeMs": 72000,
         "unitId": "enemy_ice_flower",
-        "count": 10,
+        "count": 14,
         "intervalMs": 600
       }
     ],
     "reward": {
-      "coins": 8000,
+      "coins": 10560,
       "drops": [
         {
           "unitId": "nika",
@@ -1844,37 +1844,37 @@
     "name": "stage_19_name",
     "description": "stage_19_desc",
     "length": 3000,
-    "baseCastleHp": 8000,
-    "enemyCastleHp": 30000,
+    "baseCastleHp": 9600,
+    "enemyCastleHp": 24000,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_watermelon",
-        "count": 8,
+        "count": 10,
         "intervalMs": 800
       },
       {
         "timeMs": 12000,
         "unitId": "enemy_pepper",
-        "count": 12,
+        "count": 14,
         "intervalMs": 500
       },
       {
         "timeMs": 22000,
         "unitId": "enemy_sr_bamboo",
-        "count": 6,
+        "count": 7,
         "intervalMs": 1000
       },
       {
         "timeMs": 32000,
         "unitId": "enemy_sr_pirate",
-        "count": 8,
+        "count": 10,
         "intervalMs": 800
       },
       {
         "timeMs": 42000,
         "unitId": "enemy_tomato",
-        "count": 15,
+        "count": 18,
         "intervalMs": 400
       },
       {
@@ -1886,18 +1886,18 @@
       {
         "timeMs": 62000,
         "unitId": "enemy_sr_rose",
-        "count": 10,
+        "count": 12,
         "intervalMs": 600
       },
       {
         "timeMs": 72000,
         "unitId": "enemy_mage",
-        "count": 8,
+        "count": 10,
         "intervalMs": 800
       }
     ],
     "reward": {
-      "coins": 12000,
+      "coins": 11520,
       "drops": [
         {
           "unitId": "ur_ninja",
@@ -1922,8 +1922,8 @@
     "name": "stage_20_name",
     "description": "stage_20_desc",
     "length": 3500,
-    "baseCastleHp": 10000,
-    "enemyCastleHp": 40000,
+    "baseCastleHp": 10400,
+    "enemyCastleHp": 26000,
     "enemyWaves": [
       {
         "timeMs": 2000,
@@ -1981,7 +1981,7 @@
       }
     ],
     "reward": {
-      "coins": 15000,
+      "coins": 12480,
       "drops": [
         {
           "unitId": "ur_angel",
@@ -2006,13 +2006,13 @@
     "name": "stage_21_name",
     "description": "stage_21_desc",
     "length": 4000,
-    "baseCastleHp": 15000,
-    "enemyCastleHp": 60000,
+    "baseCastleHp": 11200,
+    "enemyCastleHp": 28000,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_ninja",
-        "count": 30,
+        "count": 29,
         "intervalMs": 200
       },
       {
@@ -2071,7 +2071,7 @@
       }
     ],
     "reward": {
-      "coins": 20000,
+      "coins": 13440,
       "drops": [
         {
           "unitId": "ur_tank",
@@ -2096,8 +2096,8 @@
     "name": "hard_boss_name",
     "description": "hard_boss_desc",
     "length": 3500,
-    "baseCastleHp": 15000,
-    "enemyCastleHp": 1,
+    "baseCastleHp": 12000,
+    "enemyCastleHp": 32500,
     "isBossStage": true,
     "enemyWaves": [
       {
@@ -2174,7 +2174,7 @@
       }
     ],
     "reward": {
-      "coins": 10000,
+      "coins": 18000,
       "drops": [
         {
           "unitId": "ribbon_girl",
@@ -2203,72 +2203,72 @@
     "name": "stage_22_name",
     "description": "stage_22_desc",
     "length": 4000,
-    "baseCastleHp": 20000,
-    "enemyCastleHp": 80000,
+    "baseCastleHp": 21667,
+    "enemyCastleHp": 69333,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_leaf_ninja",
-        "count": 40,
+        "count": 34,
         "intervalMs": 150
       },
       {
         "timeMs": 12000,
         "unitId": "enemy_sr_rose",
-        "count": 10,
+        "count": 8,
         "intervalMs": 600
       },
       {
         "timeMs": 22000,
         "unitId": "enemy_ninja",
-        "count": 30,
+        "count": 25,
         "intervalMs": 200
       },
       {
         "timeMs": 32000,
         "unitId": "enemy_sr_tulip",
-        "count": 8,
+        "count": 7,
         "intervalMs": 800
       },
       {
         "timeMs": 42000,
         "unitId": "enemy_ribbon",
-        "count": 8,
+        "count": 7,
         "intervalMs": 1000
       },
       {
         "timeMs": 52000,
         "unitId": "enemy_sr_corn_tank",
-        "count": 6,
+        "count": 5,
         "intervalMs": 1000
       },
       {
         "timeMs": 62000,
         "unitId": "enemy_penguin",
-        "count": 6,
+        "count": 5,
         "intervalMs": 1200
       },
       {
         "timeMs": 72000,
         "unitId": "enemy_sr_pirate",
-        "count": 6,
+        "count": 5,
         "intervalMs": 1000
       },
       {
         "timeMs": 82000,
         "unitId": "enemy_ur_knight",
-        "count": 6,
+        "count": 5,
         "intervalMs": 1500
       },
       {
         "timeMs": 92000,
         "unitId": "enemy_nika",
-        "count": 4,
+        "count": 3,
         "intervalMs": 2000
       }
     ],
     "reward": {
-      "coins": 30000,
+      "coins": 43333,
       "drops": [
         {
           "unitId": "ur_knight",
@@ -2293,61 +2293,61 @@
     "name": "stage_23_name",
     "description": "stage_23_desc",
     "length": 4500,
-    "baseCastleHp": 25000,
-    "enemyCastleHp": 100000,
+    "baseCastleHp": 23333,
+    "enemyCastleHp": 74667,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_crow",
-        "count": 40,
+        "count": 35,
         "intervalMs": 150
       },
       {
         "timeMs": 12000,
         "unitId": "enemy_sr_bamboo",
-        "count": 6,
+        "count": 5,
         "intervalMs": 1000
       },
       {
         "timeMs": 22000,
         "unitId": "enemy_wolf",
-        "count": 25,
+        "count": 22,
         "intervalMs": 250
       },
       {
         "timeMs": 32000,
         "unitId": "enemy_sr_rose",
-        "count": 10,
+        "count": 9,
         "intervalMs": 600
       },
       {
         "timeMs": 42000,
         "unitId": "enemy_yumemi",
-        "count": 6,
+        "count": 5,
         "intervalMs": 1500
       },
       {
         "timeMs": 52000,
         "unitId": "enemy_sr_pirate",
-        "count": 8,
+        "count": 7,
         "intervalMs": 800
       },
       {
         "timeMs": 62000,
         "unitId": "enemy_ribbon",
-        "count": 10,
+        "count": 9,
         "intervalMs": 800
       },
       {
         "timeMs": 72000,
         "unitId": "enemy_ur_angel",
-        "count": 8,
+        "count": 7,
         "intervalMs": 1200
       },
       {
         "timeMs": 82000,
         "unitId": "enemy_penguin",
-        "count": 6,
+        "count": 5,
         "intervalMs": 1200
       },
       {
@@ -2359,12 +2359,12 @@
       {
         "timeMs": 105000,
         "unitId": "enemy_ur_dragon",
-        "count": 5,
+        "count": 4,
         "intervalMs": 2000
       }
     ],
     "reward": {
-      "coins": 50000,
+      "coins": 46667,
       "drops": [
         {
           "unitId": "ur_dragon",
@@ -2389,84 +2389,84 @@
     "name": "stage_24_name",
     "description": "stage_24_desc",
     "length": 5000,
-    "baseCastleHp": 30000,
-    "enemyCastleHp": 150000,
+    "baseCastleHp": 25000,
+    "enemyCastleHp": 80000,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_ninja",
-        "count": 50,
+        "count": 37,
         "intervalMs": 120
       },
       {
         "timeMs": 12000,
         "unitId": "enemy_sr_tulip",
-        "count": 10,
+        "count": 7,
         "intervalMs": 600
       },
       {
         "timeMs": 22000,
         "unitId": "enemy_leaf_ninja",
-        "count": 35,
+        "count": 26,
         "intervalMs": 180
       },
       {
         "timeMs": 32000,
         "unitId": "enemy_sr_corn_tank",
-        "count": 8,
+        "count": 6,
         "intervalMs": 800
       },
       {
         "timeMs": 42000,
         "unitId": "enemy_ribbon",
-        "count": 12,
+        "count": 9,
         "intervalMs": 600
       },
       {
         "timeMs": 52000,
         "unitId": "enemy_sr_bamboo",
-        "count": 6,
+        "count": 4,
         "intervalMs": 1000
       },
       {
         "timeMs": 62000,
         "unitId": "enemy_yumemi",
-        "count": 8,
+        "count": 6,
         "intervalMs": 1200
       },
       {
         "timeMs": 72000,
         "unitId": "enemy_sr_pirate",
-        "count": 8,
+        "count": 6,
         "intervalMs": 800
       },
       {
         "timeMs": 82000,
         "unitId": "enemy_nika",
-        "count": 5,
+        "count": 4,
         "intervalMs": 1500
       },
       {
         "timeMs": 92000,
         "unitId": "enemy_ur_tank",
-        "count": 8,
+        "count": 6,
         "intervalMs": 1200
       },
       {
         "timeMs": 105000,
         "unitId": "enemy_ur_knight",
-        "count": 10,
+        "count": 7,
         "intervalMs": 1000
       },
       {
         "timeMs": 120000,
         "unitId": "enemy_lennon",
-        "count": 4,
+        "count": 3,
         "intervalMs": 2000
       }
     ],
     "reward": {
-      "coins": 80000,
+      "coins": 50000,
       "drops": [
         {
           "unitId": "ur_tank",
@@ -2491,90 +2491,90 @@
     "name": "stage_25_name",
     "description": "stage_25_desc",
     "length": 5500,
-    "baseCastleHp": 40000,
-    "enemyCastleHp": 200000,
+    "baseCastleHp": 26667,
+    "enemyCastleHp": 85333,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_crow",
-        "count": 60,
+        "count": 37,
         "intervalMs": 100
       },
       {
         "timeMs": 12000,
         "unitId": "enemy_sr_rose",
-        "count": 12,
+        "count": 7,
         "intervalMs": 500
       },
       {
         "timeMs": 22000,
         "unitId": "enemy_ninja",
-        "count": 40,
+        "count": 25,
         "intervalMs": 150
       },
       {
         "timeMs": 32000,
         "unitId": "enemy_sr_tulip",
-        "count": 10,
+        "count": 6,
         "intervalMs": 600
       },
       {
         "timeMs": 42000,
         "unitId": "enemy_ribbon",
-        "count": 15,
+        "count": 9,
         "intervalMs": 500
       },
       {
         "timeMs": 52000,
         "unitId": "enemy_sr_corn_tank",
-        "count": 8,
+        "count": 5,
         "intervalMs": 800
       },
       {
         "timeMs": 62000,
         "unitId": "enemy_yumemi",
-        "count": 10,
+        "count": 6,
         "intervalMs": 1000
       },
       {
         "timeMs": 72000,
         "unitId": "enemy_sr_pirate",
-        "count": 10,
+        "count": 6,
         "intervalMs": 600
       },
       {
         "timeMs": 82000,
         "unitId": "enemy_penguin",
-        "count": 8,
+        "count": 5,
         "intervalMs": 1000
       },
       {
         "timeMs": 92000,
         "unitId": "enemy_nika",
-        "count": 6,
+        "count": 4,
         "intervalMs": 1200
       },
       {
         "timeMs": 102000,
         "unitId": "enemy_ur_dragon",
-        "count": 8,
+        "count": 5,
         "intervalMs": 1200
       },
       {
         "timeMs": 115000,
         "unitId": "enemy_lennon",
-        "count": 5,
+        "count": 3,
         "intervalMs": 1500
       },
       {
         "timeMs": 130000,
         "unitId": "enemy_ur_mage",
-        "count": 15,
+        "count": 9,
         "intervalMs": 500
       }
     ],
     "reward": {
-      "coins": 120000,
+      "coins": 53333,
       "drops": [
         {
           "unitId": "ur_phoenix",
@@ -2599,102 +2599,102 @@
     "name": "stage_26_name",
     "description": "stage_26_desc",
     "length": 6000,
-    "baseCastleHp": 50000,
-    "enemyCastleHp": 300000,
+    "baseCastleHp": 28333,
+    "enemyCastleHp": 90667,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_leaf_ninja",
-        "count": 60,
+        "count": 31,
         "intervalMs": 100
       },
       {
         "timeMs": 12000,
         "unitId": "enemy_sr_rose",
-        "count": 15,
+        "count": 8,
         "intervalMs": 400
       },
       {
         "timeMs": 22000,
         "unitId": "enemy_ninja",
-        "count": 50,
+        "count": 26,
         "intervalMs": 120
       },
       {
         "timeMs": 32000,
         "unitId": "enemy_sr_bamboo",
-        "count": 8,
+        "count": 4,
         "intervalMs": 800
       },
       {
         "timeMs": 42000,
         "unitId": "enemy_ribbon",
-        "count": 20,
+        "count": 10,
         "intervalMs": 400
       },
       {
         "timeMs": 52000,
         "unitId": "enemy_sr_tulip",
-        "count": 12,
+        "count": 6,
         "intervalMs": 500
       },
       {
         "timeMs": 62000,
         "unitId": "enemy_yumemi",
-        "count": 12,
+        "count": 6,
         "intervalMs": 800
       },
       {
         "timeMs": 72000,
         "unitId": "enemy_sr_pirate",
-        "count": 12,
+        "count": 6,
         "intervalMs": 500
       },
       {
         "timeMs": 82000,
         "unitId": "enemy_penguin",
-        "count": 10,
+        "count": 5,
         "intervalMs": 800
       },
       {
         "timeMs": 92000,
         "unitId": "enemy_sr_corn_tank",
-        "count": 10,
+        "count": 5,
         "intervalMs": 600
       },
       {
         "timeMs": 102000,
         "unitId": "enemy_nika",
-        "count": 8,
+        "count": 4,
         "intervalMs": 1000
       },
       {
         "timeMs": 115000,
         "unitId": "enemy_ur_tank",
-        "count": 12,
+        "count": 6,
         "intervalMs": 800
       },
       {
         "timeMs": 130000,
         "unitId": "enemy_lennon",
-        "count": 6,
+        "count": 3,
         "intervalMs": 1200
       },
       {
         "timeMs": 145000,
         "unitId": "enemy_ur_dragon",
-        "count": 10,
+        "count": 5,
         "intervalMs": 1000
       },
       {
         "timeMs": 160000,
         "unitId": "enemy_ur_mage",
-        "count": 20,
+        "count": 10,
         "intervalMs": 400
       }
     ],
     "reward": {
-      "coins": 200000,
+      "coins": 56667,
       "drops": [
         {
           "unitId": "ur_golem",
@@ -2723,8 +2723,8 @@
     "name": "extreme_boss_name",
     "description": "extreme_boss_desc",
     "length": 5000,
-    "baseCastleHp": 50000,
-    "enemyCastleHp": 1,
+    "baseCastleHp": 30000,
+    "enemyCastleHp": 104000,
     "isBossStage": true,
     "enemyWaves": [
       {
@@ -2825,7 +2825,7 @@
       }
     ],
     "reward": {
-      "coins": 100000,
+      "coins": 75000,
       "drops": [
         {
           "unitId": "ur_dragon",
@@ -2858,60 +2858,60 @@
     "name": "stage_27_name",
     "description": "stage_27_desc",
     "length": 5000,
-    "baseCastleHp": 60000,
-    "enemyCastleHp": 400000,
+    "baseCastleHp": 51429,
+    "enemyCastleHp": 214286,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_ninja",
-        "count": 60,
+        "count": 53,
         "intervalMs": 100
       },
       {
         "timeMs": 12000,
         "unitId": "enemy_sr_rose",
-        "count": 15,
+        "count": 13,
         "intervalMs": 400
       },
       {
         "timeMs": 22000,
         "unitId": "enemy_wolf",
-        "count": 40,
+        "count": 36,
         "intervalMs": 150
       },
       {
         "timeMs": 32000,
         "unitId": "enemy_sr_bamboo",
-        "count": 10,
+        "count": 9,
         "intervalMs": 600
       },
       {
         "timeMs": 42000,
         "unitId": "enemy_ribbon",
-        "count": 20,
+        "count": 18,
         "intervalMs": 400
       },
       {
         "timeMs": 52000,
         "unitId": "enemy_yumemi",
-        "count": 12,
+        "count": 11,
         "intervalMs": 800
       },
       {
         "timeMs": 62000,
         "unitId": "enemy_ur_knight",
-        "count": 10,
+        "count": 9,
         "intervalMs": 1000
       },
       {
         "timeMs": 75000,
         "unitId": "enemy_lennon",
-        "count": 6,
+        "count": 5,
         "intervalMs": 1200
       }
     ],
     "reward": {
-      "coins": 250000,
+      "coins": 171429,
       "drops": [
         {
           "unitId": "ur_knight",
@@ -2936,60 +2936,60 @@
     "name": "stage_28_name",
     "description": "stage_28_desc",
     "length": 5500,
-    "baseCastleHp": 70000,
-    "enemyCastleHp": 500000,
+    "baseCastleHp": 54857,
+    "enemyCastleHp": 228571,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_crow",
-        "count": 80,
+        "count": 65,
         "intervalMs": 80
       },
       {
         "timeMs": 12000,
         "unitId": "enemy_sr_tulip",
-        "count": 15,
+        "count": 12,
         "intervalMs": 400
       },
       {
         "timeMs": 22000,
         "unitId": "enemy_leaf_ninja",
-        "count": 50,
+        "count": 41,
         "intervalMs": 120
       },
       {
         "timeMs": 32000,
         "unitId": "enemy_sr_corn_tank",
-        "count": 12,
+        "count": 10,
         "intervalMs": 600
       },
       {
         "timeMs": 42000,
         "unitId": "enemy_yumemi",
-        "count": 15,
+        "count": 12,
         "intervalMs": 600
       },
       {
         "timeMs": 52000,
         "unitId": "enemy_penguin",
-        "count": 10,
+        "count": 8,
         "intervalMs": 800
       },
       {
         "timeMs": 62000,
         "unitId": "enemy_ur_angel",
-        "count": 12,
+        "count": 10,
         "intervalMs": 800
       },
       {
         "timeMs": 75000,
         "unitId": "enemy_ur_dragon",
-        "count": 8,
+        "count": 7,
         "intervalMs": 1200
       }
     ],
     "reward": {
-      "coins": 300000,
+      "coins": 182857,
       "drops": [
         {
           "unitId": "ur_dragon",
@@ -3014,66 +3014,66 @@
     "name": "stage_29_name",
     "description": "stage_29_desc",
     "length": 6000,
-    "baseCastleHp": 80000,
-    "enemyCastleHp": 600000,
+    "baseCastleHp": 58286,
+    "enemyCastleHp": 242857,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_ninja",
-        "count": 70,
+        "count": 55,
         "intervalMs": 90
       },
       {
         "timeMs": 12000,
         "unitId": "enemy_sr_pirate",
-        "count": 15,
+        "count": 12,
         "intervalMs": 400
       },
       {
         "timeMs": 22000,
         "unitId": "enemy_wolf",
-        "count": 50,
+        "count": 39,
         "intervalMs": 120
       },
       {
         "timeMs": 32000,
         "unitId": "enemy_sr_bamboo",
-        "count": 12,
+        "count": 9,
         "intervalMs": 500
       },
       {
         "timeMs": 42000,
         "unitId": "enemy_ribbon",
-        "count": 25,
+        "count": 20,
         "intervalMs": 300
       },
       {
         "timeMs": 52000,
         "unitId": "enemy_nika",
-        "count": 8,
+        "count": 6,
         "intervalMs": 1000
       },
       {
         "timeMs": 62000,
         "unitId": "enemy_ur_tank",
-        "count": 15,
+        "count": 12,
         "intervalMs": 600
       },
       {
         "timeMs": 75000,
         "unitId": "enemy_ur_mage",
-        "count": 20,
+        "count": 16,
         "intervalMs": 400
       },
       {
         "timeMs": 90000,
         "unitId": "enemy_lennon",
-        "count": 8,
+        "count": 6,
         "intervalMs": 1000
       }
     ],
     "reward": {
-      "coins": 350000,
+      "coins": 194286,
       "drops": [
         {
           "unitId": "ur_tank",
@@ -3098,72 +3098,72 @@
     "name": "stage_30_name",
     "description": "stage_30_desc",
     "length": 6500,
-    "baseCastleHp": 90000,
-    "enemyCastleHp": 750000,
+    "baseCastleHp": 61714,
+    "enemyCastleHp": 257143,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_leaf_ninja",
-        "count": 80,
+        "count": 58,
         "intervalMs": 80
       },
       {
         "timeMs": 12000,
         "unitId": "enemy_sr_rose",
-        "count": 20,
+        "count": 14,
         "intervalMs": 300
       },
       {
         "timeMs": 22000,
         "unitId": "enemy_ninja",
-        "count": 60,
+        "count": 43,
         "intervalMs": 100
       },
       {
         "timeMs": 32000,
         "unitId": "enemy_sr_tulip",
-        "count": 15,
+        "count": 11,
         "intervalMs": 400
       },
       {
         "timeMs": 42000,
         "unitId": "enemy_yumemi",
-        "count": 18,
+        "count": 13,
         "intervalMs": 500
       },
       {
         "timeMs": 52000,
         "unitId": "enemy_sr_corn_tank",
-        "count": 15,
+        "count": 11,
         "intervalMs": 500
       },
       {
         "timeMs": 62000,
         "unitId": "enemy_penguin",
-        "count": 12,
+        "count": 9,
         "intervalMs": 700
       },
       {
         "timeMs": 72000,
         "unitId": "enemy_ur_knight",
-        "count": 15,
+        "count": 11,
         "intervalMs": 600
       },
       {
         "timeMs": 85000,
         "unitId": "enemy_nika",
-        "count": 10,
+        "count": 7,
         "intervalMs": 800
       },
       {
         "timeMs": 100000,
         "unitId": "enemy_ur_dragon",
-        "count": 12,
+        "count": 9,
         "intervalMs": 800
       }
     ],
     "reward": {
-      "coins": 400000,
+      "coins": 205714,
       "drops": [
         {
           "unitId": "ur_phoenix",
@@ -3188,78 +3188,78 @@
     "name": "stage_31_name",
     "description": "stage_31_desc",
     "length": 7000,
-    "baseCastleHp": 100000,
-    "enemyCastleHp": 900000,
+    "baseCastleHp": 65143,
+    "enemyCastleHp": 271429,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_crow",
-        "count": 100,
+        "count": 59,
         "intervalMs": 60
       },
       {
         "timeMs": 12000,
         "unitId": "enemy_sr_bamboo",
-        "count": 15,
+        "count": 9,
         "intervalMs": 400
       },
       {
         "timeMs": 22000,
         "unitId": "enemy_wolf",
-        "count": 60,
+        "count": 35,
         "intervalMs": 100
       },
       {
         "timeMs": 32000,
         "unitId": "enemy_sr_pirate",
-        "count": 18,
+        "count": 11,
         "intervalMs": 350
       },
       {
         "timeMs": 42000,
         "unitId": "enemy_ribbon",
-        "count": 30,
+        "count": 18,
         "intervalMs": 250
       },
       {
         "timeMs": 52000,
         "unitId": "enemy_yumemi",
-        "count": 20,
+        "count": 12,
         "intervalMs": 450
       },
       {
         "timeMs": 62000,
         "unitId": "enemy_sr_corn_tank",
-        "count": 18,
+        "count": 11,
         "intervalMs": 450
       },
       {
         "timeMs": 72000,
         "unitId": "enemy_nika",
-        "count": 12,
+        "count": 7,
         "intervalMs": 700
       },
       {
         "timeMs": 82000,
         "unitId": "enemy_ur_tank",
-        "count": 20,
+        "count": 12,
         "intervalMs": 500
       },
       {
         "timeMs": 95000,
         "unitId": "enemy_lennon",
-        "count": 10,
+        "count": 6,
         "intervalMs": 800
       },
       {
         "timeMs": 110000,
         "unitId": "enemy_ur_mage",
-        "count": 30,
+        "count": 18,
         "intervalMs": 300
       }
     ],
     "reward": {
-      "coins": 500000,
+      "coins": 217143,
       "drops": [
         {
           "unitId": "ur_golem",
@@ -3284,84 +3284,84 @@
     "name": "stage_32_name",
     "description": "stage_32_desc",
     "length": 7500,
-    "baseCastleHp": 120000,
-    "enemyCastleHp": 1200000,
+    "baseCastleHp": 68571,
+    "enemyCastleHp": 285714,
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_ninja",
-        "count": 100,
+        "count": 54,
         "intervalMs": 60
       },
       {
         "timeMs": 12000,
         "unitId": "enemy_sr_rose",
-        "count": 25,
+        "count": 14,
         "intervalMs": 250
       },
       {
         "timeMs": 22000,
         "unitId": "enemy_leaf_ninja",
-        "count": 80,
+        "count": 43,
         "intervalMs": 80
       },
       {
         "timeMs": 32000,
         "unitId": "enemy_sr_tulip",
-        "count": 20,
+        "count": 11,
         "intervalMs": 300
       },
       {
         "timeMs": 42000,
         "unitId": "enemy_ribbon",
-        "count": 35,
+        "count": 19,
         "intervalMs": 200
       },
       {
         "timeMs": 52000,
         "unitId": "enemy_sr_bamboo",
-        "count": 15,
+        "count": 8,
         "intervalMs": 400
       },
       {
         "timeMs": 62000,
         "unitId": "enemy_yumemi",
-        "count": 25,
+        "count": 14,
         "intervalMs": 350
       },
       {
         "timeMs": 72000,
         "unitId": "enemy_penguin",
-        "count": 15,
+        "count": 8,
         "intervalMs": 550
       },
       {
         "timeMs": 82000,
         "unitId": "enemy_ur_angel",
-        "count": 20,
+        "count": 11,
         "intervalMs": 450
       },
       {
         "timeMs": 95000,
         "unitId": "enemy_nika",
-        "count": 15,
+        "count": 8,
         "intervalMs": 600
       },
       {
         "timeMs": 110000,
         "unitId": "enemy_ur_dragon",
-        "count": 18,
+        "count": 10,
         "intervalMs": 500
       },
       {
         "timeMs": 125000,
         "unitId": "enemy_lennon",
-        "count": 12,
+        "count": 7,
         "intervalMs": 700
       }
     ],
     "reward": {
-      "coins": 600000,
+      "coins": 228571,
       "drops": [
         {
           "unitId": "ur_healer",
@@ -3386,8 +3386,8 @@
     "name": "nightmare_boss_name",
     "description": "nightmare_boss_desc",
     "length": 6000,
-    "baseCastleHp": 150000,
-    "enemyCastleHp": 1,
+    "baseCastleHp": 72000,
+    "enemyCastleHp": 325000,
     "isBossStage": true,
     "enemyWaves": [
       {
@@ -3488,7 +3488,7 @@
       }
     ],
     "reward": {
-      "coins": 500000,
+      "coins": 300000,
       "drops": [
         {
           "unitId": "ur_dragon",

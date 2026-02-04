@@ -7,7 +7,7 @@ const stages = stagesData as StageDefinition[];
 
 // 難易度の順番（アンロック順）
 // World 1の難易度
-export const WORLD1_DIFFICULTY_ORDER: StageDifficulty[] = ["tutorial", "easy", "normal", "hard", "extreme", "boss", "special"];
+export const WORLD1_DIFFICULTY_ORDER: StageDifficulty[] = ["tutorial", "easy", "normal", "frozen", "hard", "extreme", "nightmare", "boss", "special"];
 // World 2の難易度
 export const WORLD2_DIFFICULTY_ORDER: StageDifficulty[] = ["purgatory", "hellfire", "abyss", "inferno_boss"];
 // 全難易度

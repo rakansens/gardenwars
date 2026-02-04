@@ -33,8 +33,10 @@ const DIFFICULTY_TABS: {
     { key: "tutorial", labelKey: "difficulty_tutorial", subKey: "difficulty_tutorial_sub", icon: "🌱", color: "bg-green-400", banner: "/assets/stages/tutorial_banner.webp", gradient: "from-green-400 to-emerald-600", worldId: "world1" },
     { key: "easy", labelKey: "difficulty_easy", subKey: "difficulty_easy_sub", icon: "🌲", color: "bg-blue-400", banner: "/assets/stages/easy_banner.webp", gradient: "from-green-500 to-teal-600", worldId: "world1" },
     { key: "normal", labelKey: "difficulty_normal", subKey: "difficulty_normal_sub", icon: "🌅", color: "bg-yellow-500", banner: "/assets/stages/normal_banner.webp", gradient: "from-orange-400 to-rose-500", worldId: "world1" },
+    { key: "frozen", labelKey: "difficulty_frozen", subKey: "difficulty_frozen_sub", icon: "❄️", color: "bg-cyan-400", banner: "/assets/stages/frozen_banner.webp", gradient: "from-cyan-400 to-blue-600", worldId: "world1" },
     { key: "hard", labelKey: "difficulty_hard", subKey: "difficulty_hard_sub", icon: "🌑", color: "bg-orange-500", banner: "/assets/stages/hard_banner.webp", gradient: "from-purple-600 to-indigo-900", worldId: "world1" },
     { key: "extreme", labelKey: "difficulty_extreme", subKey: "difficulty_extreme_sub", icon: "🔥", color: "bg-red-600", banner: "/assets/stages/extreme_banner.webp", gradient: "from-red-600 to-red-900", worldId: "world1" },
+    { key: "nightmare", labelKey: "difficulty_nightmare", subKey: "difficulty_nightmare_sub", icon: "💀", color: "bg-purple-900", banner: "/assets/stages/nightmare_banner.webp", gradient: "from-purple-900 to-black", worldId: "world1" },
     { key: "boss", labelKey: "difficulty_boss", subKey: "difficulty_boss_sub", icon: "🏰", color: "bg-purple-600", banner: "/assets/stages/boss_banner.webp", gradient: "from-purple-700 to-black", worldId: "world1" },
     { key: "special", labelKey: "difficulty_special", subKey: "difficulty_special_sub", icon: "✨", color: "bg-gradient-to-r from-pink-500 to-cyan-500", banner: "/assets/stages/special_banner.webp", gradient: "from-pink-400 via-purple-500 to-cyan-400", worldId: "world1" },
     // World 2 難易度
@@ -54,26 +56,45 @@ const stageIcons: { [key: string]: string } = {
     tutorial_1: "🌱",
     tutorial_2: "🌿",
     tutorial_3: "🌻",
+    // Easy (stage_1-3)
     stage_1: "🌿",
     stage_2: "🌲",
     stage_3: "🏜️",
+    // Normal (stage_4-11)
     stage_4: "🌅",
     stage_5: "🦇",
-    stage_6: "❄️",
+    stage_6: "🌈",
     stage_7: "🌋",
     stage_8: "👿",
     stage_9: "🧟",
     stage_10: "💀",
     stage_11: "🔥",
-    stage_12: "☠️",
-    stage_13: "🥷",
-    stage_14: "🛡️",
-    stage_15: "👻",
-    stage_16: "🐕",
-    stage_17: "🦅",
-    stage_18: "🐺",
+    // Frozen (stage_12-17)
+    stage_12: "❄️",
+    stage_13: "🏔️",
+    stage_14: "🌨️",
+    stage_15: "🧊",
+    stage_16: "⛄",
+    stage_17: "🥶",
+    // Hard (stage_18-21)
+    stage_18: "🌑",
     stage_19: "☠️",
-    stage_20: "🔥",
+    stage_20: "🥷",
+    stage_21: "🛡️",
+    // Extreme (stage_22-26)
+    stage_22: "🔥",
+    stage_23: "🐕",
+    stage_24: "🦅",
+    stage_25: "🐺",
+    stage_26: "☠️",
+    // Nightmare (stage_27-32)
+    stage_27: "👻",
+    stage_28: "💀",
+    stage_29: "🧟",
+    stage_30: "👹",
+    stage_31: "😈",
+    stage_32: "☠️",
+    // Boss stages
     boss_stage_1: "🧑",
     boss_stage_2: "🎸",
     boss_stage_3: "👩",
@@ -123,8 +144,10 @@ const getDifficultyStars = (difficulty?: StageDifficulty): string => {
         case "tutorial": return "🌱";
         case "easy": return "⭐";
         case "normal": return "⭐⭐";
+        case "frozen": return "❄️❄️";
         case "hard": return "⭐⭐⭐";
         case "extreme": return "💀💀💀";
+        case "nightmare": return "👻👻👻";
         case "boss": return "👑";
         case "special": return "✨";
         // World 2 難易度
@@ -243,9 +266,9 @@ export default function StagesPage() {
                 </div>
             )}
 
-            {/* 難易度タブ - ビジュアルカード */}
-            <div className="mb-6">
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3">
+            {/* 難易度タブ - ビジュアルカード（横スクロール対応） */}
+            <div className="mb-6 overflow-x-auto pb-2">
+                <div className="flex gap-3 min-w-max px-4">
                     {worldDifficultyTabs.map(tab => {
                         const { cleared, total } = getClearCount(tab.key, selectedWorld);
                         const isSelected = selectedDifficulty === tab.key;
@@ -256,7 +279,7 @@ export default function StagesPage() {
                                 key={tab.key}
                                 onClick={() => !isLocked && setSelectedDifficulty(tab.key)}
                                 disabled={isLocked}
-                                className={`relative overflow-hidden rounded-xl transition-all duration-300 ${
+                                className={`relative overflow-hidden rounded-xl transition-all duration-300 flex-shrink-0 w-32 sm:w-36 ${
                                     isLocked
                                         ? "opacity-50 cursor-not-allowed grayscale"
                                         : isSelected
@@ -265,7 +288,7 @@ export default function StagesPage() {
                                 }`}
                             >
                                 {/* バナー画像背景 */}
-                                <div className={`relative h-24 sm:h-28 bg-gradient-to-br ${tab.gradient}`}>
+                                <div className={`relative h-24 sm:h-28 w-full bg-gradient-to-br ${tab.gradient}`}>
                                     {tab.banner && (
                                         <Image
                                             src={tab.banner}
