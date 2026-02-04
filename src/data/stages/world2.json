@@ -5,22 +5,83 @@
     "description": "purgatory_1_desc",
     "worldId": "world2",
     "length": 5000,
-    "baseCastleHp": 55000,
-    "enemyCastleHp": 280000,
+    "baseCastleHp": 88000,
+    "enemyCastleHp": 440000,
     "theme": "Forest Invasion",
     "enemyWaves": [
-      { "timeMs": 2000, "unitId": "enemy_root", "count": 25, "intervalMs": 350 },
-      { "timeMs": 15000, "unitId": "enemy_mushroom", "count": 22, "intervalMs": 380 },
-      { "timeMs": 32000, "unitId": "enemy_acorn", "count": 30, "intervalMs": 320 },
-      { "timeMs": 52000, "unitId": "enemy_leaf_ninja", "count": 28, "intervalMs": 320 },
-      { "timeMs": 75000, "unitId": "enemy_tomato", "count": 16, "intervalMs": 500 },
-      { "timeMs": 95000, "unitId": "enemy_sr_rose", "count": 10, "intervalMs": 900 },
-      { "timeMs": 118000, "unitId": "enemy_leaf_ninja", "count": 25, "intervalMs": 350 },
-      { "timeMs": 140000, "unitId": "enemy_ribbon", "count": 6, "intervalMs": 1400 },
-      { "timeMs": 165000, "unitId": "enemy_ur_knight", "count": 3, "intervalMs": 2000 }
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_root",
+        "count": 29,
+        "intervalMs": 842
+      },
+      {
+        "timeMs": 6293,
+        "unitId": "enemy_mushroom",
+        "count": 26,
+        "intervalMs": 767
+      },
+      {
+        "timeMs": 11073,
+        "unitId": "enemy_acorn",
+        "count": 35,
+        "intervalMs": 730
+      },
+      {
+        "timeMs": 15365,
+        "unitId": "enemy_leaf_ninja",
+        "count": 33,
+        "intervalMs": 1013
+      },
+      {
+        "timeMs": 19645,
+        "unitId": "enemy_tomato",
+        "count": 19,
+        "intervalMs": 862
+      },
+      {
+        "timeMs": 24071,
+        "unitId": "enemy_sr_rose",
+        "count": 12,
+        "intervalMs": 749
+      },
+      {
+        "timeMs": 27572,
+        "unitId": "enemy_leaf_ninja",
+        "count": 29,
+        "intervalMs": 746
+      },
+      {
+        "timeMs": 30915,
+        "unitId": "enemy_ribbon",
+        "count": 7,
+        "intervalMs": 1070
+      },
+      {
+        "timeMs": 35523,
+        "unitId": "enemy_ur_knight",
+        "count": 4,
+        "intervalMs": 920
+      }
     ],
-    "reward": { "coins": 80000, "drops": [{ "unitId": "ur_knight", "rate": 5 }, { "unitId": "sr_rose", "rate": 15 }] },
-    "background": { "skyColor": "0x4a0a00", "groundColor": "0x2a0500", "cloudColor": "0x8a2000" },
+    "reward": {
+      "coins": 440000,
+      "drops": [
+        {
+          "unitId": "ur_knight",
+          "rate": 5
+        },
+        {
+          "unitId": "sr_rose",
+          "rate": 15
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x4a0a00",
+      "groundColor": "0x2a0500",
+      "cloudColor": "0x8a2000"
+    },
     "difficulty": "purgatory"
   },
   {
@@ -29,21 +90,77 @@
     "description": "purgatory_2_desc",
     "worldId": "world2",
     "length": 5200,
-    "baseCastleHp": 58000,
-    "enemyCastleHp": 300000,
+    "baseCastleHp": 96000,
+    "enemyCastleHp": 480000,
     "theme": "Fire Storm",
     "enemyWaves": [
-      { "timeMs": 2000, "unitId": "enemy_frog", "count": 22, "intervalMs": 380 },
-      { "timeMs": 18000, "unitId": "enemy_bean", "count": 20, "intervalMs": 400 },
-      { "timeMs": 38000, "unitId": "enemy_fire_chili", "count": 32, "intervalMs": 300 },
-      { "timeMs": 60000, "unitId": "enemy_pepper", "count": 22, "intervalMs": 420 },
-      { "timeMs": 85000, "unitId": "enemy_sr_tulip", "count": 10, "intervalMs": 850 },
-      { "timeMs": 108000, "unitId": "enemy_fire_chili", "count": 28, "intervalMs": 320 },
-      { "timeMs": 132000, "unitId": "enemy_yumemi", "count": 5, "intervalMs": 1600 },
-      { "timeMs": 158000, "unitId": "enemy_ur_dragon", "count": 3, "intervalMs": 2200 }
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_frog",
+        "count": 33,
+        "intervalMs": 800
+      },
+      {
+        "timeMs": 6558,
+        "unitId": "enemy_bean",
+        "count": 30,
+        "intervalMs": 726
+      },
+      {
+        "timeMs": 10754,
+        "unitId": "enemy_fire_chili",
+        "count": 48,
+        "intervalMs": 922
+      },
+      {
+        "timeMs": 15425,
+        "unitId": "enemy_pepper",
+        "count": 33,
+        "intervalMs": 752
+      },
+      {
+        "timeMs": 19641,
+        "unitId": "enemy_sr_tulip",
+        "count": 15,
+        "intervalMs": 952
+      },
+      {
+        "timeMs": 23144,
+        "unitId": "enemy_fire_chili",
+        "count": 42,
+        "intervalMs": 1052
+      },
+      {
+        "timeMs": 26535,
+        "unitId": "enemy_yumemi",
+        "count": 7,
+        "intervalMs": 743
+      },
+      {
+        "timeMs": 30399,
+        "unitId": "enemy_ur_dragon",
+        "count": 4,
+        "intervalMs": 736
+      }
     ],
-    "reward": { "coins": 90000, "drops": [{ "unitId": "ur_dragon", "rate": 5 }, { "unitId": "sr_tulip", "rate": 15 }] },
-    "background": { "skyColor": "0x4d0b00", "groundColor": "0x2c0600", "cloudColor": "0x8d2100" },
+    "reward": {
+      "coins": 480000,
+      "drops": [
+        {
+          "unitId": "ur_dragon",
+          "rate": 5
+        },
+        {
+          "unitId": "sr_tulip",
+          "rate": 15
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x4d0b00",
+      "groundColor": "0x2c0600",
+      "cloudColor": "0x8d2100"
+    },
     "difficulty": "purgatory"
   },
   {
@@ -52,21 +169,77 @@
     "description": "purgatory_3_desc",
     "worldId": "world2",
     "length": 5400,
-    "baseCastleHp": 60000,
-    "enemyCastleHp": 320000,
+    "baseCastleHp": 104000,
+    "enemyCastleHp": 520000,
     "theme": "Sky Assault",
     "enemyWaves": [
-      { "timeMs": 2000, "unitId": "enemy_dew", "count": 28, "intervalMs": 350 },
-      { "timeMs": 22000, "unitId": "enemy_sunflower", "count": 25, "intervalMs": 380 },
-      { "timeMs": 45000, "unitId": "enemy_crow", "count": 32, "intervalMs": 300 },
-      { "timeMs": 70000, "unitId": "enemy_wolf", "count": 22, "intervalMs": 420 },
-      { "timeMs": 95000, "unitId": "enemy_sr_pirate", "count": 10, "intervalMs": 900 },
-      { "timeMs": 120000, "unitId": "enemy_crow", "count": 28, "intervalMs": 320 },
-      { "timeMs": 145000, "unitId": "enemy_nika", "count": 5, "intervalMs": 1600 },
-      { "timeMs": 172000, "unitId": "enemy_ur_angel", "count": 3, "intervalMs": 2000 }
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_dew",
+        "count": 42,
+        "intervalMs": 947
+      },
+      {
+        "timeMs": 5874,
+        "unitId": "enemy_sunflower",
+        "count": 37,
+        "intervalMs": 964
+      },
+      {
+        "timeMs": 9346,
+        "unitId": "enemy_crow",
+        "count": 48,
+        "intervalMs": 1035
+      },
+      {
+        "timeMs": 14034,
+        "unitId": "enemy_wolf",
+        "count": 33,
+        "intervalMs": 1045
+      },
+      {
+        "timeMs": 17333,
+        "unitId": "enemy_sr_pirate",
+        "count": 15,
+        "intervalMs": 751
+      },
+      {
+        "timeMs": 22069,
+        "unitId": "enemy_crow",
+        "count": 42,
+        "intervalMs": 905
+      },
+      {
+        "timeMs": 26150,
+        "unitId": "enemy_nika",
+        "count": 7,
+        "intervalMs": 1000
+      },
+      {
+        "timeMs": 29427,
+        "unitId": "enemy_ur_angel",
+        "count": 4,
+        "intervalMs": 817
+      }
     ],
-    "reward": { "coins": 100000, "drops": [{ "unitId": "ur_angel", "rate": 5 }, { "unitId": "sr_pirate", "rate": 15 }] },
-    "background": { "skyColor": "0x500c00", "groundColor": "0x2e0700", "cloudColor": "0x902200" },
+    "reward": {
+      "coins": 520000,
+      "drops": [
+        {
+          "unitId": "ur_angel",
+          "rate": 5
+        },
+        {
+          "unitId": "sr_pirate",
+          "rate": 15
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x500c00",
+      "groundColor": "0x2e0700",
+      "cloudColor": "0x902200"
+    },
     "difficulty": "purgatory"
   },
   {
@@ -75,21 +248,77 @@
     "description": "purgatory_4_desc",
     "worldId": "world2",
     "length": 5600,
-    "baseCastleHp": 62000,
-    "enemyCastleHp": 340000,
+    "baseCastleHp": 112000,
+    "enemyCastleHp": 560000,
     "theme": "Tank Division",
     "enemyWaves": [
-      { "timeMs": 2000, "unitId": "enemy_pebble", "count": 20, "intervalMs": 450 },
-      { "timeMs": 22000, "unitId": "enemy_capybara", "count": 16, "intervalMs": 500 },
-      { "timeMs": 45000, "unitId": "enemy_block", "count": 12, "intervalMs": 650 },
-      { "timeMs": 70000, "unitId": "enemy_cat_tank", "count": 12, "intervalMs": 600 },
-      { "timeMs": 95000, "unitId": "enemy_watermelon", "count": 16, "intervalMs": 520 },
-      { "timeMs": 120000, "unitId": "enemy_sr_corn_tank", "count": 8, "intervalMs": 1000 },
-      { "timeMs": 148000, "unitId": "enemy_penguin", "count": 5, "intervalMs": 1600 },
-      { "timeMs": 178000, "unitId": "enemy_ur_tank", "count": 3, "intervalMs": 2200 }
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_pebble",
+        "count": 53,
+        "intervalMs": 940
+      },
+      {
+        "timeMs": 5677,
+        "unitId": "enemy_capybara",
+        "count": 43,
+        "intervalMs": 757
+      },
+      {
+        "timeMs": 9289,
+        "unitId": "enemy_block",
+        "count": 32,
+        "intervalMs": 786
+      },
+      {
+        "timeMs": 13699,
+        "unitId": "enemy_cat_tank",
+        "count": 32,
+        "intervalMs": 1038
+      },
+      {
+        "timeMs": 16933,
+        "unitId": "enemy_watermelon",
+        "count": 43,
+        "intervalMs": 767
+      },
+      {
+        "timeMs": 21215,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 21,
+        "intervalMs": 765
+      },
+      {
+        "timeMs": 24910,
+        "unitId": "enemy_penguin",
+        "count": 13,
+        "intervalMs": 996
+      },
+      {
+        "timeMs": 29308,
+        "unitId": "enemy_ur_tank",
+        "count": 8,
+        "intervalMs": 872
+      }
     ],
-    "reward": { "coins": 110000, "drops": [{ "unitId": "ur_tank", "rate": 5 }, { "unitId": "sr_corn_tank", "rate": 12 }] },
-    "background": { "skyColor": "0x530d00", "groundColor": "0x300800", "cloudColor": "0x932300" },
+    "reward": {
+      "coins": 560000,
+      "drops": [
+        {
+          "unitId": "ur_tank",
+          "rate": 5
+        },
+        {
+          "unitId": "sr_corn_tank",
+          "rate": 12
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x530d00",
+      "groundColor": "0x300800",
+      "cloudColor": "0x932300"
+    },
     "difficulty": "purgatory"
   },
   {
@@ -98,45 +327,151 @@
     "description": "purgatory_boss_desc",
     "worldId": "world2",
     "length": 6000,
-    "baseCastleHp": 65000,
-    "enemyCastleHp": 1,
+    "baseCastleHp": 120000,
+    "enemyCastleHp": 650000,
     "isBossStage": true,
     "theme": "Elite Guard",
     "enemyWaves": [
-      { "timeMs": 2000, "unitId": "enemy_ninja", "count": 30, "intervalMs": 320 },
-      { "timeMs": 28000, "unitId": "enemy_corn", "count": 18, "intervalMs": 450 },
-      { "timeMs": 55000, "unitId": "enemy_sr_bamboo", "count": 8, "intervalMs": 950 },
-      { "timeMs": 82000, "unitId": "enemy_ninja", "count": 28, "intervalMs": 350 },
-      { "timeMs": 112000, "unitId": "enemy_lennon", "count": 4, "intervalMs": 1800 },
-      { "timeMs": 142000, "unitId": "enemy_ur_mage", "count": 4, "intervalMs": 1800 },
-      { "timeMs": 175000, "unitId": "boss_purgatory", "count": 1, "intervalMs": 0 }
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_ninja",
+        "count": 85,
+        "intervalMs": 810
+      },
+      {
+        "timeMs": 28000,
+        "unitId": "enemy_corn",
+        "count": 51,
+        "intervalMs": 810
+      },
+      {
+        "timeMs": 55000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 23,
+        "intervalMs": 810
+      },
+      {
+        "timeMs": 82000,
+        "unitId": "enemy_ninja",
+        "count": 79,
+        "intervalMs": 810
+      },
+      {
+        "timeMs": 112000,
+        "unitId": "enemy_lennon",
+        "count": 11,
+        "intervalMs": 810
+      },
+      {
+        "timeMs": 142000,
+        "unitId": "enemy_ur_mage",
+        "count": 11,
+        "intervalMs": 810
+      },
+      {
+        "timeMs": 175000,
+        "unitId": "boss_purgatory",
+        "count": 1,
+        "intervalMs": 810
+      }
     ],
-    "reward": { "coins": 150000, "drops": [{ "unitId": "ur_mage", "rate": 8 }, { "unitId": "lennon", "rate": 4 }] },
-    "background": { "skyColor": "0x560e00", "groundColor": "0x320900", "cloudColor": "0x962400" },
+    "reward": {
+      "coins": 750000,
+      "drops": [
+        {
+          "unitId": "ur_mage",
+          "rate": 8
+        },
+        {
+          "unitId": "lennon",
+          "rate": 4
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x560e00",
+      "groundColor": "0x320900",
+      "cloudColor": "0x962400"
+    },
     "difficulty": "purgatory"
   },
-
   {
     "id": "hellfire_1",
     "name": "hellfire_1_name",
     "description": "hellfire_1_desc",
     "worldId": "world2",
     "length": 6000,
-    "baseCastleHp": 70000,
-    "enemyCastleHp": 380000,
+    "baseCastleHp": 158400,
+    "enemyCastleHp": 880000,
     "theme": "Swift Strike",
     "enemyWaves": [
-      { "timeMs": 2000, "unitId": "enemy_acorn", "count": 30, "intervalMs": 320 },
-      { "timeMs": 22000, "unitId": "enemy_corn_kid", "count": 28, "intervalMs": 350 },
-      { "timeMs": 48000, "unitId": "enemy_ninja", "count": 32, "intervalMs": 300 },
-      { "timeMs": 75000, "unitId": "enemy_leaf_ninja", "count": 30, "intervalMs": 320 },
-      { "timeMs": 105000, "unitId": "enemy_sr_rose", "count": 12, "intervalMs": 800 },
-      { "timeMs": 132000, "unitId": "enemy_ninja", "count": 28, "intervalMs": 350 },
-      { "timeMs": 162000, "unitId": "enemy_nika", "count": 6, "intervalMs": 1500 },
-      { "timeMs": 195000, "unitId": "enemy_ur_knight", "count": 4, "intervalMs": 1800 }
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_acorn",
+        "count": 43,
+        "intervalMs": 847
+      },
+      {
+        "timeMs": 6191,
+        "unitId": "enemy_corn_kid",
+        "count": 41,
+        "intervalMs": 852
+      },
+      {
+        "timeMs": 9242,
+        "unitId": "enemy_ninja",
+        "count": 46,
+        "intervalMs": 688
+      },
+      {
+        "timeMs": 12810,
+        "unitId": "enemy_leaf_ninja",
+        "count": 43,
+        "intervalMs": 863
+      },
+      {
+        "timeMs": 16198,
+        "unitId": "enemy_sr_rose",
+        "count": 17,
+        "intervalMs": 815
+      },
+      {
+        "timeMs": 20088,
+        "unitId": "enemy_ninja",
+        "count": 41,
+        "intervalMs": 770
+      },
+      {
+        "timeMs": 23873,
+        "unitId": "enemy_nika",
+        "count": 9,
+        "intervalMs": 999
+      },
+      {
+        "timeMs": 26986,
+        "unitId": "enemy_ur_knight",
+        "count": 6,
+        "intervalMs": 891
+      }
     ],
-    "reward": { "coins": 130000, "drops": [{ "unitId": "ur_knight", "rate": 6 }, { "unitId": "sr_rose", "rate": 15 }] },
-    "background": { "skyColor": "0x600a00", "groundColor": "0x350500", "cloudColor": "0xa01800" },
+    "reward": {
+      "coins": 880000,
+      "drops": [
+        {
+          "unitId": "ur_knight",
+          "rate": 6
+        },
+        {
+          "unitId": "sr_rose",
+          "rate": 15
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x600a00",
+      "groundColor": "0x350500",
+      "cloudColor": "0xa01800"
+    },
     "difficulty": "hellfire"
   },
   {
@@ -145,21 +480,77 @@
     "description": "hellfire_2_desc",
     "worldId": "world2",
     "length": 6300,
-    "baseCastleHp": 75000,
-    "enemyCastleHp": 420000,
+    "baseCastleHp": 172800,
+    "enemyCastleHp": 960000,
     "theme": "Magic Barrage",
     "enemyWaves": [
-      { "timeMs": 2000, "unitId": "enemy_archer", "count": 28, "intervalMs": 350 },
-      { "timeMs": 25000, "unitId": "enemy_dew", "count": 30, "intervalMs": 320 },
-      { "timeMs": 52000, "unitId": "enemy_ice_flower", "count": 18, "intervalMs": 480 },
-      { "timeMs": 82000, "unitId": "enemy_sr_tulip", "count": 12, "intervalMs": 800 },
-      { "timeMs": 112000, "unitId": "enemy_mage", "count": 16, "intervalMs": 500 },
-      { "timeMs": 142000, "unitId": "enemy_yumemi", "count": 6, "intervalMs": 1500 },
-      { "timeMs": 175000, "unitId": "enemy_mage", "count": 14, "intervalMs": 550 },
-      { "timeMs": 208000, "unitId": "enemy_ur_mage", "count": 5, "intervalMs": 1600 }
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_archer",
+        "count": 58,
+        "intervalMs": 761
+      },
+      {
+        "timeMs": 6223,
+        "unitId": "enemy_dew",
+        "count": 63,
+        "intervalMs": 811
+      },
+      {
+        "timeMs": 10490,
+        "unitId": "enemy_ice_flower",
+        "count": 38,
+        "intervalMs": 798
+      },
+      {
+        "timeMs": 14762,
+        "unitId": "enemy_sr_tulip",
+        "count": 25,
+        "intervalMs": 728
+      },
+      {
+        "timeMs": 17819,
+        "unitId": "enemy_mage",
+        "count": 33,
+        "intervalMs": 722
+      },
+      {
+        "timeMs": 21714,
+        "unitId": "enemy_yumemi",
+        "count": 13,
+        "intervalMs": 862
+      },
+      {
+        "timeMs": 25405,
+        "unitId": "enemy_mage",
+        "count": 29,
+        "intervalMs": 695
+      },
+      {
+        "timeMs": 29444,
+        "unitId": "enemy_ur_mage",
+        "count": 10,
+        "intervalMs": 895
+      }
     ],
-    "reward": { "coins": 150000, "drops": [{ "unitId": "ur_mage", "rate": 6 }, { "unitId": "yumemi", "rate": 4 }] },
-    "background": { "skyColor": "0x650b00", "groundColor": "0x380600", "cloudColor": "0xa51900" },
+    "reward": {
+      "coins": 960000,
+      "drops": [
+        {
+          "unitId": "ur_mage",
+          "rate": 6
+        },
+        {
+          "unitId": "yumemi",
+          "rate": 4
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x650b00",
+      "groundColor": "0x380600",
+      "cloudColor": "0xa51900"
+    },
     "difficulty": "hellfire"
   },
   {
@@ -168,21 +559,77 @@
     "description": "hellfire_3_desc",
     "worldId": "world2",
     "length": 6600,
-    "baseCastleHp": 80000,
-    "enemyCastleHp": 460000,
+    "baseCastleHp": 187200,
+    "enemyCastleHp": 1040000,
     "theme": "Beast Horde",
     "enemyWaves": [
-      { "timeMs": 2000, "unitId": "enemy_dog", "count": 32, "intervalMs": 320 },
-      { "timeMs": 28000, "unitId": "enemy_frog", "count": 28, "intervalMs": 350 },
-      { "timeMs": 55000, "unitId": "enemy_cat_warrior", "count": 30, "intervalMs": 330 },
-      { "timeMs": 85000, "unitId": "enemy_wolf", "count": 26, "intervalMs": 380 },
-      { "timeMs": 115000, "unitId": "enemy_crow", "count": 32, "intervalMs": 300 },
-      { "timeMs": 145000, "unitId": "enemy_sr_pirate", "count": 12, "intervalMs": 800 },
-      { "timeMs": 175000, "unitId": "enemy_penguin", "count": 6, "intervalMs": 1500 },
-      { "timeMs": 208000, "unitId": "enemy_ur_dragon", "count": 4, "intervalMs": 1800 }
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_dog",
+        "count": 55,
+        "intervalMs": 796
+      },
+      {
+        "timeMs": 6469,
+        "unitId": "enemy_frog",
+        "count": 48,
+        "intervalMs": 682
+      },
+      {
+        "timeMs": 10207,
+        "unitId": "enemy_cat_warrior",
+        "count": 51,
+        "intervalMs": 898
+      },
+      {
+        "timeMs": 14710,
+        "unitId": "enemy_wolf",
+        "count": 45,
+        "intervalMs": 996
+      },
+      {
+        "timeMs": 17953,
+        "unitId": "enemy_crow",
+        "count": 55,
+        "intervalMs": 682
+      },
+      {
+        "timeMs": 22181,
+        "unitId": "enemy_sr_pirate",
+        "count": 21,
+        "intervalMs": 954
+      },
+      {
+        "timeMs": 25957,
+        "unitId": "enemy_penguin",
+        "count": 10,
+        "intervalMs": 723
+      },
+      {
+        "timeMs": 30115,
+        "unitId": "enemy_ur_dragon",
+        "count": 7,
+        "intervalMs": 713
+      }
     ],
-    "reward": { "coins": 170000, "drops": [{ "unitId": "ur_dragon", "rate": 6 }, { "unitId": "penguin_boy", "rate": 4 }] },
-    "background": { "skyColor": "0x6a0c00", "groundColor": "0x3b0700", "cloudColor": "0xaa1a00" },
+    "reward": {
+      "coins": 1040000,
+      "drops": [
+        {
+          "unitId": "ur_dragon",
+          "rate": 6
+        },
+        {
+          "unitId": "penguin_boy",
+          "rate": 4
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x6a0c00",
+      "groundColor": "0x3b0700",
+      "cloudColor": "0xaa1a00"
+    },
     "difficulty": "hellfire"
   },
   {
@@ -191,22 +638,83 @@
     "description": "hellfire_4_desc",
     "worldId": "world2",
     "length": 6900,
-    "baseCastleHp": 85000,
-    "enemyCastleHp": 500000,
+    "baseCastleHp": 201600,
+    "enemyCastleHp": 1120000,
     "theme": "Vegetable Army",
     "enemyWaves": [
-      { "timeMs": 2000, "unitId": "enemy_sunflower", "count": 30, "intervalMs": 320 },
-      { "timeMs": 25000, "unitId": "enemy_mushroom", "count": 28, "intervalMs": 350 },
-      { "timeMs": 52000, "unitId": "enemy_root", "count": 25, "intervalMs": 380 },
-      { "timeMs": 80000, "unitId": "enemy_tomato", "count": 24, "intervalMs": 400 },
-      { "timeMs": 110000, "unitId": "enemy_pepper", "count": 22, "intervalMs": 420 },
-      { "timeMs": 140000, "unitId": "enemy_corn", "count": 18, "intervalMs": 480 },
-      { "timeMs": 170000, "unitId": "enemy_sr_bamboo", "count": 10, "intervalMs": 900 },
-      { "timeMs": 200000, "unitId": "enemy_ribbon", "count": 6, "intervalMs": 1500 },
-      { "timeMs": 235000, "unitId": "enemy_ur_tank", "count": 4, "intervalMs": 1800 }
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_sunflower",
+        "count": 56,
+        "intervalMs": 963
+      },
+      {
+        "timeMs": 5753,
+        "unitId": "enemy_mushroom",
+        "count": 53,
+        "intervalMs": 1001
+      },
+      {
+        "timeMs": 9171,
+        "unitId": "enemy_root",
+        "count": 47,
+        "intervalMs": 898
+      },
+      {
+        "timeMs": 13276,
+        "unitId": "enemy_tomato",
+        "count": 45,
+        "intervalMs": 708
+      },
+      {
+        "timeMs": 17647,
+        "unitId": "enemy_pepper",
+        "count": 41,
+        "intervalMs": 700
+      },
+      {
+        "timeMs": 21174,
+        "unitId": "enemy_corn",
+        "count": 34,
+        "intervalMs": 747
+      },
+      {
+        "timeMs": 24652,
+        "unitId": "enemy_sr_bamboo",
+        "count": 19,
+        "intervalMs": 698
+      },
+      {
+        "timeMs": 29024,
+        "unitId": "enemy_ribbon",
+        "count": 11,
+        "intervalMs": 760
+      },
+      {
+        "timeMs": 32114,
+        "unitId": "enemy_ur_tank",
+        "count": 8,
+        "intervalMs": 816
+      }
     ],
-    "reward": { "coins": 190000, "drops": [{ "unitId": "ur_tank", "rate": 6 }, { "unitId": "ribbon_girl", "rate": 4 }] },
-    "background": { "skyColor": "0x6f0d00", "groundColor": "0x3e0800", "cloudColor": "0xaf1b00" },
+    "reward": {
+      "coins": 1120000,
+      "drops": [
+        {
+          "unitId": "ur_tank",
+          "rate": 6
+        },
+        {
+          "unitId": "ribbon_girl",
+          "rate": 4
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x6f0d00",
+      "groundColor": "0x3e0800",
+      "cloudColor": "0xaf1b00"
+    },
     "difficulty": "hellfire"
   },
   {
@@ -215,46 +723,157 @@
     "description": "hellfire_boss_desc",
     "worldId": "world2",
     "length": 7200,
-    "baseCastleHp": 90000,
-    "enemyCastleHp": 1,
+    "baseCastleHp": 216000,
+    "enemyCastleHp": 1300000,
     "isBossStage": true,
     "theme": "Infernal Guard",
     "enemyWaves": [
-      { "timeMs": 2000, "unitId": "enemy_fire_chili", "count": 35, "intervalMs": 300 },
-      { "timeMs": 32000, "unitId": "enemy_watermelon", "count": 18, "intervalMs": 480 },
-      { "timeMs": 62000, "unitId": "enemy_sr_rose", "count": 12, "intervalMs": 800 },
-      { "timeMs": 95000, "unitId": "enemy_fire_chili", "count": 32, "intervalMs": 320 },
-      { "timeMs": 128000, "unitId": "enemy_lennon", "count": 5, "intervalMs": 1600 },
-      { "timeMs": 162000, "unitId": "enemy_sr_rose", "count": 10, "intervalMs": 900 },
-      { "timeMs": 198000, "unitId": "enemy_ur_angel", "count": 5, "intervalMs": 1600 },
-      { "timeMs": 235000, "unitId": "boss_hellfire", "count": 1, "intervalMs": 0 }
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_fire_chili",
+        "count": 100,
+        "intervalMs": 765
+      },
+      {
+        "timeMs": 32000,
+        "unitId": "enemy_watermelon",
+        "count": 51,
+        "intervalMs": 765
+      },
+      {
+        "timeMs": 62000,
+        "unitId": "enemy_sr_rose",
+        "count": 34,
+        "intervalMs": 765
+      },
+      {
+        "timeMs": 95000,
+        "unitId": "enemy_fire_chili",
+        "count": 91,
+        "intervalMs": 765
+      },
+      {
+        "timeMs": 128000,
+        "unitId": "enemy_lennon",
+        "count": 14,
+        "intervalMs": 765
+      },
+      {
+        "timeMs": 162000,
+        "unitId": "enemy_sr_rose",
+        "count": 28,
+        "intervalMs": 765
+      },
+      {
+        "timeMs": 198000,
+        "unitId": "enemy_ur_angel",
+        "count": 14,
+        "intervalMs": 765
+      },
+      {
+        "timeMs": 235000,
+        "unitId": "boss_hellfire",
+        "count": 1,
+        "intervalMs": 765
+      }
     ],
-    "reward": { "coins": 250000, "drops": [{ "unitId": "ur_angel", "rate": 8 }, { "unitId": "lennon", "rate": 5 }] },
-    "background": { "skyColor": "0x740e00", "groundColor": "0x410900", "cloudColor": "0xb41c00" },
+    "reward": {
+      "coins": 1500000,
+      "drops": [
+        {
+          "unitId": "ur_angel",
+          "rate": 8
+        },
+        {
+          "unitId": "lennon",
+          "rate": 5
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x740e00",
+      "groundColor": "0x410900",
+      "cloudColor": "0xb41c00"
+    },
     "difficulty": "hellfire"
   },
-
   {
     "id": "abyss_1",
     "name": "abyss_1_name",
     "description": "abyss_1_desc",
     "worldId": "world2",
     "length": 7500,
-    "baseCastleHp": 95000,
-    "enemyCastleHp": 550000,
+    "baseCastleHp": 264000,
+    "enemyCastleHp": 1760000,
     "theme": "Dark Warriors",
     "enemyWaves": [
-      { "timeMs": 2000, "unitId": "enemy_cat_warrior", "count": 35, "intervalMs": 300 },
-      { "timeMs": 32000, "unitId": "enemy_bean", "count": 28, "intervalMs": 350 },
-      { "timeMs": 65000, "unitId": "enemy_ninja", "count": 35, "intervalMs": 300 },
-      { "timeMs": 100000, "unitId": "enemy_cat_tank", "count": 15, "intervalMs": 550 },
-      { "timeMs": 135000, "unitId": "enemy_sr_rose", "count": 14, "intervalMs": 720 },
-      { "timeMs": 170000, "unitId": "enemy_mage", "count": 18, "intervalMs": 480 },
-      { "timeMs": 205000, "unitId": "enemy_yumemi", "count": 7, "intervalMs": 1400 },
-      { "timeMs": 242000, "unitId": "enemy_ur_knight", "count": 5, "intervalMs": 1600 }
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_cat_warrior",
+        "count": 69,
+        "intervalMs": 805
+      },
+      {
+        "timeMs": 5120,
+        "unitId": "enemy_bean",
+        "count": 55,
+        "intervalMs": 953
+      },
+      {
+        "timeMs": 9164,
+        "unitId": "enemy_ninja",
+        "count": 69,
+        "intervalMs": 898
+      },
+      {
+        "timeMs": 13274,
+        "unitId": "enemy_cat_tank",
+        "count": 29,
+        "intervalMs": 848
+      },
+      {
+        "timeMs": 16148,
+        "unitId": "enemy_sr_rose",
+        "count": 27,
+        "intervalMs": 887
+      },
+      {
+        "timeMs": 20092,
+        "unitId": "enemy_mage",
+        "count": 35,
+        "intervalMs": 859
+      },
+      {
+        "timeMs": 23975,
+        "unitId": "enemy_yumemi",
+        "count": 14,
+        "intervalMs": 761
+      },
+      {
+        "timeMs": 27441,
+        "unitId": "enemy_ur_knight",
+        "count": 10,
+        "intervalMs": 905
+      }
     ],
-    "reward": { "coins": 220000, "drops": [{ "unitId": "yumemi", "rate": 5 }, { "unitId": "ur_knight", "rate": 8 }] },
-    "background": { "skyColor": "0x200020", "groundColor": "0x150015", "cloudColor": "0x400040" },
+    "reward": {
+      "coins": 1760000,
+      "drops": [
+        {
+          "unitId": "yumemi",
+          "rate": 5
+        },
+        {
+          "unitId": "ur_knight",
+          "rate": 8
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x200020",
+      "groundColor": "0x150015",
+      "cloudColor": "0x400040"
+    },
     "difficulty": "abyss"
   },
   {
@@ -263,21 +882,77 @@
     "description": "abyss_2_desc",
     "worldId": "world2",
     "length": 7800,
-    "baseCastleHp": 100000,
-    "enemyCastleHp": 600000,
+    "baseCastleHp": 288000,
+    "enemyCastleHp": 1920000,
     "theme": "Aerial Onslaught",
     "enemyWaves": [
-      { "timeMs": 2000, "unitId": "enemy_dew", "count": 35, "intervalMs": 300 },
-      { "timeMs": 35000, "unitId": "enemy_acorn", "count": 32, "intervalMs": 320 },
-      { "timeMs": 70000, "unitId": "enemy_crow", "count": 40, "intervalMs": 280 },
-      { "timeMs": 108000, "unitId": "enemy_leaf_ninja", "count": 35, "intervalMs": 300 },
-      { "timeMs": 145000, "unitId": "enemy_sr_tulip", "count": 14, "intervalMs": 720 },
-      { "timeMs": 182000, "unitId": "enemy_nika", "count": 8, "intervalMs": 1300 },
-      { "timeMs": 220000, "unitId": "enemy_ur_dragon", "count": 4, "intervalMs": 1800 },
-      { "timeMs": 258000, "unitId": "enemy_ur_angel", "count": 4, "intervalMs": 1800 }
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_dew",
+        "count": 68,
+        "intervalMs": 648
+      },
+      {
+        "timeMs": 5920,
+        "unitId": "enemy_acorn",
+        "count": 63,
+        "intervalMs": 889
+      },
+      {
+        "timeMs": 9448,
+        "unitId": "enemy_crow",
+        "count": 78,
+        "intervalMs": 725
+      },
+      {
+        "timeMs": 12789,
+        "unitId": "enemy_leaf_ninja",
+        "count": 68,
+        "intervalMs": 825
+      },
+      {
+        "timeMs": 16320,
+        "unitId": "enemy_sr_tulip",
+        "count": 27,
+        "intervalMs": 652
+      },
+      {
+        "timeMs": 20161,
+        "unitId": "enemy_nika",
+        "count": 16,
+        "intervalMs": 788
+      },
+      {
+        "timeMs": 24056,
+        "unitId": "enemy_ur_dragon",
+        "count": 8,
+        "intervalMs": 927
+      },
+      {
+        "timeMs": 27869,
+        "unitId": "enemy_ur_angel",
+        "count": 8,
+        "intervalMs": 816
+      }
     ],
-    "reward": { "coins": 260000, "drops": [{ "unitId": "nika", "rate": 5 }, { "unitId": "ur_angel", "rate": 8 }] },
-    "background": { "skyColor": "0x180028", "groundColor": "0x100018", "cloudColor": "0x380048" },
+    "reward": {
+      "coins": 1920000,
+      "drops": [
+        {
+          "unitId": "nika",
+          "rate": 5
+        },
+        {
+          "unitId": "ur_angel",
+          "rate": 8
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x180028",
+      "groundColor": "0x100018",
+      "cloudColor": "0x380048"
+    },
     "difficulty": "abyss"
   },
   {
@@ -286,21 +961,77 @@
     "description": "abyss_3_desc",
     "worldId": "world2",
     "length": 8100,
-    "baseCastleHp": 110000,
-    "enemyCastleHp": 680000,
+    "baseCastleHp": 312000,
+    "enemyCastleHp": 2080000,
     "theme": "Fortress Siege",
     "enemyWaves": [
-      { "timeMs": 2000, "unitId": "enemy_block", "count": 15, "intervalMs": 550 },
-      { "timeMs": 32000, "unitId": "enemy_pebble", "count": 25, "intervalMs": 400 },
-      { "timeMs": 65000, "unitId": "enemy_capybara", "count": 22, "intervalMs": 420 },
-      { "timeMs": 100000, "unitId": "enemy_watermelon", "count": 22, "intervalMs": 420 },
-      { "timeMs": 138000, "unitId": "enemy_corn", "count": 22, "intervalMs": 420 },
-      { "timeMs": 175000, "unitId": "enemy_sr_corn_tank", "count": 12, "intervalMs": 850 },
-      { "timeMs": 215000, "unitId": "enemy_penguin", "count": 8, "intervalMs": 1300 },
-      { "timeMs": 258000, "unitId": "enemy_ur_tank", "count": 6, "intervalMs": 1500 }
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_block",
+        "count": 41,
+        "intervalMs": 786
+      },
+      {
+        "timeMs": 4951,
+        "unitId": "enemy_pebble",
+        "count": 69,
+        "intervalMs": 931
+      },
+      {
+        "timeMs": 8274,
+        "unitId": "enemy_capybara",
+        "count": 61,
+        "intervalMs": 643
+      },
+      {
+        "timeMs": 12393,
+        "unitId": "enemy_watermelon",
+        "count": 61,
+        "intervalMs": 894
+      },
+      {
+        "timeMs": 15662,
+        "unitId": "enemy_corn",
+        "count": 61,
+        "intervalMs": 883
+      },
+      {
+        "timeMs": 18570,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 33,
+        "intervalMs": 905
+      },
+      {
+        "timeMs": 21938,
+        "unitId": "enemy_penguin",
+        "count": 22,
+        "intervalMs": 759
+      },
+      {
+        "timeMs": 25104,
+        "unitId": "enemy_ur_tank",
+        "count": 17,
+        "intervalMs": 878
+      }
     ],
-    "reward": { "coins": 300000, "drops": [{ "unitId": "penguin_boy", "rate": 6 }, { "unitId": "ur_tank", "rate": 10 }] },
-    "background": { "skyColor": "0x100030", "groundColor": "0x0a0018", "cloudColor": "0x300050" },
+    "reward": {
+      "coins": 2080000,
+      "drops": [
+        {
+          "unitId": "penguin_boy",
+          "rate": 6
+        },
+        {
+          "unitId": "ur_tank",
+          "rate": 10
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x100030",
+      "groundColor": "0x0a0018",
+      "cloudColor": "0x300050"
+    },
     "difficulty": "abyss"
   },
   {
@@ -309,21 +1040,77 @@
     "description": "abyss_4_desc",
     "worldId": "world2",
     "length": 8500,
-    "baseCastleHp": 120000,
-    "enemyCastleHp": 750000,
+    "baseCastleHp": 336000,
+    "enemyCastleHp": 2240000,
     "theme": "Nature's Wrath",
     "enemyWaves": [
-      { "timeMs": 2000, "unitId": "enemy_root", "count": 32, "intervalMs": 320 },
-      { "timeMs": 35000, "unitId": "enemy_mushroom", "count": 30, "intervalMs": 340 },
-      { "timeMs": 70000, "unitId": "enemy_sunflower", "count": 32, "intervalMs": 320 },
-      { "timeMs": 108000, "unitId": "enemy_ice_flower", "count": 22, "intervalMs": 420 },
-      { "timeMs": 145000, "unitId": "enemy_tomato", "count": 24, "intervalMs": 400 },
-      { "timeMs": 182000, "unitId": "enemy_sr_bamboo", "count": 12, "intervalMs": 850 },
-      { "timeMs": 222000, "unitId": "enemy_ribbon", "count": 8, "intervalMs": 1300 },
-      { "timeMs": 268000, "unitId": "enemy_ur_mage", "count": 6, "intervalMs": 1500 }
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_root",
+        "count": 76,
+        "intervalMs": 711
+      },
+      {
+        "timeMs": 5099,
+        "unitId": "enemy_mushroom",
+        "count": 71,
+        "intervalMs": 667
+      },
+      {
+        "timeMs": 8509,
+        "unitId": "enemy_sunflower",
+        "count": 76,
+        "intervalMs": 941
+      },
+      {
+        "timeMs": 12314,
+        "unitId": "enemy_ice_flower",
+        "count": 52,
+        "intervalMs": 762
+      },
+      {
+        "timeMs": 15777,
+        "unitId": "enemy_tomato",
+        "count": 57,
+        "intervalMs": 907
+      },
+      {
+        "timeMs": 18741,
+        "unitId": "enemy_sr_bamboo",
+        "count": 28,
+        "intervalMs": 691
+      },
+      {
+        "timeMs": 21584,
+        "unitId": "enemy_ribbon",
+        "count": 19,
+        "intervalMs": 709
+      },
+      {
+        "timeMs": 24729,
+        "unitId": "enemy_ur_mage",
+        "count": 14,
+        "intervalMs": 671
+      }
     ],
-    "reward": { "coins": 350000, "drops": [{ "unitId": "ribbon_girl", "rate": 6 }, { "unitId": "ur_mage", "rate": 10 }] },
-    "background": { "skyColor": "0x080038", "groundColor": "0x05001a", "cloudColor": "0x280058" },
+    "reward": {
+      "coins": 2240000,
+      "drops": [
+        {
+          "unitId": "ribbon_girl",
+          "rate": 6
+        },
+        {
+          "unitId": "ur_mage",
+          "rate": 10
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x080038",
+      "groundColor": "0x05001a",
+      "cloudColor": "0x280058"
+    },
     "difficulty": "abyss"
   },
   {
@@ -332,48 +1119,164 @@
     "description": "abyss_boss_desc",
     "worldId": "world2",
     "length": 9000,
-    "baseCastleHp": 130000,
-    "enemyCastleHp": 1,
+    "baseCastleHp": 360000,
+    "enemyCastleHp": 2600000,
     "isBossStage": true,
     "theme": "Abyssal Elite",
     "enemyWaves": [
-      { "timeMs": 2000, "unitId": "enemy_wolf", "count": 38, "intervalMs": 280 },
-      { "timeMs": 40000, "unitId": "enemy_fire_chili", "count": 35, "intervalMs": 300 },
-      { "timeMs": 80000, "unitId": "enemy_pepper", "count": 28, "intervalMs": 360 },
-      { "timeMs": 120000, "unitId": "enemy_mage", "count": 20, "intervalMs": 450 },
-      { "timeMs": 160000, "unitId": "enemy_lennon", "count": 6, "intervalMs": 1500 },
-      { "timeMs": 205000, "unitId": "enemy_mage", "count": 18, "intervalMs": 480 },
-      { "timeMs": 248000, "unitId": "enemy_ur_knight", "count": 6, "intervalMs": 1500 },
-      { "timeMs": 295000, "unitId": "boss_abyss", "count": 1, "intervalMs": 0 }
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_wolf",
+        "count": 105,
+        "intervalMs": 720
+      },
+      {
+        "timeMs": 40000,
+        "unitId": "enemy_fire_chili",
+        "count": 97,
+        "intervalMs": 720
+      },
+      {
+        "timeMs": 80000,
+        "unitId": "enemy_pepper",
+        "count": 77,
+        "intervalMs": 720
+      },
+      {
+        "timeMs": 120000,
+        "unitId": "enemy_mage",
+        "count": 55,
+        "intervalMs": 720
+      },
+      {
+        "timeMs": 160000,
+        "unitId": "enemy_lennon",
+        "count": 17,
+        "intervalMs": 720
+      },
+      {
+        "timeMs": 205000,
+        "unitId": "enemy_mage",
+        "count": 50,
+        "intervalMs": 720
+      },
+      {
+        "timeMs": 248000,
+        "unitId": "enemy_ur_knight",
+        "count": 17,
+        "intervalMs": 720
+      },
+      {
+        "timeMs": 295000,
+        "unitId": "boss_abyss",
+        "count": 1,
+        "intervalMs": 720
+      }
     ],
-    "reward": { "coins": 450000, "drops": [{ "unitId": "lennon", "rate": 8 }, { "unitId": "ur_knight", "rate": 12 }] },
-    "background": { "skyColor": "0x000040", "groundColor": "0x000020", "cloudColor": "0x200060" },
+    "reward": {
+      "coins": 3000000,
+      "drops": [
+        {
+          "unitId": "lennon",
+          "rate": 8
+        },
+        {
+          "unitId": "ur_knight",
+          "rate": 12
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x000040",
+      "groundColor": "0x000020",
+      "cloudColor": "0x200060"
+    },
     "difficulty": "abyss"
   },
-
   {
     "id": "inferno_boss_1",
     "name": "inferno_boss_1_name",
     "description": "inferno_boss_1_desc",
     "worldId": "world2",
     "length": 9500,
-    "baseCastleHp": 140000,
-    "enemyCastleHp": 1,
+    "baseCastleHp": 600000,
+    "enemyCastleHp": 5200000,
     "isBossStage": true,
     "theme": "First Trial",
     "enemyWaves": [
-      { "timeMs": 2000, "unitId": "enemy_frog", "count": 32, "intervalMs": 320 },
-      { "timeMs": 35000, "unitId": "enemy_corn_kid", "count": 30, "intervalMs": 340 },
-      { "timeMs": 72000, "unitId": "enemy_ninja", "count": 38, "intervalMs": 280 },
-      { "timeMs": 115000, "unitId": "enemy_fire_chili", "count": 35, "intervalMs": 300 },
-      { "timeMs": 158000, "unitId": "enemy_sr_rose", "count": 15, "intervalMs": 700 },
-      { "timeMs": 198000, "unitId": "enemy_sr_pirate", "count": 14, "intervalMs": 750 },
-      { "timeMs": 242000, "unitId": "enemy_nika", "count": 8, "intervalMs": 1300 },
-      { "timeMs": 288000, "unitId": "enemy_ur_tank", "count": 7, "intervalMs": 1400 },
-      { "timeMs": 338000, "unitId": "boss_inferno_1", "count": 1, "intervalMs": 0 }
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_frog",
+        "count": 85,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 35000,
+        "unitId": "enemy_corn_kid",
+        "count": 80,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 72000,
+        "unitId": "enemy_ninja",
+        "count": 101,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 115000,
+        "unitId": "enemy_fire_chili",
+        "count": 93,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 158000,
+        "unitId": "enemy_sr_rose",
+        "count": 40,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 198000,
+        "unitId": "enemy_sr_pirate",
+        "count": 37,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 242000,
+        "unitId": "enemy_nika",
+        "count": 21,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 288000,
+        "unitId": "enemy_ur_tank",
+        "count": 19,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 338000,
+        "unitId": "boss_inferno_1",
+        "count": 1,
+        "intervalMs": 675
+      }
     ],
-    "reward": { "coins": 550000, "drops": [{ "unitId": "nika", "rate": 10 }, { "unitId": "ur_tank", "rate": 12 }] },
-    "background": { "skyColor": "0x400000", "groundColor": "0x200000", "cloudColor": "0x600000" },
+    "reward": {
+      "coins": 7500000,
+      "drops": [
+        {
+          "unitId": "nika",
+          "rate": 10
+        },
+        {
+          "unitId": "ur_tank",
+          "rate": 12
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x400000",
+      "groundColor": "0x200000",
+      "cloudColor": "0x600000"
+    },
     "difficulty": "inferno_boss"
   },
   {
@@ -382,23 +1285,84 @@
     "description": "inferno_boss_2_desc",
     "worldId": "world2",
     "length": 10000,
-    "baseCastleHp": 150000,
-    "enemyCastleHp": 1,
+    "baseCastleHp": 600000,
+    "enemyCastleHp": 5200000,
     "isBossStage": true,
     "theme": "Second Trial",
     "enemyWaves": [
-      { "timeMs": 2000, "unitId": "enemy_dog", "count": 38, "intervalMs": 280 },
-      { "timeMs": 42000, "unitId": "enemy_cat_warrior", "count": 35, "intervalMs": 300 },
-      { "timeMs": 85000, "unitId": "enemy_wolf", "count": 32, "intervalMs": 320 },
-      { "timeMs": 130000, "unitId": "enemy_crow", "count": 40, "intervalMs": 280 },
-      { "timeMs": 178000, "unitId": "enemy_sr_tulip", "count": 16, "intervalMs": 680 },
-      { "timeMs": 222000, "unitId": "enemy_mage", "count": 22, "intervalMs": 420 },
-      { "timeMs": 268000, "unitId": "enemy_yumemi", "count": 8, "intervalMs": 1300 },
-      { "timeMs": 318000, "unitId": "enemy_ur_dragon", "count": 6, "intervalMs": 1500 },
-      { "timeMs": 370000, "unitId": "boss_inferno_2", "count": 1, "intervalMs": 0 }
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_dog",
+        "count": 92,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_cat_warrior",
+        "count": 85,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 85000,
+        "unitId": "enemy_wolf",
+        "count": 78,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 130000,
+        "unitId": "enemy_crow",
+        "count": 97,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 178000,
+        "unitId": "enemy_sr_tulip",
+        "count": 39,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 222000,
+        "unitId": "enemy_mage",
+        "count": 53,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 268000,
+        "unitId": "enemy_yumemi",
+        "count": 19,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 318000,
+        "unitId": "enemy_ur_dragon",
+        "count": 15,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 370000,
+        "unitId": "boss_inferno_2",
+        "count": 1,
+        "intervalMs": 675
+      }
     ],
-    "reward": { "coins": 700000, "drops": [{ "unitId": "yumemi", "rate": 12 }, { "unitId": "ur_dragon", "rate": 12 }] },
-    "background": { "skyColor": "0x500000", "groundColor": "0x280000", "cloudColor": "0x700000" },
+    "reward": {
+      "coins": 7500000,
+      "drops": [
+        {
+          "unitId": "yumemi",
+          "rate": 12
+        },
+        {
+          "unitId": "ur_dragon",
+          "rate": 12
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x500000",
+      "groundColor": "0x280000",
+      "cloudColor": "0x700000"
+    },
     "difficulty": "inferno_boss"
   },
   {
@@ -407,23 +1371,84 @@
     "description": "inferno_boss_3_desc",
     "worldId": "world2",
     "length": 10500,
-    "baseCastleHp": 160000,
-    "enemyCastleHp": 1,
+    "baseCastleHp": 600000,
+    "enemyCastleHp": 5200000,
     "isBossStage": true,
     "theme": "Third Trial",
     "enemyWaves": [
-      { "timeMs": 2000, "unitId": "enemy_pebble", "count": 28, "intervalMs": 360 },
-      { "timeMs": 40000, "unitId": "enemy_block", "count": 18, "intervalMs": 500 },
-      { "timeMs": 82000, "unitId": "enemy_cat_tank", "count": 18, "intervalMs": 480 },
-      { "timeMs": 128000, "unitId": "enemy_watermelon", "count": 25, "intervalMs": 400 },
-      { "timeMs": 178000, "unitId": "enemy_sr_corn_tank", "count": 14, "intervalMs": 750 },
-      { "timeMs": 225000, "unitId": "enemy_sr_bamboo", "count": 14, "intervalMs": 750 },
-      { "timeMs": 275000, "unitId": "enemy_penguin", "count": 9, "intervalMs": 1200 },
-      { "timeMs": 328000, "unitId": "enemy_ur_angel", "count": 7, "intervalMs": 1400 },
-      { "timeMs": 385000, "unitId": "boss_inferno_3", "count": 1, "intervalMs": 0 }
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_pebble",
+        "count": 100,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 40000,
+        "unitId": "enemy_block",
+        "count": 64,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 82000,
+        "unitId": "enemy_cat_tank",
+        "count": 64,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 128000,
+        "unitId": "enemy_watermelon",
+        "count": 90,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 178000,
+        "unitId": "enemy_sr_corn_tank",
+        "count": 50,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 225000,
+        "unitId": "enemy_sr_bamboo",
+        "count": 50,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 275000,
+        "unitId": "enemy_penguin",
+        "count": 32,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 328000,
+        "unitId": "enemy_ur_angel",
+        "count": 25,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 385000,
+        "unitId": "boss_inferno_3",
+        "count": 1,
+        "intervalMs": 675
+      }
     ],
-    "reward": { "coins": 850000, "drops": [{ "unitId": "penguin_boy", "rate": 12 }, { "unitId": "ur_angel", "rate": 15 }] },
-    "background": { "skyColor": "0x600000", "groundColor": "0x300000", "cloudColor": "0x800000" },
+    "reward": {
+      "coins": 7500000,
+      "drops": [
+        {
+          "unitId": "penguin_boy",
+          "rate": 12
+        },
+        {
+          "unitId": "ur_angel",
+          "rate": 15
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x600000",
+      "groundColor": "0x300000",
+      "cloudColor": "0x800000"
+    },
     "difficulty": "inferno_boss"
   },
   {
@@ -432,24 +1457,94 @@
     "description": "inferno_boss_4_desc",
     "worldId": "world2",
     "length": 11000,
-    "baseCastleHp": 180000,
-    "enemyCastleHp": 1,
+    "baseCastleHp": 600000,
+    "enemyCastleHp": 5200000,
     "isBossStage": true,
     "theme": "Fourth Trial",
     "enemyWaves": [
-      { "timeMs": 2000, "unitId": "enemy_root", "count": 35, "intervalMs": 300 },
-      { "timeMs": 42000, "unitId": "enemy_mushroom", "count": 32, "intervalMs": 320 },
-      { "timeMs": 85000, "unitId": "enemy_acorn", "count": 38, "intervalMs": 280 },
-      { "timeMs": 132000, "unitId": "enemy_leaf_ninja", "count": 38, "intervalMs": 280 },
-      { "timeMs": 180000, "unitId": "enemy_tomato", "count": 28, "intervalMs": 360 },
-      { "timeMs": 228000, "unitId": "enemy_sr_rose", "count": 16, "intervalMs": 680 },
-      { "timeMs": 278000, "unitId": "enemy_sr_tulip", "count": 15, "intervalMs": 720 },
-      { "timeMs": 330000, "unitId": "enemy_ribbon", "count": 9, "intervalMs": 1200 },
-      { "timeMs": 382000, "unitId": "enemy_ur_mage", "count": 7, "intervalMs": 1400 },
-      { "timeMs": 435000, "unitId": "boss_inferno_4", "count": 1, "intervalMs": 0 }
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_root",
+        "count": 77,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 42000,
+        "unitId": "enemy_mushroom",
+        "count": 70,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 85000,
+        "unitId": "enemy_acorn",
+        "count": 83,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 132000,
+        "unitId": "enemy_leaf_ninja",
+        "count": 83,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 180000,
+        "unitId": "enemy_tomato",
+        "count": 61,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 228000,
+        "unitId": "enemy_sr_rose",
+        "count": 35,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 278000,
+        "unitId": "enemy_sr_tulip",
+        "count": 33,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 330000,
+        "unitId": "enemy_ribbon",
+        "count": 20,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 382000,
+        "unitId": "enemy_ur_mage",
+        "count": 15,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 435000,
+        "unitId": "boss_inferno_4",
+        "count": 1,
+        "intervalMs": 675
+      }
     ],
-    "reward": { "coins": 1000000, "drops": [{ "unitId": "ribbon_girl", "rate": 12 }, { "unitId": "ur_mage", "rate": 15 }, { "unitId": "ur_knight", "rate": 12 }] },
-    "background": { "skyColor": "0x700000", "groundColor": "0x380000", "cloudColor": "0x900000" },
+    "reward": {
+      "coins": 7500000,
+      "drops": [
+        {
+          "unitId": "ribbon_girl",
+          "rate": 12
+        },
+        {
+          "unitId": "ur_mage",
+          "rate": 15
+        },
+        {
+          "unitId": "ur_knight",
+          "rate": 12
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x700000",
+      "groundColor": "0x380000",
+      "cloudColor": "0x900000"
+    },
     "difficulty": "inferno_boss"
   },
   {
@@ -458,26 +1553,110 @@
     "description": "inferno_boss_5_desc",
     "worldId": "world2",
     "length": 12000,
-    "baseCastleHp": 200000,
-    "enemyCastleHp": 1,
+    "baseCastleHp": 600000,
+    "enemyCastleHp": 5200000,
     "isBossStage": true,
     "theme": "Ultimate Challenge",
     "enemyWaves": [
-      { "timeMs": 2000, "unitId": "enemy_sunflower", "count": 35, "intervalMs": 300 },
-      { "timeMs": 45000, "unitId": "enemy_bean", "count": 32, "intervalMs": 320 },
-      { "timeMs": 92000, "unitId": "enemy_pepper", "count": 32, "intervalMs": 320 },
-      { "timeMs": 142000, "unitId": "enemy_ice_flower", "count": 25, "intervalMs": 400 },
-      { "timeMs": 195000, "unitId": "enemy_corn", "count": 28, "intervalMs": 360 },
-      { "timeMs": 250000, "unitId": "enemy_sr_pirate", "count": 18, "intervalMs": 620 },
-      { "timeMs": 308000, "unitId": "enemy_mage", "count": 24, "intervalMs": 400 },
-      { "timeMs": 368000, "unitId": "enemy_lennon", "count": 8, "intervalMs": 1300 },
-      { "timeMs": 425000, "unitId": "enemy_nika", "count": 8, "intervalMs": 1300 },
-      { "timeMs": 482000, "unitId": "enemy_ur_tank", "count": 8, "intervalMs": 1300 },
-      { "timeMs": 545000, "unitId": "enemy_ur_dragon", "count": 7, "intervalMs": 1400 },
-      { "timeMs": 610000, "unitId": "boss_inferno_final", "count": 1, "intervalMs": 0 }
+      {
+        "timeMs": 2000,
+        "unitId": "enemy_sunflower",
+        "count": 74,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 45000,
+        "unitId": "enemy_bean",
+        "count": 68,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 92000,
+        "unitId": "enemy_pepper",
+        "count": 68,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 142000,
+        "unitId": "enemy_ice_flower",
+        "count": 53,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 195000,
+        "unitId": "enemy_corn",
+        "count": 59,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 250000,
+        "unitId": "enemy_sr_pirate",
+        "count": 38,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 308000,
+        "unitId": "enemy_mage",
+        "count": 51,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 368000,
+        "unitId": "enemy_lennon",
+        "count": 17,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 425000,
+        "unitId": "enemy_nika",
+        "count": 17,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 482000,
+        "unitId": "enemy_ur_tank",
+        "count": 17,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 545000,
+        "unitId": "enemy_ur_dragon",
+        "count": 15,
+        "intervalMs": 675
+      },
+      {
+        "timeMs": 610000,
+        "unitId": "boss_inferno_final",
+        "count": 1,
+        "intervalMs": 675
+      }
     ],
-    "reward": { "coins": 1500000, "drops": [{ "unitId": "lennon", "rate": 18 }, { "unitId": "nika", "rate": 15 }, { "unitId": "ur_tank", "rate": 18 }, { "unitId": "ur_dragon", "rate": 18 }] },
-    "background": { "skyColor": "0x800000", "groundColor": "0x400000", "cloudColor": "0xa00000" },
+    "reward": {
+      "coins": 7500000,
+      "drops": [
+        {
+          "unitId": "lennon",
+          "rate": 18
+        },
+        {
+          "unitId": "nika",
+          "rate": 15
+        },
+        {
+          "unitId": "ur_tank",
+          "rate": 18
+        },
+        {
+          "unitId": "ur_dragon",
+          "rate": 18
+        }
+      ]
+    },
+    "background": {
+      "skyColor": "0x800000",
+      "groundColor": "0x400000",
+      "cloudColor": "0xa00000"
+    },
     "difficulty": "inferno_boss"
   }
 ]
