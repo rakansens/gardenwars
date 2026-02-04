@@ -1040,6 +1040,15 @@ export function usePlayerData() {
                 return;
             }
 
+            // CRITICAL FIX: Update ref IMMEDIATELY to prevent race condition with flushToSupabase
+            // If flushToSupabase is called before the next render, it must see the updated data
+            dataRef.current = {
+                ...dataRef.current,
+                coins: result.coins ?? dataRef.current.coins,
+                unitInventory: result.unitInventory ?? dataRef.current.unitInventory,
+                clearedStages: result.clearedStages ?? dataRef.current.clearedStages,
+            };
+
             // サーバーからの結果でローカル状態を更新
             setData((prev) => ({
                 ...prev,
@@ -1051,23 +1060,31 @@ export function usePlayerData() {
         }
 
         // 未認証ユーザーのみローカルで処理
-        setData((prev) => {
-            const newInventory = { ...prev.unitInventory };
-            for (const unitId of droppedUnitIds) {
-                newInventory[unitId] = (newInventory[unitId] || 0) + 1;
-            }
+        // CRITICAL FIX: Update dataRef immediately to handle race conditions
+        const prevData = dataRef.current;
 
-            const newClearedStages = prev.clearedStages.includes(stageId)
-                ? prev.clearedStages
-                : [...prev.clearedStages, stageId];
+        const newInventory = { ...prevData.unitInventory };
+        for (const unitId of droppedUnitIds) {
+            newInventory[unitId] = (newInventory[unitId] || 0) + 1;
+        }
 
-            return {
-                ...prev,
-                coins: prev.coins + coinsGained,
-                unitInventory: newInventory,
-                clearedStages: newClearedStages,
-            };
-        });
+        const newClearedStages = prevData.clearedStages.includes(stageId)
+            ? prevData.clearedStages
+            : [...prevData.clearedStages, stageId];
+
+        const newData = {
+            ...prevData,
+            coins: prevData.coins + coinsGained,
+            unitInventory: newInventory,
+            clearedStages: newClearedStages,
+            lastModified: Date.now(),
+        };
+
+        // Update Ref immediately
+        dataRef.current = newData;
+
+        // Update State
+        setData(newData);
     }, [isAuthenticated, playerId]);
 
     // 初期ロード時にショップが空なら更新
