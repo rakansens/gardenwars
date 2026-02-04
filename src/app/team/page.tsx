@@ -604,110 +604,126 @@ export default function TeamPage() {
                 }}
             />
 
-            <div className="w-full px-5 md:container md:px-8 pb-8">
-                {/* 現在の編成（スティッキー・アコーディオン） */}
-                <div className="sticky top-16 z-30 -mx-5 px-5 md:mx-0 md:px-0 py-3 bg-gradient-to-b from-amber-50 via-amber-50 to-transparent dark:from-slate-900 dark:via-slate-900">
-                    <div className="card p-3 md:p-4">
-                        {/* ヘッダー（常に表示） */}
-                        <div className="flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-2 flex-1 min-w-0">
-                                <h2 className="text-base md:text-lg font-bold whitespace-nowrap">
-                                    📋 {t("team_members")} ({validTeamCount}/{MAX_TEAM_SIZE})
-                                </h2>
-                                {/* 折りたたみ時のコスト表示 */}
-                                {!isTeamExpanded && (
-                                    <span className="text-sm font-bold text-amber-600 dark:text-amber-400">
-                                        💰 ¥{getTotalCost()}
-                                    </span>
-                                )}
-                            </div>
-                            <div className="flex items-center gap-2">
-                                {/* 折りたたみボタン */}
-                                <button
-                                    onClick={() => setIsTeamExpanded(!isTeamExpanded)}
+            {/* サイドバーレイアウト（md以上で2カラム） */}
+            <div className="flex">
+                {/* ========== 左サイドバー: デッキ（md以上で表示） ========== */}
+                <aside className="hidden md:flex flex-col w-32 lg:w-36 flex-shrink-0 sticky top-16 h-[calc(100vh-4rem)] bg-slate-100 dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 p-2 overflow-y-auto">
+                    {/* デッキヘッダー */}
+                    <div className="text-center mb-2">
+                        <span className="font-bold text-slate-700 dark:text-white text-sm">📋 {t("team_members")}</span>
+                        <div className="text-amber-600 dark:text-amber-400 text-xs font-bold">
+                            {validTeamCount}/{MAX_TEAM_SIZE} • 💰¥{getTotalCost()}
+                        </div>
+                    </div>
+
+                    {/* ロードアウト切り替え */}
+                    <div className="flex justify-center gap-1 mb-3">
+                        {[0, 1, 2].map((idx) => (
+                            <button
+                                key={idx}
+                                onClick={() => switchLoadout(idx)}
+                                className={`
+                                    w-8 h-8 rounded-lg font-bold text-xs transition-all
+                                    ${activeLoadoutIndex === idx
+                                        ? "bg-orange-500 text-white shadow-md"
+                                        : "bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-400"
+                                    }
+                                `}
+                            >
+                                {idx === 0 ? "🅰️" : idx === 1 ? "🅱️" : "🅲"}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* デッキスロット（縦並び） */}
+                    <div className="space-y-2 flex-1">
+                        {Array.from({ length: MAX_TEAM_SIZE }).map((_, index) => {
+                            const unit = getSelectedTeamDefs()[index];
+                            return (
+                                <div
+                                    key={index}
+                                    onClick={() => unit && handleToggleUnit(unit.id)}
                                     className={`
-                                        px-3 py-1.5 rounded-lg font-bold text-xs transition-all min-h-[36px]
-                                        flex items-center gap-1
-                                        ${isTeamExpanded
-                                            ? "bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-400"
-                                            : "bg-blue-500 text-white shadow-md"
+                                        aspect-square rounded-xl flex items-center justify-center cursor-pointer transition-all
+                                        ${unit
+                                            ? "bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-600 dark:to-slate-700 hover:scale-105"
+                                            : "bg-slate-200 dark:bg-slate-700 border-2 border-dashed border-slate-300 dark:border-slate-600"
                                         }
                                     `}
-                                    aria-label={isTeamExpanded ? t("collapse") : t("expand")}
+                                    title={unit ? `${unit.name} - ${t("click_to_remove")}` : undefined}
                                 >
-                                    <span className="transition-transform duration-200" style={{ transform: isTeamExpanded ? 'rotate(0deg)' : 'rotate(-90deg)' }}>
-                                        ▼
-                                    </span>
-                                    <span className="hidden sm:inline">{isTeamExpanded ? t("collapse") : t("expand")}</span>
-                                </button>
-                                {/* ロードアウト切り替えタブ */}
+                                    {unit ? (
+                                        <div className="relative w-full h-full p-1">
+                                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-white text-xs flex items-center justify-center z-10 font-bold shadow">×</div>
+                                            <RarityFrame
+                                                unitId={unit.id}
+                                                unitName={unit.name}
+                                                rarity={unit.rarity}
+                                                size="md"
+                                                baseUnitId={unit.baseUnitId}
+                                            />
+                                            <div className="absolute bottom-0 left-0 right-0 text-center">
+                                                <span className="text-[10px] bg-black/60 text-amber-400 px-1 rounded font-bold">¥{unit.cost}</span>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <span className="text-amber-400 text-xl">+</span>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </aside>
+
+                {/* ========== モバイル用デッキ（md未満で表示） ========== */}
+                <div className="md:hidden sticky top-16 z-30 w-full bg-gradient-to-b from-amber-50 via-amber-50 to-transparent dark:from-slate-900 dark:via-slate-900 px-3 py-2">
+                    <div className="card p-2">
+                        <div className="flex items-center gap-2">
+                            {/* ロードアウト */}
+                            <div className="flex gap-1">
                                 {[0, 1, 2].map((idx) => (
                                     <button
                                         key={idx}
                                         onClick={() => switchLoadout(idx)}
-                                        className={`
-                                            px-2.5 py-1.5 md:px-4 md:py-2 rounded-lg font-bold text-xs md:text-sm transition-all min-h-[36px] md:min-h-[40px]
-                                            ${activeLoadoutIndex === idx
-                                                ? "bg-orange-500 text-white shadow-md"
-                                                : "bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-400 active:scale-95"
-                                            }
-                                        `}
+                                        className={`w-7 h-7 rounded font-bold text-xs ${activeLoadoutIndex === idx ? "bg-orange-500 text-white" : "bg-gray-200 dark:bg-slate-700 text-gray-500"}`}
                                     >
-                                        {idx === 0 ? "🅰️" : idx === 1 ? "🅱️" : "🅲"}
+                                        {idx === 0 ? "A" : idx === 1 ? "B" : "C"}
                                     </button>
                                 ))}
                             </div>
-                        </div>
-                        {/* アコーディオン内容（展開時のみ表示） */}
-                        <div
-                            className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                                isTeamExpanded ? 'max-h-[500px] opacity-100 mt-3' : 'max-h-0 opacity-0 mt-0'
-                            }`}
-                        >
-                            <div className="flex gap-2 md:gap-3 overflow-x-auto pb-1">
-                            {Array.from({ length: MAX_TEAM_SIZE }).map((_, index) => {
-                                const unit = getSelectedTeamDefs()[index];
-                                return (
-                                    <div
-                                        key={index}
-                                        className={`slot ${unit ? "filled cursor-pointer" : ""}`}
-                                        onClick={() => unit && handleToggleUnit(unit.id)}
-                                        title={unit ? `${t("click_to_remove") || "タップで解除"}` : undefined}
-                                    >
-                                        {unit ? (
-                                            <div className="text-center relative w-full h-full flex flex-col items-center justify-center">
-                                                {/* 解除アイコン */}
-                                                <div className="absolute -top-1 -right-1 w-6 h-6 md:w-7 md:h-7 bg-red-500 rounded-full text-white text-sm md:text-base flex items-center justify-center shadow-md z-10 font-bold">
-                                                    ×
+                            {/* デッキスロット（横並び・スクロール） */}
+                            <div className="flex gap-1.5 flex-1 overflow-x-auto pb-1">
+                                {Array.from({ length: MAX_TEAM_SIZE }).map((_, index) => {
+                                    const unit = getSelectedTeamDefs()[index];
+                                    return (
+                                        <div
+                                            key={index}
+                                            onClick={() => unit && handleToggleUnit(unit.id)}
+                                            className={`w-11 h-11 flex-shrink-0 rounded-lg flex items-center justify-center ${unit ? "cursor-pointer" : "bg-slate-200 dark:bg-slate-700 border border-dashed border-slate-300 dark:border-slate-600"}`}
+                                        >
+                                            {unit ? (
+                                                <div className="relative w-full h-full">
+                                                    <RarityFrame unitId={unit.id} unitName={unit.name} rarity={unit.rarity} size="sm" baseUnitId={unit.baseUnitId} />
+                                                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-white text-[10px] flex items-center justify-center">×</div>
                                                 </div>
-                                                <RarityFrame
-                                                    unitId={unit.id}
-                                                    unitName={unit.name}
-                                                    rarity={unit.rarity}
-                                                    size="lg"
-                                                    showLabel={true}
-                                                    baseUnitId={unit.baseUnitId}
-                                                />
-                                                <div className="text-xs md:text-sm mt-1 font-medium truncate max-w-full px-1">{unit.name.slice(0, 6)}</div>
-                                                <div className="text-xs md:text-sm text-amber-600 font-bold">¥{unit.cost}</div>
-                                            </div>
-                                        ) : (
-                                            <span className="text-amber-400">+</span>
-                                        )}
-                                    </div>
-                                );
-                            })}
+                                            ) : (
+                                                <span className="text-amber-400 text-sm">+</span>
+                                            )}
+                                        </div>
+                                    );
+                                })}
                             </div>
-                            {/* 合計コスト表示 */}
-                            <div className="mt-2 text-sm md:text-base font-bold text-amber-700 dark:text-amber-400 text-right">
-                                💰 {t("total_cost")}: ¥{getTotalCost()}
+                            {/* コスト */}
+                            <div className="text-amber-600 dark:text-amber-400 text-xs font-bold whitespace-nowrap">
+                                {validTeamCount}/{MAX_TEAM_SIZE}<br/>💰¥{getTotalCost()}
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* ユニット一覧（タブ切り替え） */}
-                <section id="units-section" className="scroll-mt-28">
+                {/* ========== 右メイン: ユニット一覧 ========== */}
+                <div className="flex-1 min-w-0 px-3 md:px-6 pb-8">
+                    <section id="units-section" className="pt-3 md:pt-4">
                     {/* タブ切り替え */}
                     <div className="flex gap-2 mb-3">
                         <button
@@ -997,8 +1013,11 @@ export default function TeamPage() {
                             </div>
                         )
                     )}
-                </section>
+                    </section>
+                </div>
+                {/* /右メイン */}
             </div>
+            {/* /サイドバーレイアウト */}
 
             {/* 詳細モーダル */}
             {viewingUnit && (
