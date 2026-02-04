@@ -223,9 +223,9 @@ const getUniqueEnemyUnits = (stage: StageDefinition): UnitDefinition[] => {
         .filter((u): u is UnitDefinition => u !== undefined);
 };
 
-// サムネイル画像のパスを取得
-const getStageThumbnail = (stageId: string): string => {
-    return `/assets/stages/${stageId}.webp`;
+// サムネイル画像のパスを取得（background.imageを優先）
+const getStageThumbnail = (stage: StageDefinition): string => {
+    return stage.background?.image || `/assets/stages/${stage.id}.webp`;
 };
 
 export default function WorldMapPage() {
@@ -508,7 +508,7 @@ export default function WorldMapPage() {
                                         `}
                                     >
                                         <Image
-                                            src={getStageThumbnail(stage.id)}
+                                            src={getStageThumbnail(stage)}
                                             alt={t(stage.name)}
                                             fill
                                             className="object-cover"
@@ -588,7 +588,7 @@ export default function WorldMapPage() {
                             {/* サムネイル - 大きめに */}
                             <div className="relative w-full md:w-64 h-40 md:h-44 flex-shrink-0 rounded-xl overflow-hidden border-4 border-amber-600 shadow-lg">
                                 <Image
-                                    src={getStageThumbnail(selectedStage.id)}
+                                    src={getStageThumbnail(selectedStage)}
                                     alt={t(selectedStage.name)}
                                     fill
                                     className="object-cover"
