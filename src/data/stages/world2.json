@@ -62,6 +62,12 @@
         "unitId": "enemy_ur_knight",
         "count": 3,
         "intervalMs": 920
+      },
+      {
+        "unitId": "enemy_shadow_assassin",
+        "count": 1,
+        "timeMs": 45000,
+        "intervalMs": 3000
       }
     ],
     "reward": {
@@ -220,6 +226,12 @@
         "unitId": "enemy_ur_angel",
         "count": 3,
         "intervalMs": 817
+      },
+      {
+        "unitId": "enemy_ur_phoenix",
+        "count": 1,
+        "timeMs": 50000,
+        "intervalMs": 4000
       }
     ],
     "reward": {
@@ -531,6 +543,12 @@
         "unitId": "enemy_ur_mage",
         "count": 9,
         "intervalMs": 895
+      },
+      {
+        "unitId": "enemy_shadow_assassin",
+        "count": 2,
+        "timeMs": 48000,
+        "intervalMs": 3500
       }
     ],
     "reward": {
@@ -695,6 +713,18 @@
         "unitId": "enemy_ur_tank",
         "count": 8,
         "intervalMs": 816
+      },
+      {
+        "unitId": "enemy_ur_phoenix",
+        "count": 2,
+        "timeMs": 52000,
+        "intervalMs": 4000
+      },
+      {
+        "unitId": "enemy_flame_knight",
+        "count": 2,
+        "timeMs": 60000,
+        "intervalMs": 3500
       }
     ],
     "reward": {
@@ -933,6 +963,18 @@
         "unitId": "enemy_ur_angel",
         "count": 7,
         "intervalMs": 816
+      },
+      {
+        "unitId": "enemy_shadow_assassin",
+        "count": 2,
+        "timeMs": 50000,
+        "intervalMs": 3000
+      },
+      {
+        "unitId": "enemy_ur_golem",
+        "count": 1,
+        "timeMs": 58000,
+        "intervalMs": 4000
       }
     ],
     "reward": {
@@ -1091,6 +1133,24 @@
         "unitId": "enemy_ur_mage",
         "count": 14,
         "intervalMs": 671
+      },
+      {
+        "unitId": "enemy_ur_phoenix",
+        "count": 2,
+        "timeMs": 55000,
+        "intervalMs": 4000
+      },
+      {
+        "unitId": "enemy_flame_knight",
+        "count": 2,
+        "timeMs": 65000,
+        "intervalMs": 3500
+      },
+      {
+        "unitId": "enemy_shadow_assassin",
+        "count": 2,
+        "timeMs": 75000,
+        "intervalMs": 3000
       }
     ],
     "reward": {

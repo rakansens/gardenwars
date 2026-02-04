@@ -64,6 +64,12 @@
         "intervalMs": 1726
       },
       {
+        "unitId": "enemy_n_pumpkin",
+        "count": 3,
+        "timeMs": 14000,
+        "intervalMs": 1800
+      },
+      {
         "timeMs": 17969,
         "unitId": "enemy_mushroom",
         "count": 4,
@@ -122,6 +128,12 @@
         "unitId": "enemy_dog",
         "count": 4,
         "intervalMs": 2212
+      },
+      {
+        "unitId": "enemy_n_apple",
+        "count": 4,
+        "timeMs": 16000,
+        "intervalMs": 1700
       },
       {
         "timeMs": 18431,
@@ -269,6 +281,12 @@
         "intervalMs": 2078
       },
       {
+        "unitId": "enemy_n_strawberry",
+        "count": 3,
+        "timeMs": 20000,
+        "intervalMs": 1600
+      },
+      {
         "timeMs": 21488,
         "unitId": "enemy_frog",
         "count": 4,
@@ -333,6 +351,12 @@
         "unitId": "enemy_root",
         "count": 6,
         "intervalMs": 1461
+      },
+      {
+        "unitId": "enemy_n_carrot",
+        "count": 4,
+        "timeMs": 18000,
+        "intervalMs": 1500
       },
       {
         "timeMs": 19930,
@@ -405,6 +429,18 @@
         "unitId": "enemy_wolf",
         "count": 4,
         "intervalMs": 1763
+      },
+      {
+        "unitId": "enemy_n_apple",
+        "count": 3,
+        "timeMs": 22000,
+        "intervalMs": 1400
+      },
+      {
+        "unitId": "enemy_n_pumpkin",
+        "count": 2,
+        "timeMs": 28000,
+        "intervalMs": 1600
       },
       {
         "timeMs": 28265,
@@ -574,6 +610,12 @@
         "intervalMs": 1678
       },
       {
+        "unitId": "enemy_r_broccoli",
+        "count": 3,
+        "timeMs": 25000,
+        "intervalMs": 1400
+      },
+      {
         "timeMs": 31192,
         "unitId": "enemy_leaf_ninja",
         "count": 8,
@@ -632,6 +674,12 @@
         "unitId": "enemy_corn",
         "count": 10,
         "intervalMs": 1517
+      },
+      {
+        "unitId": "enemy_r_lemon",
+        "count": 3,
+        "timeMs": 22000,
+        "intervalMs": 1300
       },
       {
         "timeMs": 23314,
@@ -706,6 +754,12 @@
         "intervalMs": 1710
       },
       {
+        "unitId": "enemy_r_cherry",
+        "count": 4,
+        "timeMs": 24000,
+        "intervalMs": 1200
+      },
+      {
         "timeMs": 27372,
         "unitId": "enemy_mage",
         "count": 3,
@@ -770,6 +824,12 @@
         "unitId": "enemy_tomato",
         "count": 6,
         "intervalMs": 1849
+      },
+      {
+        "unitId": "enemy_n_cherry_bomb",
+        "count": 3,
+        "timeMs": 28000,
+        "intervalMs": 1100
       },
       {
         "timeMs": 28488,
@@ -844,10 +904,22 @@
         "intervalMs": 1894
       },
       {
+        "unitId": "enemy_r_broccoli",
+        "count": 4,
+        "timeMs": 26000,
+        "intervalMs": 1200
+      },
+      {
         "timeMs": 27872,
         "unitId": "enemy_sr_pirate",
         "count": 4,
         "intervalMs": 1679
+      },
+      {
+        "unitId": "enemy_r_lemon",
+        "count": 3,
+        "timeMs": 32000,
+        "intervalMs": 1300
       },
       {
         "timeMs": 34597,
@@ -922,10 +994,22 @@
         "intervalMs": 1728
       },
       {
+        "unitId": "enemy_r_cherry",
+        "count": 4,
+        "timeMs": 30000,
+        "intervalMs": 1100
+      },
+      {
         "timeMs": 32232,
         "unitId": "enemy_corn",
         "count": 7,
         "intervalMs": 1466
+      },
+      {
+        "unitId": "enemy_n_cherry_bomb",
+        "count": 3,
+        "timeMs": 36000,
+        "intervalMs": 1000
       },
       {
         "timeMs": 37636,
@@ -1243,6 +1327,12 @@
         "unitId": "enemy_sr_bamboo",
         "count": 6,
         "intervalMs": 1495
+      },
+      {
+        "unitId": "enemy_ice_samurai",
+        "count": 1,
+        "timeMs": 35000,
+        "intervalMs": 2000
       }
     ],
     "reward": {
@@ -1387,6 +1477,12 @@
         "unitId": "enemy_nika",
         "count": 2,
         "intervalMs": 1672
+      },
+      {
+        "unitId": "enemy_ice_samurai",
+        "count": 2,
+        "timeMs": 40000,
+        "intervalMs": 3000
       }
     ],
     "reward": {
@@ -1537,6 +1633,12 @@
         "unitId": "enemy_sr_pirate",
         "count": 6,
         "intervalMs": 1719
+      },
+      {
+        "unitId": "enemy_ice_samurai",
+        "count": 2,
+        "timeMs": 38000,
+        "intervalMs": 2500
       },
       {
         "timeMs": 44786,
@@ -1816,6 +1918,12 @@
         "unitId": "enemy_ice_flower",
         "count": 14,
         "intervalMs": 1324
+      },
+      {
+        "unitId": "enemy_ur_healer",
+        "count": 1,
+        "timeMs": 45000,
+        "intervalMs": 3000
       }
     ],
     "reward": {
@@ -1978,6 +2086,12 @@
         "unitId": "enemy_ur_angel",
         "count": 5,
         "intervalMs": 1454
+      },
+      {
+        "unitId": "enemy_ur_healer",
+        "count": 2,
+        "timeMs": 50000,
+        "intervalMs": 4000
       }
     ],
     "reward": {
@@ -2265,6 +2379,12 @@
         "unitId": "enemy_nika",
         "count": 3,
         "intervalMs": 1157
+      },
+      {
+        "unitId": "enemy_ur_archer",
+        "count": 1,
+        "timeMs": 55000,
+        "intervalMs": 3000
       }
     ],
     "reward": {
@@ -2447,10 +2567,22 @@
         "intervalMs": 1223
       },
       {
+        "unitId": "enemy_ur_ninja",
+        "count": 1,
+        "timeMs": 50000,
+        "intervalMs": 3000
+      },
+      {
         "timeMs": 52484,
         "unitId": "enemy_ur_tank",
         "count": 5,
         "intervalMs": 1177
+      },
+      {
+        "unitId": "enemy_ur_archer",
+        "count": 1,
+        "timeMs": 58000,
+        "intervalMs": 3000
       },
       {
         "timeMs": 58188,
@@ -2669,6 +2801,12 @@
         "intervalMs": 1126
       },
       {
+        "unitId": "enemy_ur_ninja",
+        "count": 2,
+        "timeMs": 55000,
+        "intervalMs": 4000
+      },
+      {
         "timeMs": 60680,
         "unitId": "enemy_ur_tank",
         "count": 4,
@@ -2679,6 +2817,12 @@
         "unitId": "enemy_lennon",
         "count": 2,
         "intervalMs": 1346
+      },
+      {
+        "unitId": "enemy_ur_archer",
+        "count": 2,
+        "timeMs": 65000,
+        "intervalMs": 4000
       },
       {
         "timeMs": 69037,
@@ -2908,6 +3052,12 @@
         "unitId": "enemy_lennon",
         "count": 4,
         "intervalMs": 1004
+      },
+      {
+        "unitId": "enemy_flame_knight",
+        "count": 1,
+        "timeMs": 50000,
+        "intervalMs": 3000
       }
     ],
     "reward": {
@@ -3070,6 +3220,12 @@
         "unitId": "enemy_lennon",
         "count": 5,
         "intervalMs": 855
+      },
+      {
+        "unitId": "enemy_ur_golem",
+        "count": 1,
+        "timeMs": 55000,
+        "intervalMs": 4000
       }
     ],
     "reward": {
@@ -3256,6 +3412,18 @@
         "unitId": "enemy_ur_mage",
         "count": 15,
         "intervalMs": 826
+      },
+      {
+        "unitId": "enemy_flame_knight",
+        "count": 2,
+        "timeMs": 52000,
+        "intervalMs": 3500
+      },
+      {
+        "unitId": "enemy_ur_golem",
+        "count": 1,
+        "timeMs": 62000,
+        "intervalMs": 4000
       }
     ],
     "reward": {
