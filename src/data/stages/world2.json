@@ -6,61 +6,61 @@
     "worldId": "world2",
     "length": 5000,
     "baseCastleHp": 88000,
-    "enemyCastleHp": 440000,
+    "enemyCastleHp": 307179,
     "theme": "Forest Invasion",
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_lennon",
-        "count": 29,
+        "count": 24,
         "intervalMs": 842
       },
       {
         "timeMs": 6293,
         "unitId": "enemy_lennon",
-        "count": 26,
+        "count": 22,
         "intervalMs": 767
       },
       {
         "timeMs": 11073,
         "unitId": "enemy_lennon",
-        "count": 35,
+        "count": 29,
         "intervalMs": 730
       },
       {
         "timeMs": 15365,
         "unitId": "enemy_leaf_ninja",
-        "count": 33,
+        "count": 28,
         "intervalMs": 1013
       },
       {
         "timeMs": 19645,
         "unitId": "enemy_ur_dragon",
-        "count": 19,
+        "count": 16,
         "intervalMs": 862
       },
       {
         "timeMs": 24071,
         "unitId": "enemy_ur_knight",
-        "count": 12,
+        "count": 10,
         "intervalMs": 749
       },
       {
         "timeMs": 27572,
         "unitId": "enemy_leaf_ninja",
-        "count": 29,
+        "count": 24,
         "intervalMs": 746
       },
       {
         "timeMs": 30915,
         "unitId": "enemy_ribbon",
-        "count": 7,
+        "count": 6,
         "intervalMs": 1070
       },
       {
         "timeMs": 35523,
         "unitId": "enemy_ur_knight",
-        "count": 4,
+        "count": 3,
         "intervalMs": 920
       }
     ],
@@ -91,55 +91,55 @@
     "worldId": "world2",
     "length": 5200,
     "baseCastleHp": 96000,
-    "enemyCastleHp": 480000,
+    "enemyCastleHp": 222991,
     "theme": "Fire Storm",
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_ur_dragon",
-        "count": 33,
+        "count": 23,
         "intervalMs": 800
       },
       {
         "timeMs": 6558,
         "unitId": "enemy_ur_dragon",
-        "count": 30,
+        "count": 21,
         "intervalMs": 726
       },
       {
         "timeMs": 10754,
         "unitId": "enemy_ur_tank",
-        "count": 48,
+        "count": 34,
         "intervalMs": 922
       },
       {
         "timeMs": 15425,
         "unitId": "enemy_penguin",
-        "count": 33,
+        "count": 23,
         "intervalMs": 752
       },
       {
         "timeMs": 19641,
         "unitId": "enemy_penguin",
-        "count": 15,
+        "count": 11,
         "intervalMs": 952
       },
       {
         "timeMs": 23144,
         "unitId": "enemy_ur_knight",
-        "count": 42,
+        "count": 29,
         "intervalMs": 1052
       },
       {
         "timeMs": 26535,
         "unitId": "enemy_yumemi",
-        "count": 7,
+        "count": 5,
         "intervalMs": 743
       },
       {
         "timeMs": 30399,
         "unitId": "enemy_ur_dragon",
-        "count": 4,
+        "count": 3,
         "intervalMs": 736
       }
     ],
@@ -170,55 +170,55 @@
     "worldId": "world2",
     "length": 5400,
     "baseCastleHp": 104000,
-    "enemyCastleHp": 520000,
+    "enemyCastleHp": 346937,
     "theme": "Sky Assault",
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_ur_dragon",
-        "count": 42,
+        "count": 34,
         "intervalMs": 947
       },
       {
         "timeMs": 5874,
         "unitId": "enemy_ribbon",
-        "count": 37,
+        "count": 30,
         "intervalMs": 964
       },
       {
         "timeMs": 9346,
         "unitId": "enemy_penguin",
-        "count": 48,
+        "count": 39,
         "intervalMs": 1035
       },
       {
         "timeMs": 14034,
         "unitId": "enemy_ribbon",
-        "count": 33,
+        "count": 27,
         "intervalMs": 1045
       },
       {
         "timeMs": 17333,
         "unitId": "enemy_ur_mage",
-        "count": 15,
+        "count": 12,
         "intervalMs": 751
       },
       {
         "timeMs": 22069,
         "unitId": "enemy_yumemi",
-        "count": 42,
+        "count": 34,
         "intervalMs": 905
       },
       {
         "timeMs": 26150,
         "unitId": "enemy_nika",
-        "count": 7,
+        "count": 6,
         "intervalMs": 1000
       },
       {
         "timeMs": 29427,
         "unitId": "enemy_ur_angel",
-        "count": 4,
+        "count": 3,
         "intervalMs": 817
       }
     ],
@@ -249,55 +249,55 @@
     "worldId": "world2",
     "length": 5600,
     "baseCastleHp": 112000,
-    "enemyCastleHp": 560000,
+    "enemyCastleHp": 260212,
     "theme": "Tank Division",
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_ur_dragon",
-        "count": 53,
+        "count": 37,
         "intervalMs": 940
       },
       {
         "timeMs": 5677,
         "unitId": "enemy_ur_mage",
-        "count": 43,
+        "count": 30,
         "intervalMs": 757
       },
       {
         "timeMs": 9289,
         "unitId": "enemy_ur_mage",
-        "count": 32,
+        "count": 22,
         "intervalMs": 786
       },
       {
         "timeMs": 13699,
         "unitId": "enemy_nika",
-        "count": 32,
+        "count": 22,
         "intervalMs": 1038
       },
       {
         "timeMs": 16933,
         "unitId": "enemy_ur_knight",
-        "count": 43,
+        "count": 30,
         "intervalMs": 767
       },
       {
         "timeMs": 21215,
         "unitId": "enemy_nika",
-        "count": 21,
+        "count": 15,
         "intervalMs": 765
       },
       {
         "timeMs": 24910,
         "unitId": "enemy_penguin",
-        "count": 13,
+        "count": 9,
         "intervalMs": 996
       },
       {
         "timeMs": 29308,
         "unitId": "enemy_ur_tank",
-        "count": 8,
+        "count": 6,
         "intervalMs": 872
       }
     ],
@@ -328,7 +328,7 @@
     "worldId": "world2",
     "length": 6000,
     "baseCastleHp": 120000,
-    "enemyCastleHp": 650000,
+    "enemyCastleHp": 685654,
     "isBossStage": true,
     "theme": "Elite Guard",
     "enemyWaves": [
@@ -402,55 +402,55 @@
     "worldId": "world2",
     "length": 6000,
     "baseCastleHp": 158400,
-    "enemyCastleHp": 880000,
+    "enemyCastleHp": 1160682,
     "theme": "Swift Strike",
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_nika",
-        "count": 43,
+        "count": 49,
         "intervalMs": 847
       },
       {
         "timeMs": 6191,
         "unitId": "enemy_ur_tank",
-        "count": 41,
+        "count": 47,
         "intervalMs": 852
       },
       {
         "timeMs": 9242,
         "unitId": "enemy_ninja",
-        "count": 46,
+        "count": 53,
         "intervalMs": 688
       },
       {
         "timeMs": 12810,
         "unitId": "enemy_leaf_ninja",
-        "count": 43,
+        "count": 49,
         "intervalMs": 863
       },
       {
         "timeMs": 16198,
         "unitId": "enemy_nika",
-        "count": 17,
+        "count": 20,
         "intervalMs": 815
       },
       {
         "timeMs": 20088,
         "unitId": "enemy_ninja",
-        "count": 41,
+        "count": 47,
         "intervalMs": 770
       },
       {
         "timeMs": 23873,
         "unitId": "enemy_nika",
-        "count": 9,
+        "count": 10,
         "intervalMs": 999
       },
       {
         "timeMs": 26986,
         "unitId": "enemy_ur_knight",
-        "count": 6,
+        "count": 7,
         "intervalMs": 891
       }
     ],
@@ -481,55 +481,55 @@
     "worldId": "world2",
     "length": 6300,
     "baseCastleHp": 172800,
-    "enemyCastleHp": 960000,
+    "enemyCastleHp": 712309,
     "theme": "Magic Barrage",
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_ribbon",
-        "count": 58,
+        "count": 50,
         "intervalMs": 761
       },
       {
         "timeMs": 6223,
         "unitId": "enemy_ur_mage",
-        "count": 63,
+        "count": 54,
         "intervalMs": 811
       },
       {
         "timeMs": 10490,
         "unitId": "enemy_ur_mage",
-        "count": 38,
+        "count": 33,
         "intervalMs": 798
       },
       {
         "timeMs": 14762,
         "unitId": "enemy_ur_mage",
-        "count": 25,
+        "count": 22,
         "intervalMs": 728
       },
       {
         "timeMs": 17819,
         "unitId": "enemy_mage",
-        "count": 33,
+        "count": 28,
         "intervalMs": 722
       },
       {
         "timeMs": 21714,
         "unitId": "enemy_yumemi",
-        "count": 13,
+        "count": 11,
         "intervalMs": 862
       },
       {
         "timeMs": 25405,
         "unitId": "enemy_mage",
-        "count": 29,
+        "count": 25,
         "intervalMs": 695
       },
       {
         "timeMs": 29444,
         "unitId": "enemy_ur_mage",
-        "count": 10,
+        "count": 9,
         "intervalMs": 895
       }
     ],
@@ -560,7 +560,7 @@
     "worldId": "world2",
     "length": 6600,
     "baseCastleHp": 187200,
-    "enemyCastleHp": 1040000,
+    "enemyCastleHp": 1021277,
     "theme": "Beast Horde",
     "enemyWaves": [
       {
@@ -639,7 +639,7 @@
     "worldId": "world2",
     "length": 6900,
     "baseCastleHp": 201600,
-    "enemyCastleHp": 1120000,
+    "enemyCastleHp": 1163636,
     "theme": "Vegetable Army",
     "enemyWaves": [
       {
@@ -724,7 +724,7 @@
     "worldId": "world2",
     "length": 7200,
     "baseCastleHp": 216000,
-    "enemyCastleHp": 1300000,
+    "enemyCastleHp": 1081214,
     "isBossStage": true,
     "theme": "Infernal Guard",
     "enemyWaves": [
@@ -804,55 +804,55 @@
     "worldId": "world2",
     "length": 7500,
     "baseCastleHp": 264000,
-    "enemyCastleHp": 1760000,
+    "enemyCastleHp": 2238949,
     "theme": "Dark Warriors",
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_ur_tank",
-        "count": 69,
+        "count": 78,
         "intervalMs": 805
       },
       {
         "timeMs": 5120,
         "unitId": "enemy_ur_tank",
-        "count": 55,
+        "count": 62,
         "intervalMs": 953
       },
       {
         "timeMs": 9164,
         "unitId": "enemy_ninja",
-        "count": 69,
+        "count": 78,
         "intervalMs": 898
       },
       {
         "timeMs": 13274,
         "unitId": "enemy_lennon",
-        "count": 29,
+        "count": 33,
         "intervalMs": 848
       },
       {
         "timeMs": 16148,
         "unitId": "enemy_ur_tank",
-        "count": 27,
+        "count": 30,
         "intervalMs": 887
       },
       {
         "timeMs": 20092,
         "unitId": "enemy_mage",
-        "count": 35,
+        "count": 39,
         "intervalMs": 859
       },
       {
         "timeMs": 23975,
         "unitId": "enemy_yumemi",
-        "count": 14,
+        "count": 16,
         "intervalMs": 761
       },
       {
         "timeMs": 27441,
         "unitId": "enemy_ur_knight",
-        "count": 10,
+        "count": 11,
         "intervalMs": 905
       }
     ],
@@ -883,55 +883,55 @@
     "worldId": "world2",
     "length": 7800,
     "baseCastleHp": 288000,
-    "enemyCastleHp": 1920000,
+    "enemyCastleHp": 1467935,
     "theme": "Aerial Onslaught",
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_ur_tank",
-        "count": 68,
+        "count": 59,
         "intervalMs": 648
       },
       {
         "timeMs": 5920,
         "unitId": "enemy_ur_dragon",
-        "count": 63,
+        "count": 55,
         "intervalMs": 889
       },
       {
         "timeMs": 9448,
         "unitId": "enemy_ur_mage",
-        "count": 78,
+        "count": 68,
         "intervalMs": 725
       },
       {
         "timeMs": 12789,
         "unitId": "enemy_leaf_ninja",
-        "count": 68,
+        "count": 59,
         "intervalMs": 825
       },
       {
         "timeMs": 16320,
         "unitId": "enemy_ur_mage",
-        "count": 27,
+        "count": 24,
         "intervalMs": 652
       },
       {
         "timeMs": 20161,
         "unitId": "enemy_nika",
-        "count": 16,
+        "count": 14,
         "intervalMs": 788
       },
       {
         "timeMs": 24056,
         "unitId": "enemy_ur_dragon",
-        "count": 8,
+        "count": 7,
         "intervalMs": 927
       },
       {
         "timeMs": 27869,
         "unitId": "enemy_ur_angel",
-        "count": 8,
+        "count": 7,
         "intervalMs": 816
       }
     ],
@@ -962,7 +962,7 @@
     "worldId": "world2",
     "length": 8100,
     "baseCastleHp": 312000,
-    "enemyCastleHp": 2080000,
+    "enemyCastleHp": 1952577,
     "theme": "Fortress Siege",
     "enemyWaves": [
       {
@@ -1041,7 +1041,7 @@
     "worldId": "world2",
     "length": 8500,
     "baseCastleHp": 336000,
-    "enemyCastleHp": 2240000,
+    "enemyCastleHp": 1889049,
     "theme": "Nature's Wrath",
     "enemyWaves": [
       {
@@ -1120,7 +1120,7 @@
     "worldId": "world2",
     "length": 9000,
     "baseCastleHp": 360000,
-    "enemyCastleHp": 2600000,
+    "enemyCastleHp": 2722781,
     "isBossStage": true,
     "theme": "Abyssal Elite",
     "enemyWaves": [
@@ -1200,7 +1200,7 @@
     "worldId": "world2",
     "length": 9500,
     "baseCastleHp": 600000,
-    "enemyCastleHp": 5200000,
+    "enemyCastleHp": 4621297,
     "isBossStage": true,
     "theme": "First Trial",
     "enemyWaves": [
@@ -1286,56 +1286,56 @@
     "worldId": "world2",
     "length": 10000,
     "baseCastleHp": 600000,
-    "enemyCastleHp": 5200000,
+    "enemyCastleHp": 3977712,
     "isBossStage": true,
     "theme": "Second Trial",
     "enemyWaves": [
       {
         "timeMs": 2000,
         "unitId": "enemy_ur_mage",
-        "count": 92,
+        "count": 80,
         "intervalMs": 675
       },
       {
         "timeMs": 42000,
         "unitId": "enemy_ur_mage",
-        "count": 85,
+        "count": 74,
         "intervalMs": 675
       },
       {
         "timeMs": 85000,
         "unitId": "enemy_ur_dragon",
-        "count": 78,
+        "count": 68,
         "intervalMs": 675
       },
       {
         "timeMs": 130000,
         "unitId": "enemy_ur_angel",
-        "count": 97,
+        "count": 85,
         "intervalMs": 675
       },
       {
         "timeMs": 178000,
         "unitId": "enemy_ur_mage",
-        "count": 39,
+        "count": 34,
         "intervalMs": 675
       },
       {
         "timeMs": 222000,
         "unitId": "enemy_mage",
-        "count": 53,
+        "count": 46,
         "intervalMs": 675
       },
       {
         "timeMs": 268000,
         "unitId": "enemy_yumemi",
-        "count": 19,
+        "count": 17,
         "intervalMs": 675
       },
       {
         "timeMs": 318000,
         "unitId": "enemy_ur_dragon",
-        "count": 15,
+        "count": 13,
         "intervalMs": 675
       },
       {
@@ -1372,7 +1372,7 @@
     "worldId": "world2",
     "length": 10500,
     "baseCastleHp": 600000,
-    "enemyCastleHp": 5200000,
+    "enemyCastleHp": 4573497,
     "isBossStage": true,
     "theme": "Third Trial",
     "enemyWaves": [
@@ -1458,7 +1458,7 @@
     "worldId": "world2",
     "length": 11000,
     "baseCastleHp": 600000,
-    "enemyCastleHp": 5200000,
+    "enemyCastleHp": 5414501,
     "isBossStage": true,
     "theme": "Fourth Trial",
     "enemyWaves": [
@@ -1554,7 +1554,7 @@
     "worldId": "world2",
     "length": 12000,
     "baseCastleHp": 600000,
-    "enemyCastleHp": 5200000,
+    "enemyCastleHp": 5850753,
     "isBossStage": true,
     "theme": "Ultimate Challenge",
     "enemyWaves": [
