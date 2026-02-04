@@ -12,43 +12,43 @@
       {
         "timeMs": 1500,
         "unitId": "enemy_lennon",
-        "count": 17,
+        "count": 14,
         "intervalMs": 1037
       },
       {
         "timeMs": 28949,
         "unitId": "enemy_lennon",
-        "count": 18,
+        "count": 15,
         "intervalMs": 1063
       },
       {
         "timeMs": 60844,
         "unitId": "enemy_flame_knight",
-        "count": 25,
+        "count": 21,
         "intervalMs": 868
       },
       {
         "timeMs": 93771,
         "unitId": "enemy_ur_knight",
-        "count": 25,
+        "count": 21,
         "intervalMs": 899
       },
       {
         "timeMs": 127848,
         "unitId": "enemy_ur_mage",
-        "count": 19,
+        "count": 16,
         "intervalMs": 1062
       },
       {
         "timeMs": 160244,
         "unitId": "enemy_ur_mage",
-        "count": 19,
+        "count": 16,
         "intervalMs": 795
       },
       {
         "timeMs": 183831,
         "unitId": "enemy_shadow_assassin",
-        "count": 20,
+        "count": 17,
         "intervalMs": 988
       }
     ],
@@ -85,43 +85,43 @@
       {
         "timeMs": 1500,
         "unitId": "enemy_lennon",
-        "count": 26,
+        "count": 22,
         "intervalMs": 874
       },
       {
         "timeMs": 35840,
         "unitId": "enemy_lennon",
-        "count": 24,
+        "count": 20,
         "intervalMs": 714
       },
       {
         "timeMs": 63754,
         "unitId": "enemy_flame_knight",
-        "count": 26,
+        "count": 22,
         "intervalMs": 1012
       },
       {
         "timeMs": 104993,
         "unitId": "enemy_flame_knight",
-        "count": 24,
+        "count": 20,
         "intervalMs": 967
       },
       {
         "timeMs": 139836,
         "unitId": "enemy_ur_knight",
-        "count": 14,
+        "count": 11,
         "intervalMs": 828
       },
       {
         "timeMs": 159499,
         "unitId": "enemy_shadow_assassin",
-        "count": 22,
+        "count": 18,
         "intervalMs": 729
       },
       {
         "timeMs": 186550,
         "unitId": "enemy_shadow_assassin",
-        "count": 17,
+        "count": 14,
         "intervalMs": 995
       }
     ],
@@ -158,55 +158,55 @@
       {
         "timeMs": 1500,
         "unitId": "enemy_lennon",
-        "count": 14,
+        "count": 11,
         "intervalMs": 977
       },
       {
         "timeMs": 22878,
         "unitId": "enemy_lennon",
-        "count": 18,
+        "count": 15,
         "intervalMs": 1018
       },
       {
         "timeMs": 51521,
         "unitId": "enemy_flame_knight",
-        "count": 15,
+        "count": 12,
         "intervalMs": 733
       },
       {
         "timeMs": 69745,
         "unitId": "enemy_ur_knight",
-        "count": 18,
+        "count": 15,
         "intervalMs": 1024
       },
       {
         "timeMs": 97516,
         "unitId": "enemy_ur_knight",
-        "count": 16,
+        "count": 13,
         "intervalMs": 968
       },
       {
         "timeMs": 121006,
         "unitId": "enemy_ur_mage",
-        "count": 21,
+        "count": 17,
         "intervalMs": 1058
       },
       {
         "timeMs": 154038,
         "unitId": "enemy_ur_mage",
-        "count": 17,
+        "count": 14,
         "intervalMs": 706
       },
       {
         "timeMs": 173299,
         "unitId": "enemy_shadow_assassin",
-        "count": 19,
+        "count": 16,
         "intervalMs": 816
       },
       {
         "timeMs": 198310,
         "unitId": "enemy_ur_phoenix",
-        "count": 10,
+        "count": 8,
         "intervalMs": 1038
       }
     ],
@@ -243,43 +243,43 @@
       {
         "timeMs": 1500,
         "unitId": "enemy_lennon",
-        "count": 27,
+        "count": 22,
         "intervalMs": 718
       },
       {
         "timeMs": 29781,
         "unitId": "enemy_lennon",
-        "count": 27,
+        "count": 22,
         "intervalMs": 943
       },
       {
         "timeMs": 64569,
         "unitId": "enemy_lennon",
-        "count": 23,
+        "count": 19,
         "intervalMs": 772
       },
       {
         "timeMs": 91857,
         "unitId": "enemy_flame_knight",
-        "count": 27,
+        "count": 22,
         "intervalMs": 949
       },
       {
         "timeMs": 126927,
         "unitId": "enemy_ur_mage",
-        "count": 20,
+        "count": 17,
         "intervalMs": 847
       },
       {
         "timeMs": 152110,
         "unitId": "enemy_shadow_assassin",
-        "count": 24,
+        "count": 20,
         "intervalMs": 1098
       },
       {
         "timeMs": 189925,
         "unitId": "enemy_ur_phoenix",
-        "count": 20,
+        "count": 17,
         "intervalMs": 996
       }
     ],
@@ -317,73 +317,73 @@
       {
         "timeMs": 1500,
         "unitId": "enemy_lennon",
-        "count": 16,
+        "count": 13,
         "intervalMs": 765
       },
       {
         "timeMs": 15743,
         "unitId": "enemy_lennon",
-        "count": 17,
+        "count": 14,
         "intervalMs": 986
       },
       {
         "timeMs": 37406,
         "unitId": "enemy_flame_knight",
-        "count": 11,
+        "count": 9,
         "intervalMs": 877
       },
       {
         "timeMs": 51097,
         "unitId": "enemy_flame_knight",
-        "count": 10,
+        "count": 8,
         "intervalMs": 738
       },
       {
         "timeMs": 61730,
         "unitId": "enemy_flame_knight",
-        "count": 11,
+        "count": 9,
         "intervalMs": 1016
       },
       {
         "timeMs": 77751,
         "unitId": "enemy_ur_knight",
-        "count": 12,
+        "count": 10,
         "intervalMs": 711
       },
       {
         "timeMs": 90723,
         "unitId": "enemy_ur_knight",
-        "count": 16,
+        "count": 13,
         "intervalMs": 888
       },
       {
         "timeMs": 107282,
         "unitId": "enemy_ur_knight",
-        "count": 12,
+        "count": 10,
         "intervalMs": 1063
       },
       {
         "timeMs": 124534,
         "unitId": "enemy_shadow_assassin",
-        "count": 17,
+        "count": 14,
         "intervalMs": 900
       },
       {
         "timeMs": 144316,
         "unitId": "enemy_ur_mage",
-        "count": 12,
+        "count": 10,
         "intervalMs": 1087
       },
       {
         "timeMs": 162075,
         "unitId": "enemy_shadow_assassin",
-        "count": 13,
+        "count": 11,
         "intervalMs": 890
       },
       {
         "timeMs": 177623,
         "unitId": "enemy_ur_phoenix",
-        "count": 12,
+        "count": 10,
         "intervalMs": 796
       },
       {
