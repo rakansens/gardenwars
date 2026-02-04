@@ -1025,6 +1025,13 @@ export class Unit extends Phaser.GameObjects.Container {
         const distance = this.verticalMode
             ? Math.abs(this.y - target.y)
             : Math.abs(this.x - target.x);
+
+        // Fix: 縦モードでもX軸の極端なズレを考慮（レーン移動やノックバック対策）
+        if (this.verticalMode) {
+            const xDist = Math.abs(this.x - target.x);
+            // 隣接レーン(約100-150px)は許容するため、余裕を持って250pxとする
+            if (xDist > 250) return false;
+        }
         // 距離が (射程 + 自身の半径) 以内であれば攻撃可能
         return distance <= (this.definition.attackRange + myHalfWidth);
     }

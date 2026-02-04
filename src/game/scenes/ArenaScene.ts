@@ -695,7 +695,9 @@ export class ArenaScene extends Phaser.Scene {
 
             // 縦方向の距離でチェック
             const distance = Math.abs(attacker.y - enemy.y);
-            if (distance > attacker.definition.attackRange + 50) continue;
+            // Fix: バッファを広げて（射程の2倍または200px）、すれ違いざまのユニットも検知できるようにする
+            const searchBuffer = Math.max(attacker.definition.attackRange * 2, 200);
+            if (distance > searchBuffer) continue;
 
             if (distance < minDistance) {
                 minDistance = distance;
