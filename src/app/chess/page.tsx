@@ -1223,9 +1223,38 @@ function ChessContent() {
               {isZoomed ? "🔍" : "🔎"}
             </button>
 
+            {/* チェックメイト・ステイルメイト オーバーレイ */}
             {(status.checkmate || status.stalemate) && (
-              <div className="mt-4 text-center text-sm font-semibold text-rose-600">
-                {status.checkmate ? t("chess_checkmate") : t("chess_stalemate")}
+              <div className="absolute inset-0 flex items-center justify-center z-20 bg-black/50 rounded-2xl">
+                <div className={`text-center p-6 rounded-2xl shadow-2xl ${
+                  status.checkmate
+                    ? turn === "b"
+                      ? "bg-gradient-to-br from-yellow-400 to-amber-500" // Player wins
+                      : "bg-gradient-to-br from-gray-600 to-gray-800" // Player loses
+                    : "bg-gradient-to-br from-blue-400 to-indigo-500" // Stalemate
+                }`}>
+                  <div className="text-5xl mb-3">
+                    {status.checkmate
+                      ? turn === "b" ? "🏆" : "💀"
+                      : "🤝"
+                    }
+                  </div>
+                  <div className={`text-2xl font-black mb-2 ${
+                    status.checkmate && turn === "b" ? "text-amber-900" : "text-white"
+                  }`}>
+                    {status.checkmate ? t("chess_checkmate") : t("chess_stalemate")}
+                  </div>
+                  <div className={`text-lg font-bold ${
+                    status.checkmate && turn === "b" ? "text-amber-800" : "text-white/90"
+                  }`}>
+                    {status.checkmate
+                      ? turn === "b"
+                        ? (t("chess_you_win") || "You Win!")
+                        : (t("chess_you_lose") || "You Lose...")
+                      : (t("chess_draw") || "Draw")
+                    }
+                  </div>
+                </div>
               </div>
             )}
           </div>
