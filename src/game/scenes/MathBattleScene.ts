@@ -562,6 +562,11 @@ export class MathBattleScene extends Phaser.Scene {
   }
 
   private showQuestion() {
+    // バトルが既に終了している場合は何もしない
+    if (this.status === 'win' || this.status === 'lose') {
+      return;
+    }
+
     if (this.currentQuestionIndex >= this.questions.length) {
       // 全問終了 → 敵HPで勝敗判定
       // 敵を倒していれば勝利、そうでなければ敗北
@@ -620,6 +625,11 @@ export class MathBattleScene extends Phaser.Scene {
   }
 
   private handleAnswer(choiceIndex: number) {
+    // バトル中以外は無視（終了後の誤操作防止）
+    if (this.status !== 'playing') {
+      return;
+    }
+
     // タイマーはステージ全体で継続（stopしない）
 
     const question = this.questions[this.currentQuestionIndex];
