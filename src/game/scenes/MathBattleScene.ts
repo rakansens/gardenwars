@@ -329,7 +329,10 @@ export class MathBattleScene extends Phaser.Scene {
 
   private createSprites() {
     // スプライトを問題エリアより上に配置（HPバーの下、問題の上）
-    const groundY = 280;
+    // 巨大キャラでも見えるように下げる（元: 280）
+    const groundY = 340;
+    // スプライトが上に伸びすぎないように最大高さを制限
+    const maxSpriteHeight = 230; // groundY(340) - minTop(110) = 230
 
     // プレイヤースプライト（左側）
     const playerAtlas = this.playerUnitData.atlasKey || this.playerUnitData.id;
@@ -355,7 +358,12 @@ export class MathBattleScene extends Phaser.Scene {
       const spriteHeight = this.playerSprite.height;
       const customScale = this.playerUnitData.scale ?? 1.0; // ユニット固有のスケール倍率
       const baseScale = spriteHeight > 0 ? targetHeight / spriteHeight : 0.35;
-      const finalScale = baseScale * customScale;
+      let finalScale = baseScale * customScale;
+      // 巨大キャラでも画面内に収まるようにスケールを制限
+      const actualHeight = spriteHeight * finalScale;
+      if (actualHeight > maxSpriteHeight) {
+        finalScale = maxSpriteHeight / spriteHeight;
+      }
       this.playerSprite.setScale(finalScale);
       this.playerSprite.setOrigin(0.5, 1);
     }
@@ -385,7 +393,12 @@ export class MathBattleScene extends Phaser.Scene {
       const spriteHeight = this.enemySprite.height;
       const customScale = this.enemyUnitData.scale ?? 1.0; // ユニット固有のスケール倍率
       const baseScale = spriteHeight > 0 ? targetHeight / spriteHeight : 0.15;
-      const finalScale = baseScale * customScale;
+      let finalScale = baseScale * customScale;
+      // 巨大キャラでも画面内に収まるようにスケールを制限
+      const actualHeight = spriteHeight * finalScale;
+      if (actualHeight > maxSpriteHeight) {
+        finalScale = maxSpriteHeight / spriteHeight;
+      }
       this.enemySprite.setScale(finalScale);
       this.enemySprite.setOrigin(0.5, 1);
       // 敵は左向きにする
