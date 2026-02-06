@@ -269,7 +269,7 @@ export async function updateRankings(
 // Update collection and coin stats (called when player data changes)
 export async function syncRankingStats(
     playerId: string,
-    coins: number,
+    coins: number | undefined,
     unitInventory: Record<string, number>,
     clearedStages?: string[]
 ): Promise<boolean> {
@@ -281,11 +281,14 @@ export async function syncRankingStats(
     ).length;
 
     const updates: RankingUpdateData = {
-        total_coins: coins,
         collection_count: collectionCount,
         total_units: totalUnits,
         ur_unit_count: urUnitCount,
     };
+
+    if (coins !== undefined) {
+        updates.total_coins = coins;
+    }
 
     if (clearedStages !== undefined) {
         updates.stages_cleared = clearedStages.length;

@@ -198,6 +198,13 @@ export class GardenPet extends Phaser.GameObjects.Container {
     update(delta: number) {
         this.aiTimer -= delta;
 
+        // Safety check for coordinates
+        if (isNaN(this.x) || isNaN(this.y)) {
+            console.warn('GardenPet: Coordinates NaN, resetting', this.definition.id);
+            this.x = 100;
+            this.y = this.scene.scale.height - 100;
+        }
+
         // Depth sort
         this.setDepth(this.y);
 

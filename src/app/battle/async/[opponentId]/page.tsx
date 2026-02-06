@@ -138,14 +138,28 @@ export default function AsyncBattlePage() {
         if (!isLoaded || !opponent) return;
 
         // ステージデータを生成
-        const asyncStage = createAsyncStage(opponent.deck, opponent.name);
-        setStage(asyncStage);
+        // Only update if opponent deck changed to prevent restart
+        const currentOpponentDeckSig = stage?.aiDeck ? JSON.stringify(stage.aiDeck.sort()) : "";
+        const newOpponentDeckSig = JSON.stringify([...opponent.deck].sort());
+
+        if (!stage || currentOpponentDeckSig !== newOpponentDeckSig) {
+            const asyncStage = createAsyncStage(opponent.deck, opponent.name);
+            setStage(asyncStage);
+        }
 
         // 編成データ取得（ボス除外）
-        const teamDefs = selectedTeam
+        const newTeamDefs = selectedTeam
             .map((id) => playableUnits.find((u) => u.id === id))
             .filter((u): u is UnitDefinition => u !== undefined);
-        setTeam(teamDefs);
+
+        const currentTeamIds = team.map(u => u.id).sort().join(',');
+        const newTeamIds = newTeamDefs.map(u => u.id).sort().join(',');
+
+        if (currentTeamIds !== newTeamIds && newTeamDefs.length > 0) {
+            setTeam(newTeamDefs);
+        } else if (team.length === 0 && newTeamDefs.length > 0) {
+            setTeam(newTeamDefs);
+        }
 
         // 全ロードアウトを変換（ボス除外）
         const convertedLoadouts: [UnitDefinition[], UnitDefinition[], UnitDefinition[]] = [
@@ -153,10 +167,18 @@ export default function AsyncBattlePage() {
             (loadouts[1] || []).map(id => playableUnits.find(u => u.id === id)).filter((u): u is UnitDefinition => u !== undefined),
             (loadouts[2] || []).map(id => playableUnits.find(u => u.id === id)).filter((u): u is UnitDefinition => u !== undefined),
         ];
-        setLoadoutDefs(convertedLoadouts);
 
-        // バトル開始時間を記録
-        setBattleStartTime(Date.now());
+        const currentLoadoutsSig = JSON.stringify(loadoutDefs.map(d => d.map(u => u.id)));
+        const newLoadoutsSig = JSON.stringify(convertedLoadouts.map(d => d.map(u => u.id)));
+
+        if (currentLoadoutsSig !== newLoadoutsSig) {
+            setLoadoutDefs(convertedLoadouts);
+        }
+
+        // バトル開始時間を記録 (Only set once)
+        if (battleStartTime === 0) {
+            setBattleStartTime(Date.now());
+        }
     }, [isLoaded, opponent, selectedTeam, loadouts]);
 
     const handleBattleEnd = async (win: boolean, coinsGained: number) => {

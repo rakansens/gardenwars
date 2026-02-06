@@ -78,7 +78,7 @@ export interface UseMarketplaceReturn {
  */
 export function useMarketplace(): UseMarketplaceReturn {
     const { status, playerId } = useAuth();
-    const { unitInventory, coins } = usePlayerData();
+    const { unitInventory, coins, addUnit, removeUnit, addCoins, spendCoins } = usePlayerData();
     const isAuthenticated = status === "authenticated" && !!playerId;
 
     const [listings, setListings] = useState<MarketplaceListing[]>([]);
@@ -246,7 +246,7 @@ export function useMarketplace(): UseMarketplaceReturn {
                 return false;
             }
         },
-        [isAuthenticated, playerId, unitInventory, refreshListings, refreshMyListings]
+        [isAuthenticated, playerId, unitInventory, removeUnit, refreshListings, refreshMyListings]
     );
 
     // 購入
@@ -283,6 +283,10 @@ export function useMarketplace(): UseMarketplaceReturn {
 
                 if (result.success) {
                     // Supabaseで既にコイン減算・ユニット追加が処理済み
+                    // ローカル状態も同期させる
+                    spendCoins(listing.totalPrice);
+                    addUnit(listing.unitId, listing.quantity);
+
                     // リスト更新でSupabaseから最新状態を取得（重複更新を避ける）
                     await refreshListings(undefined, true);
                     return { success: true };
@@ -306,7 +310,7 @@ export function useMarketplace(): UseMarketplaceReturn {
                 setIsPurchasing(false);
             }
         },
-        [isAuthenticated, playerId, listings, coins, isPurchasing, refreshListings]
+        [isAuthenticated, playerId, listings, coins, isPurchasing, spendCoins, addUnit, refreshListings]
     );
 
     // 出品キャンセル
@@ -326,6 +330,9 @@ export function useMarketplace(): UseMarketplaceReturn {
 
                 if (success) {
                     // Supabaseで既にユニット返却が処理済み
+                    // ローカル状態も同期させる
+                    addUnit(listing.unitId, listing.quantity);
+
                     // リスト更新でSupabaseから最新状態を取得（重複追加を避ける）
                     await Promise.all([refreshListings(undefined, true), refreshMyListings()]);
                     return true;
@@ -336,7 +343,7 @@ export function useMarketplace(): UseMarketplaceReturn {
                 return false;
             }
         },
-        [isAuthenticated, playerId, myListings, refreshListings, refreshMyListings]
+        [isAuthenticated, playerId, myListings, addUnit, refreshListings, refreshMyListings]
     );
 
     // 売却通知を受け取る（コインを獲得）
@@ -363,6 +370,18 @@ export function useMarketplace(): UseMarketplaceReturn {
 
                 if (result.success) {
                     // Supabaseで既にコイン追加・ユニット返却が処理済み
+
+                    // ローカル状態も同期させる（重要な修正：これが無いとClaimしてもコインが増えたように見えない）
+                    if (notification.notificationType === "item_sold" && notification.coinsEarned) {
+                        addCoins(notification.coinsEarned);
+                    } else if (
+                        (notification.notificationType === "listing_expired" || notification.notificationType === "listing_cancelled") &&
+                        notification.unitId &&
+                        notification.quantity
+                    ) {
+                        addUnit(notification.unitId, notification.quantity);
+                    }
+
                     // 通知更新でSupabaseから最新状態を取得（重複処理を避ける）
                     await refreshNotifications();
                     return { success: true };
@@ -382,7 +401,7 @@ export function useMarketplace(): UseMarketplaceReturn {
                 setIsClaiming(false);
             }
         },
-        [isAuthenticated, playerId, notifications, isClaiming, refreshNotifications]
+        [isAuthenticated, playerId, notifications, isClaiming, addCoins, addUnit, refreshNotifications]
     );
 
     // 通知を既読にする

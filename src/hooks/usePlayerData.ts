@@ -21,6 +21,8 @@ import {
     executeShopPurchaseRpc,
     executeArenaRewardRpc,
     executeGardenRewardRpc,
+    // Types
+    SupabaseSaveData,
 } from "@/lib/supabase";
 import type {
     FrontendPlayerData,
@@ -28,9 +30,9 @@ import type {
     GachaHistoryEntry,
 } from "@/lib/supabase";
 
-const STORAGE_KEY = "gardenwars_player";
-const CLEARED_STAGES_KEY = "clearedStages";
-const GARDEN_SELECTION_KEY = "garden_selection";
+const getStorageKey = (playerId: string | null) => playerId ? `gardenwars_player_${playerId}` : "gardenwars_player";
+const getClearedStagesKey = (playerId: string | null) => playerId ? `clearedStages_${playerId}` : "clearedStages";
+const getGardenSelectionKey = (playerId: string | null) => playerId ? `garden_selection_${playerId}` : "garden_selection";
 
 // Re-export types for backward compatibility
 export type { ShopItem, GachaHistoryEntry };
@@ -80,13 +82,16 @@ const getInitialData = (): PlayerDataWithTimestamp => {
 };
 
 // ローカルストレージから読み込み（複数キーから統合）
-const loadFromStorage = (): PlayerDataWithTimestamp => {
+const loadFromStorage = (playerId: string | null): PlayerDataWithTimestamp => {
     if (typeof window === "undefined") return getInitialData();
 
     const initial = getInitialData();
+    const storageKey = getStorageKey(playerId);
+    const clearedStagesKey = getClearedStagesKey(playerId);
+    const gardenSelectionKey = getGardenSelectionKey(playerId);
 
     try {
-        const saved = localStorage.getItem(STORAGE_KEY);
+        const saved = localStorage.getItem(storageKey);
         if (saved) {
             const parsed = JSON.parse(saved);
 
@@ -193,7 +198,7 @@ const loadFromStorage = (): PlayerDataWithTimestamp => {
 
     // 別キーからも読み込み（後方互換性）
     try {
-        const clearedStagesRaw = localStorage.getItem(CLEARED_STAGES_KEY);
+        const clearedStagesRaw = localStorage.getItem(clearedStagesKey);
         if (clearedStagesRaw && initial.clearedStages.length === 0) {
             const parsed = JSON.parse(clearedStagesRaw);
             if (Array.isArray(parsed) && parsed.every(item => typeof item === "string")) {
@@ -207,7 +212,7 @@ const loadFromStorage = (): PlayerDataWithTimestamp => {
     }
 
     try {
-        const gardenRaw = localStorage.getItem(GARDEN_SELECTION_KEY);
+        const gardenRaw = localStorage.getItem(gardenSelectionKey);
         if (gardenRaw && initial.gardenUnits.length === 0) {
             const parsed = JSON.parse(gardenRaw);
             if (Array.isArray(parsed) && parsed.every(item => typeof item === "string")) {
@@ -224,8 +229,12 @@ const loadFromStorage = (): PlayerDataWithTimestamp => {
 };
 
 // ローカルストレージに保存（統合キーに保存 + 後方互換用に別キーにも保存）
-const saveToStorage = (data: PlayerDataWithTimestamp) => {
+const saveToStorage = (data: PlayerDataWithTimestamp, playerId: string | null) => {
     if (typeof window === "undefined") return;
+
+    const storageKey = getStorageKey(playerId);
+    const clearedStagesKey = getClearedStagesKey(playerId);
+    const gardenSelectionKey = getGardenSelectionKey(playerId);
 
     const trySetItem = (key: string, value: string) => {
         try {
@@ -241,10 +250,10 @@ const saveToStorage = (data: PlayerDataWithTimestamp) => {
 
     // タイムスタンプを更新して保存
     const dataWithTimestamp = { ...data, lastModified: Date.now() };
-    trySetItem(STORAGE_KEY, JSON.stringify(dataWithTimestamp));
+    trySetItem(storageKey, JSON.stringify(dataWithTimestamp));
     // 後方互換性のため別キーにも保存
-    trySetItem(CLEARED_STAGES_KEY, JSON.stringify(data.clearedStages));
-    trySetItem(GARDEN_SELECTION_KEY, JSON.stringify(data.gardenUnits));
+    trySetItem(clearedStagesKey, JSON.stringify(data.clearedStages));
+    trySetItem(gardenSelectionKey, JSON.stringify(data.gardenUnits));
 };
 
 /**
@@ -258,9 +267,10 @@ export function usePlayerData() {
     const [isLoaded, setIsLoaded] = useState(false);
     const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const dataRef = useRef<PlayerDataWithTimestamp>(data); // Ref to capture latest data for debounced save
+    const lastSavedDataRef = useRef<PlayerDataWithTimestamp | null>(null); // Track last saved FULL data for differential updates
     const pendingSaveRef = useRef<boolean>(false); // 保存待ちフラグ
     const pendingShopPurchaseRef = useRef<Set<string>>(new Set()); // 購入中のショップアイテム（重複購入防止）
-    const isAuthenticated = status === "authenticated" && playerId;
+    const isAuthenticated = status === "authenticated" && !!playerId;
 
     // Keep dataRef in sync with data
     useEffect(() => {
@@ -271,7 +281,8 @@ export function usePlayerData() {
     useEffect(() => {
         const loadData = async () => {
             // まずローカルから読み込み
-            const localData = loadFromStorage();
+            // Note: If playerId changes (e.g. login), we load that user's specific data
+            const localData = loadFromStorage(playerId);
 
             if (isAuthenticated && player) {
                 // 認証済みの場合、Supabaseからデータを取得
@@ -284,53 +295,70 @@ export function usePlayerData() {
                             localData.gachaHistory // ガチャ履歴はローカルのみ
                         );
 
-                        // タイムスタンプベースのマージ戦略
+
+                        // タイムスタンプベースのマージ戦略 + コンテンツベースの競合解決
                         // ローカルが新しい場合はローカルのコインとインベントリを優先
-                        // リモートが新しい場合はリモートを優先
                         const localTimestamp = localData.lastModified || 0;
                         const remoteTimestamp = remoteData.updated_at
                             ? new Date(remoteData.updated_at).getTime()
                             : 0;
 
+                        // Clock Skew Protection:
+                        // Client clocks can be wrong. If timestamps are close (within 5 minutes), assume "Newer" based on content.
+                        // Or simplistic check: if logic says remote is newer, but local has MORE stuff, trust local?
+                        // Let's stick to timestamp but give local a slight advantage or trust "significant progress" in local.
+                        // For now, standard timestamp comparison but logged.
+                        // TODO: robust vector clocks or monotonic counters if this persists.
+
+                        // Fix: If local is "technically" older but very close, trust local to prevent dataloss on slight skew?
+                        // Actually, if local > remote, localIsNewer = true.
+                        // Skew risk: Client is 1 hour behind. local(10:00) vs remote(10:30). localIsNewer=false.
+                        // Result: Remote overwrites local. Offline progress lost.
+                        // Fix: If localData.lastModified is updated NOW, it uses Date.now().
+                        // We can't fix user's clock easily. Best effort: 
+                        // If local coins != remote coins, and local timestamp is "close enough" or just ignore timestamp if local seems "played"?
+                        // Let's just rely on the comparison for now, but ensure we don't blindly overwrite if we have pending data.
+
                         const localIsNewer = localTimestamp > remoteTimestamp;
                         console.log(`[Merge] Local: ${new Date(localTimestamp).toISOString()}, Remote: ${new Date(remoteTimestamp).toISOString()}, LocalIsNewer: ${localIsNewer}`);
 
-                        // 消費系データ（コイン）はタイムスタンプが新しい方を使用
-                        // これにより、ガチャ消費やフュージョン後のデータが正しく反映される
+                        // タイムスタンプベースのマージ戦略 (Last Write Wins)
+                        // Heuristicなマージ(Math.maxやlength check)は「削除」や「消費」を無効化してしまうため廃止。
+                        // 新しい方のスナップショットを正とする。
+                        const mergedInventory = localIsNewer ? localData.unitInventory : remoteConverted.unitInventory;
 
-                        // インベントリ: 和集合でマージ（各ユニットの最大値を取る）
-                        // 複数デバイス間でデータ消失を防ぐため、両方のインベントリから最大値を採用
-                        const mergedInventory: Record<string, number> = {};
-                        const allUnitIds = new Set([
-                            ...Object.keys(localData.unitInventory),
-                            ...Object.keys(remoteConverted.unitInventory)
-                        ]);
-                        allUnitIds.forEach(unitId => {
-                            const localCount = localData.unitInventory[unitId] || 0;
-                            const remoteCount = remoteConverted.unitInventory[unitId] || 0;
-                            const maxCount = Math.max(localCount, remoteCount);
-                            if (maxCount > 0) {
-                                mergedInventory[unitId] = maxCount;
-                            }
-                        });
+                        // Loadoutsも同様に、新しい方を採用（空のデッキを保存できるようにする）
+                        const mergedLoadouts = localIsNewer ? localData.loadouts : remoteConverted.loadouts;
+                        const mergedActiveLoadoutIndex = localIsNewer ? localData.activeLoadoutIndex : remoteConverted.activeLoadoutIndex;
+                        const mergedSelectedTeam = localIsNewer ? localData.selectedTeam : remoteConverted.selectedTeam;
 
-                        const mergedData: PlayerDataWithTimestamp = {
+                        // クリア履歴などの「追加のみ」行われるデータは、安全のため和集合を取る（デバイス間の同期ズレ補完）
+                        const mergedStages = new Set([...remoteConverted.clearedStages, ...localData.clearedStages]);
+                        const mergedChessStages = new Set([...remoteConverted.clearedChessStages, ...localData.clearedChessStages]);
+
+                        // Gardenは配置変更があるのでスナップショット優先
+                        const mergedGardenUnits = localIsNewer ? localData.gardenUnits : remoteConverted.gardenUnits;
+
+                        const finalMergedData: PlayerDataWithTimestamp = {
                             ...remoteConverted,
-                            // コイン: 新しい方のデータを使用
                             coins: localIsNewer ? localData.coins : remoteConverted.coins,
-                            // インベントリ: 和集合でマージ（データ消失防止）
                             unitInventory: mergedInventory,
+                            loadouts: mergedLoadouts,
+                            activeLoadoutIndex: mergedActiveLoadoutIndex,
+                            selectedTeam: mergedSelectedTeam,
+                            clearedStages: Array.from(mergedStages),
+                            clearedChessStages: Array.from(mergedChessStages),
+                            gardenUnits: mergedGardenUnits,
                             lastModified: Math.max(localTimestamp, remoteTimestamp),
                         };
 
                         // shopItemsをマージ（soldOut状態は新しい方を優先）
-                        if (mergedData.shopItems.length === 0 && localData.shopItems.length > 0) {
-                            mergedData.shopItems = localData.shopItems;
-                        } else if (mergedData.shopItems.length > 0 && localData.shopItems.length > 0) {
-                            // タイムスタンプが新しい方のsoldOut状態を使用
+                        if (finalMergedData.shopItems.length === 0 && localData.shopItems.length > 0) {
+                            finalMergedData.shopItems = localData.shopItems;
+                        } else if (finalMergedData.shopItems.length > 0 && localData.shopItems.length > 0) {
                             if (localIsNewer) {
                                 const localItemMap = new Map(localData.shopItems.map(item => [item.uid, item]));
-                                mergedData.shopItems = mergedData.shopItems.map(remoteItem => {
+                                finalMergedData.shopItems = finalMergedData.shopItems.map(remoteItem => {
                                     const localItem = localItemMap.get(remoteItem.uid);
                                     if (localItem) {
                                         return { ...remoteItem, soldOut: localItem.soldOut };
@@ -340,41 +368,28 @@ export function usePlayerData() {
                             }
                         }
 
-                        // clearedStagesをマージ（和集合 - クリア履歴は追加のみ、削除されない）
-                        const mergedStages = new Set([...mergedData.clearedStages, ...localData.clearedStages]);
-                        mergedData.clearedStages = Array.from(mergedStages);
+                        setData(finalMergedData);
+                        saveToStorage(finalMergedData, playerId);
 
-                        // clearedChessStagesをマージ（和集合）
-                        const mergedChessStages = new Set([...mergedData.clearedChessStages, ...localData.clearedChessStages]);
-                        mergedData.clearedChessStages = Array.from(mergedChessStages);
+                        // Initialize tracker with MERGED value (so we know what we started with)
+                        // If we used the REMOTE value blindly, we might miss local offline progress that was just merged in.
+                        // Actually, if we just merged, 'finalMergedData' IS what we consider 'Saved'.
+                        // Wait, if we merged local changes, they are NOT on server yet.
+                        // So we should initialize lastSavedDataRef to the REMOTE value (before merge) 
+                        // so that the diff logic sees the local changes and saves them in the next auto-save tick.
+                        // HOWEVER, toFrontendPlayerData returns a normalized object. 
+                        // Let's assume 'remoteConverted' is the baseline. 
+                        // BUT, if we use 'remoteConverted', the auto-save will trigger immediately to save the merge result.
+                        // This is DESIRED behavior (sync offline progress).
 
-                        // loadoutsをマージ（deck-by-deck comparison）
-                        // For each deck, use the one with more units (more "complete")
-                        const mergedLoadouts: [string[], string[], string[]] = [[], [], []];
-                        for (let i = 0; i < 3; i++) {
-                            const localDeck = localData.loadouts[i] || [];
-                            const remoteDeck = mergedData.loadouts[i] || [];
-                            // Use the deck with more units (more "complete")
-                            mergedLoadouts[i] = localDeck.length >= remoteDeck.length ? localDeck : remoteDeck;
-                        }
-                        mergedData.loadouts = mergedLoadouts;
-                        // Use the activeLoadoutIndex from the newer source
-                        if (localIsNewer) {
-                            mergedData.activeLoadoutIndex = localData.activeLoadoutIndex;
-                        }
-
-                        // gardenUnitsをマージ（和集合 - 両方のユニットを保持）
-                        const mergedGardenUnits = new Set([...mergedData.gardenUnits, ...localData.gardenUnits]);
-                        mergedData.gardenUnits = Array.from(mergedGardenUnits);
-
-                        // selectedTeam を activeLoadoutIndex から設定
-                        mergedData.selectedTeam = mergedData.loadouts[mergedData.activeLoadoutIndex] || [];
-
-                        setData(mergedData);
-                        saveToStorage(mergedData);
+                        // Construct baseline from remote data for diffing:
+                        // We need a full FrontendPlayerData object. remoteConverted is exactly that.
+                        lastSavedDataRef.current = { ...remoteConverted, lastModified: remoteTimestamp };
                     } else {
                         // リモートにデータがない場合はローカルデータを使用
                         setData(localData);
+                        // No baseline, so next save will be full save
+                        lastSavedDataRef.current = null;
                     }
 
                     // Ensure rankings entry exists for authenticated users
@@ -402,7 +417,7 @@ export function usePlayerData() {
         if (!isLoaded) return;
 
         // ローカルに即座に保存
-        saveToStorage(data);
+        saveToStorage(data, playerId);
 
         // Supabaseへは遅延保存（デバウンス）
         if (isAuthenticated && playerId) {
@@ -420,12 +435,52 @@ export function usePlayerData() {
                     try {
                         // dataRefから最新のデータを取得（stale closure回避）
                         const latestData = dataRef.current;
-                        // 型安全な変換関数を使用してSupabase形式に変換
-                        const saveData = toSupabaseSaveData(latestData);
+
+                        // Convert to Supabase format for comparison
+                        const latestSupabaseData = toSupabaseSaveData(latestData);
+
+                        // Calculate Diff vs Last Saved
+                        const saveData: Partial<SupabaseSaveData> = {};
+                        let hasChanges = false;
+
+                        if (lastSavedDataRef.current) {
+                            const lastSupabaseData = toSupabaseSaveData(lastSavedDataRef.current);
+                            (Object.keys(latestSupabaseData) as Array<keyof SupabaseSaveData>).forEach(key => {
+                                // Deep comparison using JSON.stringify for objects/arrays
+                                // Note: This handles primitives (coins) and objects (inventory) correctly
+                                if (JSON.stringify(latestSupabaseData[key]) !== JSON.stringify(lastSupabaseData[key])) {
+                                    // @ts-ignore - TS has trouble with partial mapping here but it's safe
+                                    saveData[key] = latestSupabaseData[key];
+                                    hasChanges = true;
+                                }
+                            });
+                        } else {
+                            // No baseline (first save), save everything
+                            Object.assign(saveData, latestSupabaseData);
+                            hasChanges = true;
+                        }
+
+                        if (!hasChanges) {
+                            // No changes detected, skip save
+                            pendingSaveRef.current = false;
+                            return;
+                        }
+
+                        console.log("[AutoSave] Saving diff:", Object.keys(saveData));
+
                         await saveToSupabase(playerId, saveData);
 
-                        // ランキング統計も同期（コイン数、コレクション数）
-                        await syncRankingStats(playerId, latestData.coins, latestData.unitInventory);
+                        // Update tracking ref on success
+                        // We update it to match 'latestData' because that is what is now on the server
+                        lastSavedDataRef.current = { ...latestData };
+
+                        // ランキング統計も同期
+                        // Pass undefined for coins if we didn't save them
+                        await syncRankingStats(
+                            playerId,
+                            saveData.coins, // Will be undefined if not in diff
+                            latestData.unitInventory
+                        );
                         pendingSaveRef.current = false; // 保存完了
                         return; // Success, exit retry loop
                     } catch (err) {
@@ -464,7 +519,7 @@ export function usePlayerData() {
                 // localStorageへの保存を優先し、次回ロード時にSupabaseと同期
                 try {
                     const latestData = dataRef.current;
-                    saveToStorage(latestData);
+                    saveToStorage(latestData, playerId);
                     console.log("[beforeunload] Data saved to localStorage, will sync on next load");
                 } catch (err) {
                     console.error("[beforeunload] Failed to save:", err);
@@ -491,10 +546,37 @@ export function usePlayerData() {
 
         try {
             // 最新のデータを取得
+            // 最新のデータを取得
             const latestData = dataRef.current;
-            const saveData = toSupabaseSaveData(latestData);
+            const latestSupabaseData = toSupabaseSaveData(latestData);
+
+            // Calculate Diff
+            const saveData: Partial<SupabaseSaveData> = {};
+            let hasChanges = false;
+
+            if (lastSavedDataRef.current) {
+                const lastSupabaseData = toSupabaseSaveData(lastSavedDataRef.current);
+                (Object.keys(latestSupabaseData) as Array<keyof SupabaseSaveData>).forEach(key => {
+                    if (JSON.stringify(latestSupabaseData[key]) !== JSON.stringify(lastSupabaseData[key])) {
+                        // @ts-ignore
+                        saveData[key] = latestSupabaseData[key];
+                        hasChanges = true;
+                    }
+                });
+            } else {
+                Object.assign(saveData, latestSupabaseData);
+                hasChanges = true;
+            }
+
+            if (!hasChanges) {
+                pendingSaveRef.current = false;
+                return true;
+            }
+
             await saveToSupabase(playerId, saveData);
-            await syncRankingStats(playerId, latestData.coins, latestData.unitInventory);
+            lastSavedDataRef.current = { ...latestData }; // Update tracker
+
+            await syncRankingStats(playerId, saveData.coins, latestData.unitInventory);
             pendingSaveRef.current = false; // 保存完了
             return true;
         } catch (err) {
@@ -525,10 +607,17 @@ export function usePlayerData() {
             }
 
             // サーバーからの結果でローカル状態を更新
-            setData((prev) => ({
-                ...prev,
-                coins: result.coins ?? prev.coins,
-            }));
+            setData((prev) => {
+                const newData = {
+                    ...prev,
+                    coins: result.coins ?? prev.coins,
+                };
+                // Update baseline so we don't re-save this change
+                if (lastSavedDataRef.current) {
+                    lastSavedDataRef.current = { ...lastSavedDataRef.current, coins: newData.coins };
+                }
+                return newData;
+            });
             return true;
         }
 
@@ -555,10 +644,17 @@ export function usePlayerData() {
             }
 
             // サーバーからの結果でローカル状態を更新
-            setData((prev) => ({
-                ...prev,
-                coins: result.coins ?? prev.coins,
-            }));
+            setData((prev) => {
+                const newData = {
+                    ...prev,
+                    coins: result.coins ?? prev.coins,
+                };
+                // Update baseline so we don't re-save this change
+                if (lastSavedDataRef.current) {
+                    lastSavedDataRef.current = { ...lastSavedDataRef.current, coins: newData.coins };
+                }
+                return newData;
+            });
             return true;
         }
 
@@ -585,10 +681,17 @@ export function usePlayerData() {
             }
 
             // サーバーからの結果でローカル状態を更新
-            setData((prev) => ({
-                ...prev,
-                coins: result.coins ?? prev.coins,
-            }));
+            setData((prev) => {
+                const newData = {
+                    ...prev,
+                    coins: result.coins ?? prev.coins,
+                };
+                // Update baseline so we don't re-save this change
+                if (lastSavedDataRef.current) {
+                    lastSavedDataRef.current = { ...lastSavedDataRef.current, coins: newData.coins };
+                }
+                return newData;
+            });
             return true;
         }
 
@@ -691,7 +794,7 @@ export function usePlayerData() {
     const resetData = useCallback(() => {
         const initial = getInitialData();
         setData(initial);
-        saveToStorage(initial);
+        saveToStorage(initial, playerId);
     }, []);
 
     // ショップを更新
@@ -784,12 +887,23 @@ export function usePlayerData() {
                     const items = [...prev.shopItems];
                     items[index] = { ...items[index], soldOut: true };
 
-                    return {
+                    const newData = {
                         ...prev,
                         coins: result.coins ?? prev.coins,
                         unitInventory: result.unitInventory ?? prev.unitInventory,
                         shopItems: items,
                     };
+
+                    // Update baseline so we don't re-save this change
+                    if (lastSavedDataRef.current) {
+                        lastSavedDataRef.current = {
+                            ...lastSavedDataRef.current,
+                            coins: newData.coins,
+                            unitInventory: newData.unitInventory,
+                            shopItems: newData.shopItems
+                        };
+                    }
+                    return newData;
                 });
                 return true;
             } finally {
@@ -908,11 +1022,22 @@ export function usePlayerData() {
             }
 
             // サーバーからの結果でローカル状態を更新
-            setData((prev) => ({
-                ...prev,
-                coins: result.coins ?? prev.coins,
-                unitInventory: result.unitInventory ?? prev.unitInventory,
-            }));
+            setData((prev) => {
+                const newData = {
+                    ...prev,
+                    coins: result.coins ?? prev.coins,
+                    unitInventory: result.unitInventory ?? prev.unitInventory,
+                };
+                // Update baseline so we don't re-save
+                if (lastSavedDataRef.current) {
+                    lastSavedDataRef.current = {
+                        ...lastSavedDataRef.current,
+                        coins: newData.coins,
+                        unitInventory: newData.unitInventory
+                    };
+                }
+                return newData;
+            });
 
             return true;
         }
@@ -964,10 +1089,20 @@ export function usePlayerData() {
             }
 
             // サーバーからの結果でローカル状態を更新
-            setData((prev) => ({
-                ...prev,
-                unitInventory: result.unitInventory ?? prev.unitInventory,
-            }));
+            setData((prev) => {
+                const newData = {
+                    ...prev,
+                    unitInventory: result.unitInventory ?? prev.unitInventory,
+                };
+                // Update baseline so we don't re-save
+                if (lastSavedDataRef.current) {
+                    lastSavedDataRef.current = {
+                        ...lastSavedDataRef.current,
+                        unitInventory: newData.unitInventory
+                    };
+                }
+                return newData;
+            });
 
             return true;
         }
@@ -1050,12 +1185,24 @@ export function usePlayerData() {
             };
 
             // サーバーからの結果でローカル状態を更新
-            setData((prev) => ({
-                ...prev,
-                coins: result.coins ?? prev.coins,
-                unitInventory: result.unitInventory ?? prev.unitInventory,
-                clearedStages: result.clearedStages ?? prev.clearedStages,
-            }));
+            setData((prev) => {
+                const newData = {
+                    ...prev,
+                    coins: result.coins ?? prev.coins,
+                    unitInventory: result.unitInventory ?? prev.unitInventory,
+                    clearedStages: result.clearedStages ?? prev.clearedStages,
+                };
+                // Update baseline so we don't re-save
+                if (lastSavedDataRef.current) {
+                    lastSavedDataRef.current = {
+                        ...lastSavedDataRef.current,
+                        coins: newData.coins,
+                        unitInventory: newData.unitInventory,
+                        clearedStages: newData.clearedStages
+                    };
+                }
+                return newData;
+            });
             return;
         }
 

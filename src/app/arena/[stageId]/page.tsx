@@ -58,10 +58,18 @@ export default function ArenaBattlePage() {
         setStage(stageData);
 
         // 編成データ取得（ボス除外）
-        const teamDefs = selectedTeam
+        const newTeamDefs = selectedTeam
             .map((id) => playableUnits.find((u) => u.id === id))
             .filter((u): u is UnitDefinition => u !== undefined);
-        setTeam(teamDefs);
+
+        const currentTeamIds = team.map(u => u.id).sort().join(',');
+        const newTeamIds = newTeamDefs.map(u => u.id).sort().join(',');
+
+        if (currentTeamIds !== newTeamIds && newTeamDefs.length > 0) {
+            setTeam(newTeamDefs);
+        } else if (team.length === 0 && newTeamDefs.length > 0) {
+            setTeam(newTeamDefs);
+        }
     }, [stageId, router, selectedTeam, isLoaded]);
 
     const handleBattleEnd = async (win: boolean, coinsGained: number) => {

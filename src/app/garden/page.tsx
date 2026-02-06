@@ -61,7 +61,7 @@ export default function GardenPage() {
             if (saved && GARDEN_BACKGROUNDS.some(bg => bg.id === saved)) {
                 setCurrentBgId(saved as GardenBackgroundId);
             }
-        } catch {}
+        } catch { }
     }, []);
 
     // 背景を変更
@@ -82,21 +82,34 @@ export default function GardenPage() {
     useEffect(() => {
         if (!isLoaded) return;
 
+        let nextUnits: UnitDefinition[] = [];
+
         // Try to load from saved data (usePlayerData)
         if (savedGardenUnitIds && savedGardenUnitIds.length > 0) {
-            const validUnits = savedGardenUnitIds
+            nextUnits = savedGardenUnitIds
                 .map(id => allUnits.find(u => u.id === id))
                 .filter((u): u is UnitDefinition => !!u);
-
-            if (validUnits.length > 0) {
-                setDisplayUnits(validUnits);
-                setReady(true);
-                return; // Loaded from save
-            }
         }
 
-        // Auto-selection if no save
-        autoPickUnits();
+        // If no saved units (and not just empty because of filter), try auto-pick logic
+        // Note: We can't easily call autoPickUnits() here because it has side effects (saveGardenUnits).
+        // Instead, we rely on the fact that if savedGardenUnitIds is empty/undefined, we trigger autoPick once.
+        if (nextUnits.length === 0 && (!savedGardenUnitIds || savedGardenUnitIds.length === 0)) {
+            autoPickUnits();
+            return;
+        }
+
+        // Deep compare to prevent unnecessary re-renders (which restart Phaser)
+        const currentIds = displayUnits.map(u => u.id).sort().join(',');
+        const nextIds = nextUnits.map(u => u.id).sort().join(',');
+
+        if (currentIds !== nextIds && nextUnits.length > 0) {
+            console.log('GardenPage: Updating display units', nextIds);
+            setDisplayUnits(nextUnits);
+            setReady(true);
+        } else if (nextUnits.length > 0 && !ready) {
+            setReady(true); // Ensure ready is set even if units didn't change (initial load)
+        }
     }, [isLoaded, selectedTeam, unitInventory, savedGardenUnitIds]);
 
     // Track garden visits for ranking (サーバー権威モード)
@@ -324,11 +337,10 @@ export default function GardenPage() {
                     <div className="ml-4 border-l-2 border-white/50 dark:border-slate-600 pl-4">
                         <button
                             onClick={toggleMotionMode}
-                            className={`w-16 h-16 rounded-full border-4 border-white dark:border-slate-300 shadow-lg flex items-center justify-center text-2xl transition-all hover:scale-110 active:scale-95 ${
-                                motionMode === 'attack'
+                            className={`w-16 h-16 rounded-full border-4 border-white dark:border-slate-300 shadow-lg flex items-center justify-center text-2xl transition-all hover:scale-110 active:scale-95 ${motionMode === 'attack'
                                     ? 'bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-500 animate-pulse'
                                     : 'bg-indigo-400 hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400'
-                            }`}
+                                }`}
                             title={motionMode === 'attack' ? t("garden_motion_normal") : t("garden_motion_attack")}
                         >
                             {motionMode === 'attack' ? '⚔️' : '😊'}
@@ -348,11 +360,10 @@ export default function GardenPage() {
                                 <button
                                     key={bg.id}
                                     onClick={() => changeBackground(bg.id)}
-                                    className={`relative aspect-video rounded-xl overflow-hidden border-4 transition-all hover:scale-105 ${
-                                        currentBgId === bg.id
+                                    className={`relative aspect-video rounded-xl overflow-hidden border-4 transition-all hover:scale-105 ${currentBgId === bg.id
                                             ? 'border-green-400 shadow-[0_0_15px_#4ade80]'
                                             : 'border-slate-600 hover:border-slate-400'
-                                    }`}
+                                        }`}
                                 >
                                     <Image
                                         src={`/assets/backgrounds/${bg.id}.webp`}
@@ -409,11 +420,10 @@ export default function GardenPage() {
                                     <button
                                         key={tab.key}
                                         onClick={() => setModalRarityFilter(tab.key)}
-                                        className={`px-3 py-1.5 rounded-full text-sm font-bold transition-all ${
-                                            modalRarityFilter === tab.key
+                                        className={`px-3 py-1.5 rounded-full text-sm font-bold transition-all ${modalRarityFilter === tab.key
                                                 ? `${tab.color} text-white shadow-lg scale-105`
                                                 : 'bg-slate-700 text-gray-300 hover:bg-slate-600'
-                                        }`}
+                                            }`}
                                     >
                                         {tab.label} ({count})
                                     </button>

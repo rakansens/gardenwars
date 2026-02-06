@@ -84,18 +84,37 @@ export default function BattlePage() {
         setStage(stageData);
 
         // 編成データ取得（チームのユニット定義、ボス除外）
-        const teamDefs = selectedTeam
+        // Deep compare check to prevent Phaser reload
+        const newTeamDefs = selectedTeam
             .map((id) => playableUnits.find((u) => u.id === id))
             .filter((u): u is UnitDefinition => u !== undefined);
-        setTeam(teamDefs);
+
+        const currentTeamIds = team.map(u => u.id).sort().join(',');
+        const newTeamIds = newTeamDefs.map(u => u.id).sort().join(',');
+
+        if (currentTeamIds !== newTeamIds && newTeamDefs.length > 0) {
+            setTeam(newTeamDefs);
+        } else if (team.length === 0 && newTeamDefs.length > 0) {
+            setTeam(newTeamDefs); // Initial set
+        }
 
         // 全ロードアウトを変換（ボス除外）
+        // Deep compare loadouts
         const convertedLoadouts: [UnitDefinition[], UnitDefinition[], UnitDefinition[]] = [
             (loadouts[0] || []).map(id => playableUnits.find(u => u.id === id)).filter((u): u is UnitDefinition => u !== undefined),
             (loadouts[1] || []).map(id => playableUnits.find(u => u.id === id)).filter((u): u is UnitDefinition => u !== undefined),
             (loadouts[2] || []).map(id => playableUnits.find(u => u.id === id)).filter((u): u is UnitDefinition => u !== undefined),
         ];
-        setLoadoutDefs(convertedLoadouts);
+
+        // Simple check: compare lengths and first item IDs as a heuristic, or full stringify
+        // Since this is for loadouts (context menu), it's less critical than 'team' for main gameplay, 
+        // but still good to stabilize. PhaserGame depends on 'loadouts' prop.
+        const currentLoadoutsSig = JSON.stringify(loadoutDefs.map(d => d.map(u => u.id)));
+        const newLoadoutsSig = JSON.stringify(convertedLoadouts.map(d => d.map(u => u.id)));
+
+        if (currentLoadoutsSig !== newLoadoutsSig) {
+            setLoadoutDefs(convertedLoadouts);
+        }
     }, [stageId, router, selectedTeam, loadouts, isLoaded]);
 
     const handleBattleEnd = async (win: boolean, coinsGained: number) => {
