@@ -28,6 +28,7 @@ export interface GachaResult {
     error?: string;
     coins?: number;
     unitInventory?: Record<string, number>;
+    gachaHistory?: unknown[];
     serverTime?: Date;
 }
 
@@ -145,6 +146,7 @@ export async function executeGachaRpc(
             success: true,
             coins: result.coins,
             unitInventory: result.unit_inventory,
+            gachaHistory: (result as any).gacha_history,
             serverTime: result.server_time ? new Date(result.server_time) : undefined,
         };
     } catch (err) {
@@ -347,6 +349,7 @@ export interface ShopPurchaseResult {
     error?: string;
     coins?: number;
     unitInventory?: Record<string, number>;
+    shopItems?: unknown[];
     serverTime?: Date;
 }
 
@@ -415,7 +418,8 @@ export async function executeShopRefreshRpc(
 export async function executeShopPurchaseRpc(
     playerId: string,
     price: number,
-    unitId: string
+    unitId: string,
+    itemUid: string // 追加: 特定の商品インスタンスID
 ): Promise<ShopPurchaseResult> {
     try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -423,6 +427,7 @@ export async function executeShopPurchaseRpc(
             p_player_id: playerId,
             p_price: price,
             p_unit_id: unitId,
+            p_item_uid: itemUid
         });
 
         if (error) {
@@ -435,6 +440,7 @@ export async function executeShopPurchaseRpc(
             error?: string;
             coins?: number;
             unit_inventory?: Record<string, number>;
+            shop_items?: unknown[];
             server_time?: string;
         };
 
@@ -449,6 +455,7 @@ export async function executeShopPurchaseRpc(
             success: true,
             coins: result.coins,
             unitInventory: result.unit_inventory,
+            shopItems: result.shop_items,
             serverTime: result.server_time ? new Date(result.server_time) : undefined,
         };
     } catch (err) {

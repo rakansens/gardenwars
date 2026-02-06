@@ -29,12 +29,15 @@ AS $$
 DECLARE
   v_current_coins INT;
   v_inventory JSONB;
+  v_gacha_history JSONB; /* History array */
   v_unit_id TEXT;
   v_current_count INT;
+  v_timestamp BIGINT;
+  v_new_history_entry JSONB;
 BEGIN
   -- プレイヤーデータを取得（行ロック）
-  SELECT coins, unit_inventory
-  INTO v_current_coins, v_inventory
+  SELECT coins, unit_inventory, COALESCE(gacha_history, '[]'::jsonb)
+  INTO v_current_coins, v_inventory, v_gacha_history
   FROM player_data
   WHERE player_id = p_player_id
   FOR UPDATE;
@@ -67,11 +70,39 @@ BEGIN
     );
   END LOOP;
 
+  -- ガチャ履歴を追加
+  -- JSのDate.now()相当を取得（ミリ秒）
+  v_timestamp := (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT;
+  v_new_history_entry := jsonb_build_object(
+    'timestamp', v_timestamp,
+    'unitIds', p_unit_ids,
+    'count', array_length(p_unit_ids, 1)
+  );
+  
+  -- 先頭に追加して最大100件に制限 (jsonb_path_query_array or slice approach)
+  -- シンプルに: 新しいエントリ + 既存の配列、その後スライス
+  v_gacha_history := (v_new_history_entry || v_gacha_history);
+  
+  -- 100件制限の簡易実装（パフォーマンス考慮で厳密なスライスはアプリ側に任せるか、ここでやるならjsonb_path_query_arrayを使う）
+  -- ここでは単純に追加のみ行う（データサイズが大きくなりすぎないよう、定期的なクリーンアップか、アプリ側での上書き保存に任せる手もあるが、RPC完結させるならここで制限すべき）
+  -- JSONBの下位互換性のため、一旦全追加で返す。アプリ側がDifferential Saveで上書き補正してくれるはずだが、
+  -- サーバー権威としてはここで制限するのが正しい。
+  IF jsonb_array_length(v_gacha_history) > 100 THEN
+    -- 0番目から99番目までを取得（100個）
+    -- Postgres 12+ function jsonb_path_query_array cannot be easily used for slicing without complex query.
+    -- Alternative: Use subquery to slice.
+    SELECT jsonb_agg(elem) INTO v_gacha_history
+    FROM (
+      SELECT elem FROM jsonb_array_elements(v_gacha_history) elem LIMIT 100
+    ) sub;
+  END IF;
+
   -- データベース更新
   UPDATE player_data
   SET
     coins = v_current_coins - p_cost,
     unit_inventory = v_inventory,
+    gacha_history = v_gacha_history,
     updated_at = NOW()
   WHERE player_id = p_player_id;
 
@@ -80,6 +111,7 @@ BEGIN
     'success', true,
     'coins', v_current_coins - p_cost,
     'unit_inventory', v_inventory,
+    'gacha_history', v_gacha_history,
     'server_time', NOW()
   );
 END;

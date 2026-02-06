@@ -319,7 +319,33 @@ export function usePlayerData() {
                         // If local coins != remote coins, and local timestamp is "close enough" or just ignore timestamp if local seems "played"?
                         // Let's just rely on the comparison for now, but ensure we don't blindly overwrite if we have pending data.
 
-                        const localIsNewer = localTimestamp > remoteTimestamp;
+                        let localIsNewer = localTimestamp > remoteTimestamp;
+
+                        // Clock Skew Safety / Progress Protection:
+                        // 端末の時計が遅れている場合、タイムスタンプだけで判断するとオフライン進行分（コイン、ユニットなど）が
+                        // 古いサーバーデータで上書きされてしまう。
+                        // 「クリアしたステージ数」は単調増加する指標なので、これが増えていれば「ローカルが進んでいる」とみなす。
+                        if (!localIsNewer) {
+                            const localCount = localData.clearedStages.length;
+                            const remoteCount = remoteConverted.clearedStages.length;
+
+                            // Check 1: Stage Progression
+                            if (localCount > remoteCount) {
+                                console.warn(`[Merge] Clock skew detected! Local timestamp is older, but has more cleared stages (${localCount} vs ${remoteCount}). Trusting Local.`);
+                                localIsNewer = true;
+                            }
+                            // Check 2: Farming Progression (Total Unit Count)
+                            // オフライン周回でユニットが増加している場合もローカルを優先
+                            else {
+                                const localUnits = Object.values(localData.unitInventory ?? {}).reduce((a, b) => a + b, 0);
+                                const remoteUnits = Object.values(remoteConverted.unitInventory ?? {}).reduce((a, b) => a + b, 0);
+                                if (localUnits > remoteUnits) {
+                                    console.warn(`[Merge] Clock skew detected! Local timestamp is older, but has more units (${localUnits} vs ${remoteUnits}). Trusting Local.`);
+                                    localIsNewer = true;
+                                }
+                            }
+                        }
+
                         console.log(`[Merge] Local: ${new Date(localTimestamp).toISOString()}, Remote: ${new Date(remoteTimestamp).toISOString()}, LocalIsNewer: ${localIsNewer}`);
 
                         // タイムスタンプベースのマージ戦略 (Last Write Wins)
@@ -875,7 +901,8 @@ export function usePlayerData() {
             pendingShopPurchaseRef.current.add(currentItem.uid);
             console.log("[buyShopItem] Using server authority mode");
             try {
-                const result = await executeShopPurchaseRpc(playerId, currentItem.price, currentItem.unitId);
+                // Pass item UID for strict server-side validation (prevents infinite purchase)
+                const result = await executeShopPurchaseRpc(playerId, currentItem.price, currentItem.unitId, currentItem.uid);
 
                 if (!result.success) {
                     console.error("[buyShopItem] Server rejected:", result.error);
@@ -884,14 +911,21 @@ export function usePlayerData() {
 
                 // サーバーからの結果でローカル状態を更新
                 setData(prev => {
-                    const items = [...prev.shopItems];
-                    items[index] = { ...items[index], soldOut: true };
+                    // サーバーからshopItemsが返ってきた場合はそれを採用（確実）
+                    // 返ってこない場合（古いRPCなど）はローカル更新
+                    let newShopItems = [...prev.shopItems];
+                    if (result.shopItems && Array.isArray(result.shopItems)) {
+                        newShopItems = result.shopItems as ShopItem[];
+                    } else {
+                        // Fallback: Local Update (should not happen with new RPC)
+                        newShopItems[index] = { ...newShopItems[index], soldOut: true };
+                    }
 
                     const newData = {
                         ...prev,
                         coins: result.coins ?? prev.coins,
                         unitInventory: result.unitInventory ?? prev.unitInventory,
-                        shopItems: items,
+                        shopItems: newShopItems,
                     };
 
                     // Update baseline so we don't re-save this change
@@ -910,6 +944,7 @@ export function usePlayerData() {
                 pendingShopPurchaseRef.current.delete(currentItem.uid);
             }
         }
+
 
         // 未認証ユーザーはローカルで処理
         setData(prev => {
@@ -1023,17 +1058,33 @@ export function usePlayerData() {
 
             // サーバーからの結果でローカル状態を更新
             setData((prev) => {
+                let newGachaHistory = prev.gachaHistory;
+                if (result.gachaHistory && Array.isArray(result.gachaHistory)) {
+                    newGachaHistory = result.gachaHistory as GachaHistoryEntry[];
+                } else {
+                    // Fallback local update (server didn't return history, but we should record it)
+                    // Note: Ideally we shouldn't drift, but for robustness:
+                    const entry: GachaHistoryEntry = {
+                        timestamp: Date.now(),
+                        unitIds: unitIds,
+                        count: unitIds.length,
+                    };
+                    newGachaHistory = [entry, ...prev.gachaHistory].slice(0, 100);
+                }
+
                 const newData = {
                     ...prev,
                     coins: result.coins ?? prev.coins,
                     unitInventory: result.unitInventory ?? prev.unitInventory,
+                    gachaHistory: newGachaHistory
                 };
                 // Update baseline so we don't re-save
                 if (lastSavedDataRef.current) {
                     lastSavedDataRef.current = {
                         ...lastSavedDataRef.current,
                         coins: newData.coins,
-                        unitInventory: newData.unitInventory
+                        unitInventory: newData.unitInventory,
+                        gachaHistory: newData.gachaHistory
                     };
                 }
                 return newData;
