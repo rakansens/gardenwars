@@ -6,11 +6,7 @@ import { getSkillById } from '@/data/skills';
 import { SurvivalPlayer } from '../entities/SurvivalPlayer';
 import { SurvivalEnemy } from '../entities/SurvivalEnemy';
 import { DungeonGuard } from '../entities/DungeonGuard';
-import { Projectile } from '../entities/Projectile';
-import { SurvivalSpawner, SurvivalDifficultyModifiers } from '../systems/SurvivalSpawner';
-import { WeaponSystem } from '../systems/WeaponSystem';
 import { ExperienceSystem } from '../systems/ExperienceSystem';
-import { CannonSystem, CannonTarget } from '../systems/CannonSystem';
 import { eventBus, GameEvents } from '../utils/EventBus';
 import enTranslations from '@/data/locales/en.json';
 import jaTranslations from '@/data/locales/ja.json';
@@ -23,25 +19,29 @@ export interface DungeonSceneData {
     difficulty?: SurvivalDifficulty;
 }
 
-type DungeonState = 'PLAYING' | 'LEVEL_UP' | 'PLACING' | 'GAME_OVER';
+type DungeonState = 'PLAYING' | 'LEVEL_UP' | 'PLACING' | 'WAVE_PAUSE' | 'GAME_OVER';
 
-const DIFFICULTY_MODIFIERS: Record<SurvivalDifficulty, SurvivalDifficultyModifiers> = {
-    easy: {
-        spawnInterval: 1.2, minInterval: 1.15, intervalDecay: 0.85,
-        extraSpawnChance: 0.7, hpScaling: 0.85, damageScaling: 0.85,
-        speedScaling: 0.9, bossHp: 0.85, bossDamage: 0.85,
-    },
-    normal: {
-        spawnInterval: 1, minInterval: 1, intervalDecay: 1,
-        extraSpawnChance: 1, hpScaling: 1, damageScaling: 1,
-        speedScaling: 1, bossHp: 1, bossDamage: 1,
-    },
-    hard: {
-        spawnInterval: 0.85, minInterval: 0.85, intervalDecay: 1.2,
-        extraSpawnChance: 1.3, hpScaling: 1.2, damageScaling: 1.2,
-        speedScaling: 1.1, bossHp: 1.25, bossDamage: 1.25,
-    },
-};
+// ============================================
+// ガード強化オプション（レベルアップ時）
+// ============================================
+interface DungeonUpgrade {
+    id: string;
+    name: string;
+    description: string;
+    icon: string;
+    maxLevel: number;
+}
+
+const DUNGEON_UPGRADES: DungeonUpgrade[] = [
+    { id: 'guard_damage', name: '攻撃力UP', description: '全ガードの攻撃力 +25%', icon: '⚔️', maxLevel: 5 },
+    { id: 'guard_speed', name: '攻速UP', description: '全ガードの攻撃速度 +20%', icon: '⚡', maxLevel: 5 },
+    { id: 'guard_hp', name: 'HP UP', description: '全ガードのHP +30%', icon: '❤️', maxLevel: 5 },
+    { id: 'guard_range', name: '射程UP', description: '全ガードの射程 +15%', icon: '🎯', maxLevel: 4 },
+    { id: 'gold_income', name: 'ゴールドUP', description: '毎秒ゴールド +50%', icon: '💰', maxLevel: 4 },
+    { id: 'extra_slot', name: '配置枠+1', description: 'ガード上限 +1', icon: '🛡️', maxLevel: 3 },
+    { id: 'guard_heal', name: '全回復', description: '全ガードHP 40%回復', icon: '💚', maxLevel: 99 },
+    { id: 'kill_gold', name: 'キルゴールド', description: '敵撃破ゴールド +40%', icon: '💀', maxLevel: 4 },
+];
 
 export class DungeonScene extends Phaser.Scene {
     private playerDef!: UnitDefinition;
@@ -52,12 +52,8 @@ export class DungeonScene extends Phaser.Scene {
     private player!: SurvivalPlayer;
     private enemies: SurvivalEnemy[] = [];
     private guards: DungeonGuard[] = [];
-    private projectiles: Projectile[] = [];
 
-    private spawner!: SurvivalSpawner;
-    private weaponSystem!: WeaponSystem;
     private experienceSystem!: ExperienceSystem;
-    private cannonSystem!: CannonSystem;
 
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
     private wasd!: { W: Phaser.Input.Keyboard.Key; A: Phaser.Input.Keyboard.Key; S: Phaser.Input.Keyboard.Key; D: Phaser.Input.Keyboard.Key };
@@ -71,15 +67,27 @@ export class DungeonScene extends Phaser.Scene {
     private gold: number = 0;
     private gameOver: boolean = false;
 
+    // ウェーブシステム
+    private currentWave: number = 0;
+    private waveEnemiesRemaining: number = 0;
+    private waveEnemiesSpawned: number = 0;
+    private waveSpawnTimer: number = 0;
+    private wavePauseTimer: number = 0;
+    private waveActive: boolean = false;
+
+    // アップグレードレベル
+    private upgradeLevels: Map<string, number> = new Map();
+
     // HUD
     private timeText!: Phaser.GameObjects.Text;
-    private levelText!: Phaser.GameObjects.Text;
+    private waveText!: Phaser.GameObjects.Text;
     private killText!: Phaser.GameObjects.Text;
     private goldText!: Phaser.GameObjects.Text;
     private hpBarBg!: Phaser.GameObjects.Rectangle;
     private hpBarFill!: Phaser.GameObjects.Rectangle;
     private xpBarBg!: Phaser.GameObjects.Rectangle;
     private xpBarFill!: Phaser.GameObjects.Rectangle;
+    private waveAnnouncerText?: Phaser.GameObjects.Text;
 
     // UI
     private levelUpOverlay?: Phaser.GameObjects.Container;
@@ -91,10 +99,19 @@ export class DungeonScene extends Phaser.Scene {
     private bgNear?: Phaser.GameObjects.TileSprite;
 
     private continueCount: number = 0;
-    private maxContinues: number = 3;
+    private maxContinues: number = 2;
     private difficulty: SurvivalDifficulty = 'normal';
     private translations: Record<string, string> = enTranslations;
     private goldTimer: number = 0;
+
+    // バフ倍率
+    private guardDamageMultiplier: number = 1;
+    private guardSpeedMultiplier: number = 1;
+    private guardHpMultiplier: number = 1;
+    private guardRangeMultiplier: number = 1;
+    private goldIncomeMultiplier: number = 1;
+    private killGoldMultiplier: number = 1;
+    private extraGuardSlots: number = 0;
 
     constructor() {
         super({ key: 'DungeonScene' });
@@ -108,14 +125,27 @@ export class DungeonScene extends Phaser.Scene {
         this.difficulty = data.difficulty ?? (data.stageData.difficulty as SurvivalDifficulty) ?? 'normal';
         this.enemies = [];
         this.guards = [];
-        this.projectiles = [];
         this.elapsedMs = 0;
         this.killCount = 0;
         this.gold = data.stageData.startGold;
-        this.gameState = 'PLAYING';
+        this.gameState = 'WAVE_PAUSE';
         this.gameOver = false;
         this.placingUnit = null;
         this.goldTimer = 0;
+        this.currentWave = 0;
+        this.waveEnemiesRemaining = 0;
+        this.waveEnemiesSpawned = 0;
+        this.waveSpawnTimer = 0;
+        this.wavePauseTimer = 3000; // 開始前3秒
+        this.waveActive = false;
+        this.upgradeLevels = new Map();
+        this.guardDamageMultiplier = 1;
+        this.guardSpeedMultiplier = 1;
+        this.guardHpMultiplier = 1;
+        this.guardRangeMultiplier = 1;
+        this.goldIncomeMultiplier = 1;
+        this.killGoldMultiplier = 1;
+        this.extraGuardSlots = 0;
         this.levelUpOverlay?.destroy();
         this.gameOverOverlay?.destroy();
         this.unitPanel?.destroy();
@@ -187,32 +217,17 @@ export class DungeonScene extends Phaser.Scene {
             ? (keyboard.addKeys('W,A,S,D') as any)
             : ({ W: emptyKey, A: emptyKey, S: emptyKey, D: emptyKey } as any);
 
-        // プレイヤー
+        // プレイヤー（攻撃なし、移動のみ）
         const playerSpriteId = this.playerDef.baseUnitId || this.playerDef.atlasKey || this.playerDef.id;
         this.player = new SurvivalPlayer(this, width / 2, height / 2, this.playerDef, {
             spriteKey: playerSpriteId,
-            hpMultiplier: 3.2,
-            baseSpeedMultiplier: 1.8,
+            hpMultiplier: 4.0,
+            baseSpeedMultiplier: 2.0,
         });
         this.player.setDepth(10);
 
-        // システム初期化
-        this.weaponSystem = new WeaponSystem(this, this.player, this.enemies, this.projectiles);
-        this.weaponSystem.applyUpgrade('forward_shot');
-        this.experienceSystem = new ExperienceSystem(this, () => this.triggerLevelUp(), { xpGainMultiplier: 2 });
-        this.spawner = new SurvivalSpawner(this, {
-            allUnits: this.allUnitsData,
-            enemies: this.enemies,
-            difficultyModifiers: DIFFICULTY_MODIFIERS[this.difficulty] ?? DIFFICULTY_MODIFIERS.normal,
-        });
-
-        this.cannonSystem = new CannonSystem(this);
-        const bombBtn = this.cannonSystem.createUI(width - 70, height - 70, 0);
-        bombBtn.on('pointerdown', () => {
-            if (this.gameState !== 'PLAYING') return;
-            const targets = this.enemies.filter(e => !e.isDead()) as CannonTarget[];
-            this.cannonSystem.fireArea(this.player.x, this.player.y - 20, targets, 220, { damage: 180, knockback: 70 });
-        });
+        // 経験値システム（レベルアップでガード強化）
+        this.experienceSystem = new ExperienceSystem(this, () => this.triggerLevelUp(), { xpGainMultiplier: 2.5 });
 
         this.createHud();
         this.createUnitPanel();
@@ -222,13 +237,12 @@ export class DungeonScene extends Phaser.Scene {
             if (this.gameState === 'GAME_OVER') return;
             if (currentlyOver && currentlyOver.length > 0) return;
 
-            // 配置モード
             if (this.gameState === 'PLACING' && this.placingUnit) {
                 this.placeGuard(this.placingUnit, pointer.worldX, pointer.worldY);
                 return;
             }
 
-            if (this.gameState !== 'PLAYING') return;
+            if (this.gameState !== 'PLAYING' && this.gameState !== 'WAVE_PAUSE') return;
             this.pointerActive = true;
             this.pointerId = pointer.id;
             this.pointerTarget.set(pointer.worldX, pointer.worldY);
@@ -250,37 +264,197 @@ export class DungeonScene extends Phaser.Scene {
         };
         this.input.on('pointerup', handlePointerUp);
         this.input.on('pointerupoutside', handlePointerUp);
+
+        // 初期ウェーブアナウンス
+        this.announceWave('準備中...', 2000);
     }
 
     update(_: number, delta: number) {
-        if (this.gameOver) return;
-        if (this.gameState === 'GAME_OVER') return;
-        if (this.gameState === 'LEVEL_UP' || this.gameState === 'PLACING') return;
+        if (this.gameOver || this.gameState === 'GAME_OVER') return;
 
-        this.cannonSystem.update(delta);
         this.updateBackgroundScroll(delta);
-
         this.elapsedMs += delta;
 
         // ゴールド毎秒獲得
         this.goldTimer += delta;
         if (this.goldTimer >= 1000) {
-            this.gold += this.stageData.goldPerSecond;
+            this.gold += Math.round(this.stageData.goldPerSecond * this.goldIncomeMultiplier);
             this.goldTimer -= 1000;
         }
 
-        this.updatePlayerMovement(delta);
-        this.spawner.update(delta, this.player.x, this.player.y);
-        this.weaponSystem.update(delta);
-        this.updateProjectiles(delta);
-        this.updateEnemies(delta);
-        this.updateGuards(delta);
-        this.experienceSystem.update(delta, this.player);
+        // プレイヤーは常に移動可能（配置中でも）
+        if (this.gameState !== 'LEVEL_UP') {
+            this.updatePlayerMovement(delta);
+        }
+
+        // ウェーブ管理
+        if (this.gameState === 'WAVE_PAUSE') {
+            this.wavePauseTimer -= delta;
+            if (this.wavePauseTimer <= 0) {
+                this.startNextWave();
+            }
+        }
+
+        // 敵のスポーン（ウェーブ中）
+        if (this.gameState === 'PLAYING' && this.waveActive) {
+            this.updateWaveSpawning(delta);
+        }
+
+        // 敵・ガード更新
+        if (this.gameState === 'PLAYING' || this.gameState === 'WAVE_PAUSE') {
+            this.updateEnemies(delta);
+            this.updateGuards(delta);
+            this.experienceSystem.update(delta, this.player);
+        }
+
         this.updateHud();
 
         if (this.player.isDead()) {
             this.endGame(false);
         }
+    }
+
+    // ============================================
+    // ウェーブシステム
+    // ============================================
+
+    private startNextWave() {
+        this.currentWave++;
+        if (this.currentWave > this.stageData.totalWaves) {
+            this.endGame(true);
+            return;
+        }
+
+        this.waveActive = true;
+        this.gameState = 'PLAYING';
+
+        // ウェーブ毎に敵数増加
+        const baseCount = this.stageData.baseEnemiesPerWave;
+        const waveScale = 1 + (this.currentWave - 1) * 0.25; // 25%ずつ増加
+        this.waveEnemiesRemaining = Math.round(baseCount * waveScale);
+        this.waveEnemiesSpawned = 0;
+        this.waveSpawnTimer = 0;
+
+        // ボスウェーブ（5波毎）
+        if (this.currentWave % 5 === 0) {
+            this.waveEnemiesRemaining += 1; // ボス追加
+        }
+
+        const isBoss = this.currentWave % 5 === 0;
+        const label = isBoss ? `⚠️ WAVE ${this.currentWave}/${this.stageData.totalWaves} - BOSS!` : `WAVE ${this.currentWave}/${this.stageData.totalWaves}`;
+        this.announceWave(label, 2000);
+    }
+
+    private updateWaveSpawning(delta: number) {
+        if (this.waveEnemiesSpawned >= this.waveEnemiesRemaining) {
+            // 全スポーン済み → 全滅チェック
+            if (this.enemies.every(e => e.isDead())) {
+                this.onWaveCleared();
+            }
+            return;
+        }
+
+        this.waveSpawnTimer += delta;
+        const spawnInterval = Math.max(250, 1200 - this.currentWave * 30);
+
+        if (this.waveSpawnTimer >= spawnInterval) {
+            this.waveSpawnTimer -= spawnInterval;
+
+            const isBoss = this.currentWave % 5 === 0 && this.waveEnemiesSpawned === this.waveEnemiesRemaining - 1;
+            this.spawnEnemy(isBoss);
+            this.waveEnemiesSpawned++;
+        }
+    }
+
+    private onWaveCleared() {
+        this.waveActive = false;
+
+        if (this.currentWave >= this.stageData.totalWaves) {
+            this.endGame(true);
+            return;
+        }
+
+        // ウェーブクリアボーナスゴールド
+        const bonusGold = Math.round(10 + this.currentWave * 5);
+        this.gold += bonusGold;
+        this.showFloatingText(this.scale.width / 2, this.scale.height / 2 - 80, `Wave Clear! +${bonusGold}G`, 0x55ff88);
+
+        // 休憩 → ガード配置タイム
+        this.gameState = 'WAVE_PAUSE';
+        this.wavePauseTimer = this.stageData.wavePauseMs;
+    }
+
+    private spawnEnemy(isBoss: boolean) {
+        const unitDef = this.pickEnemyDefinition(isBoss);
+        if (!unitDef) return;
+
+        const { x, y } = this.getSpawnPosition();
+        const waveMultiplier = 1 + (this.currentWave - 1) * 0.12;
+
+        // 難易度倍率
+        const diffMul = this.difficulty === 'hard' ? 1.3 : this.difficulty === 'easy' ? 0.8 : 1;
+
+        let maxHp = Math.round(unitDef.maxHp * waveMultiplier * diffMul);
+        let damage = Math.round(unitDef.attackDamage * waveMultiplier * diffMul);
+        let speed = unitDef.speed * (1 + (this.currentWave - 1) * 0.02);
+
+        if (isBoss) {
+            maxHp = Math.round(maxHp * 5);
+            damage = Math.round(damage * 2);
+            speed *= 0.7;
+        }
+
+        const spriteId = unitDef.baseUnitId || unitDef.atlasKey || unitDef.id;
+        const enemy = new SurvivalEnemy(this, x, y, unitDef, {
+            spriteKey: spriteId,
+            flipSprite: unitDef.flipSprite,
+            scale: Math.min(unitDef.scale ?? 1, isBoss ? 2.2 : 1.8),
+            stats: {
+                maxHp,
+                speed,
+                attackDamage: damage,
+                attackRange: Math.min(90, Math.max(30, unitDef.attackRange)),
+                attackCooldownMs: Math.max(400, unitDef.attackCooldownMs),
+                isBoss,
+            },
+        });
+
+        this.enemies.push(enemy);
+    }
+
+    private pickEnemyDefinition(isBoss: boolean): UnitDefinition | null {
+        const poolIds = isBoss
+            ? survivalWaves.boss.unitIds
+            : this.getCurrentEnemyPool();
+        if (poolIds.length === 0) return null;
+        const unitId = poolIds[Math.floor(Math.random() * poolIds.length)];
+        return this.allUnitsData.find(u => u.id === unitId) ?? null;
+    }
+
+    private getCurrentEnemyPool(): string[] {
+        // ウェーブ番号に基づいてプール切り替え
+        const pools = [...survivalWaves.enemyPools].sort((a, b) => a.startMs - b.startMs);
+        // simulatedMs: 1 wave ≈ 15秒相当でプールを切り替え
+        const simulatedMs = this.currentWave * 15000;
+        let active = pools[0];
+        for (const pool of pools) {
+            if (simulatedMs >= pool.startMs) active = pool;
+        }
+        return active?.unitIds ?? [];
+    }
+
+    private getSpawnPosition() {
+        const { width, height } = this.scale;
+        const margin = 90;
+        const side = Math.floor(Math.random() * 4);
+
+        let x = 0, y = 0;
+        if (side === 0) { x = -margin; y = Phaser.Math.Between(0, height); }
+        else if (side === 1) { x = width + margin; y = Phaser.Math.Between(0, height); }
+        else if (side === 2) { x = Phaser.Math.Between(0, width); y = -margin; }
+        else { x = Phaser.Math.Between(0, width); y = height + margin; }
+
+        return { x, y };
     }
 
     // ============================================
@@ -335,49 +509,24 @@ export class DungeonScene extends Phaser.Scene {
     }
 
     // ============================================
-    // 弾丸・敵更新
+    // 敵・ガード更新
     // ============================================
-
-    private updateProjectiles(delta: number) {
-        for (let i = this.projectiles.length - 1; i >= 0; i--) {
-            const projectile = this.projectiles[i];
-            const alive = projectile.update(delta);
-            if (!alive) { this.projectiles.splice(i, 1); continue; }
-
-            let hit = false;
-            for (const enemy of this.enemies) {
-                if (enemy.isDead()) continue;
-                const dx = enemy.x - projectile.x;
-                const dy = enemy.y - projectile.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist <= enemy.getHitRadius() + projectile.getHitRadius()) {
-                    enemy.takeDamage(projectile.damage);
-                    projectile.pierce -= 1;
-                    hit = true;
-                    if (projectile.pierce <= 0) break;
-                }
-            }
-            if (hit && projectile.pierce <= 0) {
-                projectile.destroy();
-                this.projectiles.splice(i, 1);
-            }
-        }
-    }
 
     private updateEnemies(delta: number) {
         for (const enemy of this.enemies) {
+            // 敵はプレイヤーに向かって移動＆攻撃
             enemy.update(delta, this.player);
 
-            // 敵がガードも攻撃する（近いガードをターゲット）
+            // 敵がガードにもダメージ（近接）
             if (!enemy.isDead()) {
                 for (const guard of this.guards) {
                     if (guard.isDead()) continue;
                     const dx = guard.x - enemy.x;
                     const dy = guard.y - enemy.y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
-                    // 敵がガードに近づいたらダメージ
-                    if (dist < 40) {
-                        guard.takeDamage(enemy.definition.attackDamage * 0.3);
+                    if (dist < guard.getHitRadius() + 20) {
+                        // 敵のattackDamage × 時間ベース（毎フレームではなく毎秒）
+                        guard.takeDamage(enemy.definition.attackDamage * 0.8 * (delta / 1000));
                     }
                 }
             }
@@ -387,16 +536,12 @@ export class DungeonScene extends Phaser.Scene {
             const enemy = this.enemies[i];
             if (!enemy.isDead()) continue;
             this.spawnExperience(enemy.x, enemy.y, enemy.isBoss);
-            this.gold += this.stageData.killGold;
+            this.gold += Math.round(this.stageData.killGold * this.killGoldMultiplier);
             enemy.destroy();
             this.enemies.splice(i, 1);
             this.killCount += 1;
         }
     }
-
-    // ============================================
-    // ガード更新
-    // ============================================
 
     private updateGuards(delta: number) {
         for (let i = this.guards.length - 1; i >= 0; i--) {
@@ -419,15 +564,13 @@ export class DungeonScene extends Phaser.Scene {
 
         switch (skill.id) {
             case 'frost_slow': {
-                // スローは SurvivalEnemy に直接適用できないため、エフェクトのみ
                 this.showSkillEffect(target.x, target.y, '❄️');
                 break;
             }
             case 'burn': {
                 this.showSkillEffect(target.x, target.y, '🔥');
-                // 追加ダメージ
                 const burnEffect = skill.effects?.[0];
-                const burnDmg = Math.round((burnEffect?.value || 50) * 0.05);
+                const burnDmg = Math.round((burnEffect?.value || 50) * 0.05 * guard.damageMultiplier);
                 target.takeDamage(burnDmg);
                 break;
             }
@@ -440,7 +583,7 @@ export class DungeonScene extends Phaser.Scene {
                 if (Math.random() < critChance) {
                     const critEffect = skill.effects?.find(e => e.type === 'critical');
                     const critMul = critEffect?.value || 2;
-                    const bonusDmg = Math.round(guard.definition.attackDamage * (critMul - 1));
+                    const bonusDmg = Math.round(guard.getAttackDamage() * (critMul - 1));
                     target.takeDamage(bonusDmg);
                     this.showSkillEffect(target.x, target.y, '⚡');
                 }
@@ -450,13 +593,10 @@ export class DungeonScene extends Phaser.Scene {
     }
 
     private applyChainLightning(guard: DungeonGuard, firstTarget: SurvivalEnemy) {
-        const skill = getSkillById(guard.definition.skillId!);
-        if (!skill) return;
-
         const maxChain = 3;
         const chainDamageRatio = 0.6;
         const chainRange = 120;
-        const baseDamage = Math.round(guard.definition.attackDamage * chainDamageRatio);
+        const baseDamage = Math.round(guard.getAttackDamage() * chainDamageRatio);
 
         const visited = new Set<string>([firstTarget.instanceId]);
         let current = firstTarget;
@@ -482,13 +622,10 @@ export class DungeonScene extends Phaser.Scene {
             }
 
             if (!bestEnemy) break;
-
             visited.add(bestEnemy.instanceId);
             bestEnemy.takeDamage(baseDamage);
-
             graphics.moveTo(current.x, current.y);
             graphics.lineTo(bestEnemy.x, bestEnemy.y);
-
             this.showSkillEffect(bestEnemy.x, bestEnemy.y, '⚡');
             current = bestEnemy;
             chainCount++;
@@ -496,9 +633,7 @@ export class DungeonScene extends Phaser.Scene {
 
         graphics.strokePath();
         this.tweens.add({
-            targets: graphics,
-            alpha: 0,
-            duration: 300,
+            targets: graphics, alpha: 0, duration: 300,
             onComplete: () => graphics.destroy(),
         });
     }
@@ -506,10 +641,7 @@ export class DungeonScene extends Phaser.Scene {
     private showSkillEffect(x: number, y: number, emoji: string) {
         const text = this.add.text(x, y - 30, emoji, { fontSize: '16px' }).setOrigin(0.5).setDepth(60);
         this.tweens.add({
-            targets: text,
-            y: y - 60,
-            alpha: 0,
-            duration: 600,
+            targets: text, y: y - 60, alpha: 0, duration: 600,
             onComplete: () => text.destroy(),
         });
     }
@@ -522,7 +654,6 @@ export class DungeonScene extends Phaser.Scene {
         const { width, height } = this.scale;
         const panel = this.add.container(0, 0).setDepth(150);
 
-        // パネル背景
         const panelBg = this.add.rectangle(width / 2, height - 32, width, 64, 0x111122, 0.85);
         panel.add(panelBg);
 
@@ -535,22 +666,18 @@ export class DungeonScene extends Phaser.Scene {
             const x = startX + idx * (btnSize + gap);
             const y = height - 32;
 
-            // ボタン背景
             const bg = this.add.rectangle(x, y, btnSize, btnSize, 0x1a1a2e, 0.9);
             bg.setStrokeStyle(2, 0x4488ff);
             bg.setInteractive({ useHandCursor: true });
             panel.add(bg);
 
-            // ユニットスプライト
             const spriteId = unitDef.baseUnitId || unitDef.atlasKey || unitDef.id;
             const img = this.add.image(x, y, spriteId);
             const imgScale = (btnSize - 8) / Math.max(img.width, img.height, 1);
             img.setScale(imgScale);
             panel.add(img);
 
-            // コスト表示
-            const costMap: Record<string, number> = { N: 30, R: 60, SR: 120, SSR: 200, UR: 350 };
-            const cost = costMap[unitDef.rarity] || 50;
+            const cost = DungeonGuard.getPlaceCost(unitDef.rarity);
             const costText = this.add.text(x, y + btnSize / 2 - 2, `${cost}G`, {
                 fontSize: '9px', color: '#ffdd00', fontFamily: 'Arial',
                 stroke: '#000', strokeThickness: 2,
@@ -559,33 +686,29 @@ export class DungeonScene extends Phaser.Scene {
 
             bg.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
                 pointer.event.stopPropagation();
-                if (this.gameOver) return;
-                if (this.gameState === 'LEVEL_UP') return;
+                if (this.gameOver || this.gameState === 'LEVEL_UP') return;
 
-                if (this.gold < cost) {
+                const currentCost = DungeonGuard.getPlaceCost(unitDef.rarity);
+                if (this.gold < currentCost) {
                     this.showFloatingText(width / 2, height / 2 - 60, 'ゴールド不足！', 0xff4444);
                     return;
                 }
 
-                // 同一ユニット上限チェック
                 const sameCount = this.guards.filter(g => g.definition.id === unitDef.id).length;
                 if (sameCount >= this.stageData.maxSameUnit) {
+                    this.showFloatingText(width / 2, height / 2 - 60, '同一上限！', 0xff4444);
+                    return;
+                }
+
+                const maxSlots = this.stageData.maxGuards + this.extraGuardSlots;
+                if (this.guards.length >= maxSlots) {
                     this.showFloatingText(width / 2, height / 2 - 60, '配置上限！', 0xff4444);
                     return;
                 }
 
-                // 全体上限チェック
-                if (this.guards.length >= this.stageData.maxGuards) {
-                    this.showFloatingText(width / 2, height / 2 - 60, '配置上限！', 0xff4444);
-                    return;
-                }
-
-                // 配置モード開始
                 this.placingUnit = unitDef;
                 this.gameState = 'PLACING';
                 this.pointerActive = false;
-
-                // レンジプレビュー
                 this.rangePreview?.destroy();
                 this.rangePreview = this.add.graphics().setDepth(5);
 
@@ -601,21 +724,17 @@ export class DungeonScene extends Phaser.Scene {
         if (!this.rangePreview || !this.placingUnit) return;
         this.rangePreview.clear();
 
-        const range = Math.min(180, Math.max(60, this.placingUnit.attackRange));
+        const range = Math.min(250, Math.max(80, this.placingUnit.attackRange)) * this.guardRangeMultiplier;
         this.rangePreview.lineStyle(2, 0x44ff88, 0.3);
         this.rangePreview.fillStyle(0x44ff88, 0.06);
         this.rangePreview.fillCircle(worldX, worldY, range);
         this.rangePreview.strokeCircle(worldX, worldY, range);
-
-        // 配置位置のドット
         this.rangePreview.fillStyle(0x44ff88, 0.5);
         this.rangePreview.fillCircle(worldX, worldY, 6);
     }
 
     private placeGuard(unitDef: UnitDefinition, x: number, y: number) {
-        const costMap: Record<string, number> = { N: 30, R: 60, SR: 120, SSR: 200, UR: 350 };
-        const cost = costMap[unitDef.rarity] || 50;
-
+        const cost = DungeonGuard.getPlaceCost(unitDef.rarity);
         if (this.gold < cost) {
             this.cancelPlacement();
             return;
@@ -629,12 +748,15 @@ export class DungeonScene extends Phaser.Scene {
             scale: Math.min(unitDef.scale ?? 1, 1.6),
         });
 
-        // 配置エフェクト
+        // グローバルバフ適用
+        guard.damageMultiplier = this.guardDamageMultiplier;
+        guard.speedMultiplier = this.guardSpeedMultiplier;
+        guard.rangeMultiplier = this.guardRangeMultiplier;
+
         guard.setScale(0);
         this.tweens.add({
             targets: guard,
-            scaleX: 1,
-            scaleY: 1,
+            scaleX: 1, scaleY: 1,
             duration: 300,
             ease: 'Back.easeOut',
         });
@@ -645,7 +767,8 @@ export class DungeonScene extends Phaser.Scene {
 
     private cancelPlacement() {
         this.placingUnit = null;
-        this.gameState = 'PLAYING';
+        // ウェーブ中なら PLAYING、休憩中なら WAVE_PAUSE に戻る
+        this.gameState = this.waveActive ? 'PLAYING' : 'WAVE_PAUSE';
         this.rangePreview?.destroy();
         this.rangePreview = undefined;
     }
@@ -655,7 +778,7 @@ export class DungeonScene extends Phaser.Scene {
     // ============================================
 
     private spawnExperience(x: number, y: number, isBoss: boolean) {
-        const base = isBoss ? 12 : 3;
+        const base = isBoss ? 15 : 4;
         const count = isBoss ? 8 : 2;
         for (let i = 0; i < count; i++) {
             const angle = (Math.PI * 2 * i) / count;
@@ -667,34 +790,86 @@ export class DungeonScene extends Phaser.Scene {
     }
 
     private triggerLevelUp() {
-        if (this.gameState !== 'PLAYING') return;
+        if (this.gameState === 'GAME_OVER' || this.gameState === 'LEVEL_UP') return;
         this.gameState = 'LEVEL_UP';
 
-        const options = this.weaponSystem.getUpgradeOptions(3);
+        const options = this.getUpgradeOptions(3);
         if (options.length === 0) {
-            this.gameState = 'PLAYING';
+            this.gameState = this.waveActive ? 'PLAYING' : 'WAVE_PAUSE';
             return;
         }
         this.showLevelUpOptions(options);
     }
 
-    private showLevelUpOptions(options: any[]) {
+    private getUpgradeOptions(count: number): DungeonUpgrade[] {
+        const available = DUNGEON_UPGRADES.filter(u => {
+            const level = this.upgradeLevels.get(u.id) ?? 0;
+            return level < u.maxLevel;
+        });
+
+        // シャッフル
+        const shuffled = [...available].sort(() => Math.random() - 0.5);
+        return shuffled.slice(0, count);
+    }
+
+    private applyUpgrade(upgradeId: string) {
+        const level = (this.upgradeLevels.get(upgradeId) ?? 0) + 1;
+        this.upgradeLevels.set(upgradeId, level);
+
+        switch (upgradeId) {
+            case 'guard_damage':
+                this.guardDamageMultiplier += 0.25;
+                for (const guard of this.guards) guard.damageMultiplier = this.guardDamageMultiplier;
+                break;
+            case 'guard_speed':
+                this.guardSpeedMultiplier += 0.2;
+                for (const guard of this.guards) guard.speedMultiplier = this.guardSpeedMultiplier;
+                break;
+            case 'guard_hp':
+                this.guardHpMultiplier += 0.3;
+                // 既存ガードもHP割合維持で適用
+                for (const guard of this.guards) {
+                    const ratio = guard.hp / guard.maxHp;
+                    guard.maxHp = Math.round(guard.definition.maxHp * 2.5 * this.guardHpMultiplier);
+                    guard.hp = Math.round(guard.maxHp * ratio);
+                }
+                break;
+            case 'guard_range':
+                this.guardRangeMultiplier += 0.15;
+                for (const guard of this.guards) guard.rangeMultiplier = this.guardRangeMultiplier;
+                break;
+            case 'gold_income':
+                this.goldIncomeMultiplier += 0.5;
+                break;
+            case 'extra_slot':
+                this.extraGuardSlots += 1;
+                break;
+            case 'guard_heal':
+                for (const guard of this.guards) guard.healPercent(0.4);
+                break;
+            case 'kill_gold':
+                this.killGoldMultiplier += 0.4;
+                break;
+        }
+    }
+
+    private showLevelUpOptions(options: DungeonUpgrade[]) {
         const { width, height } = this.scale;
         const overlay = this.add.container(0, 0).setDepth(200);
 
         const bg = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.75);
         overlay.add(bg);
 
-        const title = this.add.text(width / 2, height / 2 - 150, 'LEVEL UP!', {
-            fontSize: '36px', color: '#ffe066', stroke: '#000000', strokeThickness: 4,
+        const title = this.add.text(width / 2, height / 2 - 150, '⬆️ LEVEL UP!', {
+            fontSize: '32px', color: '#ffe066', stroke: '#000000', strokeThickness: 4,
         }).setOrigin(0.5);
         overlay.add(title);
 
-        const cardWidth = 260;
-        const cardHeight = 120;
-        const gap = 18;
+        const cardWidth = 230;
+        const cardHeight = 130;
+        const gap = 14;
         const startX = width / 2 - (options.length * cardWidth + (options.length - 1) * gap) / 2 + cardWidth / 2;
-        const y = height / 2;
+        const y = height / 2 + 10;
 
         options.forEach((option, idx) => {
             const x = startX + idx * (cardWidth + gap);
@@ -702,25 +877,25 @@ export class DungeonScene extends Phaser.Scene {
             card.setStrokeStyle(3, 0xffd966);
             card.setInteractive({ useHandCursor: true });
 
-            const level = this.weaponSystem.getLevel(option.id);
-            const name = this.add.text(x, y - 24, this.t(option.name), {
-                fontSize: '18px', color: '#ffffff', stroke: '#000000', strokeThickness: 3,
-            }).setOrigin(0.5);
+            const level = this.upgradeLevels.get(option.id) ?? 0;
 
-            const desc = this.add.text(x, y + 6, this.t(option.description), {
-                fontSize: '14px', color: '#cbd5f5',
+            const icon = this.add.text(x, y - 36, option.icon, { fontSize: '24px' }).setOrigin(0.5);
+            const name = this.add.text(x, y - 8, option.name, {
+                fontSize: '16px', color: '#ffffff', stroke: '#000000', strokeThickness: 3,
             }).setOrigin(0.5);
-
-            const levelText = this.add.text(x, y + 36, `Lv ${level + 1}/${option.maxLevel}`, {
-                fontSize: '12px', color: '#ffe066',
+            const desc = this.add.text(x, y + 16, option.description, {
+                fontSize: '12px', color: '#cbd5f5',
+            }).setOrigin(0.5);
+            const levelText = this.add.text(x, y + 40, option.maxLevel < 99 ? `Lv ${level + 1}/${option.maxLevel}` : '', {
+                fontSize: '11px', color: '#ffe066',
             }).setOrigin(0.5);
 
             card.on('pointerdown', () => {
-                this.weaponSystem.applyUpgrade(option.id);
+                this.applyUpgrade(option.id);
                 this.closeLevelUp();
             });
 
-            overlay.add([card, name, desc, levelText]);
+            overlay.add([card, icon, name, desc, levelText]);
         });
 
         this.levelUpOverlay = overlay;
@@ -729,9 +904,8 @@ export class DungeonScene extends Phaser.Scene {
         if (keyboard) {
             const keys = keyboard.addKeys('ONE,TWO,THREE') as any;
             const handleKey = (index: number) => {
-                const option = options[index];
-                if (!option) return;
-                this.weaponSystem.applyUpgrade(option.id);
+                if (!options[index]) return;
+                this.applyUpgrade(options[index].id);
                 this.closeLevelUp();
             };
             const onKey = () => {
@@ -747,7 +921,7 @@ export class DungeonScene extends Phaser.Scene {
     private closeLevelUp() {
         this.levelUpOverlay?.destroy();
         this.levelUpOverlay = undefined;
-        this.gameState = 'PLAYING';
+        this.gameState = this.waveActive ? 'PLAYING' : 'WAVE_PAUSE';
     }
 
     // ============================================
@@ -758,26 +932,29 @@ export class DungeonScene extends Phaser.Scene {
         const { width, height } = this.scale;
 
         this.timeText = this.add.text(16, 12, '⏱ 00:00', {
-            fontSize: '18px', color: '#ffffff', stroke: '#000000', strokeThickness: 3,
+            fontSize: '16px', color: '#ffffff', stroke: '#000000', strokeThickness: 3,
         }).setDepth(100);
 
-        this.levelText = this.add.text(16, 36, 'Lv 1', {
-            fontSize: '16px', color: '#ffe066', stroke: '#000000', strokeThickness: 3,
+        this.waveText = this.add.text(16, 34, 'Wave 0/0', {
+            fontSize: '16px', color: '#66ddff', stroke: '#000000', strokeThickness: 3,
         }).setDepth(100);
 
-        this.killText = this.add.text(16, 58, '💀 0', {
-            fontSize: '16px', color: '#ffb366', stroke: '#000000', strokeThickness: 3,
+        this.killText = this.add.text(16, 56, '💀 0', {
+            fontSize: '14px', color: '#ffb366', stroke: '#000000', strokeThickness: 3,
         }).setDepth(100);
 
         this.goldText = this.add.text(width - 16, 12, `💰 ${this.gold}`, {
             fontSize: '18px', color: '#ffdd00', stroke: '#000000', strokeThickness: 3,
         }).setOrigin(1, 0).setDepth(100);
 
-        this.hpBarBg = this.add.rectangle(16, 86, 200, 12, 0x2f2f2f).setOrigin(0, 0.5).setDepth(100);
-        this.hpBarFill = this.add.rectangle(16, 86, 200, 12, 0x55ff88).setOrigin(0, 0.5).setDepth(101);
+        // ガード数表示
+        this.add.text(width - 16, 36, '', { fontSize: '1px' }).setOrigin(1, 0);
 
-        this.xpBarBg = this.add.rectangle(width / 2 - 160, height - 68, 320, 10, 0x222222).setOrigin(0, 0.5).setDepth(100);
-        this.xpBarFill = this.add.rectangle(width / 2 - 160, height - 68, 320, 10, 0x66ddff).setOrigin(0, 0.5).setDepth(101);
+        this.hpBarBg = this.add.rectangle(16, 78, 180, 10, 0x2f2f2f).setOrigin(0, 0.5).setDepth(100);
+        this.hpBarFill = this.add.rectangle(16, 78, 180, 10, 0x55ff88).setOrigin(0, 0.5).setDepth(101);
+
+        this.xpBarBg = this.add.rectangle(width / 2 - 140, height - 68, 280, 8, 0x222222).setOrigin(0, 0.5).setDepth(100);
+        this.xpBarFill = this.add.rectangle(width / 2 - 140, height - 68, 280, 8, 0x66ddff).setOrigin(0, 0.5).setDepth(101);
     }
 
     private updateHud() {
@@ -785,15 +962,43 @@ export class DungeonScene extends Phaser.Scene {
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
         this.timeText.setText(`⏱ ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
-        this.levelText.setText(`Lv ${this.experienceSystem.getLevel()}`);
+        this.waveText.setText(`Wave ${this.currentWave}/${this.stageData.totalWaves}`);
         this.killText.setText(`💀 ${this.killCount}`);
         this.goldText.setText(`💰 ${this.gold}`);
 
         const hpRatio = this.player.hp / this.player.maxHp;
-        this.hpBarFill.width = 200 * hpRatio;
+        this.hpBarFill.width = 180 * hpRatio;
 
         const xpRatio = this.experienceSystem.getProgressRatio();
-        this.xpBarFill.width = 320 * xpRatio;
+        this.xpBarFill.width = 280 * xpRatio;
+    }
+
+    private announceWave(text: string, duration: number) {
+        const { width, height } = this.scale;
+        this.waveAnnouncerText?.destroy();
+
+        this.waveAnnouncerText = this.add.text(width / 2, height / 2 - 40, text, {
+            fontSize: '28px', color: '#66ddff', stroke: '#000000', strokeThickness: 4,
+        }).setOrigin(0.5).setDepth(150).setAlpha(0);
+
+        this.tweens.add({
+            targets: this.waveAnnouncerText,
+            alpha: 1,
+            y: height / 2 - 60,
+            duration: 400,
+            ease: 'Power2',
+            onComplete: () => {
+                this.time.delayedCall(duration - 800, () => {
+                    if (this.waveAnnouncerText) {
+                        this.tweens.add({
+                            targets: this.waveAnnouncerText, alpha: 0,
+                            duration: 400,
+                            onComplete: () => this.waveAnnouncerText?.destroy(),
+                        });
+                    }
+                });
+            },
+        });
     }
 
     // ============================================
@@ -811,10 +1016,10 @@ export class DungeonScene extends Phaser.Scene {
         const bg = this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.78);
         overlay.add(bg);
 
-        const titleStr = win ? 'DUNGEON CLEAR!' : 'GAME OVER';
+        const titleStr = win ? '🏆 DUNGEON CLEAR!' : '💀 GAME OVER';
         const titleColor = win ? '#55ff88' : '#ff5555';
         const title = this.add.text(width / 2, height / 2 - 120, titleStr, {
-            fontSize: '42px', color: titleColor, stroke: '#000000', strokeThickness: 4,
+            fontSize: '38px', color: titleColor, stroke: '#000000', strokeThickness: 4,
         }).setOrigin(0.5);
         overlay.add(title);
 
@@ -823,31 +1028,27 @@ export class DungeonScene extends Phaser.Scene {
         const secs = seconds % 60;
         const timeStr = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 
-        const stats = this.add.text(width / 2, height / 2 - 30, `Time ${timeStr}\nLv ${this.experienceSystem.getLevel()}  |  Kills ${this.killCount}`, {
-            fontSize: '20px', color: '#ffffff', align: 'center', stroke: '#000000', strokeThickness: 3,
+        const stats = this.add.text(width / 2, height / 2 - 30,
+            `Time ${timeStr}\nWave ${this.currentWave}/${this.stageData.totalWaves}  |  Kills ${this.killCount}`, {
+            fontSize: '18px', color: '#ffffff', align: 'center', stroke: '#000000', strokeThickness: 3,
         }).setOrigin(0.5);
         overlay.add(stats);
 
-        // リトライ
         const retryBtn = this.add.text(width / 2, height / 2 + 60, 'Retry', {
             fontSize: '24px', color: '#ffe066', backgroundColor: '#1f1f2f',
             padding: { left: 18, right: 18, top: 10, bottom: 10 },
         }).setOrigin(0.5).setInteractive({ useHandCursor: true });
         retryBtn.on('pointerdown', () => {
             this.scene.restart({
-                player: this.playerDef,
-                allUnits: this.allUnitsData,
-                team: this.teamDefs,
-                stageData: this.stageData,
-                difficulty: this.difficulty,
+                player: this.playerDef, allUnits: this.allUnitsData,
+                team: this.teamDefs, stageData: this.stageData, difficulty: this.difficulty,
             });
         });
         overlay.add(retryBtn);
 
-        // コンティニュー
         if (!win && this.continueCount < this.maxContinues) {
             const continueBtn = this.add.text(width / 2, height / 2 + 120, `Continue (${this.maxContinues - this.continueCount})`, {
-                fontSize: '22px', color: '#66ddff', backgroundColor: '#1f1f2f',
+                fontSize: '20px', color: '#66ddff', backgroundColor: '#1f1f2f',
                 padding: { left: 16, right: 16, top: 8, bottom: 8 },
             }).setOrigin(0.5).setInteractive({ useHandCursor: true });
             continueBtn.on('pointerdown', () => this.handleContinue());
@@ -856,22 +1057,17 @@ export class DungeonScene extends Phaser.Scene {
 
         this.gameOverOverlay = overlay;
 
-        // React側に通知
         const coinsGained = win ? this.stageData.reward.coins : Math.floor(this.killCount * 2);
         const event = win ? GameEvents.DUNGEON_WIN : GameEvents.DUNGEON_LOSE;
         eventBus.emit(event, coinsGained);
     }
 
     private handleContinue() {
-        if (!this.gameOver) return;
-        if (this.continueCount >= this.maxContinues) return;
-
+        if (!this.gameOver || this.continueCount >= this.maxContinues) return;
         this.continueCount += 1;
         this.gameOverOverlay?.destroy();
         this.gameOverOverlay = undefined;
 
-        this.projectiles.forEach(p => p.destroy());
-        this.projectiles = [];
         this.enemies.forEach(e => e.destroy());
         this.enemies = [];
 
@@ -881,7 +1077,10 @@ export class DungeonScene extends Phaser.Scene {
         this.player.grantInvincibility(2000);
 
         this.gameOver = false;
-        this.gameState = 'PLAYING';
+        // 現在のウェーブを再開
+        this.waveEnemiesSpawned = 0;
+        this.gameState = 'WAVE_PAUSE';
+        this.wavePauseTimer = 2000;
         this.updateHud();
     }
 
@@ -893,15 +1092,11 @@ export class DungeonScene extends Phaser.Scene {
         const text = this.add.text(x, y, message, {
             fontSize: '18px',
             color: `#${color.toString(16).padStart(6, '0')}`,
-            stroke: '#000000',
-            strokeThickness: 3,
+            stroke: '#000000', strokeThickness: 3,
         }).setOrigin(0.5).setDepth(300);
 
         this.tweens.add({
-            targets: text,
-            y: y - 40,
-            alpha: 0,
-            duration: 800,
+            targets: text, y: y - 40, alpha: 0, duration: 800,
             onComplete: () => text.destroy(),
         });
     }

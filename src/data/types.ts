@@ -587,6 +587,9 @@ export interface DungeonStageDefinition {
   goldPerSecond: number;        // 毎秒ゴールド獲得
   maxGuards: number;            // 配置上限
   maxSameUnit: number;          // 同一ユニット上限
+  totalWaves: number;           // 総ウェーブ数
+  wavePauseMs: number;          // ウェーブ間休憩（ms）
+  baseEnemiesPerWave: number;   // 基本敵数/ウェーブ
   reward: {
     coins: number;
   };
