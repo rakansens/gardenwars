@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import type { StageDefinition, UnitDefinition, ArenaStageDefinition, SurvivalDifficulty, MathBattleStageDefinition, MathOperationType } from "@/data/types";
+import type { StageDefinition, UnitDefinition, ArenaStageDefinition, SurvivalDifficulty, MathBattleStageDefinition, MathOperationType, TowerDefenseStageDefinition } from "@/data/types";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { setGameLanguage } from "@/lib/gameTranslations";
 
@@ -26,7 +26,7 @@ function destroyGlobalPhaserGame(): void {
 }
 
 interface PhaserGameProps {
-    mode?: 'battle' | 'garden' | 'arena' | 'survival' | 'math-battle';
+    mode?: 'battle' | 'garden' | 'arena' | 'survival' | 'math-battle' | 'tower-defense';
     // Battle props
     stage?: StageDefinition;
     team?: UnitDefinition[];
@@ -48,6 +48,8 @@ interface PhaserGameProps {
     mathBattleEnemyUnit?: UnitDefinition;
     mathBattleOperationType?: MathOperationType;
     onMathBattleEnd?: (win: boolean, stars: number, coinsGained: number) => void;
+    // Tower Defense props
+    towerDefenseStage?: TowerDefenseStageDefinition;
 }
 
 export default function PhaserGame({
@@ -68,6 +70,7 @@ export default function PhaserGame({
     mathBattleEnemyUnit,
     mathBattleOperationType,
     onMathBattleEnd,
+    towerDefenseStage,
 }: PhaserGameProps) {
     const gameRef = useRef<HTMLDivElement>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -158,6 +161,27 @@ export default function PhaserGame({
                 };
                 eventBus.on(GameEvents.MATH_BATTLE_WIN, storedHandleWin);
                 eventBus.on(GameEvents.MATH_BATTLE_LOSE, storedHandleLose);
+            } else if (mode === 'tower-defense') {
+                const { TowerDefenseScene } = await import("@/game/scenes/TowerDefenseScene");
+                SceneClass = TowerDefenseScene;
+                startKey = "TowerDefenseScene";
+                startData = { stage: towerDefenseStage, team, allUnits };
+
+                // TD用イベントリスナー
+                eventBusModule = await import("@/game/utils/EventBus");
+                const { eventBus, GameEvents } = eventBusModule;
+                eventBus.removeAllListeners(GameEvents.TD_WIN);
+                eventBus.removeAllListeners(GameEvents.TD_LOSE);
+
+                storedHandleWin = (...args: unknown[]) => {
+                    const result = args[0] as { reward?: { coins?: number } } | undefined;
+                    handleBattleEnd(true, result?.reward?.coins || 0);
+                };
+                storedHandleLose = () => {
+                    handleBattleEnd(false, 0);
+                };
+                eventBus.on(GameEvents.TD_WIN, storedHandleWin);
+                eventBus.on(GameEvents.TD_LOSE, storedHandleLose);
             } else if (mode === 'garden') {
                 const { GardenScene } = await import("@/game/scenes/GardenScene");
                 SceneClass = GardenScene;
@@ -217,9 +241,10 @@ export default function PhaserGame({
 
             // アリーナは縦長、算数バトルは小さめ、それ以外は横長
             const isArena = mode === 'arena';
+            const isTD = mode === 'tower-defense';
             const isMathBattle = mode === 'math-battle';
-            const gameWidth = isArena ? 675 : (isMathBattle ? 800 : 1200);
-            const gameHeight = isArena ? 1200 : (isMathBattle ? 600 : 675);
+            const gameWidth = (isArena || isTD) ? 675 : (isMathBattle ? 800 : 1200);
+            const gameHeight = (isArena || isTD) ? 1200 : (isMathBattle ? 600 : 675);
 
             const config: Phaser.Types.Core.GameConfig = {
                 type: isMobile ? Phaser.CANVAS : Phaser.AUTO,
@@ -263,17 +288,19 @@ export default function PhaserGame({
                 if (storedHandleWin) {
                     eventBus.off(GameEvents.BATTLE_WIN, storedHandleWin);
                     eventBus.off(GameEvents.MATH_BATTLE_WIN, storedHandleWin);
+                    eventBus.off(GameEvents.TD_WIN, storedHandleWin);
                 }
                 if (storedHandleLose) {
                     eventBus.off(GameEvents.BATTLE_LOSE, storedHandleLose);
                     eventBus.off(GameEvents.MATH_BATTLE_LOSE, storedHandleLose);
+                    eventBus.off(GameEvents.TD_LOSE, storedHandleLose);
                 }
             }
 
             // Destroy global Phaser game instance
             destroyGlobalPhaserGame();
         };
-    }, [mode, stage, team, allUnits, gardenUnits, arenaStage, survivalPlayer, survivalDifficulty, handleBattleEnd, mathBattleStage, mathBattlePlayerUnit, mathBattleEnemyUnit, mathBattleOperationType, handleMathBattleEnd]);
+    }, [mode, stage, team, allUnits, gardenUnits, arenaStage, survivalPlayer, survivalDifficulty, handleBattleEnd, mathBattleStage, mathBattlePlayerUnit, mathBattleEnemyUnit, mathBattleOperationType, handleMathBattleEnd, towerDefenseStage]);
 
     return (
         <div className="relative w-full h-full">
@@ -288,7 +315,7 @@ export default function PhaserGame({
             )}
 
             {/* 縦向き時の案内（モバイルのみ、アリーナ以外） */}
-            {isPortrait && mode !== 'arena' && (
+            {isPortrait && mode !== 'arena' && mode !== 'tower-defense' && (
                 <div className="md:hidden absolute inset-0 flex items-center justify-center bg-black/90 z-50 p-6 text-center">
                     <div>
                         <div className="text-5xl mb-4 animate-spin-slow">📱🔄</div>

@@ -529,3 +529,47 @@ export interface MathBattleGameState {
   timeRemaining: number;     // 現在の問題の残り時間（ミリ秒）
   totalTime: number;         // 経過時間（ミリ秒）
 }
+
+// ============================================
+// Tower Defense Mode Types (2.5Dタワーディフェンス)
+// ============================================
+
+/**
+ * タワーディフェンス Wave設定
+ */
+export interface TowerDefenseWaveConfig {
+  waveNumber: number;           // Wave番号（1始まり）
+  enemies: {
+    unitId: string;             // 敵ユニットID
+    count: number;              // 出現数
+    intervalMs: number;         // スポーン間隔（ミリ秒）
+    delayMs: number;            // Wave開始からの遅延（ミリ秒）
+  }[];
+  goldBonus?: number;           // Wave突破ボーナスゴールド
+}
+
+/**
+ * タワーディフェンス ステージ定義
+ */
+export interface TowerDefenseStageDefinition {
+  id: string;
+  name: string;
+  description: string;
+  difficulty?: StageDifficulty;
+  cols: number;                 // グリッド列数
+  rows: number;                 // グリッド行数
+  path: [number, number][];     // パス座標 [col, row] の配列
+  waves: TowerDefenseWaveConfig[];
+  startLives: number;           // 初期ライフ
+  startGold: number;            // 初期ゴールド
+  killGold: number;             // 敵撃破ゴールド（基本値）
+  reward: {
+    coins: number;
+    drops?: UnitDrop[];
+  };
+  background?: {
+    groundColor: string;
+    pathColor: string;
+    accentColor?: string;
+  };
+}

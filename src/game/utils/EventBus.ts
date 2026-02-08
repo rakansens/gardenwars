@@ -75,4 +75,8 @@ export const GameEvents = {
     MATH_BATTLE_QUESTION: 'math:question',
     MATH_BATTLE_TIMER: 'math:timer',
     MATH_BATTLE_HP_CHANGE: 'math:hp_change',
+
+    // Tower Defense
+    TD_WIN: 'td:win',
+    TD_LOSE: 'td:lose',
 } as const;

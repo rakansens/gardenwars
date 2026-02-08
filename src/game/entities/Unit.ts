@@ -282,7 +282,7 @@ export class Unit extends Phaser.GameObjects.Container {
         return 40; // フォールバック
     }
 
-    private setUnitState(newState: UnitState): void {
+    public setUnitState(newState: UnitState): void {
         this.state = newState;
         this.stateTimer = 0;
 

@@ -154,6 +154,7 @@ export default function Home() {
       title: language === "ja" ? "ミニゲーム" : "Mini Games",
       items: [
         { href: "/arena", icon: "🏟️", label: t("menu_arena") },
+        { href: "/tower-defense", icon: "🏰", label: "Tower Defense" },
         { href: "/survival", icon: "🧟", label: t("menu_survival") },
         { href: "/chess", icon: "♟️", label: t("menu_chess") },
         { href: "/garden", icon: "🌱", label: t("menu_garden") },
@@ -582,11 +583,10 @@ export default function Home() {
               </label>
               <button
                 onClick={() => setBgmEnabled(!bgmEnabled)}
-                className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
-                  bgmEnabled
+                className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${bgmEnabled
                     ? "bg-green-500 text-white"
                     : "bg-slate-300 dark:bg-slate-600 text-slate-600 dark:text-slate-400"
-                }`}
+                  }`}
               >
                 {bgmEnabled ? "ON" : "OFF"}
               </button>
@@ -610,11 +610,10 @@ export default function Home() {
               </label>
               <button
                 onClick={() => setSfxEnabled(!sfxEnabled)}
-                className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
-                  sfxEnabled
+                className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${sfxEnabled
                     ? "bg-green-500 text-white"
                     : "bg-slate-300 dark:bg-slate-600 text-slate-600 dark:text-slate-400"
-                }`}
+                  }`}
               >
                 {sfxEnabled ? "ON" : "OFF"}
               </button>
