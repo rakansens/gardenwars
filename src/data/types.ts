@@ -573,3 +573,22 @@ export interface TowerDefenseStageDefinition {
     accentColor?: string;
   };
 }
+
+// ============================================
+// ダンジョンモード
+// ============================================
+export interface DungeonStageDefinition {
+  id: string;
+  name: string;
+  description: string;
+  difficulty: StageDifficulty;
+  startGold: number;            // 初期ゴールド
+  killGold: number;             // 敵撃破ゴールド
+  goldPerSecond: number;        // 毎秒ゴールド獲得
+  maxGuards: number;            // 配置上限
+  maxSameUnit: number;          // 同一ユニット上限
+  reward: {
+    coins: number;
+  };
+}
+

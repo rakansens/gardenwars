@@ -79,4 +79,8 @@ export const GameEvents = {
     // Tower Defense
     TD_WIN: 'td:win',
     TD_LOSE: 'td:lose',
+
+    // Dungeon
+    DUNGEON_WIN: 'dungeon:win',
+    DUNGEON_LOSE: 'dungeon:lose',
 } as const;

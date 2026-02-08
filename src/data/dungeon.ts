@@ -1,0 +1,40 @@
+import type { DungeonStageDefinition } from '@/data/types';
+
+export const dungeonStages: DungeonStageDefinition[] = [
+    {
+        id: 'dungeon_1',
+        name: '古びた洞窟',
+        description: '浅い洞窟にモンスターが巣食っている。初心者向け。',
+        difficulty: 'easy',
+        startGold: 120,
+        killGold: 8,
+        goldPerSecond: 2,
+        maxGuards: 5,
+        maxSameUnit: 2,
+        reward: { coins: 150 },
+    },
+    {
+        id: 'dungeon_2',
+        name: '忘れられた遺跡',
+        description: '古代の遺跡には強力な敵が潜む。',
+        difficulty: 'normal',
+        startGold: 100,
+        killGold: 10,
+        goldPerSecond: 3,
+        maxGuards: 5,
+        maxSameUnit: 2,
+        reward: { coins: 300 },
+    },
+    {
+        id: 'dungeon_3',
+        name: '深淵の魔窟',
+        description: '最も危険なダンジョン。精鋭のみが帰還できる。',
+        difficulty: 'hard',
+        startGold: 80,
+        killGold: 12,
+        goldPerSecond: 4,
+        maxGuards: 6,
+        maxSameUnit: 2,
+        reward: { coins: 500 },
+    },
+];
