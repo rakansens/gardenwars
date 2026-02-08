@@ -89,6 +89,11 @@ export class CombatSystem {
 
         const attackerX = attacker.getX();
         const attackRange = attacker.definition.attackRange;
+        const attackerHalfWidth = attacker.getWidth() / 2;
+
+        // 検索半径を広めにとる（すり抜け対策）
+        // 射程の2倍、または射程+自身の半径+50pxの大きい方を使用
+        const searchRadius = Math.max(attackRange * 2, attackRange + attackerHalfWidth + 50);
 
         for (const enemy of enemies) {
             if (enemy.isDead()) continue;
@@ -110,29 +115,30 @@ export class CombatSystem {
             // 距離計算（絶対値）
             const distanceToEdge = Math.abs(attackerX - enemyEdgeX);
 
-            // 射程チェック（エッジまでの距離で判定）
-            if (distanceToEdge > attackRange) continue;
+            // 広い検索範囲でフィルター（すり抜けた敵も検出する）
+            if (distanceToEdge > searchRadius) continue;
 
             // 攻撃者の前方にいる敵のみ
             const isInFront = attacker.side === 'ally'
                 ? enemyX > attackerX // X座標の単純比較（中心点基準で十分）
                 : enemyX < attackerX;
 
-            if (isInFront) {
+            // 前方の敵は射程内のみ
+            if (isInFront && distanceToEdge <= attackRange) {
                 if (distanceToEdge < minDistanceFront) {
                     minDistanceFront = distanceToEdge;
                     closestInFront = enemy;
                 }
             }
 
-            // 全方向（背後含む）の最短も記録（前方優先が見つからない場合のバックアップ）
+            // 全方向（背後含む）の最短も記録（すり抜け対策: 背後の敵も拾う）
             if (distanceToEdge < minDistanceAny) {
                 minDistanceAny = distanceToEdge;
                 closestAny = enemy;
             }
         }
 
-        // 前方に敵がいれば優先、いなければ背後も含めて最も近い敵
+        // 前方に射程内の敵がいれば優先、いなければ近くの敵（すり抜け含む）をターゲット
         return closestInFront ?? closestAny;
     }
 

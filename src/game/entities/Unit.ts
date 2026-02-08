@@ -386,7 +386,11 @@ export class Unit extends Phaser.GameObjects.Container {
 
         if (this.verticalMode) {
             // アリーナモード: 縦移動
-            this.y += speed * this.direction;
+            const nextY = this.y + speed * this.direction;
+
+            // すり抜け防止: 前方の敵ユニットとの衝突チェック
+            const clampedY = this.clampAgainstEnemies(this.x, this.y, this.x, nextY, true);
+            this.y = clampedY;
 
             // 画面端クランプ
             if (this.side === 'ally') {
@@ -396,7 +400,11 @@ export class Unit extends Phaser.GameObjects.Container {
             }
         } else {
             // 通常モード: 横移動
-            this.x += speed * this.direction;
+            const nextX = this.x + speed * this.direction;
+
+            // すり抜け防止: 前方の敵ユニットとの衝突チェック
+            const clampedX = this.clampAgainstEnemies(this.x, this.y, nextX, this.y, false);
+            this.x = clampedX;
 
             // 城との衝突判定
             if (this.side === 'ally') {
@@ -405,6 +413,68 @@ export class Unit extends Phaser.GameObjects.Container {
                 this.x = Math.max(this.x, 80);
             }
         }
+    }
+
+    /**
+     * すり抜け防止: 移動先に敵がいる場合、敵の手前で停止する
+     * 高速移動やフレームレート低下でユニットがすり抜けるのを防ぐ
+     */
+    private clampAgainstEnemies(
+        currentMainAxis: number, currentCrossAxis: number,
+        nextMainAxis: number, _nextCrossAxis: number,
+        isVertical: boolean
+    ): number {
+        // シーンから敵ユニットリストを取得
+        const scene = this.scene as any;
+        const enemies: Unit[] = this.side === 'ally'
+            ? (scene.enemyUnits || [])
+            : (scene.allyUnits || []);
+
+        if (enemies.length === 0) return nextMainAxis;
+
+        const myHalfWidth = this.getWidth() / 2;
+        // 交差軸の許容幅（同じレーンにいるかどうかの判定用）
+        const crossAxisThreshold = isVertical ? 250 : 100;
+
+        let clampedPos = nextMainAxis;
+
+        for (const enemy of enemies) {
+            if (enemy.isDead()) continue;
+
+            const enemyMainAxis = isVertical ? enemy.y : enemy.x;
+            const enemyCrossAxis = isVertical ? enemy.x : enemy.y;
+
+            // 交差軸の距離チェック（異なるレーンの敵は無視）
+            const crossDist = Math.abs(currentCrossAxis - enemyCrossAxis);
+            if (crossDist > crossAxisThreshold) continue;
+
+            const enemyHalfWidth = enemy.getWidth() / 2;
+            // 2つのユニットが互いに接触する距離（端と端の間をゼロにする最小中心間距離）
+            const minGap = myHalfWidth + enemyHalfWidth;
+
+            // 前方の敵のみチェック（移動方向にいる敵）
+            if (this.direction > 0) {
+                // 正方向に移動中: 敵が自分より先にいるか
+                if (enemyMainAxis > currentMainAxis - minGap && enemyMainAxis < currentMainAxis + minGap + this.definition.attackRange + 50) {
+                    // 移動後に敵を通り過ぎてしまう場合、敵の手前でクランプ
+                    const stopPos = enemyMainAxis - minGap;
+                    if (nextMainAxis > stopPos && currentMainAxis <= stopPos + 1) {
+                        clampedPos = Math.min(clampedPos, stopPos);
+                    }
+                }
+            } else {
+                // 負方向に移動中: 敵が自分より手前にいるか
+                if (enemyMainAxis < currentMainAxis + minGap && enemyMainAxis > currentMainAxis - minGap - this.definition.attackRange - 50) {
+                    // 移動後に敵を通り過ぎてしまう場合、敵の手前でクランプ
+                    const stopPos = enemyMainAxis + minGap;
+                    if (nextMainAxis < stopPos && currentMainAxis >= stopPos - 1) {
+                        clampedPos = Math.max(clampedPos, stopPos);
+                    }
+                }
+            }
+        }
+
+        return clampedPos;
     }
 
     private handleAttackWindup(): void {
@@ -1019,12 +1089,8 @@ export class Unit extends Phaser.GameObjects.Container {
     public isInRange(target: Unit): boolean {
         // 自身の幅を考慮（中心から端までの距離）
         const myHalfWidth = (this.sprite.displayWidth || (this.sprite.width * this.baseScale)) / 2;
-        // ターゲットの幅も考慮したいが、ターゲットはUnit型で詳細不明な場合もあるため、自身の幅を主に使用
-        // 「射程」＝「自身の体表からの距離」と解釈
-
-        const distance = this.verticalMode
-            ? Math.abs(this.y - target.y)
-            : Math.abs(this.x - target.x);
+        // ターゲットの幅も考慮（端と端の距離で射程判定）
+        const targetHalfWidth = target.getWidth() / 2;
 
         // Fix: 縦モードでもX軸の極端なズレを考慮（レーン移動やノックバック対策）
         if (this.verticalMode) {
@@ -1032,8 +1098,17 @@ export class Unit extends Phaser.GameObjects.Container {
             // 隣接レーン(約100-150px)は許容するため、余裕を持って250pxとする
             if (xDist > 250) return false;
         }
-        // 距離が (射程 + 自身の半径) 以内であれば攻撃可能
-        return distance <= (this.definition.attackRange + myHalfWidth);
+
+        // メイン軸の中心間距離
+        const centerDistance = this.verticalMode
+            ? Math.abs(this.y - target.y)
+            : Math.abs(this.x - target.x);
+
+        // 端と端の距離 = 中心間距離 - 自身の半径 - ターゲットの半径
+        const edgeDistance = Math.max(0, centerDistance - myHalfWidth - targetHalfWidth);
+
+        // 端と端の距離が射程以内であれば攻撃可能
+        return edgeDistance <= this.definition.attackRange;
     }
 
     public isDead(): boolean {
