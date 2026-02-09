@@ -12,7 +12,6 @@ import type { UnitDefinition, DungeonStageDefinition } from "@/data/types";
 import RarityFrame from "@/components/ui/RarityFrame";
 import Modal from "@/components/ui/Modal";
 import PageHeader from "@/components/layout/PageHeader";
-import { getSpritePath } from "@/lib/sprites";
 
 const allUnits = unitsData as UnitDefinition[];
 const playableUnits = allUnits.filter(u => !u.id.startsWith("enemy_") && !u.id.startsWith("boss_") && !u.isBoss);
@@ -82,8 +81,12 @@ export default function DungeonPage() {
         setGuardUnits(guards);
     }
 
-    const ownedUnits = playableUnits.filter(u => (unitInventory[u.id] ?? 0) > 0);
-    const selectableUnits = ownedUnits.length > 0 ? ownedUnits : playableUnits;
+    // 全プレイアブルユニットを表示（所持ユニットを先頭に）
+    const selectableUnits = [...playableUnits].sort((a, b) => {
+        const aOwned = (unitInventory[a.id] ?? 0) > 0 ? 1 : 0;
+        const bOwned = (unitInventory[b.id] ?? 0) > 0 ? 1 : 0;
+        return bOwned - aOwned; // 所持ユニットを先にソート
+    });
 
     const getUnitName = (unit: UnitDefinition) => {
         const translated = t(unit.id);
@@ -287,8 +290,8 @@ export default function DungeonPage() {
                     </h2>
                     <p className="text-sm text-amber-900/70 dark:text-gray-400 mb-4">
                         {modalMode === "main"
-                            ? (language === "ja" ? "所持しているユニットから選ぼう" : "Choose from your owned units")
-                            : (language === "ja" ? "所持しているユニットをガードとして追加" : "Add an owned unit as guard")}
+                            ? (language === "ja" ? "ダンジョンで操作するユニットを選ぼう" : "Choose a unit to control")
+                            : (language === "ja" ? "ガードとして配置するユニットを追加" : "Add a unit as guard")}
                     </p>
                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 max-h-[60vh] overflow-y-auto pr-1">
                         {selectableUnits
@@ -305,28 +308,22 @@ export default function DungeonPage() {
                                 return (
                                     <button
                                         key={unit.id}
-                                        onClick={() => owned && handleSelectUnit(unit)}
-                                        disabled={!owned}
-                                        className={`flex flex-col items-center gap-2 p-2 rounded-xl border transition-all ${!owned
-                                                ? "border-transparent opacity-35 cursor-not-allowed"
-                                                : isSelected
-                                                    ? "border-amber-400 bg-amber-50 dark:bg-amber-900/30"
-                                                    : "border-transparent hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                                        onClick={() => handleSelectUnit(unit)}
+                                        className={`flex flex-col items-center gap-2 p-2 rounded-xl border transition-all ${isSelected
+                                            ? "border-amber-400 bg-amber-50 dark:bg-amber-900/30"
+                                            : owned
+                                                ? "border-transparent hover:border-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/20"
+                                                : "border-transparent opacity-60 hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
                                             }`}
                                     >
-                                        <div className="relative">
-                                            <RarityFrame
-                                                unitId={unit.id}
-                                                unitName={getUnitName(unit)}
-                                                rarity={unit.rarity}
-                                                size="sm"
-                                                baseUnitId={unit.baseUnitId || unit.atlasKey}
-                                                count={unitInventory[unit.id]}
-                                            />
-                                            {!owned && (
-                                                <div className="absolute inset-0 flex items-center justify-center text-lg">🔒</div>
-                                            )}
-                                        </div>
+                                        <RarityFrame
+                                            unitId={unit.id}
+                                            unitName={getUnitName(unit)}
+                                            rarity={unit.rarity}
+                                            size="sm"
+                                            baseUnitId={unit.baseUnitId || unit.atlasKey}
+                                            count={unitInventory[unit.id]}
+                                        />
                                         <span className="text-[11px] text-slate-600 dark:text-slate-300 line-clamp-2">{getUnitName(unit)}</span>
                                     </button>
                                 );
