@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import type { UnitDefinition, UnitState, UnitSide, SkillRuntimeState, StatusEffect, SkillEffect } from '@/data/types';
 import type { Castle } from './Castle';
 import { getSfxVolume } from '@/lib/audioHelper';
+import { hasRangedSprite } from '@/lib/sprites';
 
 // ============================================
 // Unit Entity - 状態機械による自動戦闘ユニット
@@ -58,6 +59,9 @@ export class Unit extends Phaser.GameObjects.Container {
 
     // アニメーション対応フラグ
     private hasAnimation: boolean = false;
+
+    // 遠距離スプライト対応フラグ（攻撃フレームが通常の4倍幅）
+    private isRangedSprite: boolean = false;
 
     // 飛行ユニットの浮遊オフセット
     private flyingOffset: number = 0;
@@ -116,6 +120,7 @@ export class Unit extends Phaser.GameObjects.Container {
         // アトラスが存在するかチェックしてモードを決定
         const atlasKey = `${spriteUnitId}_atlas`;
         this.hasAnimation = scene.textures.exists(atlasKey);
+        this.isRangedSprite = hasRangedSprite(spriteUnitId);
 
         if (this.hasAnimation) {
             // アニメーション対応ユニット
@@ -298,9 +303,19 @@ export class Unit extends Phaser.GameObjects.Container {
                 case 'SPAWN':
                 case 'WALK':
                     this.sprite.play(`${spriteUnitId}_walk`, true);
+                    // 遠距離スプライト: 通常フレームに戻るので原点を中央に
+                    if (this.isRangedSprite) {
+                        this.sprite.setOrigin(0.5, 1);
+                    }
                     break;
                 case 'ATTACK_WINDUP':
                     this.sprite.play(`${spriteUnitId}_attack`, true);
+                    // 遠距離スプライト: 攻撃フレーム(880px)のキャラ本体は左端(220px)にある
+                    // origin.x を 220/880 ≈ 0.25 に設定して位置ずれを防ぐ
+                    if (this.isRangedSprite) {
+                        const originX = this.side === 'ally' ? 0.25 : 0.75;
+                        this.sprite.setOrigin(originX, 1);
+                    }
                     break;
                 case 'ATTACK_COOLDOWN':
                     // 攻撃アニメ続行
@@ -308,9 +323,16 @@ export class Unit extends Phaser.GameObjects.Container {
                 case 'HITSTUN':
                     // ヒット時は一時停止
                     this.sprite.anims.pause();
+                    // 原点もリセット
+                    if (this.isRangedSprite) {
+                        this.sprite.setOrigin(0.5, 1);
+                    }
                     break;
                 case 'DIE':
                     this.sprite.anims.stop();
+                    if (this.isRangedSprite) {
+                        this.sprite.setOrigin(0.5, 1);
+                    }
                     break;
             }
         }
