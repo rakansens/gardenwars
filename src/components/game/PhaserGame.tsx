@@ -100,7 +100,9 @@ export default function PhaserGame({
     }, []);
 
     const handleBattleEnd = useCallback((win: boolean, coinsGained: number) => {
-        if (mode !== 'battle' || !onBattleEnd) return;
+        if (!onBattleEnd) return;
+        // battle, arena, tower-defense で共通のonBattleEndを使用
+        if (mode !== 'battle' && mode !== 'arena' && mode !== 'tower-defense') return;
         if (battleEndedRef.current) return;
         battleEndedRef.current = true;
         onBattleEnd(win, coinsGained);
