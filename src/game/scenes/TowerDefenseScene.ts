@@ -618,11 +618,7 @@ export class TowerDefenseScene extends Phaser.Scene {
         // ハイライト更新
         this.showPlaceableTiles();
 
-        // レンジプレビュー表示
-        if (newTower) {
-            this.showRangePreview(newTower);
-            this.time.delayedCall(1500, () => this.clearRangePreview());
-        }
+        // レンジプレビューは配置後自動表示しない（タワータップ時のみ）
     }
 
     private getPlaceCost(unitDef: UnitDefinition): number {
@@ -636,15 +632,18 @@ export class TowerDefenseScene extends Phaser.Scene {
     private placeTower(unitDef: UnitDefinition, col: number, row: number): PlacedTower {
         const { x, y } = this.isoToScreen(col, row);
 
-        const unit = new Unit(this, x, y - 10, unitDef, 'ally', 2000);
+        const unit = new Unit(this, x, y + 5, unitDef, 'ally', 2000);
         unit.setDepth(y + 100);
 
         // タワーなので移動しない → SPAWN(IDLE的に使う)
         unit.setUnitState('SPAWN');
 
-        // スケール調整（TDは小さめ）
-        const currentScale = unit.scaleX;
-        unit.setScale(currentScale * 0.8);
+        // スケール調整 — タイルサイズに合わせて動的計算
+        // ユニットの表示高さがtileHeight×1.6程度になるよう調整（多少はみ出しOK）
+        const targetH = this.tileHeight * 1.6;
+        const spriteH = unit.getBounds().height || 120;
+        const towerScale = targetH / spriteH;
+        unit.setScale(towerScale);
 
         // スキルアイコンをタワー足元に表示
         const skill = unitDef.skillId ? getSkillById(unitDef.skillId) : undefined;
@@ -685,7 +684,10 @@ export class TowerDefenseScene extends Phaser.Scene {
         });
 
         // タワータップでアップグレード/レンジ表示
-        unit.setInteractive({ useHandCursor: true });
+        const hitW = 60;
+        const hitH = 80;
+        unit.setSize(hitW, hitH);
+        unit.setInteractive(new Phaser.Geom.Rectangle(-hitW / 2, -hitH, hitW, hitH), Phaser.Geom.Rectangle.Contains);
         unit.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
             pointer.event.stopPropagation();
             this.showUpgradePopup(tower);
@@ -784,12 +786,14 @@ export class TowerDefenseScene extends Phaser.Scene {
         const [startCol, startRow] = this.stageData.path[0];
         const { x, y } = this.isoToScreen(startCol, startRow);
 
-        const unit = new Unit(this, x, y - 10, unitDef, 'enemy', 2000);
+        const unit = new Unit(this, x, y + 5, unitDef, 'enemy', 2000);
         unit.setDepth(y + 100);
 
-        // 小さめスケール
-        const currentScale = unit.scaleX;
-        unit.setScale(currentScale * 0.7);
+        // スケール調整 — タイルサイズに合わせて動的計算
+        const targetH = this.tileHeight * 1.4;
+        const spriteH = unit.getBounds().height || 120;
+        const enemyScale = targetH / spriteH;
+        unit.setScale(enemyScale);
 
         // HPバー作成
         const hpBar = this.add.graphics();
