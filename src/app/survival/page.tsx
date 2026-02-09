@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import unitsData from "@/data/units";
 import type { UnitDefinition, SurvivalDifficulty } from "@/data/types";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -10,264 +9,262 @@ import { usePlayerData } from "@/hooks/usePlayerData";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import RarityFrame from "@/components/ui/RarityFrame";
 import Modal from "@/components/ui/Modal";
-
-const PhaserGame = dynamic(() => import("@/components/game/PhaserGame"), { ssr: false });
+import PageHeader from "@/components/layout/PageHeader";
 
 const allUnits = unitsData as UnitDefinition[];
 const playableUnits = allUnits.filter(u => !u.id.startsWith("enemy_") && !u.id.startsWith("boss_") && !u.isBoss);
-const SURVIVAL_UNIT_KEY = "gardenwars_survival_unit";
+
+const STORAGE_KEY = "survival_main_unit";
+
+interface DifficultyOption {
+  id: SurvivalDifficulty;
+  icon: string;
+  gradient: string;
+  diffBadge: string;
+}
+
+const difficultyOptions: DifficultyOption[] = [
+  { id: "easy", icon: "🌿", gradient: "from-emerald-500 to-teal-600", diffBadge: "bg-green-500" },
+  { id: "normal", icon: "⚔️", gradient: "from-amber-500 to-orange-600", diffBadge: "bg-amber-500" },
+  { id: "hard", icon: "💀", gradient: "from-red-600 to-red-900", diffBadge: "bg-red-600" },
+];
+
+const difficultyLabels: Record<SurvivalDifficulty, Record<string, string>> = {
+  easy: { ja: "イージー", en: "Easy" },
+  normal: { ja: "ノーマル", en: "Normal" },
+  hard: { ja: "ハード", en: "Hard" },
+};
+
+const difficultyDescs: Record<SurvivalDifficulty, Record<string, string>> = {
+  easy: { ja: "初心者向け。ゆっくりした敵の波が押し寄せる。", en: "For beginners. Slower enemy waves." },
+  normal: { ja: "バランスの取れた難易度。敵が強くなる。", en: "Balanced difficulty. Enemies get stronger." },
+  hard: { ja: "最高難易度。大量の強敵が襲いかかる！", en: "Hardest difficulty. Massive strong enemy waves!" },
+};
+
+const difficultyDetails: Record<SurvivalDifficulty, Record<string, string[]>> = {
+  easy: { ja: ["👾 敵HP ×0.8", "🐢 敵速度 ×0.8", "⏱ スポーン 遅め"], en: ["👾 Enemy HP ×0.8", "🐢 Speed ×0.8", "⏱ Slow spawn"] },
+  normal: { ja: ["👾 敵HP ×1.0", "🏃 敵速度 ×1.0", "⏱ スポーン 標準"], en: ["👾 Enemy HP ×1.0", "🏃 Speed ×1.0", "⏱ Normal spawn"] },
+  hard: { ja: ["👾 敵HP ×1.5", "🏃‍♂️ 敵速度 ×1.3", "⏱ スポーン 猛烈"], en: ["👾 Enemy HP ×1.5", "🏃‍♂️ Speed ×1.3", "⏱ Fast spawn"] },
+};
 
 export default function SurvivalPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { selectedTeam, unitInventory, isLoaded } = usePlayerData();
   const [playerUnit, setPlayerUnit] = useState<UnitDefinition | null>(null);
-  const [difficulty, setDifficulty] = useState<SurvivalDifficulty | null>(null);
   const [isUnitModalOpen, setIsUnitModalOpen] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
-  useEffect(() => {
-    if (!isLoaded) return;
-
-    try {
-      const storedId = localStorage.getItem(SURVIVAL_UNIT_KEY);
-      if (storedId) {
-        const storedUnit = playableUnits.find(u => u.id === storedId);
-        if (storedUnit && (unitInventory[storedUnit.id] ?? 0) > 0) {
-          setPlayerUnit(storedUnit);
-          return;
-        }
-      }
-    } catch {}
-
-    if (playerUnit && playableUnits.some(u => u.id === playerUnit.id)) {
-      if ((unitInventory[playerUnit.id] ?? 0) > 0) return;
-    }
-
+  // 初回ロード（localStorage優先）
+  if (isLoaded && !initialized) {
+    setInitialized(true);
     let picked: UnitDefinition | undefined;
-    if (selectedTeam.length > 0) {
+
+    // 1. localStorage
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) picked = playableUnits.find(u => u.id === saved);
+    } catch { }
+    // 2. selectedTeam
+    if (!picked && selectedTeam.length > 0) {
       picked = playableUnits.find(u => u.id === selectedTeam[0]);
     }
-
+    // 3. 所持ユニット
     if (!picked) {
       const ownedIds = Object.keys(unitInventory).filter(id => unitInventory[id] > 0);
       picked = playableUnits.find(u => ownedIds.includes(u.id));
     }
+    if (!picked) picked = playableUnits[0];
+    if (picked) setPlayerUnit(picked);
+  }
 
-    if (!picked) {
-      picked = playableUnits[0];
-    }
-
-    const chosen = picked ?? null;
-    setPlayerUnit(chosen);
-    if (chosen) {
-      try {
-        localStorage.setItem(SURVIVAL_UNIT_KEY, chosen.id);
-      } catch {}
-    }
-  }, [isLoaded, selectedTeam, unitInventory, playerUnit]);
-
-  const ownedUnits = playableUnits.filter((unit) => (unitInventory[unit.id] ?? 0) > 0);
-  const selectableUnits = ownedUnits.length > 0 ? ownedUnits : playableUnits;
+  // 全プレイアブルユニット（所持優先ソート）
+  const selectableUnits = [...playableUnits].sort((a, b) => {
+    const aOwned = (unitInventory[a.id] ?? 0) > 0 ? 1 : 0;
+    const bOwned = (unitInventory[b.id] ?? 0) > 0 ? 1 : 0;
+    return bOwned - aOwned;
+  });
 
   const getUnitName = (unit: UnitDefinition) => {
     const translated = t(unit.id);
     return translated !== unit.id ? translated : unit.name;
   };
 
-  if (!isLoaded || !playerUnit) {
+  const handleSelectUnit = (unit: UnitDefinition) => {
+    setPlayerUnit(unit);
+    try { localStorage.setItem(STORAGE_KEY, unit.id); } catch { }
+    setIsUnitModalOpen(false);
+  };
+
+  const buildUrl = (diff: SurvivalDifficulty) => {
+    const unitParam = playerUnit?.id || "";
+    return `/survival/${diff}?unit=${unitParam}`;
+  };
+
+  if (!isLoaded) {
     return <LoadingSpinner icon="🧟" fullScreen />;
   }
 
-  if (!difficulty) {
-    const options: { id: SurvivalDifficulty; icon: string; title: string; desc: string; accent: string }[] = [
-      {
-        id: "easy",
-        icon: "🟢",
-        title: t("survival_easy"),
-        desc: t("survival_easy_desc"),
-        accent: "from-emerald-400 to-teal-500",
-      },
-      {
-        id: "normal",
-        icon: "🟡",
-        title: t("survival_normal"),
-        desc: t("survival_normal_desc"),
-        accent: "from-amber-400 to-orange-500",
-      },
-      {
-        id: "hard",
-        icon: "🔴",
-        title: t("survival_hard"),
-        desc: t("survival_hard_desc"),
-        accent: "from-rose-500 to-red-600",
-      },
-    ];
+  return (
+    <main className="min-h-screen">
+      <PageHeader
+        title="🧟 Survival"
+        rightButton={{
+          href: "/team",
+          label: t("team"),
+          icon: "🎮",
+        }}
+      />
 
-    return (
-      <main className="min-h-screen p-4 md:p-6">
-        <div className="max-w-4xl mx-auto text-center mb-6">
-          <h1 className="text-2xl md:text-3xl font-bold text-amber-600 dark:text-amber-400">
-            🧟 {t("survival_select_title")}
-          </h1>
-          <p className="text-sm text-amber-700/70 dark:text-amber-300/70 mt-2">
-            {t("survival_select_desc")}
+      <div className="container">
+        {/* 説明 */}
+        <div className="text-center mb-6 text-amber-900/70 dark:text-gray-400">
+          <p className="text-lg font-medium">
+            {language === "ja" ? "次々と襲い来る敵を倒して生き残れ！" : "Survive waves of enemies!"}
           </p>
         </div>
 
-        {playerUnit && (
-          <div className="max-w-4xl mx-auto mb-6 card flex flex-col sm:flex-row items-center gap-4">
-            <RarityFrame
-              unitId={playerUnit.id}
-              unitName={getUnitName(playerUnit)}
-              rarity={playerUnit.rarity}
-              size="lg"
-              baseUnitId={playerUnit.baseUnitId || playerUnit.atlasKey}
-            />
-            <div className="flex-1 text-center sm:text-left">
-              <p className="text-xs font-semibold text-amber-700/70 dark:text-amber-300/70 mb-1">
-                {t("survival_unit_select")}
-              </p>
-              <h2 className="text-xl font-bold text-amber-900 dark:text-white mb-1">
-                {getUnitName(playerUnit)}
-              </h2>
-              <p className="text-sm text-amber-700/70 dark:text-slate-300/70">
-                {t("survival_unit_select_desc")}
-              </p>
-            </div>
-            <button onClick={() => setIsUnitModalOpen(true)} className="btn btn-primary text-sm">
-              {t("survival_unit_change")}
-            </button>
-          </div>
-        )}
+        {/* ===== 編成セクション ===== */}
+        <div className="max-w-4xl mx-auto mb-6">
+          <h2 className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-3 uppercase tracking-wider">
+            {language === "ja" ? "📋 編成" : "📋 Formation"}
+          </h2>
 
-        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4">
-          {options.map((option) => (
-            <button
-              key={option.id}
-              onClick={() => setDifficulty(option.id)}
-              className="card flex flex-col justify-between gap-4 text-left hover:shadow-xl transition-all active:scale-[0.99]"
-            >
-              <div className="flex items-start gap-4">
-                <div
-                  className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-sm bg-gradient-to-br ${option.accent}`}
+          <div className="card">
+            <div className="flex items-center gap-4">
+              <div className="shrink-0">
+                {playerUnit ? (
+                  <RarityFrame
+                    unitId={playerUnit.id}
+                    unitName={getUnitName(playerUnit)}
+                    rarity={playerUnit.rarity}
+                    size="lg"
+                    baseUnitId={playerUnit.baseUnitId || playerUnit.atlasKey}
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded-xl border-2 border-dashed border-amber-400 flex items-center justify-center text-2xl">?</div>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+                  {language === "ja" ? "プレイヤーユニット" : "Player Unit"}
+                </p>
+                <h3 className="text-lg font-bold text-amber-950 dark:text-white truncate">
+                  {playerUnit ? getUnitName(playerUnit) : "—"}
+                </h3>
+                {playerUnit && (
+                  <div className="flex gap-3 mt-1 text-[11px]">
+                    <span className="text-red-500" title="HP">❤️ {Math.round(playerUnit.maxHp * 3.2)}</span>
+                    <span className="text-blue-500" title={language === "ja" ? "移動速度" : "Speed"}>💨 {Math.round(playerUnit.speed * 3.5)}</span>
+                  </div>
+                )}
+              </div>
+              <button
+                onClick={() => setIsUnitModalOpen(true)}
+                className="btn btn-secondary text-xs px-3 py-1.5 shrink-0"
+              >
+                {language === "ja" ? "変更" : "Change"}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ===== 難易度選択 ===== */}
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-3 uppercase tracking-wider">
+            {language === "ja" ? "🗺️ 難易度" : "🗺️ Difficulty"}
+          </h2>
+          <div className="grid gap-4 md:grid-cols-3">
+            {difficultyOptions.map((option) => {
+              const label = difficultyLabels[option.id]?.[language] || option.id;
+              const desc = difficultyDescs[option.id]?.[language] || "";
+              const details = difficultyDetails[option.id]?.[language] || [];
+
+              return (
+                <Link
+                  key={option.id}
+                  href={buildUrl(option.id)}
+                  className="card relative overflow-hidden cursor-pointer hover:-translate-y-1 hover:shadow-lg transition-all"
                 >
-                  {option.icon}
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-amber-700/80 dark:text-amber-300/80 mb-1">
-                    {option.title}
-                  </p>
-                  <h2 className="text-lg font-bold text-amber-900 dark:text-white">{option.title}</h2>
-                  <p className="text-sm text-amber-700/70 dark:text-slate-300/70 mt-2">
-                    {option.desc}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between text-sm text-amber-700/80 dark:text-slate-300/80">
-                <span>{t("survival_select_hint")}</span>
-                <span className="font-semibold text-amber-800">→</span>
-              </div>
-            </button>
-          ))}
+                  {/* バナー */}
+                  <div className="relative h-28 -mx-4 -mt-4 mb-3 overflow-hidden">
+                    <div className={`absolute inset-0 bg-gradient-to-br ${option.gradient}`} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-amber-50 dark:from-slate-800 via-transparent to-transparent" />
+                    <div className="absolute top-3 right-3">
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold text-white shadow-lg ${option.diffBadge}`}>
+                        {label}
+                      </span>
+                    </div>
+                    <div className="absolute bottom-2 left-3 text-white">
+                      <div className="text-3xl drop-shadow-lg">{option.icon}</div>
+                    </div>
+                  </div>
+
+                  <h2 className="text-lg font-bold text-amber-950 dark:text-white mb-1">{label}</h2>
+                  <p className="text-sm text-amber-900/70 dark:text-gray-400 mb-3">{desc}</p>
+
+                  <div className="flex gap-2 text-[11px] text-amber-700 dark:text-amber-400 flex-wrap">
+                    {details.map((d, i) => (
+                      <span key={i} className="bg-amber-100 dark:bg-slate-700 px-2 py-0.5 rounded-full">{d}</span>
+                    ))}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         </div>
 
-        <div className="flex justify-center mt-8">
-          <Link href="/" className="btn btn-secondary">
-            ← {t("back_to_home")}
-          </Link>
+        {/* ヒント */}
+        <div className="mt-6 max-w-4xl mx-auto">
+          <div className="card text-center text-amber-900/70 dark:text-gray-400 text-sm">
+            💡 {language === "ja"
+              ? "敵を倒すとXPオーブが出現！集めてレベルアップしよう！"
+              : "Defeat enemies to spawn XP orbs! Collect them to level up!"}
+          </div>
         </div>
+      </div>
 
-        <Modal isOpen={isUnitModalOpen} onClose={() => setIsUnitModalOpen(false)} size="lg">
-          <div className="p-5">
-            <h2 className="text-xl font-bold text-amber-900 mb-2">{t("survival_unit_select")}</h2>
-            <p className="text-sm text-amber-700/70 mb-4">{t("survival_unit_select_desc")}</p>
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 max-h-[60vh] overflow-y-auto pr-1">
-              {selectableUnits.map((unit) => {
-                const isSelected = playerUnit?.id === unit.id;
-                return (
-                  <button
-                    key={unit.id}
-                    onClick={() => {
-                      setPlayerUnit(unit);
-                      try {
-                        localStorage.setItem(SURVIVAL_UNIT_KEY, unit.id);
-                      } catch {}
-                      setIsUnitModalOpen(false);
-                    }}
-                    className={`flex flex-col items-center gap-2 p-2 rounded-xl border transition-all ${
-                      isSelected ? "border-amber-400 bg-amber-50" : "border-transparent hover:border-slate-300 hover:bg-slate-50"
+      {/* ===== ユニット選択モーダル ===== */}
+      <Modal isOpen={isUnitModalOpen} onClose={() => setIsUnitModalOpen(false)} size="lg">
+        <div className="p-5">
+          <h2 className="text-xl font-bold text-amber-950 dark:text-white mb-1">
+            {language === "ja" ? "ユニット選択" : "Select Unit"}
+          </h2>
+          <p className="text-sm text-amber-900/70 dark:text-gray-400 mb-4">
+            {language === "ja" ? "サバイバルで操作するユニットを選ぼう" : "Choose a unit to control"}
+          </p>
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 max-h-[60vh] overflow-y-auto pr-1">
+            {selectableUnits.map((unit) => {
+              const isSelected = playerUnit?.id === unit.id;
+              const owned = (unitInventory[unit.id] ?? 0) > 0;
+              return (
+                <button
+                  key={unit.id}
+                  onClick={() => handleSelectUnit(unit)}
+                  className={`flex flex-col items-center gap-1 p-2 rounded-xl border transition-all ${isSelected
+                    ? "border-amber-400 bg-amber-50 dark:bg-amber-900/30"
+                    : owned
+                      ? "border-transparent hover:border-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/20"
+                      : "border-transparent opacity-60 hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
                     }`}
-                  >
-                    <RarityFrame
-                      unitId={unit.id}
-                      unitName={getUnitName(unit)}
-                      rarity={unit.rarity}
-                      size="sm"
-                      baseUnitId={unit.baseUnitId || unit.atlasKey}
-                      count={unitInventory[unit.id]}
-                    />
-                    <span className="text-[11px] text-slate-600 line-clamp-2">{getUnitName(unit)}</span>
-                  </button>
-                );
-              })}
-            </div>
+                >
+                  <RarityFrame
+                    unitId={unit.id}
+                    unitName={getUnitName(unit)}
+                    rarity={unit.rarity}
+                    size="sm"
+                    baseUnitId={unit.baseUnitId || unit.atlasKey}
+                    count={unitInventory[unit.id]}
+                  />
+                  <span className="text-[11px] text-slate-600 dark:text-slate-300 line-clamp-1">{getUnitName(unit)}</span>
+                  <div className="text-[8px] text-amber-700/60 dark:text-gray-500 leading-snug">
+                    <span>❤️{Math.round(unit.maxHp * 3.2)} 💨{Math.round(unit.speed * 3.5)}</span>
+                  </div>
+                </button>
+              );
+            })}
           </div>
-        </Modal>
-      </main>
-    );
-  }
-
-  const difficultyLabel =
-    difficulty === "easy"
-      ? t("survival_easy")
-      : difficulty === "hard"
-        ? t("survival_hard")
-        : t("survival_normal");
-
-  return (
-    <main className="fixed inset-0 bg-[#1a1a2e] overflow-hidden">
-      <div className="absolute top-0 right-0 p-2 sm:p-4 z-20 flex items-center gap-2 pointer-events-none">
-        <div className="btn btn-primary pointer-events-none text-xs sm:text-sm py-1 px-2 sm:py-2 sm:px-3 shadow-lg border-2 border-white/20">
-          🧟 {difficultyLabel}
         </div>
-        {playerUnit && (
-          <div className="btn btn-secondary pointer-events-none text-xs sm:text-sm py-1 px-2 sm:py-2 sm:px-3">
-            🎮 {getUnitName(playerUnit)}
-          </div>
-        )}
-        <button
-          onClick={() => setDifficulty(null)}
-          className="btn btn-secondary text-xs sm:text-sm py-1 px-2 sm:py-2 sm:px-3 pointer-events-auto"
-        >
-          {t("survival_change")}
-        </button>
-        <button
-          onClick={() => {
-            setDifficulty(null);
-            setIsUnitModalOpen(true);
-          }}
-          className="btn btn-secondary text-xs sm:text-sm py-1 px-2 sm:py-2 sm:px-3 pointer-events-auto"
-        >
-          {t("survival_unit_change")}
-        </button>
-        <Link href="/" className="btn btn-secondary text-xs sm:text-sm py-1 px-2 sm:py-2 sm:px-3 pointer-events-auto">
-          ← {t("back_to_home")}
-        </Link>
-      </div>
-
-      <div className="absolute top-0 left-0 p-2 sm:p-4 z-20 pointer-events-none">
-        <div className="text-white/80 text-xs sm:text-sm bg-black/40 rounded-full px-3 py-1">
-          {t("survival_hint")}
-        </div>
-      </div>
-
-      <div className="w-full h-full flex items-center justify-center">
-        <PhaserGame
-          mode="survival"
-          survivalPlayer={playerUnit}
-          survivalDifficulty={difficulty}
-          allUnits={allUnits}
-        />
-      </div>
+      </Modal>
     </main>
   );
 }
