@@ -222,7 +222,7 @@ export class DungeonScene extends Phaser.Scene {
         this.player = new SurvivalPlayer(this, width / 2, height / 2, this.playerDef, {
             spriteKey: playerSpriteId,
             hpMultiplier: 4.0,
-            baseSpeedMultiplier: 2.0,
+            baseSpeedMultiplier: 3.5,
         });
         this.player.setDepth(10);
 
@@ -525,9 +525,32 @@ export class DungeonScene extends Phaser.Scene {
                     const dy = guard.y - enemy.y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
                     if (dist < guard.getHitRadius() + 20) {
-                        // 敵のattackDamage × 時間ベース（毎フレームではなく毎秒）
                         guard.takeDamage(enemy.definition.attackDamage * 0.8 * (delta / 1000));
                     }
+                }
+            }
+        }
+
+        // 敵同士の分離力（固まり防止）
+        const separationRadius = 30;
+        const separationForce = 60;
+        const aliveEnemies = this.enemies.filter(e => !e.isDead());
+        for (let i = 0; i < aliveEnemies.length; i++) {
+            const a = aliveEnemies[i];
+            for (let j = i + 1; j < aliveEnemies.length; j++) {
+                const b = aliveEnemies[j];
+                const dx = a.x - b.x;
+                const dy = a.y - b.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < separationRadius && dist > 0.1) {
+                    const overlap = (separationRadius - dist) / separationRadius;
+                    const push = separationForce * overlap * (delta / 1000);
+                    const nx = dx / dist;
+                    const ny = dy / dist;
+                    a.x += nx * push;
+                    a.y += ny * push;
+                    b.x -= nx * push;
+                    b.y -= ny * push;
                 }
             }
         }
@@ -1057,9 +1080,12 @@ export class DungeonScene extends Phaser.Scene {
 
         this.gameOverOverlay = overlay;
 
+        // イベント発火を遅延（Retryが押された場合はscene.restart()でキャンセルされる）
         const coinsGained = win ? this.stageData.reward.coins : Math.floor(this.killCount * 2);
         const event = win ? GameEvents.DUNGEON_WIN : GameEvents.DUNGEON_LOSE;
-        eventBus.emit(event, coinsGained);
+        this.time.delayedCall(4000, () => {
+            eventBus.emit(event, coinsGained);
+        });
     }
 
     private handleContinue() {
