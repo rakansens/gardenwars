@@ -63,6 +63,9 @@ export class Unit extends Phaser.GameObjects.Container {
     // 遠距離スプライト対応フラグ（攻撃フレームが通常の4倍幅）
     private isRangedSprite: boolean = false;
 
+    // アイドル時の表示幅（rangedスプライトの当たり判定用・攻撃フレームで膨れない値）
+    private idleDisplayWidth: number = 0;
+
     // 飛行ユニットの浮遊オフセット
     private flyingOffset: number = 0;
 
@@ -160,6 +163,9 @@ export class Unit extends Phaser.GameObjects.Container {
         const maxScale = definition.isBoss ? 10.0 : 5.0;
         this.baseScale = Math.max(0.1, Math.min(maxScale, this.baseScale));
         this.sprite.setScale(this.baseScale);
+
+        // idleフレームでの表示幅を記録（rangedスプライトの当たり判定で使用）
+        this.idleDisplayWidth = this.sprite.displayWidth;
 
         // 原点を下中央に設定
         this.sprite.setOrigin(0.5, 1);
@@ -283,6 +289,11 @@ export class Unit extends Phaser.GameObjects.Container {
      * ターゲット判定で正確な「端」を計算するために使用
      */
     public getWidth(): number {
+        // rangedスプライトは攻撃中にdisplayWidthが4倍に膨れるため
+        // idleフレーム時の幅（キャラ本体のサイズ）を返す
+        if (this.isRangedSprite && this.idleDisplayWidth > 0) {
+            return this.idleDisplayWidth;
+        }
         if (this.sprite instanceof Phaser.GameObjects.Sprite || this.sprite instanceof Phaser.GameObjects.Image) {
             // displayWidthはスケール適用後の表示幅
             return this.sprite.displayWidth;
@@ -1112,8 +1123,8 @@ export class Unit extends Phaser.GameObjects.Container {
     }
 
     public isInRange(target: Unit): boolean {
-        // 自身の幅を考慮（中心から端までの距離）
-        const myHalfWidth = (this.sprite.displayWidth || (this.sprite.width * this.baseScale)) / 2;
+        // 自身の幅を考慮（rangedスプライトは攻撃中でもidleフレームの幅を使用）
+        const myHalfWidth = this.getWidth() / 2;
         // ターゲットの幅も考慮（端と端の距離で射程判定）
         const targetHalfWidth = target.getWidth() / 2;
 
@@ -1147,7 +1158,7 @@ export class Unit extends Phaser.GameObjects.Container {
     private isInRangeOfCastle(): boolean {
         if (!this.castleTarget) return false;
 
-        const myHalfWidth = (this.sprite.displayWidth || (this.sprite.width * this.baseScale)) / 2;
+        const myHalfWidth = this.getWidth() / 2;
         const distance = this.verticalMode
             ? Math.abs(this.y - this.castleTarget.y)
             : Math.abs(this.x - this.castleTarget.getX());
