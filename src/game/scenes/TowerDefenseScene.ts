@@ -1002,7 +1002,8 @@ export class TowerDefenseScene extends Phaser.Scene {
 
             tower.attackTimer -= dt;
 
-            // ターゲット探索
+            // 毎フレームターゲットを再評価（最も進行した敵を優先）
+            const range = tower.unit.definition.attackRange * 0.8 * tower.rangeMultiplier;
             let target = tower.targetEnemy;
 
             // ターゲット無効化チェック
@@ -1011,32 +1012,27 @@ export class TowerDefenseScene extends Phaser.Scene {
                 tower.targetEnemy = null;
             }
 
-            // 新ターゲット探索
-            if (!target) {
-                target = this.findNearestEnemy(tower);
-                tower.targetEnemy = target;
-            }
-
-            if (!target) {
-                // IDLE状態を維持
-                if (tower.unit.state !== 'SPAWN') {
-                    // Nothing to attack
+            // 射程内チェック（既存ターゲット）
+            if (target) {
+                const dx = target.unit.x - tower.unit.x;
+                const dy = target.unit.y - tower.unit.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist > range) {
+                    target = null;
+                    tower.targetEnemy = null;
                 }
-                continue;
             }
 
-            // 射程内チェック
-            const dx = target.unit.x - tower.unit.x;
-            const dy = target.unit.y - tower.unit.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-
-            // TD用にattackRangeをスケール（アップグレード反映）
-            const range = tower.unit.definition.attackRange * 0.8 * tower.rangeMultiplier;
-
-            if (dist > range) {
-                tower.targetEnemy = null;
-                continue;
+            // 新ターゲット探索（攻撃可能時に最適ターゲットを選び直す）
+            if (!target || tower.attackTimer <= 0) {
+                const best = this.findBestTarget(tower, range);
+                if (best) {
+                    target = best;
+                    tower.targetEnemy = best;
+                }
             }
+
+            if (!target) continue;
 
             // 攻撃可能チェック
             if (tower.attackTimer <= 0) {
@@ -1046,10 +1042,10 @@ export class TowerDefenseScene extends Phaser.Scene {
         }
     }
 
-    private findNearestEnemy(tower: PlacedTower): PathEnemy | null {
-        let nearest: PathEnemy | null = null;
-        let minDist = Infinity;
-        const range = tower.unit.definition.attackRange * 0.8 * tower.rangeMultiplier;
+    /** レンジ内で最も進行した敵を優先ターゲット（TD標準: First戦略） */
+    private findBestTarget(tower: PlacedTower, range: number): PathEnemy | null {
+        let best: PathEnemy | null = null;
+        let bestProgress = -1;
 
         for (const enemy of this.pathEnemies) {
             if (enemy.unit.state === 'DIE' || enemy.unit.hp <= 0) continue;
@@ -1058,13 +1054,17 @@ export class TowerDefenseScene extends Phaser.Scene {
             const dy = enemy.unit.y - tower.unit.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
 
-            if (dist < minDist && dist <= range) {
-                minDist = dist;
-                nearest = enemy;
+            if (dist <= range) {
+                // pathIndex + progress でパス上の進行度を算出
+                const totalProgress = enemy.pathIndex + enemy.progress;
+                if (totalProgress > bestProgress) {
+                    bestProgress = totalProgress;
+                    best = enemy;
+                }
             }
         }
 
-        return nearest;
+        return best;
     }
 
     private towerAttack(tower: PlacedTower, target: PathEnemy): void {
@@ -1353,33 +1353,41 @@ export class TowerDefenseScene extends Phaser.Scene {
         const nextLevel = tower.level + 1;
         const nextDmg = Math.round(tower.unit.definition.attackDamage * (1 + nextLevel * 0.5 - 0.5));
         const currentDmg = Math.round(tower.unit.definition.attackDamage * tower.damageMultiplier);
+        const currentRange = Math.round(tower.unit.definition.attackRange * 0.8 * tower.rangeMultiplier);
+        const nextRangeMul = 1 + (nextLevel - 1) * 0.2;
+        const nextRange = Math.round(tower.unit.definition.attackRange * 0.8 * nextRangeMul);
 
-        const container = this.add.container(tower.unit.x, tower.unit.y - 60);
+        const container = this.add.container(tower.unit.x, tower.unit.y - 70);
         container.setDepth(2000);
 
         // 背景
-        const popupWidth = 130;
-        const popupHeight = 70;
+        const popupWidth = 140;
+        const popupHeight = 82;
         const bg = this.add.rectangle(0, 0, popupWidth, popupHeight, 0x1a1a2e, 0.95);
         bg.setStrokeStyle(2, canAfford ? 0x44ff88 : 0x666666);
         container.add(bg);
 
         // タイトル
-        container.add(this.add.text(0, -24, `⬆️ Lv${nextLevel}`, {
+        container.add(this.add.text(0, -30, `⬆️ Lv${nextLevel}`, {
             fontSize: '13px', fontFamily: 'Arial', color: '#ffffff', fontStyle: 'bold',
         }).setOrigin(0.5));
 
-        // ステータスプレビュー
-        container.add(this.add.text(0, -8, `ATK: ${currentDmg}→${nextDmg}`, {
+        // ATKプレビュー
+        container.add(this.add.text(0, -14, `ATK: ${currentDmg}→${nextDmg}`, {
             fontSize: '11px', fontFamily: 'Arial', color: '#ff8888',
         }).setOrigin(0.5));
 
+        // レンジプレビュー
+        container.add(this.add.text(0, 0, `RNG: ${currentRange}→${nextRange}`, {
+            fontSize: '11px', fontFamily: 'Arial', color: '#88ccff',
+        }).setOrigin(0.5));
+
         // コストボタン
-        const btnBg = this.add.rectangle(0, 16, 100, 26, canAfford ? 0x228833 : 0x444444, 0.9);
+        const btnBg = this.add.rectangle(0, 22, 100, 26, canAfford ? 0x228833 : 0x444444, 0.9);
         btnBg.setStrokeStyle(1, canAfford ? 0x44ff88 : 0x666666);
         container.add(btnBg);
 
-        const btnLabel = this.add.text(0, 16, `💰${upgradeCost}`, {
+        const btnLabel = this.add.text(0, 22, `💰${upgradeCost}`, {
             fontSize: '13px', fontFamily: 'Arial', color: canAfford ? '#ffd700' : '#888888', fontStyle: 'bold',
         }).setOrigin(0.5);
         container.add(btnLabel);
