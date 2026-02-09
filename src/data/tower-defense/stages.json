@@ -95,7 +95,7 @@
                         "delayMs": 0
                     }
                 ],
-                "goldBonus": 20
+                "goldBonus": 30
             },
             {
                 "waveNumber": 2,
@@ -113,7 +113,7 @@
                         "delayMs": 3000
                     }
                 ],
-                "goldBonus": 30
+                "goldBonus": 50
             },
             {
                 "waveNumber": 3,
@@ -131,7 +131,7 @@
                         "delayMs": 4000
                     }
                 ],
-                "goldBonus": 40
+                "goldBonus": 60
             },
             {
                 "waveNumber": 4,
@@ -155,7 +155,7 @@
                         "delayMs": 6000
                     }
                 ],
-                "goldBonus": 50
+                "goldBonus": 70
             },
             {
                 "waveNumber": 5,
@@ -179,12 +179,12 @@
                         "delayMs": 5000
                     }
                 ],
-                "goldBonus": 60
+                "goldBonus": 80
             }
         ],
         "startLives": 20,
-        "startGold": 200,
-        "killGold": 10,
+        "startGold": 250,
+        "killGold": 15,
         "reward": {
             "coins": 200
         },
@@ -316,7 +316,7 @@
                         "delayMs": 3000
                     }
                 ],
-                "goldBonus": 30
+                "goldBonus": 50
             },
             {
                 "waveNumber": 2,
@@ -358,7 +358,7 @@
                         "delayMs": 4000
                     }
                 ],
-                "goldBonus": 50
+                "goldBonus": 70
             },
             {
                 "waveNumber": 4,
@@ -382,7 +382,7 @@
                         "delayMs": 5000
                     }
                 ],
-                "goldBonus": 60
+                "goldBonus": 80
             },
             {
                 "waveNumber": 5,
@@ -400,7 +400,7 @@
                         "delayMs": 3000
                     }
                 ],
-                "goldBonus": 50
+                "goldBonus": 70
             },
             {
                 "waveNumber": 6,
@@ -424,12 +424,12 @@
                         "delayMs": 2000
                     }
                 ],
-                "goldBonus": 80
+                "goldBonus": 100
             }
         ],
         "startLives": 15,
-        "startGold": 250,
-        "killGold": 12,
+        "startGold": 300,
+        "killGold": 18,
         "reward": {
             "coins": 350
         },
@@ -589,7 +589,7 @@
                         "delayMs": 1000
                     }
                 ],
-                "goldBonus": 40
+                "goldBonus": 60
             },
             {
                 "waveNumber": 2,
@@ -613,7 +613,7 @@
                         "delayMs": 1000
                     }
                 ],
-                "goldBonus": 50
+                "goldBonus": 70
             },
             {
                 "waveNumber": 3,
@@ -637,7 +637,7 @@
                         "delayMs": 4000
                     }
                 ],
-                "goldBonus": 60
+                "goldBonus": 80
             },
             {
                 "waveNumber": 4,
@@ -743,8 +743,8 @@
             }
         ],
         "startLives": 10,
-        "startGold": 300,
-        "killGold": 15,
+        "startGold": 350,
+        "killGold": 20,
         "reward": {
             "coins": 500
         },
