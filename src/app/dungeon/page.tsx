@@ -183,7 +183,7 @@ export default function DungeonPage() {
                             </p>
                             <div className="flex gap-2 flex-wrap">
                                 {guardUnits.map((guard, i) => (
-                                    <div key={`${guard.id}-${i}`} className="relative group">
+                                    <div key={`${guard.id}-${i}`} className="relative">
                                         <RarityFrame
                                             unitId={guard.id}
                                             unitName={getUnitName(guard)}
@@ -193,7 +193,7 @@ export default function DungeonPage() {
                                         />
                                         <button
                                             onClick={() => removeGuard(i)}
-                                            className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow"
+                                            className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center shadow"
                                         >
                                             ✕
                                         </button>
@@ -287,14 +287,13 @@ export default function DungeonPage() {
                     </h2>
                     <p className="text-sm text-amber-900/70 dark:text-gray-400 mb-4">
                         {modalMode === "main"
-                            ? (language === "ja" ? "ダンジョンで操作するユニットを選ぼう" : "Choose the unit you control")
-                            : (language === "ja" ? "配置できるガードを追加しよう" : "Add a guard to place in dungeon")}
+                            ? (language === "ja" ? "所持しているユニットから選ぼう" : "Choose from your owned units")
+                            : (language === "ja" ? "所持しているユニットをガードとして追加" : "Add an owned unit as guard")}
                     </p>
                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 max-h-[60vh] overflow-y-auto pr-1">
                         {selectableUnits
                             .filter(u => {
                                 if (modalMode === "guard") {
-                                    // ガード選択時: メインと既存ガードを除外
                                     if (u.id === playerUnit?.id) return false;
                                     if (guardUnits.find(g => g.id === u.id)) return false;
                                 }
@@ -302,21 +301,32 @@ export default function DungeonPage() {
                             })
                             .map((unit) => {
                                 const isSelected = modalMode === "main" && playerUnit?.id === unit.id;
+                                const owned = (unitInventory[unit.id] ?? 0) > 0;
                                 return (
                                     <button
                                         key={unit.id}
-                                        onClick={() => handleSelectUnit(unit)}
-                                        className={`flex flex-col items-center gap-2 p-2 rounded-xl border transition-all ${isSelected ? "border-amber-400 bg-amber-50 dark:bg-amber-900/30" : "border-transparent hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                                        onClick={() => owned && handleSelectUnit(unit)}
+                                        disabled={!owned}
+                                        className={`flex flex-col items-center gap-2 p-2 rounded-xl border transition-all ${!owned
+                                                ? "border-transparent opacity-35 cursor-not-allowed"
+                                                : isSelected
+                                                    ? "border-amber-400 bg-amber-50 dark:bg-amber-900/30"
+                                                    : "border-transparent hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
                                             }`}
                                     >
-                                        <RarityFrame
-                                            unitId={unit.id}
-                                            unitName={getUnitName(unit)}
-                                            rarity={unit.rarity}
-                                            size="sm"
-                                            baseUnitId={unit.baseUnitId || unit.atlasKey}
-                                            count={unitInventory[unit.id]}
-                                        />
+                                        <div className="relative">
+                                            <RarityFrame
+                                                unitId={unit.id}
+                                                unitName={getUnitName(unit)}
+                                                rarity={unit.rarity}
+                                                size="sm"
+                                                baseUnitId={unit.baseUnitId || unit.atlasKey}
+                                                count={unitInventory[unit.id]}
+                                            />
+                                            {!owned && (
+                                                <div className="absolute inset-0 flex items-center justify-center text-lg">🔒</div>
+                                            )}
+                                        </div>
                                         <span className="text-[11px] text-slate-600 dark:text-slate-300 line-clamp-2">{getUnitName(unit)}</span>
                                     </button>
                                 );
