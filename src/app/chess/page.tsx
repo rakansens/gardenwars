@@ -187,10 +187,10 @@ function ChessContent() {
 
     try {
       const storedLevel = localStorage.getItem(AI_LEVEL_KEY) as ChessAiLevel | null;
-      if (storedLevel === "easy" || storedLevel === "normal" || storedLevel === "hard") {
+      if (storedLevel === "easy" || storedLevel === "normal" || storedLevel === "hard" || storedLevel === "expert") {
         setAiLevel(storedLevel);
       }
-    } catch {}
+    } catch { }
 
     let initial: Record<PieceRole, PieceSkin> | null = null;
     try {
@@ -259,7 +259,7 @@ function ChessContent() {
   useEffect(() => {
     try {
       localStorage.setItem(AI_LEVEL_KEY, aiLevel);
-    } catch {}
+    } catch { }
   }, [aiLevel]);
 
   useEffect(() => {
@@ -270,7 +270,7 @@ function ChessContent() {
         payload[role.id] = pieceSkins[role.id].unitId;
       });
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-    } catch {}
+    } catch { }
   }, [pieceSkins]);
 
   const resetLocalGame = useCallback(() => {
@@ -649,6 +649,121 @@ function ChessContent() {
     return color === "w" ? whiteSymbols[type] : blackSymbols[type];
   };
 
+  // ============================================
+  // チェスAI: Piece-Square Tables（位置価値テーブル）
+  // ============================================
+  // 黒目線で最適化（y=0がblackの1段目、y=7がblackの8段目）
+  const PST_PAWN = [
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [50, 50, 50, 50, 50, 50, 50, 50],
+    [10, 10, 20, 30, 30, 20, 10, 10],
+    [5, 5, 10, 25, 25, 10, 5, 5],
+    [0, 0, 0, 20, 20, 0, 0, 0],
+    [5, -5, -10, 0, 0, -10, -5, 5],
+    [5, 10, 10, -20, -20, 10, 10, 5],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+  ];
+  const PST_KNIGHT = [
+    [-50, -40, -30, -30, -30, -30, -40, -50],
+    [-40, -20, 0, 0, 0, 0, -20, -40],
+    [-30, 0, 10, 15, 15, 10, 0, -30],
+    [-30, 5, 15, 20, 20, 15, 5, -30],
+    [-30, 0, 15, 20, 20, 15, 0, -30],
+    [-30, 5, 10, 15, 15, 10, 5, -30],
+    [-40, -20, 0, 5, 5, 0, -20, -40],
+    [-50, -40, -30, -30, -30, -30, -40, -50],
+  ];
+  const PST_BISHOP = [
+    [-20, -10, -10, -10, -10, -10, -10, -20],
+    [-10, 0, 0, 0, 0, 0, 0, -10],
+    [-10, 0, 10, 10, 10, 10, 0, -10],
+    [-10, 5, 5, 10, 10, 5, 5, -10],
+    [-10, 0, 5, 10, 10, 5, 0, -10],
+    [-10, 10, 10, 10, 10, 10, 10, -10],
+    [-10, 5, 0, 0, 0, 0, 5, -10],
+    [-20, -10, -10, -10, -10, -10, -10, -20],
+  ];
+  const PST_ROOK = [
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [5, 10, 10, 10, 10, 10, 10, 5],
+    [-5, 0, 0, 0, 0, 0, 0, -5],
+    [-5, 0, 0, 0, 0, 0, 0, -5],
+    [-5, 0, 0, 0, 0, 0, 0, -5],
+    [-5, 0, 0, 0, 0, 0, 0, -5],
+    [-5, 0, 0, 0, 0, 0, 0, -5],
+    [0, 0, 0, 5, 5, 0, 0, 0],
+  ];
+  const PST_QUEEN = [
+    [-20, -10, -10, -5, -5, -10, -10, -20],
+    [-10, 0, 0, 0, 0, 0, 0, -10],
+    [-10, 0, 5, 5, 5, 5, 0, -10],
+    [-5, 0, 5, 5, 5, 5, 0, -5],
+    [0, 0, 5, 5, 5, 5, 0, -5],
+    [-10, 5, 5, 5, 5, 5, 0, -10],
+    [-10, 0, 5, 0, 0, 0, 0, -10],
+    [-20, -10, -10, -5, -5, -10, -10, -20],
+  ];
+  const PST_KING_MID = [
+    [-30, -40, -40, -50, -50, -40, -40, -30],
+    [-30, -40, -40, -50, -50, -40, -40, -30],
+    [-30, -40, -40, -50, -50, -40, -40, -30],
+    [-30, -40, -40, -50, -50, -40, -40, -30],
+    [-20, -30, -30, -40, -40, -30, -30, -20],
+    [-10, -20, -20, -20, -20, -20, -20, -10],
+    [20, 20, 0, 0, 0, 0, 20, 20],
+    [20, 30, 10, 0, 0, 10, 30, 20],
+  ];
+
+  const PST_MAP: Record<string, number[][]> = {
+    p: PST_PAWN, n: PST_KNIGHT, b: PST_BISHOP,
+    r: PST_ROOK, q: PST_QUEEN, k: PST_KING_MID,
+  };
+
+  const PIECE_VALUES: Record<string, number> = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 0 };
+
+  /** 盤面評価: マテリアル + 位置価値 + モビリティ */
+  function evaluateBoard(game: ChessGame, includePositional: boolean, includeMobility: boolean): number {
+    const board = game.getBoard();
+    let score = 0;
+
+    for (let y = 0; y < 8; y++) {
+      for (let x = 0; x < 8; x++) {
+        const piece = board[y][x];
+        if (!piece) continue;
+        const materialValue = PIECE_VALUES[piece.type] ?? 0;
+        let positionalValue = 0;
+        if (includePositional) {
+          const pst = PST_MAP[piece.type];
+          if (pst) {
+            // 黒: そのまま、白: テーブルを反転（y → 7-y）
+            positionalValue = piece.color === "b" ? pst[y][x] : pst[7 - y][x];
+          }
+        }
+        const total = materialValue + positionalValue;
+        score += piece.color === "b" ? total : -total;
+      }
+    }
+
+    // モビリティ（合法手の数 = 展開の自由度）
+    if (includeMobility) {
+      const blackMoves = game.getAllLegalMoves("b").length;
+      const whiteMoves = game.getAllLegalMoves("w").length;
+      score += (blackMoves - whiteMoves) * 5;
+    }
+
+    return score;
+  }
+
+  /** 配列をシャッフルしてタイブレーカーに使う */
+  function shuffleArray<T>(arr: T[]): T[] {
+    const shuffled = [...arr];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }
+
   useEffect(() => {
     if (mode !== "cpu" && mode !== "stage") return;
     if (status.checkmate || status.stalemate) return;
@@ -665,42 +780,40 @@ function ChessContent() {
         return;
       }
 
-      let selectedMove = moves[0];
-      const values: Record<string, number> = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 0 };
+      // 同スコアでも毎回異なる手が選ばれるようシャッフル
+      const shuffledMoves = shuffleArray(moves);
+      let selectedMove = shuffledMoves[0];
 
       if (aiLevel === "easy") {
-        selectedMove = moves[Math.floor(Math.random() * moves.length)];
+        // Easy: ランダム (ただしキャプチャは20%ボーナスで少し優先)
+        const weighted = shuffledMoves.map(m => ({ m, w: Math.random() + (m.capture ? 0.2 : 0) }));
+        weighted.sort((a, b) => b.w - a.w);
+        selectedMove = weighted[0].m;
       } else if (aiLevel === "normal") {
-        const values: Record<string, number> = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 0 };
+        // Normal: 1手先読み + 軽い位置評価（モビリティなし）
         let bestScore = -Infinity;
-        for (const move of moves) {
+        for (const move of shuffledMoves) {
           const clone = gameRef.current.clone();
           clone.move(move.from.x, move.from.y, move.to.x, move.to.y);
-          let score = 0;
-          const board = clone.getBoard();
-          for (let y = 0; y < 8; y++) {
-            for (let x = 0; x < 8; x++) {
-              const piece = board[y][x];
-              if (!piece) continue;
-              const value = values[piece.type] ?? 0;
-              score += piece.color === "b" ? value : -value;
-            }
-          }
-          if (move.capture) score += 40;
+          const score = evaluateBoard(clone, true, false);
           if (score > bestScore) {
             bestScore = score;
             selectedMove = move;
           }
         }
       } else if (aiLevel === "hard") {
-        // 2-ply search for hard level
+        // Hard: 2手先読み + フル位置評価 + モビリティ
         let bestScore = -Infinity;
-        for (const move of moves) {
+        for (const move of shuffledMoves) {
           const clone = gameRef.current.clone();
           clone.move(move.from.x, move.from.y, move.to.x, move.to.y);
+          const cloneStatus = clone.getStatus();
+          if (cloneStatus.checkmate) {
+            selectedMove = move;
+            break;
+          }
           const replyMoves = clone.getAllLegalMoves("w");
           if (replyMoves.length === 0) {
-            const cloneStatus = clone.getStatus();
             const score = cloneStatus.checkmate ? 100000 : 0;
             if (score > bestScore) {
               bestScore = score;
@@ -712,16 +825,7 @@ function ChessContent() {
           for (const reply of replyMoves) {
             const replyClone = clone.clone();
             replyClone.move(reply.from.x, reply.from.y, reply.to.x, reply.to.y);
-            let score = 0;
-            const board = replyClone.getBoard();
-            for (let y = 0; y < 8; y++) {
-              for (let x = 0; x < 8; x++) {
-                const piece = board[y][x];
-                if (!piece) continue;
-                const value = values[piece.type] ?? 0;
-                score += piece.color === "b" ? value : -value;
-              }
-            }
+            const score = evaluateBoard(replyClone, true, true);
             if (score < worstScore) worstScore = score;
           }
           if (worstScore > bestScore) {
@@ -730,12 +834,12 @@ function ChessContent() {
           }
         }
       } else if (aiLevel === "expert") {
-        // 3-ply minimax for expert level
+        // Expert: 3手先読みminimax + α-β刈り + フル評価
         let bestScore = -Infinity;
-        for (const move of moves) {
+        for (const move of shuffledMoves) {
           const clone = gameRef.current.clone();
           clone.move(move.from.x, move.from.y, move.to.x, move.to.y);
-          const score = minimax(clone, 2, false, -Infinity, Infinity, values);
+          const score = minimax(clone, 2, false, -Infinity, Infinity);
           if (score > bestScore) {
             bestScore = score;
             selectedMove = move;
@@ -756,34 +860,23 @@ function ChessContent() {
     };
   }, [turn, aiLevel, status.checkmate, status.stalemate, version, mode, stageResult]);
 
-  // Minimax helper for expert AI
+  // Minimax with α-β pruning for expert AI
   function minimax(
     game: ChessGame,
     depth: number,
     isMaximizing: boolean,
     alpha: number,
     beta: number,
-    values: Record<string, number>
   ): number {
     if (depth === 0) {
-      let score = 0;
-      const board = game.getBoard();
-      for (let y = 0; y < 8; y++) {
-        for (let x = 0; x < 8; x++) {
-          const piece = board[y][x];
-          if (!piece) continue;
-          const value = values[piece.type] ?? 0;
-          score += piece.color === "b" ? value : -value;
-        }
-      }
-      return score;
+      return evaluateBoard(game, true, true);
     }
 
-    const status = game.getStatus();
-    if (status.checkmate) {
+    const st = game.getStatus();
+    if (st.checkmate) {
       return isMaximizing ? -100000 - depth : 100000 + depth;
     }
-    if (status.stalemate) return 0;
+    if (st.stalemate) return 0;
 
     const moves = game.getAllLegalMoves(isMaximizing ? "b" : "w");
     if (moves.length === 0) return 0;
@@ -793,7 +886,7 @@ function ChessContent() {
       for (const move of moves) {
         const clone = game.clone();
         clone.move(move.from.x, move.from.y, move.to.x, move.to.y);
-        const score = minimax(clone, depth - 1, false, alpha, beta, values);
+        const score = minimax(clone, depth - 1, false, alpha, beta);
         maxScore = Math.max(maxScore, score);
         alpha = Math.max(alpha, score);
         if (beta <= alpha) break;
@@ -804,7 +897,7 @@ function ChessContent() {
       for (const move of moves) {
         const clone = game.clone();
         clone.move(move.from.x, move.from.y, move.to.x, move.to.y);
-        const score = minimax(clone, depth - 1, true, alpha, beta, values);
+        const score = minimax(clone, depth - 1, true, alpha, beta);
         minScore = Math.min(minScore, score);
         beta = Math.min(beta, score);
         if (beta <= alpha) break;
@@ -835,7 +928,7 @@ function ChessContent() {
       })(),
       q: (() => {
         const p = empty();
-        for (let i = 0; i < 5; i++) { p[2][i] = true; p[i][2] = true; p[i][i] = true; p[i][4-i] = true; }
+        for (let i = 0; i < 5; i++) { p[2][i] = true; p[i][2] = true; p[i][i] = true; p[i][4 - i] = true; }
         return p;
       })(),
       r: (() => {
@@ -845,7 +938,7 @@ function ChessContent() {
       })(),
       b: (() => {
         const p = empty();
-        for (let i = 0; i < 5; i++) { p[i][i] = true; p[i][4-i] = true; }
+        for (let i = 0; i < 5; i++) { p[i][i] = true; p[i][4 - i] = true; }
         return p;
       })(),
       n: (() => {
@@ -878,13 +971,12 @@ function ChessContent() {
             return (
               <div
                 key={`${x}-${y}`}
-                className={`w-3.5 h-3.5 rounded-sm ${
-                  isCenter
-                    ? "bg-amber-500 flex items-center justify-center"
-                    : canMove
+                className={`w-3.5 h-3.5 rounded-sm ${isCenter
+                  ? "bg-amber-500 flex items-center justify-center"
+                  : canMove
                     ? "bg-emerald-400"
                     : "bg-gray-200 dark:bg-gray-700"
-                }`}
+                  }`}
               >
                 {isCenter && <span className="text-[8px] text-white font-bold">{getPieceSymbol(type, "w")}</span>}
               </div>
@@ -906,18 +998,18 @@ function ChessContent() {
       ? onlineWinReason === "stalemate"
         ? t("chess_online_result_draw")
         : onlineWinner
-        ? onlineWinner === mySide
-          ? t("chess_online_result_win")
-          : t("chess_online_result_lose")
-        : t("chess_online_result_draw")
+          ? onlineWinner === mySide
+            ? t("chess_online_result_win")
+            : t("chess_online_result_lose")
+          : t("chess_online_result_draw")
       : null;
 
   const onlineStatusLabel =
     connectionStatus === "playing"
       ? t("chess_online_status_playing")
       : connectionStatus === "finished"
-      ? t("chess_online_status_finished")
-      : t("chess_online_status_waiting");
+        ? t("chess_online_status_finished")
+        : t("chess_online_status_waiting");
 
   // Format time for display
   const formatTime = (seconds: number): string => {
@@ -1132,11 +1224,10 @@ function ChessContent() {
 
       {isInMatch && (
         <div
-          className={`mx-auto items-start ${
-            isZoomed
-              ? "max-w-3xl"
-              : "max-w-5xl grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-6"
-          }`}
+          className={`mx-auto items-start ${isZoomed
+            ? "max-w-3xl"
+            : "max-w-5xl grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-6"
+            }`}
         >
           <div className="card relative">
             <div className="grid grid-cols-8 border-4 border-amber-200 rounded-2xl overflow-hidden shadow-lg">
@@ -1158,30 +1249,27 @@ function ChessContent() {
                     <button
                       key={`${x}-${y}-${version}`}
                       onClick={() => handleSquareClick(x, y)}
-                      className={`relative aspect-square flex items-center justify-center transition-colors ${
-                        isLight ? "bg-amber-100/80" : "bg-amber-300/70"
-                      } ${isSelected ? "ring-4 ring-emerald-400" : ""} ${
-                        isCheckedKing
+                      className={`relative aspect-square flex items-center justify-center transition-colors ${isLight ? "bg-amber-100/80" : "bg-amber-300/70"
+                        } ${isSelected ? "ring-4 ring-emerald-400" : ""} ${isCheckedKing
                           ? "bg-red-500/70 ring-4 ring-red-600 animate-pulse"
                           : isLastTo
                             ? "bg-orange-400/60 ring-4 ring-orange-500 animate-pulse"
                             : isLastFrom
                               ? "bg-orange-200/50 outline outline-2 outline-dashed outline-orange-400"
                               : ""
-                      } ${isCapture ? "ring-4 ring-rose-500 bg-rose-200/50" : ""}`}
+                        } ${isCapture ? "ring-4 ring-rose-500 bg-rose-200/50" : ""}`}
                     >
                       {legalMove && !isCapture && (
                         <div className="absolute w-3 h-3 rounded-full bg-emerald-500/80" />
                       )}
                       {piece && (
                         <div
-                          className={`relative transition-transform duration-150 ${
-                            isSelected
-                              ? "scale-125 drop-shadow-[0_0_8px_rgba(52,211,153,0.8)]"
-                              : isLastTo
-                                ? "scale-110 drop-shadow-[0_0_6px_rgba(251,146,60,0.7)]"
-                                : "hover:scale-110"
-                          }`}
+                          className={`relative transition-transform duration-150 ${isSelected
+                            ? "scale-125 drop-shadow-[0_0_8px_rgba(52,211,153,0.8)]"
+                            : isLastTo
+                              ? "scale-110 drop-shadow-[0_0_6px_rgba(251,146,60,0.7)]"
+                              : "hover:scale-110"
+                            }`}
                         >
                           <img
                             src={getSpritePath(
@@ -1189,15 +1277,13 @@ function ChessContent() {
                               getPieceSkin(piece.type as PieceRole).rarity
                             )}
                             alt={piece.type}
-                            className={`w-11 h-11 sm:w-14 sm:h-14 object-contain drop-shadow-md ${
-                              piece.color === "b" ? "grayscale brightness-75 contrast-125" : ""
-                            }`}
+                            className={`w-11 h-11 sm:w-14 sm:h-14 object-contain drop-shadow-md ${piece.color === "b" ? "grayscale brightness-75 contrast-125" : ""
+                              }`}
                             style={piece.color === "b" ? { transform: "scaleX(-1)" } : undefined}
                           />
                           <span
-                            className={`absolute -top-2 -right-2 rounded-full bg-white/90 text-amber-900 font-bold flex items-center justify-center shadow transition-all duration-150 ${
-                              isSelected ? "w-8 h-8 text-base" : "w-6 h-6 text-sm"
-                            }`}
+                            className={`absolute -top-2 -right-2 rounded-full bg-white/90 text-amber-900 font-bold flex items-center justify-center shadow transition-all duration-150 ${isSelected ? "w-8 h-8 text-base" : "w-6 h-6 text-sm"
+                              }`}
                           >
                             {getPieceSymbol(piece.type as PieceRole, piece.color)}
                           </span>
@@ -1226,27 +1312,24 @@ function ChessContent() {
             {/* チェックメイト・ステイルメイト オーバーレイ */}
             {(status.checkmate || status.stalemate) && (
               <div className="absolute inset-0 flex items-center justify-center z-20 bg-black/50 rounded-2xl">
-                <div className={`text-center p-6 rounded-2xl shadow-2xl ${
-                  status.checkmate
-                    ? turn === "b"
-                      ? "bg-gradient-to-br from-yellow-400 to-amber-500" // Player wins
-                      : "bg-gradient-to-br from-gray-600 to-gray-800" // Player loses
-                    : "bg-gradient-to-br from-blue-400 to-indigo-500" // Stalemate
-                }`}>
+                <div className={`text-center p-6 rounded-2xl shadow-2xl ${status.checkmate
+                  ? turn === "b"
+                    ? "bg-gradient-to-br from-yellow-400 to-amber-500" // Player wins
+                    : "bg-gradient-to-br from-gray-600 to-gray-800" // Player loses
+                  : "bg-gradient-to-br from-blue-400 to-indigo-500" // Stalemate
+                  }`}>
                   <div className="text-5xl mb-3">
                     {status.checkmate
                       ? turn === "b" ? "🏆" : "💀"
                       : "🤝"
                     }
                   </div>
-                  <div className={`text-2xl font-black mb-2 ${
-                    status.checkmate && turn === "b" ? "text-amber-900" : "text-white"
-                  }`}>
+                  <div className={`text-2xl font-black mb-2 ${status.checkmate && turn === "b" ? "text-amber-900" : "text-white"
+                    }`}>
                     {status.checkmate ? t("chess_checkmate") : t("chess_stalemate")}
                   </div>
-                  <div className={`text-lg font-bold ${
-                    status.checkmate && turn === "b" ? "text-amber-800" : "text-white/90"
-                  }`}>
+                  <div className={`text-lg font-bold ${status.checkmate && turn === "b" ? "text-amber-800" : "text-white/90"
+                    }`}>
                     {status.checkmate
                       ? turn === "b"
                         ? (t("chess_you_win") || "You Win!")
@@ -1260,109 +1343,109 @@ function ChessContent() {
           </div>
 
           {!isZoomed && (
-          <div className="space-y-4">
-            {mode === "online" ? (
+            <div className="space-y-4">
+              {mode === "online" ? (
+                <div className="card">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <h2 className="text-lg font-bold text-amber-800 dark:text-white">{t("chess_mode_online")}</h2>
+                      <p className="text-sm text-amber-700/70 dark:text-slate-300/70">{t("chess_online_subtitle")}</p>
+                    </div>
+                    <span className="text-2xl">🌐</span>
+                  </div>
+                  <div className="space-y-1 text-sm text-amber-800/80 dark:text-slate-300/80">
+                    <div className="flex items-center justify-between">
+                      <span>{t("chess_online_you")}</span>
+                      <span>
+                        {displayName} ({formatSide(mySide)})
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>{t("chess_online_opponent")}</span>
+                      <span>
+                        {opponent?.displayName || "?"} ({formatSide(opponent?.side)})
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>{t("chess_online_status")}</span>
+                      <span>{onlineStatusLabel}</span>
+                    </div>
+                  </div>
+                  {onlineResultLabel && (
+                    <div className="mt-3 text-sm font-semibold text-rose-600">{onlineResultLabel}</div>
+                  )}
+                </div>
+              ) : (
+                <div className="card">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <h2 className="text-lg font-bold text-amber-800 dark:text-white">{t("chess_ai_level")}</h2>
+                      <p className="text-sm text-amber-700/70 dark:text-slate-300/70">{t("chess_ai_level_desc")}</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2">
+                    {(["easy", "normal", "hard", "expert"] as ChessAiLevel[]).map((level) => (
+                      <button
+                        key={level}
+                        onClick={() => setAiLevel(level)}
+                        className={`btn ${aiLevel === level ? "btn-primary" : "btn-secondary"} text-xs py-2`}
+                      >
+                        {t(`chess_ai_${level}`)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="card">
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h2 className="text-lg font-bold text-amber-800 dark:text-white">{t("chess_mode_online")}</h2>
-                    <p className="text-sm text-amber-700/70 dark:text-slate-300/70">{t("chess_online_subtitle")}</p>
-                  </div>
-                  <span className="text-2xl">🌐</span>
-                </div>
-                <div className="space-y-1 text-sm text-amber-800/80 dark:text-slate-300/80">
-                  <div className="flex items-center justify-between">
-                    <span>{t("chess_online_you")}</span>
-                    <span>
-                      {displayName} ({formatSide(mySide)})
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span>{t("chess_online_opponent")}</span>
-                    <span>
-                      {opponent?.displayName || "?"} ({formatSide(opponent?.side)})
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span>{t("chess_online_status")}</span>
-                    <span>{onlineStatusLabel}</span>
+                    <h2 className="text-lg font-bold text-amber-800 dark:text-white">{t("chess_piece_set")}</h2>
+                    <p className="text-sm text-amber-700/70 dark:text-slate-300/70">{t("chess_piece_set_desc")}</p>
                   </div>
                 </div>
-                {onlineResultLabel && (
-                  <div className="mt-3 text-sm font-semibold text-rose-600">{onlineResultLabel}</div>
-                )}
+
+                <div className="grid grid-cols-3 gap-3">
+                  {PIECE_ROLES.map((role) => {
+                    const skin = getPieceSkin(role.id);
+                    return (
+                      <button
+                        key={role.id}
+                        onClick={() => setActiveRole(role.id)}
+                        className="unit-card flex flex-col items-center gap-2 hover:scale-[1.02]"
+                      >
+                        <RarityFrame
+                          unitId={skin.unitId}
+                          unitName={getUnitName(playableUnits.find((u) => u.id === skin.unitId) || playableUnits[0])}
+                          rarity={skin.rarity}
+                          size="sm"
+                          baseUnitId={skin.baseUnitId}
+                        />
+                        <span className="text-xs text-amber-900/80">{t(role.labelKey)}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            ) : (
+
               <div className="card">
-                <div className="flex items-center justify-between mb-3">
+                <button
+                  onClick={() => setShowHelp(true)}
+                  className="w-full flex items-center justify-between text-left"
+                >
                   <div>
-                    <h2 className="text-lg font-bold text-amber-800 dark:text-white">{t("chess_ai_level")}</h2>
-                    <p className="text-sm text-amber-700/70 dark:text-slate-300/70">{t("chess_ai_level_desc")}</p>
+                    <h2 className="text-lg font-bold text-amber-800 dark:text-white">{t("chess_help")}</h2>
+                    <p className="text-sm text-amber-700/70 dark:text-slate-300/70">{t("chess_help_desc")}</p>
                   </div>
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  {(["easy", "normal", "hard"] as ChessAiLevel[]).map((level) => (
-                    <button
-                      key={level}
-                      onClick={() => setAiLevel(level)}
-                      className={`btn ${aiLevel === level ? "btn-primary" : "btn-secondary"} text-xs py-2`}
-                    >
-                      {t(`chess_ai_${level}`)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="card">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="text-lg font-bold text-amber-800 dark:text-white">{t("chess_piece_set")}</h2>
-                  <p className="text-sm text-amber-700/70 dark:text-slate-300/70">{t("chess_piece_set_desc")}</p>
-                </div>
+                  <span className="text-2xl">❓</span>
+                </button>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
-                {PIECE_ROLES.map((role) => {
-                  const skin = getPieceSkin(role.id);
-                  return (
-                    <button
-                      key={role.id}
-                      onClick={() => setActiveRole(role.id)}
-                      className="unit-card flex flex-col items-center gap-2 hover:scale-[1.02]"
-                    >
-                      <RarityFrame
-                        unitId={skin.unitId}
-                        unitName={getUnitName(playableUnits.find((u) => u.id === skin.unitId) || playableUnits[0])}
-                        rarity={skin.rarity}
-                        size="sm"
-                        baseUnitId={skin.baseUnitId}
-                      />
-                      <span className="text-xs text-amber-900/80">{t(role.labelKey)}</span>
-                    </button>
-                  );
-                })}
+              <div className="card text-sm text-amber-800/80 dark:text-slate-300/80">
+                <p className="font-semibold text-amber-900 dark:text-white mb-2">{t("chess_hint_title")}</p>
+                <p>{t("chess_hint_body")}</p>
               </div>
             </div>
-
-            <div className="card">
-              <button
-                onClick={() => setShowHelp(true)}
-                className="w-full flex items-center justify-between text-left"
-              >
-                <div>
-                  <h2 className="text-lg font-bold text-amber-800 dark:text-white">{t("chess_help")}</h2>
-                  <p className="text-sm text-amber-700/70 dark:text-slate-300/70">{t("chess_help_desc")}</p>
-                </div>
-                <span className="text-2xl">❓</span>
-              </button>
-            </div>
-
-            <div className="card text-sm text-amber-800/80 dark:text-slate-300/80">
-              <p className="font-semibold text-amber-900 dark:text-white mb-2">{t("chess_hint_title")}</p>
-              <p>{t("chess_hint_body")}</p>
-            </div>
-          </div>
           )}
         </div>
       )}
@@ -1392,9 +1475,8 @@ function ChessContent() {
                     });
                     setActiveRole(null);
                   }}
-                  className={`flex flex-col items-center gap-2 p-2 rounded-xl border transition-all ${
-                    isSelected ? "border-amber-400 bg-amber-50" : "border-transparent hover:border-slate-300 hover:bg-slate-50"
-                  }`}
+                  className={`flex flex-col items-center gap-2 p-2 rounded-xl border transition-all ${isSelected ? "border-amber-400 bg-amber-50" : "border-transparent hover:border-slate-300 hover:bg-slate-50"
+                    }`}
                 >
                   <RarityFrame
                     unitId={unit.id}
@@ -1472,7 +1554,7 @@ function ChessContent() {
       </Modal>
 
       {/* Stage Result Modal */}
-      <Modal isOpen={showStageResult && !!stageResult} onClose={() => {}} size="md">
+      <Modal isOpen={showStageResult && !!stageResult} onClose={() => { }} size="md">
         <div className="p-6 text-center">
           {stageResult === "win" ? (
             <>
