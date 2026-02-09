@@ -121,25 +121,25 @@ export default function TeamSidebar({
         <aside className="hidden md:flex flex-col w-40 lg:w-48 flex-shrink-0 sticky top-16 h-[calc(100vh-4rem)] bg-slate-50 dark:bg-slate-800/50 border-r border-slate-200 dark:border-slate-700 overflow-y-auto custom-scrollbar">
 
             {/* Header */}
-            <div className="p-4 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10">
-                <div className="text-center mb-3">
-                    <h2 className="font-bold text-slate-700 dark:text-slate-200 text-sm uppercase tracking-wider mb-1">
+            <div className="p-3 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10">
+                <div className="text-center mb-2">
+                    <h2 className="font-bold text-slate-700 dark:text-slate-200 text-xs uppercase tracking-wider mb-1">
                         {t("team_members")}
                     </h2>
-                    <div className="flex items-center justify-center gap-3 text-xs font-bold">
+                    <div className="flex items-center justify-center gap-2 text-[10px] font-bold">
                         {isMounted ? (
                             <>
-                                <span className={`px-2 py-0.5 rounded-full ${validTeamCount === MAX_TEAM_SIZE ? "bg-green-100 text-green-700" : "bg-slate-200 text-slate-600"}`}>
+                                <span className={`px-1.5 py-0.5 rounded-full ${validTeamCount === MAX_TEAM_SIZE ? "bg-green-100 text-green-700" : "bg-slate-200 text-slate-600"}`}>
                                     {validTeamCount}/{MAX_TEAM_SIZE}
                                 </span>
-                                <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                                <span className="px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">
                                     💰 ¥{getTotalCost()}
                                 </span>
                             </>
                         ) : (
                             <>
-                                <span className="w-12 h-6 bg-slate-200 dark:bg-slate-700 rounded-full animate-pulse"></span>
-                                <span className="w-16 h-6 bg-slate-200 dark:bg-slate-700 rounded-full animate-pulse"></span>
+                                <span className="w-10 h-5 bg-slate-200 dark:bg-slate-700 rounded-full animate-pulse"></span>
+                                <span className="w-12 h-5 bg-slate-200 dark:bg-slate-700 rounded-full animate-pulse"></span>
                             </>
                         )}
                     </div>
@@ -166,7 +166,7 @@ export default function TeamSidebar({
             </div>
 
             {/* Deck Slots */}
-            <div className="p-3 space-y-3 flex-1">
+            <div className="p-2 space-y-1 flex-1">
                 {isMounted ? Array.from({ length: MAX_TEAM_SIZE }).map((_, index) => {
                     const unit = getSelectedTeamDefs()[index];
                     return (
@@ -174,7 +174,7 @@ export default function TeamSidebar({
                             key={index}
                             onClick={() => unit && onRemoveUnit(unit.id)}
                             className={`
-                                relative aspect-square rounded-2xl flex items-center justify-center transition-all group
+                                relative h-12 lg:h-14 rounded-lg flex items-center justify-center transition-all group
                                 ${unit
                                     ? "bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-600 cursor-pointer hover:shadow-md hover:scale-[1.02] border-2 border-white dark:border-slate-500"
                                     : "bg-slate-100/50 dark:bg-slate-800/50 border-2 border-dashed border-slate-300 dark:border-slate-700"
@@ -182,9 +182,9 @@ export default function TeamSidebar({
                             `}
                         >
                             {unit ? (
-                                <div className="relative w-full h-full p-2">
+                                <div className="relative w-full h-full p-1">
                                     {/* Remove Badge (Hidden by default, shown on hover) */}
-                                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full text-white text-sm flex items-center justify-center z-10 font-bold shadow opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 rounded-full text-white text-[10px] flex items-center justify-center z-10 font-bold shadow opacity-0 group-hover:opacity-100 transition-opacity">
                                         ×
                                     </div>
 
@@ -193,7 +193,7 @@ export default function TeamSidebar({
                                             unitId={unit.id}
                                             unitName={unit.name}
                                             rarity={unit.rarity}
-                                            size="lg"
+                                            size="sm"
                                             showLabel={false}
                                             baseUnitId={unit.baseUnitId}
                                         />
@@ -208,8 +208,8 @@ export default function TeamSidebar({
                                 </div>
                             ) : (
                                 <div className="flex flex-col items-center justify-center text-slate-300 dark:text-slate-600">
-                                    <span className="text-2xl font-bold mb-1">+</span>
-                                    <span className="text-[10px] font-bold uppercase tracking-widest opacity-70">Slot {index + 1}</span>
+                                    <span className="text-lg font-bold">+</span>
+                                    <span className="text-[8px] font-bold uppercase tracking-wider opacity-70">Slot {index + 1}</span>
                                 </div>
                             )}
                         </div>
@@ -217,7 +217,7 @@ export default function TeamSidebar({
                 }) : (
                     // Desktop Skeleton
                     Array.from({ length: MAX_TEAM_SIZE }).map((_, index) => (
-                        <div key={index} className="aspect-square rounded-2xl bg-slate-100 dark:bg-slate-800 animate-pulse" />
+                        <div key={index} className="h-12 lg:h-14 rounded-lg bg-slate-100 dark:bg-slate-800 animate-pulse" />
                     ))
                 )}
             </div>
