@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { towerDefenseStages } from "@/data/tower-defense";
@@ -33,10 +33,14 @@ const allUnits = unitsData as UnitDefinition[];
 // プレイヤーが使用可能なユニット（ボス除外）
 const playableUnits = allUnits.filter(u => !u.id.startsWith("boss_") && !u.isBoss);
 
+const STORAGE_KEY = "td_team";
+
 export default function TowerDefenseBattlePage() {
     const router = useRouter();
     const params = useParams();
+    const searchParams = useSearchParams();
     const stageId = params.stageId as string;
+    const teamParam = searchParams.get("team");
     const { t } = useLanguage();
     const { selectedTeam, isLoaded } = usePlayerData();
     const isLandscape = useIsLandscape();
@@ -52,30 +56,48 @@ export default function TowerDefenseBattlePage() {
         // ステージデータ取得
         const stageData = towerDefenseStages.find((s) => s.id === stageId);
         if (!stageData) {
-            router.push("/");
+            router.push("/tower-defense");
             return;
         }
         setStage(stageData);
 
-        // 編成データ取得（ボス除外）
-        let newTeamDefs = selectedTeam
-            .map((id) => playableUnits.find((u) => u.id === id))
-            .filter((u): u is UnitDefinition => u !== undefined);
+        // 編成優先順位: URLパラメータ → localStorage → selectedTeam → フォールバック
+        let newTeamDefs: UnitDefinition[] = [];
 
-        // 空チームフォールバック: 先頭4ユニットをデフォルト編成
+        // 1. URLパラメータ（選択ページから遷移時）
+        if (teamParam) {
+            newTeamDefs = teamParam.split(",")
+                .map(id => playableUnits.find(u => u.id === id))
+                .filter((u): u is UnitDefinition => !!u);
+        }
+
+        // 2. localStorage
+        if (newTeamDefs.length === 0) {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const ids = JSON.parse(saved) as string[];
+                    newTeamDefs = ids
+                        .map(id => playableUnits.find(u => u.id === id))
+                        .filter((u): u is UnitDefinition => !!u);
+                }
+            } catch { }
+        }
+
+        // 3. selectedTeam
+        if (newTeamDefs.length === 0) {
+            newTeamDefs = selectedTeam
+                .map((id) => playableUnits.find((u) => u.id === id))
+                .filter((u): u is UnitDefinition => u !== undefined);
+        }
+
+        // 4. フォールバック: 先頭4ユニット
         if (newTeamDefs.length === 0) {
             newTeamDefs = playableUnits.slice(0, 4);
         }
 
-        const currentTeamIds = team.map(u => u.id).sort().join(',');
-        const newTeamIds = newTeamDefs.map(u => u.id).sort().join(',');
-
-        if (currentTeamIds !== newTeamIds && newTeamDefs.length > 0) {
-            setTeam(newTeamDefs);
-        } else if (team.length === 0 && newTeamDefs.length > 0) {
-            setTeam(newTeamDefs);
-        }
-    }, [stageId, router, selectedTeam, isLoaded]);
+        setTeam(newTeamDefs);
+    }, [stageId, router, selectedTeam, isLoaded, teamParam]);
 
     const battleEndedRef = useRef(false);
 
