@@ -12,6 +12,7 @@ import type { UnitDefinition, DungeonStageDefinition } from "@/data/types";
 import RarityFrame from "@/components/ui/RarityFrame";
 import Modal from "@/components/ui/Modal";
 import PageHeader from "@/components/layout/PageHeader";
+import { getSpritePath } from "@/lib/sprites";
 
 const allUnits = unitsData as UnitDefinition[];
 const playableUnits = allUnits.filter(u => !u.id.startsWith("enemy_") && !u.id.startsWith("boss_") && !u.isBoss);
@@ -42,14 +43,20 @@ const stageGradients: Record<string, string> = {
     dungeon_3: "from-red-600 to-red-900",
 };
 
+const MAX_GUARDS = 5;
+
 export default function DungeonPage() {
     const { t, language } = useLanguage();
     const { selectedTeam, unitInventory, isLoaded } = usePlayerData();
     const [playerUnit, setPlayerUnit] = useState<UnitDefinition | null>(null);
-    const [isUnitModalOpen, setIsUnitModalOpen] = useState(false);
+    const [guardUnits, setGuardUnits] = useState<UnitDefinition[]>([]);
+    const [modalMode, setModalMode] = useState<"main" | "guard" | null>(null);
+    const [initialized, setInitialized] = useState(false);
 
-    // 初回ロード時にプレイヤーユニットをセット
-    if (isLoaded && !playerUnit) {
+    // 初回ロード時にプレイヤーユニットとガードをセット
+    if (isLoaded && !initialized) {
+        setInitialized(true);
+        // メインユニット
         let picked: UnitDefinition | undefined;
         if (selectedTeam.length > 0) {
             picked = playableUnits.find(u => u.id === selectedTeam[0]);
@@ -60,6 +67,19 @@ export default function DungeonPage() {
         }
         if (!picked) picked = playableUnits[0];
         if (picked) setPlayerUnit(picked);
+
+        // ガード（チームの2番目以降、なければ自動選択）
+        const guards: UnitDefinition[] = [];
+        for (let i = 1; i < selectedTeam.length && guards.length < MAX_GUARDS; i++) {
+            const u = playableUnits.find(pu => pu.id === selectedTeam[i]);
+            if (u) guards.push(u);
+        }
+        if (guards.length === 0) {
+            const ownedIds = Object.keys(unitInventory).filter(id => unitInventory[id] > 0);
+            const owned = playableUnits.filter(u => ownedIds.includes(u.id) && u.id !== picked?.id);
+            guards.push(...owned.slice(0, MAX_GUARDS));
+        }
+        setGuardUnits(guards);
     }
 
     const ownedUnits = playableUnits.filter(u => (unitInventory[u.id] ?? 0) > 0);
@@ -68,6 +88,31 @@ export default function DungeonPage() {
     const getUnitName = (unit: UnitDefinition) => {
         const translated = t(unit.id);
         return translated !== unit.id ? translated : unit.name;
+    };
+
+    const handleSelectUnit = (unit: UnitDefinition) => {
+        if (modalMode === "main") {
+            // メインユニットとして設定。ガードから外す
+            setPlayerUnit(unit);
+            setGuardUnits(prev => prev.filter(g => g.id !== unit.id));
+        } else if (modalMode === "guard") {
+            // ガードに追加（重複と上限チェック）
+            if (guardUnits.length >= MAX_GUARDS) return;
+            if (guardUnits.find(g => g.id === unit.id)) return;
+            if (unit.id === playerUnit?.id) return;
+            setGuardUnits(prev => [...prev, unit]);
+        }
+        setModalMode(null);
+    };
+
+    const removeGuard = (index: number) => {
+        setGuardUnits(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const buildStageUrl = (stageId: string) => {
+        const unitParam = playerUnit?.id || "";
+        const teamParam = guardUnits.map(g => g.id).join(",");
+        return `/dungeon/${stageId}?unit=${unitParam}&team=${teamParam}`;
     };
 
     if (!isLoaded) {
@@ -91,100 +136,135 @@ export default function DungeonPage() {
                     <p className="text-lg font-medium">
                         {language === "ja" ? "ダンジョンを探索し、ガードを配置して敵を倒そう！" : "Explore the dungeon, place guards, and defeat enemies!"}
                     </p>
-                    <p className="text-sm mt-1 opacity-80">
-                        {language === "ja"
-                            ? "① メインユニットで逃げ回る → ② ガードを配置 → ③ 敵を殲滅"
-                            : "① Dodge with main unit → ② Place guards → ③ Eliminate enemies"}
-                    </p>
                 </div>
 
-                {/* プレイヤーユニット選択 */}
-                {playerUnit && (
-                    <div className="max-w-4xl mx-auto mb-6 card flex flex-col sm:flex-row items-center gap-4">
-                        <RarityFrame
-                            unitId={playerUnit.id}
-                            unitName={getUnitName(playerUnit)}
-                            rarity={playerUnit.rarity}
-                            size="lg"
-                            baseUnitId={playerUnit.baseUnitId || playerUnit.atlasKey}
-                        />
-                        <div className="flex-1 text-center sm:text-left">
-                            <p className="text-xs font-semibold text-amber-800/70 dark:text-amber-300/70 mb-1">
-                                {language === "ja" ? "メインユニット" : "Main Unit"}
-                            </p>
-                            <h2 className="text-xl font-bold text-amber-950 dark:text-white mb-1">
-                                {getUnitName(playerUnit)}
-                            </h2>
-                            <p className="text-sm text-amber-900/70 dark:text-slate-300/70">
-                                {language === "ja" ? "ダンジョンの主役を選ぼう" : "Choose your dungeon hero"}
-                            </p>
-                        </div>
-                        <button onClick={() => setIsUnitModalOpen(true)} className="btn btn-primary text-sm">
-                            {language === "ja" ? "変更" : "Change"}
-                        </button>
-                    </div>
-                )}
+                {/* ===== 編成セクション ===== */}
+                <div className="max-w-4xl mx-auto mb-6">
+                    <h2 className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-3 uppercase tracking-wider">
+                        {language === "ja" ? "📋 編成" : "📋 Formation"}
+                    </h2>
 
-                {/* ステージ一覧 */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 max-w-4xl mx-auto">
-                    {dungeonStages.map((stage: DungeonStageDefinition) => {
-                        const banner = stageBanners[stage.id];
-                        const gradient = stageGradients[stage.id] || "from-indigo-500 to-purple-700";
-                        const diff = stage.difficulty || "normal";
-
-                        return (
-                            <Link
-                                key={stage.id}
-                                href={`/dungeon/${stage.id}?unit=${playerUnit?.id || ""}`}
-                                className="card relative overflow-hidden cursor-pointer hover:-translate-y-1 hover:shadow-lg transition-all"
+                    <div className="card">
+                        {/* メインユニット */}
+                        <div className="flex items-center gap-4 mb-4 pb-4 border-b border-amber-200 dark:border-slate-700">
+                            <div className="shrink-0">
+                                {playerUnit ? (
+                                    <RarityFrame
+                                        unitId={playerUnit.id}
+                                        unitName={getUnitName(playerUnit)}
+                                        rarity={playerUnit.rarity}
+                                        size="lg"
+                                        baseUnitId={playerUnit.baseUnitId || playerUnit.atlasKey}
+                                    />
+                                ) : (
+                                    <div className="w-16 h-16 rounded-xl border-2 border-dashed border-amber-400 flex items-center justify-center text-2xl">?</div>
+                                )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-[11px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+                                    {language === "ja" ? "メインユニット（逃げ役）" : "Main Unit (Dodger)"}
+                                </p>
+                                <h3 className="text-lg font-bold text-amber-950 dark:text-white truncate">
+                                    {playerUnit ? getUnitName(playerUnit) : "—"}
+                                </h3>
+                            </div>
+                            <button
+                                onClick={() => setModalMode("main")}
+                                className="btn btn-secondary text-xs px-3 py-1.5 shrink-0"
                             >
-                                {/* バナー画像 */}
-                                <div className="relative h-36 -mx-4 -mt-4 mb-3 overflow-hidden">
-                                    <div className={`absolute inset-0 bg-gradient-to-br ${gradient}`}>
-                                        {banner && (
-                                            <Image
-                                                src={banner}
-                                                alt={stage.name}
-                                                fill
-                                                className="object-cover opacity-60"
-                                            />
-                                        )}
-                                    </div>
-                                    <div className="absolute inset-0 bg-gradient-to-t from-amber-50 dark:from-slate-800 via-transparent to-transparent" />
+                                {language === "ja" ? "変更" : "Change"}
+                            </button>
+                        </div>
 
-                                    {/* 難易度バッジ */}
-                                    <div className="absolute top-3 right-3">
-                                        <span className={`px-3 py-1 rounded-full text-xs font-bold text-white shadow-lg ${difficultyColors[diff]}`}>
-                                            {difficultyLabels[diff]?.[language] || diff}
-                                        </span>
+                        {/* ガード一覧 */}
+                        <div>
+                            <p className="text-[11px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-2">
+                                {language === "ja" ? `ガード（${guardUnits.length}/${MAX_GUARDS}）` : `Guards (${guardUnits.length}/${MAX_GUARDS})`}
+                            </p>
+                            <div className="flex gap-2 flex-wrap">
+                                {guardUnits.map((guard, i) => (
+                                    <div key={`${guard.id}-${i}`} className="relative group">
+                                        <RarityFrame
+                                            unitId={guard.id}
+                                            unitName={getUnitName(guard)}
+                                            rarity={guard.rarity}
+                                            size="md"
+                                            baseUnitId={guard.baseUnitId || guard.atlasKey}
+                                        />
+                                        <button
+                                            onClick={() => removeGuard(i)}
+                                            className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow"
+                                        >
+                                            ✕
+                                        </button>
                                     </div>
+                                ))}
+                                {guardUnits.length < MAX_GUARDS && (
+                                    <button
+                                        onClick={() => setModalMode("guard")}
+                                        className="w-12 h-12 rounded-xl border-2 border-dashed border-amber-400 dark:border-amber-600 flex items-center justify-center text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors text-xl"
+                                    >
+                                        +
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                                    {/* ステージアイコン */}
-                                    <div className="absolute bottom-2 left-3 text-white">
-                                        <div className="text-xs opacity-80">STAGE</div>
-                                        <div className="text-2xl font-bold drop-shadow-lg flex items-center gap-2">
-                                            <span className="text-3xl">🗡️</span>
+                {/* ===== ステージ一覧 ===== */}
+                <div className="max-w-4xl mx-auto">
+                    <h2 className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-3 uppercase tracking-wider">
+                        {language === "ja" ? "🗺️ ステージ" : "🗺️ Stages"}
+                    </h2>
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                        {dungeonStages.map((stage: DungeonStageDefinition) => {
+                            const banner = stageBanners[stage.id];
+                            const gradient = stageGradients[stage.id] || "from-indigo-500 to-purple-700";
+                            const diff = stage.difficulty || "normal";
+
+                            return (
+                                <Link
+                                    key={stage.id}
+                                    href={buildStageUrl(stage.id)}
+                                    className="card relative overflow-hidden cursor-pointer hover:-translate-y-1 hover:shadow-lg transition-all"
+                                >
+                                    {/* バナー */}
+                                    <div className="relative h-36 -mx-4 -mt-4 mb-3 overflow-hidden">
+                                        <div className={`absolute inset-0 bg-gradient-to-br ${gradient}`}>
+                                            {banner && (
+                                                <Image
+                                                    src={banner}
+                                                    alt={stage.name}
+                                                    fill
+                                                    className="object-cover opacity-60"
+                                                />
+                                            )}
+                                        </div>
+                                        <div className="absolute inset-0 bg-gradient-to-t from-amber-50 dark:from-slate-800 via-transparent to-transparent" />
+                                        <div className="absolute top-3 right-3">
+                                            <span className={`px-3 py-1 rounded-full text-xs font-bold text-white shadow-lg ${difficultyColors[diff]}`}>
+                                                {difficultyLabels[diff]?.[language] || diff}
+                                            </span>
+                                        </div>
+                                        <div className="absolute bottom-2 left-3 text-white">
+                                            <div className="text-xs opacity-80">STAGE</div>
+                                            <div className="text-2xl font-bold drop-shadow-lg">🗡️</div>
                                         </div>
                                     </div>
-                                </div>
 
-                                {/* コンテンツ */}
-                                <h2 className="text-lg font-bold text-amber-950 dark:text-white mb-1">
-                                    {stage.name}
-                                </h2>
-                                <p className="text-sm text-amber-900/70 dark:text-gray-400 mb-3">
-                                    {stage.description}
-                                </p>
+                                    <h2 className="text-lg font-bold text-amber-950 dark:text-white mb-1">{stage.name}</h2>
+                                    <p className="text-sm text-amber-900/70 dark:text-gray-400 mb-3">{stage.description}</p>
 
-                                {/* ステータス */}
-                                <div className="flex gap-3 text-sm text-amber-700 dark:text-amber-400 flex-wrap">
-                                    <span>🌊 {stage.totalWaves}{language === "ja" ? "波" : " waves"}</span>
-                                    <span>🛡️ {language === "ja" ? "上限" : "Max"}: {stage.maxGuards}</span>
-                                    <span>💰 {stage.reward.coins}G</span>
-                                </div>
-                            </Link>
-                        );
-                    })}
+                                    <div className="flex gap-3 text-sm text-amber-700 dark:text-amber-400 flex-wrap">
+                                        <span>🌊 {stage.totalWaves}{language === "ja" ? "波" : " waves"}</span>
+                                        <span>🛡️ {language === "ja" ? "上限" : "Max"}: {stage.maxGuards}</span>
+                                        <span>💰 {stage.reward.coins}G</span>
+                                    </div>
+                                </Link>
+                            );
+                        })}
+                    </div>
                 </div>
 
                 {/* ヒント */}
@@ -197,40 +277,50 @@ export default function DungeonPage() {
                 </div>
             </div>
 
-            {/* ユニット選択モーダル */}
-            <Modal isOpen={isUnitModalOpen} onClose={() => setIsUnitModalOpen(false)} size="lg">
+            {/* ===== ユニット選択モーダル ===== */}
+            <Modal isOpen={modalMode !== null} onClose={() => setModalMode(null)} size="lg">
                 <div className="p-5">
-                    <h2 className="text-xl font-bold text-amber-950 dark:text-white mb-2">
-                        {language === "ja" ? "ユニット選択" : "Select Unit"}
+                    <h2 className="text-xl font-bold text-amber-950 dark:text-white mb-1">
+                        {modalMode === "main"
+                            ? (language === "ja" ? "メインユニット選択" : "Select Main Unit")
+                            : (language === "ja" ? "ガード追加" : "Add Guard")}
                     </h2>
                     <p className="text-sm text-amber-900/70 dark:text-gray-400 mb-4">
-                        {language === "ja" ? "ダンジョンの主役を選ぼう" : "Choose your dungeon hero"}
+                        {modalMode === "main"
+                            ? (language === "ja" ? "ダンジョンで操作するユニットを選ぼう" : "Choose the unit you control")
+                            : (language === "ja" ? "配置できるガードを追加しよう" : "Add a guard to place in dungeon")}
                     </p>
                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 max-h-[60vh] overflow-y-auto pr-1">
-                        {selectableUnits.map((unit) => {
-                            const isSelected = playerUnit?.id === unit.id;
-                            return (
-                                <button
-                                    key={unit.id}
-                                    onClick={() => {
-                                        setPlayerUnit(unit);
-                                        setIsUnitModalOpen(false);
-                                    }}
-                                    className={`flex flex-col items-center gap-2 p-2 rounded-xl border transition-all ${isSelected ? "border-amber-400 bg-amber-50 dark:bg-amber-900/30" : "border-transparent hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
-                                        }`}
-                                >
-                                    <RarityFrame
-                                        unitId={unit.id}
-                                        unitName={getUnitName(unit)}
-                                        rarity={unit.rarity}
-                                        size="sm"
-                                        baseUnitId={unit.baseUnitId || unit.atlasKey}
-                                        count={unitInventory[unit.id]}
-                                    />
-                                    <span className="text-[11px] text-slate-600 dark:text-slate-300 line-clamp-2">{getUnitName(unit)}</span>
-                                </button>
-                            );
-                        })}
+                        {selectableUnits
+                            .filter(u => {
+                                if (modalMode === "guard") {
+                                    // ガード選択時: メインと既存ガードを除外
+                                    if (u.id === playerUnit?.id) return false;
+                                    if (guardUnits.find(g => g.id === u.id)) return false;
+                                }
+                                return true;
+                            })
+                            .map((unit) => {
+                                const isSelected = modalMode === "main" && playerUnit?.id === unit.id;
+                                return (
+                                    <button
+                                        key={unit.id}
+                                        onClick={() => handleSelectUnit(unit)}
+                                        className={`flex flex-col items-center gap-2 p-2 rounded-xl border transition-all ${isSelected ? "border-amber-400 bg-amber-50 dark:bg-amber-900/30" : "border-transparent hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                                            }`}
+                                    >
+                                        <RarityFrame
+                                            unitId={unit.id}
+                                            unitName={getUnitName(unit)}
+                                            rarity={unit.rarity}
+                                            size="sm"
+                                            baseUnitId={unit.baseUnitId || unit.atlasKey}
+                                            count={unitInventory[unit.id]}
+                                        />
+                                        <span className="text-[11px] text-slate-600 dark:text-slate-300 line-clamp-2">{getUnitName(unit)}</span>
+                                    </button>
+                                );
+                            })}
                     </div>
                 </div>
             </Modal>

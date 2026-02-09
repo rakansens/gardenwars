@@ -21,6 +21,7 @@ export default function DungeonBattlePage() {
     const searchParams = useSearchParams();
     const stageId = params.stageId as string;
     const unitId = searchParams.get("unit");
+    const teamParam = searchParams.get("team");
     const { selectedTeam, isLoaded } = usePlayerData();
 
     const [stage, setStage] = useState<DungeonStageDefinition | null>(null);
@@ -48,12 +49,24 @@ export default function DungeonBattlePage() {
         if (!mainUnit) mainUnit = playableUnits[0];
         setPlayerUnit(mainUnit || null);
 
-        // チームをUnitDefinitionに変換
-        const teamUnits = selectedTeam
-            .map(id => allUnits.find(u => u.id === id))
-            .filter((u): u is UnitDefinition => !!u);
-        setTeam(teamUnits.length > 0 ? teamUnits : playableUnits.slice(0, 4));
-    }, [stageId, router, selectedTeam, isLoaded, unitId]);
+        // チーム（ガード）: URLパラメータ優先 → selectedTeamフォールバック
+        let teamUnits: UnitDefinition[] = [];
+        if (teamParam) {
+            const teamIds = teamParam.split(",").filter(Boolean);
+            teamUnits = teamIds
+                .map(id => allUnits.find(u => u.id === id))
+                .filter((u): u is UnitDefinition => !!u);
+        }
+        if (teamUnits.length === 0) {
+            teamUnits = selectedTeam
+                .map(id => allUnits.find(u => u.id === id))
+                .filter((u): u is UnitDefinition => !!u);
+        }
+        if (teamUnits.length === 0) {
+            teamUnits = playableUnits.slice(0, 4);
+        }
+        setTeam(teamUnits);
+    }, [stageId, router, selectedTeam, isLoaded, unitId, teamParam]);
 
     const handleDungeonEnd = useCallback((win: boolean, coinsGained: number) => {
         if (battleEndedRef.current) return;
