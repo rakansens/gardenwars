@@ -2,7 +2,7 @@
 
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Rarity, UnitRole } from "@/data/types";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type SortKey = "none" | "hp" | "attack" | "range" | "speed" | "move" | "dps" | "cost" | "spawn" | "droprate" | "size";
 type RoleFilter = "ALL" | UnitRole;
@@ -32,6 +32,13 @@ export default function TeamFilters({
 }: TeamFiltersProps) {
     const { t } = useLanguage();
     const [isExpanded, setIsExpanded] = useState(true);
+
+    // Collapse filter panel by default on mobile
+    useEffect(() => {
+        if (window.innerWidth < 768) {
+            setIsExpanded(false);
+        }
+    }, []);
 
     const rarityTabs: { key: Rarity | "ALL"; label: string; color: string }[] = [
         { key: "ALL", label: "ALL", color: "bg-slate-500" },

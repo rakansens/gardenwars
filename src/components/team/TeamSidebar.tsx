@@ -43,74 +43,74 @@ export default function TeamSidebar({
         return getSelectedTeamDefs().reduce((sum, unit) => sum + unit.cost, 0);
     };
 
-    // Mobile View (Bottom Sticky)
+    // Mobile View (Bottom Sticky) - Two-Row Layout
     if (isMobile) {
         return (
-            <div className="md:hidden sticky bottom-0 z-30 w-full bg-slate-100/90 dark:bg-slate-900/90 backdrop-blur-lg border-t border-slate-200 dark:border-slate-700 px-3 py-2 pb-safe">
-                <div className="flex items-center gap-2">
-                    {/* Loadout Switcher */}
-                    <div className="flex flex-col gap-1">
+            <div className="md:hidden sticky bottom-0 z-30 w-full bg-slate-100/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200 dark:border-slate-700 px-3 pt-2 pb-2 pb-safe">
+                {/* Top Row: Loadout Switcher + Stats */}
+                <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex gap-1">
                         {[0, 1, 2].map((idx) => (
                             <button
                                 key={idx}
                                 onClick={() => switchLoadout(idx)}
-                                className={`w-6 h-6 rounded font-bold text-[10px] ${activeLoadoutIndex === idx ? "bg-amber-500 text-white shadow" : "bg-gray-200 dark:bg-slate-800 text-gray-500"}`}
+                                className={`w-8 h-7 rounded-md font-bold text-xs transition-all ${activeLoadoutIndex === idx
+                                    ? "bg-amber-500 text-white shadow-md ring-2 ring-amber-300"
+                                    : "bg-gray-200 dark:bg-slate-700 text-gray-500 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-slate-600"
+                                    }`}
                             >
                                 {idx === 0 ? "A" : idx === 1 ? "B" : "C"}
                             </button>
                         ))}
                     </div>
-
-                    {/* Deck Slots (Horizontal Scroll) */}
-                    <div className="flex gap-2 flex-1 overflow-x-auto pb-1 scrollbar-hide">
-                        {isMounted ? Array.from({ length: MAX_TEAM_SIZE }).map((_, index) => {
-                            const unit = getSelectedTeamDefs()[index];
-                            return (
-                                <div
-                                    key={index}
-                                    onClick={() => unit && onRemoveUnit(unit.id)}
-                                    className={`
-                                        relative w-12 h-12 flex-shrink-0 rounded-lg flex items-center justify-center border-2 transition-all
-                                        ${unit
-                                            ? "bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-600 border-white dark:border-slate-500 shadow-sm cursor-pointer active:scale-95"
-                                            : "bg-slate-50 dark:bg-slate-800 border-dashed border-slate-300 dark:border-slate-700"
-                                        }
-                                    `}
-                                >
-                                    {unit ? (
-                                        <>
-                                            <div className="scale-75">
-                                                <RarityFrame unitId={unit.id} unitName={unit.name} rarity={unit.rarity} size="sm" showLabel={false} baseUnitId={unit.baseUnitId} />
-                                            </div>
-                                            <div className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 rounded-full text-white text-[10px] flex items-center justify-center z-10 shadow">×</div>
-                                        </>
-                                    ) : (
-                                        <span className="text-slate-300 text-lg font-bold">+</span>
-                                    )}
-                                </div>
-                            );
-                        }) : (
-                            // Mobile Skeleton
-                            Array.from({ length: MAX_TEAM_SIZE }).map((_, index) => (
-                                <div key={index} className="w-12 h-12 flex-shrink-0 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse" />
-                            ))
-                        )}
-                    </div>
-
-                    {/* Stats */}
-                    <div className="flex flex-col items-end text-xs font-bold text-slate-500 min-w-[60px]">
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
                         {isMounted ? (
                             <>
-                                <span className={validTeamCount === MAX_TEAM_SIZE ? "text-green-600" : ""}>{validTeamCount} / {MAX_TEAM_SIZE}</span>
+                                <span className={`${validTeamCount === MAX_TEAM_SIZE ? "text-green-600" : ""}`}>
+                                    {validTeamCount}/{MAX_TEAM_SIZE}
+                                </span>
                                 <span className="text-amber-600">¥{getTotalCost()}</span>
                             </>
                         ) : (
-                            <>
-                                <span className="w-8 h-3 bg-slate-200 dark:bg-slate-700 rounded animate-pulse mb-1"></span>
-                                <span className="w-10 h-3 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></span>
-                            </>
+                            <span className="w-16 h-3 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></span>
                         )}
                     </div>
+                </div>
+
+                {/* Bottom Row: Deck Slots (Horizontal Scroll) */}
+                <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-hide">
+                    {isMounted ? Array.from({ length: MAX_TEAM_SIZE }).map((_, index) => {
+                        const unit = getSelectedTeamDefs()[index];
+                        return (
+                            <div
+                                key={index}
+                                onClick={() => unit && onRemoveUnit(unit.id)}
+                                className={`
+                                    relative w-10 h-10 flex-shrink-0 rounded-lg flex items-center justify-center border-2 transition-all overflow-hidden
+                                    ${unit
+                                        ? "bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-600 border-white dark:border-slate-500 shadow-sm cursor-pointer active:scale-95"
+                                        : "bg-slate-50 dark:bg-slate-800 border-dashed border-slate-300 dark:border-slate-700"
+                                    }
+                                `}
+                            >
+                                {unit ? (
+                                    <>
+                                        <div className="scale-[0.6]">
+                                            <RarityFrame unitId={unit.id} unitName={unit.name} rarity={unit.rarity} size="sm" showLabel={false} baseUnitId={unit.baseUnitId} />
+                                        </div>
+                                        <div className="absolute top-0 right-0 w-3.5 h-3.5 bg-red-500 rounded-bl-md text-white text-[8px] flex items-center justify-center z-10">×</div>
+                                    </>
+                                ) : (
+                                    <span className="text-slate-300 dark:text-slate-600 text-sm font-bold">+</span>
+                                )}
+                            </div>
+                        );
+                    }) : (
+                        // Mobile Skeleton
+                        Array.from({ length: MAX_TEAM_SIZE }).map((_, index) => (
+                            <div key={index} className="w-10 h-10 flex-shrink-0 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                        ))
+                    )}
                 </div>
             </div>
         );
