@@ -357,12 +357,15 @@ export class TowerDefenseScene extends Phaser.Scene {
             fontSize: '22px', fontFamily: 'Arial', color: '#ffd700', fontStyle: 'bold',
         });
 
-        this.waveText = this.add.text(width - 20, 18, '', {
-            fontSize: '20px', fontFamily: 'Arial', color: '#ffffff', fontStyle: 'bold',
-        }).setOrigin(1, 0);
-
+        // タワー数（中央）
         this.towerCountText = this.add.text(width / 2, 18, `🏗️0/${MAX_TOWERS_TOTAL}`, {
-            fontSize: '16px', fontFamily: 'Arial', color: '#aaddff', fontStyle: 'bold',
+            fontSize: '18px', fontFamily: 'Arial', color: '#aaddff', fontStyle: 'bold',
+        }).setOrigin(0.5, 0);
+
+        // Wave表示（タワー数とボタンの間 — 右寄り）
+        this.waveText = this.add.text(width * 0.72, 18, '', {
+            fontSize: '20px', fontFamily: 'Arial', color: '#ffffff', fontStyle: 'bold',
+            stroke: '#000000', strokeThickness: 3,
         }).setOrigin(0.5, 0);
 
         this.updateTopUI();
@@ -371,7 +374,7 @@ export class TowerDefenseScene extends Phaser.Scene {
     private updateTopUI(): void {
         this.livesText.setText(`🏠 ${this.lives}`);
         this.goldText.setText(`💰 ${this.gold}`);
-        this.waveText.setText(`Wave ${this.currentWave}/${this.stageData.waves.length}`);
+        this.waveText.setText(`⚔️ ${this.currentWave}/${this.stageData.waves.length}`);
         if (this.towerCountText) {
             this.towerCountText.setText(`🏗️${this.towers.length}/${MAX_TOWERS_TOTAL}`);
         }
@@ -768,8 +771,31 @@ export class TowerDefenseScene extends Phaser.Scene {
         if (this.currentWave >= this.stageData.waves.length) {
             this.allWavesComplete = true;
             this.onWin();
+        } else if (this.currentWave >= 1) {
+            // Wave 2以降は自動スタート（3秒カウントダウン）
+            this.startWaveButton.setVisible(true);
+            let countdown = 3;
+            const label = this.startWaveButton.getAt(1) as Phaser.GameObjects.Text;
+            label.setText(`⚔️ NEXT WAVE (${countdown}s)`);
+
+            const timer = this.time.addEvent({
+                delay: 1000,
+                repeat: 2,
+                callback: () => {
+                    countdown--;
+                    if (countdown <= 0) {
+                        if (!this.waveActive && !this.gameOver && !this.allWavesComplete) {
+                            this.startNextWave();
+                        }
+                    } else {
+                        label.setText(`⚔️ NEXT WAVE (${countdown}s)`);
+                    }
+                },
+            });
+            // 手動で早くスタートした場合はタイマーをキャンセル
+            this.startWaveButton.getAt(0).once('pointerdown', () => { timer.destroy(); });
         } else {
-            // 次のWaveボタン表示
+            // Wave 1はボタン手動
             this.startWaveButton.setVisible(true);
         }
 
