@@ -13,8 +13,8 @@ const BOSS_SPRITE_IDS = [
     "boss_inferno_1", "boss_inferno_2", "boss_inferno_3", "boss_inferno_4", "boss_inferno_final",
 ];
 
-// Phaserシーンクラスを動的に作成する関数
-function createBossDebugScene(Phaser: typeof import("phaser").default) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function createBossDebugScene(Phaser: any) {
     return class BossDebugScene extends Phaser.Scene {
         public bossSprite: Phaser.GameObjects.Sprite | null = null;
         private groundLine: Phaser.GameObjects.Line | null = null;
@@ -84,7 +84,7 @@ function createBossDebugScene(Phaser: typeof import("phaser").default) {
                 backgroundColor: "#000000aa",
                 padding: { x: 8, y: 6 },
             });
-            this.infoText.setDepth(100);
+            this.infoText!.setDepth(100);
 
             // ボスアニメーションを登録
             this.createBossAnimations();
@@ -168,7 +168,7 @@ function createBossDebugScene(Phaser: typeof import("phaser").default) {
             const initialFrame = `${spriteUnitId}_idle.png`;
             this.bossSprite = this.add.sprite(0, 0, atlasKey, initialFrame);
 
-            const spriteHeight = this.bossSprite.height;
+            const spriteHeight = this.bossSprite!.height;
             const safeHeight = spriteHeight && spriteHeight > 0 ? spriteHeight : 100;
             const targetHeight = 120;
             const customScale = boss.scale ?? 1.0;
@@ -176,11 +176,11 @@ function createBossDebugScene(Phaser: typeof import("phaser").default) {
             const maxScale = boss.isBoss ? 10.0 : 5.0;
             baseScale = Math.max(0.1, Math.min(maxScale, baseScale));
 
-            this.bossSprite.setScale(baseScale);
-            this.bossSprite.setOrigin(0.5, 1);
+            this.bossSprite!.setScale(baseScale);
+            this.bossSprite!.setOrigin(0.5, 1);
 
             if (boss.flipSprite) {
-                this.bossSprite.setFlipX(true);
+                this.bossSprite!.setFlipX(true);
             }
 
             // spriteOffsetY の適用（Unit.tsと同じロジック）
@@ -191,19 +191,19 @@ function createBossDebugScene(Phaser: typeof import("phaser").default) {
                 spriteY -= 40;
             }
 
-            this.bossSprite.setPosition(width / 2, this.groundY + spriteY);
-            this.bossSprite.setDepth(50);
+            this.bossSprite!.setPosition(width / 2, this.groundY + spriteY);
+            this.bossSprite!.setDepth(50);
 
             // walkアニメーション再生
             const walkKey = `${spriteUnitId}_walk`;
             if (this.anims.exists(walkKey)) {
-                this.bossSprite.play(walkKey, true);
+                this.bossSprite!.play(walkKey, true);
             }
 
             // 飛行ボスの影
             if (boss.isFlying) {
                 this.flyingShadow = this.add.ellipse(width / 2, this.groundY, 60, 20, 0x000000, 0.3);
-                this.flyingShadow.setDepth(49);
+                this.flyingShadow!.setDepth(49);
             }
 
             this.updateInfoText(boss, effectiveOffset, baseScale, null);

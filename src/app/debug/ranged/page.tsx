@@ -17,8 +17,8 @@ const rangedUnits: RangedUnitInfo[] = RANGED_SPRITE_UNITS.map((id) => ({
 
 type AnimType = "idle" | "walk" | "attack";
 
-// Phaserシーンクラス
-function createRangedDebugScene(Phaser: typeof import("phaser").default) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function createRangedDebugScene(Phaser: any) {
     return class RangedDebugScene extends Phaser.Scene {
         public unitSprite: Phaser.GameObjects.Sprite | null = null;
         private groundY: number = 0;
@@ -58,9 +58,9 @@ function createRangedDebugScene(Phaser: typeof import("phaser").default) {
 
             // 地面ライン
             this.groundGraphics = this.add.graphics();
-            this.groundGraphics.lineStyle(2, 0xff4444, 0.8);
-            this.groundGraphics.lineBetween(0, this.groundY, width, this.groundY);
-            this.groundGraphics.setDepth(100);
+            this.groundGraphics!.lineStyle(2, 0xff4444, 0.8);
+            this.groundGraphics!.lineBetween(0, this.groundY, width, this.groundY);
+            this.groundGraphics!.setDepth(100);
 
             // ガイド線ラベル
             this.add.text(10, this.groundY - 20, "▼ Ground Line (Unit Y anchor)", {
@@ -86,7 +86,7 @@ function createRangedDebugScene(Phaser: typeof import("phaser").default) {
                 backgroundColor: "#000000aa",
                 padding: { x: 8, y: 6 },
             });
-            this.infoText.setDepth(100);
+            this.infoText!.setDepth(100);
 
             // フレームサイズテキスト（右下）
             this.frameSizeText = this.add.text(width - 10, height - 10, "", {
@@ -96,13 +96,13 @@ function createRangedDebugScene(Phaser: typeof import("phaser").default) {
                 padding: { x: 6, y: 4 },
                 align: "right",
             });
-            this.frameSizeText.setOrigin(1, 1);
-            this.frameSizeText.setDepth(100);
+            this.frameSizeText!.setOrigin(1, 1);
+            this.frameSizeText!.setDepth(100);
 
             // 原点マーカー
             this.originMarker = this.add.circle(0, 0, 5, 0xff00ff, 0.8);
-            this.originMarker.setDepth(101);
-            this.originMarker.setVisible(false);
+            this.originMarker!.setDepth(101);
+            this.originMarker!.setVisible(false);
 
             // アニメーション作成
             this.createAllAnimations();
@@ -183,13 +183,13 @@ function createRangedDebugScene(Phaser: typeof import("phaser").default) {
             this.unitSprite = this.add.sprite(width / 2, this.groundY, atlasKey, initialFrame);
 
             // Unit.tsと同じスケールロジック
-            const spriteHeight = this.unitSprite.height;
+            const spriteHeight = this.unitSprite!.height;
             const safeHeight = spriteHeight && spriteHeight > 0 ? spriteHeight : 100;
             const targetHeight = 120;
             const baseScale = targetHeight / safeHeight;
-            this.unitSprite.setScale(baseScale);
-            this.unitSprite.setOrigin(0.5, 1);
-            this.unitSprite.setDepth(50);
+            this.unitSprite!.setScale(baseScale);
+            this.unitSprite!.setOrigin(0.5, 1);
+            this.unitSprite!.setDepth(50);
 
             // アニメーション再生
             this.playAnim(animType, originFix);
