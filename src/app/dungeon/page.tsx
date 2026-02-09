@@ -42,6 +42,15 @@ const stageGradients: Record<string, string> = {
     dungeon_3: "from-red-600 to-red-900",
 };
 
+// DungeonGuard.ts と同じレアリティ別倍率（ステータス表示用）
+const RARITY_MUL: Record<string, { damage: number; hp: number; range: number; speed: number }> = {
+    N: { damage: 0.8, hp: 0.8, range: 0.85, speed: 1.0 },
+    R: { damage: 1.0, hp: 1.0, range: 1.0, speed: 1.0 },
+    SR: { damage: 1.3, hp: 1.3, range: 1.15, speed: 1.1 },
+    SSR: { damage: 1.6, hp: 1.6, range: 1.3, speed: 1.2 },
+    UR: { damage: 2.0, hp: 2.0, range: 1.5, speed: 1.3 },
+};
+
 const MAX_GUARDS = 5;
 
 export default function DungeonPage() {
@@ -170,6 +179,12 @@ export default function DungeonPage() {
                                 <h3 className="text-lg font-bold text-amber-950 dark:text-white truncate">
                                     {playerUnit ? getUnitName(playerUnit) : "—"}
                                 </h3>
+                                {playerUnit && (
+                                    <div className="flex gap-3 mt-1 text-[11px]">
+                                        <span className="text-red-500" title="HP">❤️ {Math.round(playerUnit.maxHp * 3.2)}</span>
+                                        <span className="text-blue-500" title={language === "ja" ? "移動速度" : "Speed"}>💨 {Math.round(playerUnit.speed * 3.5)}</span>
+                                    </div>
+                                )}
                             </div>
                             <button
                                 onClick={() => setModalMode("main")}
@@ -184,28 +199,51 @@ export default function DungeonPage() {
                             <p className="text-[11px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-2">
                                 {language === "ja" ? `ガード（${guardUnits.length}/${MAX_GUARDS}）` : `Guards (${guardUnits.length}/${MAX_GUARDS})`}
                             </p>
-                            <div className="flex gap-2 flex-wrap">
-                                {guardUnits.map((guard, i) => (
-                                    <div key={`${guard.id}-${i}`} className="relative">
-                                        <RarityFrame
-                                            unitId={guard.id}
-                                            unitName={getUnitName(guard)}
-                                            rarity={guard.rarity}
-                                            size="md"
-                                            baseUnitId={guard.baseUnitId || guard.atlasKey}
-                                        />
-                                        <button
-                                            onClick={() => removeGuard(i)}
-                                            className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center shadow"
-                                        >
-                                            ✕
-                                        </button>
-                                    </div>
-                                ))}
+                            <div className="flex gap-3 flex-wrap">
+                                {guardUnits.map((guard, i) => {
+                                    const mul = RARITY_MUL[guard.rarity] ?? RARITY_MUL.R;
+                                    const atk = Math.round(guard.attackDamage * mul.damage);
+                                    const hp = Math.round(guard.maxHp * 2.5 * mul.hp);
+                                    const range = Math.min(250, Math.max(80, Math.round(guard.attackRange * mul.range)));
+                                    const cd = Math.max(300, Math.round(guard.attackCooldownMs / mul.speed));
+                                    const skill = guard.skill;
+                                    return (
+                                        <div key={`${guard.id}-${i}`} className="relative flex flex-col items-center">
+                                            <RarityFrame
+                                                unitId={guard.id}
+                                                unitName={getUnitName(guard)}
+                                                rarity={guard.rarity}
+                                                size="md"
+                                                baseUnitId={guard.baseUnitId || guard.atlasKey}
+                                            />
+                                            <button
+                                                onClick={() => removeGuard(i)}
+                                                className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center shadow"
+                                            >
+                                                ✕
+                                            </button>
+                                            <div className="mt-1.5 text-[9px] text-center leading-tight text-amber-900/70 dark:text-gray-400 space-y-0.5">
+                                                <div className="flex gap-1.5 justify-center">
+                                                    <span title="ATK">⚔️{atk}</span>
+                                                    <span title="Range">🎯{range}</span>
+                                                </div>
+                                                <div className="flex gap-1.5 justify-center">
+                                                    <span title="HP">❤️{hp}</span>
+                                                    <span title="Cooldown">{(cd / 1000).toFixed(1)}s</span>
+                                                </div>
+                                                {skill && (
+                                                    <div className="text-[8px] text-purple-600 dark:text-purple-400" title={skill.name}>
+                                                        {skill.icon || "✨"} {skill.name}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                                 {guardUnits.length < MAX_GUARDS && (
                                     <button
                                         onClick={() => setModalMode("guard")}
-                                        className="w-12 h-12 rounded-xl border-2 border-dashed border-amber-400 dark:border-amber-600 flex items-center justify-center text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors text-xl"
+                                        className="w-12 h-12 rounded-xl border-2 border-dashed border-amber-400 dark:border-amber-600 flex items-center justify-center text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors text-xl self-start"
                                     >
                                         +
                                     </button>
@@ -305,11 +343,12 @@ export default function DungeonPage() {
                             .map((unit) => {
                                 const isSelected = modalMode === "main" && playerUnit?.id === unit.id;
                                 const owned = (unitInventory[unit.id] ?? 0) > 0;
+                                const mul = RARITY_MUL[unit.rarity] ?? RARITY_MUL.R;
                                 return (
                                     <button
                                         key={unit.id}
                                         onClick={() => handleSelectUnit(unit)}
-                                        className={`flex flex-col items-center gap-2 p-2 rounded-xl border transition-all ${isSelected
+                                        className={`flex flex-col items-center gap-1 p-2 rounded-xl border transition-all ${isSelected
                                             ? "border-amber-400 bg-amber-50 dark:bg-amber-900/30"
                                             : owned
                                                 ? "border-transparent hover:border-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/20"
@@ -324,7 +363,14 @@ export default function DungeonPage() {
                                             baseUnitId={unit.baseUnitId || unit.atlasKey}
                                             count={unitInventory[unit.id]}
                                         />
-                                        <span className="text-[11px] text-slate-600 dark:text-slate-300 line-clamp-2">{getUnitName(unit)}</span>
+                                        <span className="text-[11px] text-slate-600 dark:text-slate-300 line-clamp-1">{getUnitName(unit)}</span>
+                                        <div className="text-[8px] text-amber-700/60 dark:text-gray-500 leading-snug">
+                                            {modalMode === "main" ? (
+                                                <span>❤️{Math.round(unit.maxHp * 3.2)} 💨{Math.round(unit.speed * 3.5)}</span>
+                                            ) : (
+                                                <span>⚔️{Math.round(unit.attackDamage * mul.damage)} 🎯{Math.min(250, Math.max(80, Math.round(unit.attackRange * mul.range)))}</span>
+                                            )}
+                                        </div>
                                     </button>
                                 );
                             })}
