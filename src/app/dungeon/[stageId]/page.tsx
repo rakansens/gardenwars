@@ -74,10 +74,11 @@ export default function DungeonBattlePage() {
         setBattleEnded(true);
         setResult({ win, coins: coinsGained });
 
+        // ユーザーが明示的に「Result」を押した後なので即リダイレクト
         setTimeout(() => {
-            router.push(`/result?mode=dungeon&win=${win}&coins=${coinsGained}&stageId=${stageId}`);
-        }, 3000);
-    }, [router, stageId]);
+            router.push(`/dungeon`);
+        }, 1500);
+    }, [router]);
 
     if (!isLoaded || !stage || !playerUnit) {
         return <LoadingSpinner icon="🏰" fullScreen />;

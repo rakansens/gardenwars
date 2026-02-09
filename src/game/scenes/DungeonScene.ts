@@ -1057,9 +1057,12 @@ export class DungeonScene extends Phaser.Scene {
         }).setOrigin(0.5);
         overlay.add(stats);
 
-        const retryBtn = this.add.text(width / 2, height / 2 + 60, 'Retry', {
-            fontSize: '24px', color: '#ffe066', backgroundColor: '#1f1f2f',
-            padding: { left: 18, right: 18, top: 10, bottom: 10 },
+        const coinsGained = win ? this.stageData.reward.coins : Math.floor(this.killCount * 2);
+
+        // リトライボタン
+        const retryBtn = this.add.text(width / 2 - 80, height / 2 + 60, '🔄 Retry', {
+            fontSize: '22px', color: '#ffe066', backgroundColor: '#1f1f2f',
+            padding: { left: 16, right: 16, top: 10, bottom: 10 },
         }).setOrigin(0.5).setInteractive({ useHandCursor: true });
         retryBtn.on('pointerdown', () => {
             this.scene.restart({
@@ -1068,6 +1071,17 @@ export class DungeonScene extends Phaser.Scene {
             });
         });
         overlay.add(retryBtn);
+
+        // 結果画面へボタン（ここでのみイベント発火）
+        const resultBtn = this.add.text(width / 2 + 80, height / 2 + 60, '📊 Result', {
+            fontSize: '22px', color: '#66ff88', backgroundColor: '#1f1f2f',
+            padding: { left: 16, right: 16, top: 10, bottom: 10 },
+        }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+        resultBtn.on('pointerdown', () => {
+            const event = win ? GameEvents.DUNGEON_WIN : GameEvents.DUNGEON_LOSE;
+            eventBus.emit(event, coinsGained);
+        });
+        overlay.add(resultBtn);
 
         if (!win && this.continueCount < this.maxContinues) {
             const continueBtn = this.add.text(width / 2, height / 2 + 120, `Continue (${this.maxContinues - this.continueCount})`, {
@@ -1079,13 +1093,6 @@ export class DungeonScene extends Phaser.Scene {
         }
 
         this.gameOverOverlay = overlay;
-
-        // イベント発火を遅延（Retryが押された場合はscene.restart()でキャンセルされる）
-        const coinsGained = win ? this.stageData.reward.coins : Math.floor(this.killCount * 2);
-        const event = win ? GameEvents.DUNGEON_WIN : GameEvents.DUNGEON_LOSE;
-        this.time.delayedCall(4000, () => {
-            eventBus.emit(event, coinsGained);
-        });
     }
 
     private handleContinue() {
