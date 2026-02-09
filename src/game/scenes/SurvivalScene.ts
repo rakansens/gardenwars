@@ -314,7 +314,7 @@ export class SurvivalScene extends Phaser.Scene {
         try {
             const stored = localStorage.getItem('gardenwars_language');
             if (stored === 'ja') return jaTranslations;
-        } catch {}
+        } catch { }
         return enTranslations;
     }
 
@@ -354,6 +354,30 @@ export class SurvivalScene extends Phaser.Scene {
     private updateEnemies(delta: number) {
         for (const enemy of this.enemies) {
             enemy.update(delta, this.player);
+        }
+
+        // 敵同士の分離力（固まり防止）
+        const separationRadius = 30;
+        const separationForce = 60;
+        const aliveEnemies = this.enemies.filter(e => !e.isDead());
+        for (let i = 0; i < aliveEnemies.length; i++) {
+            const a = aliveEnemies[i];
+            for (let j = i + 1; j < aliveEnemies.length; j++) {
+                const b = aliveEnemies[j];
+                const dx = a.x - b.x;
+                const dy = a.y - b.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < separationRadius && dist > 0.1) {
+                    const overlap = (separationRadius - dist) / separationRadius;
+                    const push = separationForce * overlap * (delta / 1000);
+                    const nx = dx / dist;
+                    const ny = dy / dist;
+                    a.x += nx * push;
+                    a.y += ny * push;
+                    b.x -= nx * push;
+                    b.y -= ny * push;
+                }
+            }
         }
 
         for (let i = this.enemies.length - 1; i >= 0; i--) {
