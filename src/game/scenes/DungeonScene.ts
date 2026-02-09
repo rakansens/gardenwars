@@ -226,7 +226,7 @@ export class DungeonScene extends Phaser.Scene {
         });
         this.player.setDepth(10);
 
-        // 経験値システム（レベルアップでガード強化）
+        // 経験値システム（XPオーブ → ゴールドボーナス）
         this.experienceSystem = new ExperienceSystem(this, () => this.triggerLevelUp(), { xpGainMultiplier: 2.5 });
 
         this.createHud();
@@ -790,15 +790,15 @@ export class DungeonScene extends Phaser.Scene {
     }
 
     private triggerLevelUp() {
-        if (this.gameState === 'GAME_OVER' || this.gameState === 'LEVEL_UP') return;
-        this.gameState = 'LEVEL_UP';
-
-        const options = this.getUpgradeOptions(3);
-        if (options.length === 0) {
-            this.gameState = this.waveActive ? 'PLAYING' : 'WAVE_PAUSE';
-            return;
-        }
-        this.showLevelUpOptions(options);
+        if (this.gameState === 'GAME_OVER') return;
+        // レベルアップスキル選択は無効 → 代わりにゴールドボーナス
+        const bonus = 20 + Math.floor(this.currentWave * 5);
+        this.gold += bonus;
+        this.updateHud();
+        this.showFloatingText(
+            this.player.x, this.player.y - 40,
+            `💰+${bonus}G`, 0xffd700
+        );
     }
 
     private getUpgradeOptions(count: number): DungeonUpgrade[] {
