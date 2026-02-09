@@ -144,12 +144,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     setPlayer(playerData);
                     setStatus("authenticated");
                 } else {
-                    try { localStorage.removeItem(PIN_STORAGE_KEY); } catch {}
+                    // loginWithPIN returned null without throwing = PIN is genuinely invalid
+                    // (e.g., player deleted, PIN changed)
+                    console.warn("Auto-login: PIN not found in database, removing stored PIN");
+                    try { localStorage.removeItem(PIN_STORAGE_KEY); } catch { }
                     setStatus("unauthenticated");
                 }
             } catch (err) {
-                console.error("Auto-login failed:", err);
-                try { localStorage.removeItem(PIN_STORAGE_KEY); } catch {}
+                // Network error, Supabase timeout, etc. = transient failure
+                // DO NOT remove PIN — it may still be valid, retry on next page load
+                console.error("Auto-login failed (transient error, keeping PIN for retry):", err);
                 setStatus("unauthenticated");
             }
         };

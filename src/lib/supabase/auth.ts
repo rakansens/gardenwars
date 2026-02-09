@@ -121,6 +121,8 @@ export async function registerPlayer(
 }
 
 // Login with PIN
+// Returns null if PIN is genuinely not found (safe to remove from storage)
+// Throws Error on transient failures (network, server error) — caller should retry
 export async function loginWithPIN(pin: string): Promise<FullPlayerData | null> {
     // Find player by PIN
     const { data: player, error: playerError } = await supabase
@@ -129,7 +131,17 @@ export async function loginWithPIN(pin: string): Promise<FullPlayerData | null> 
         .eq("pin", pin)
         .single();
 
-    if (playerError || !player) return null;
+    if (playerError) {
+        // PGRST116 = "JSON object requested, multiple (or no) rows returned"
+        // This means PIN genuinely doesn't exist in the database
+        if (playerError.code === "PGRST116") {
+            return null;
+        }
+        // Any other error (network, server 500, etc.) = transient, throw to let caller retry
+        throw new Error(`Login failed: ${playerError.message}`);
+    }
+
+    if (!player) return null;
 
     // Get player_data
     const { data: playerData, error: dataError } = await supabase
@@ -138,13 +150,25 @@ export async function loginWithPIN(pin: string): Promise<FullPlayerData | null> 
         .eq("player_id", player.id)
         .single();
 
-    if (dataError || !playerData) return null;
+    if (dataError) {
+        if (dataError.code === "PGRST116") {
+            // Player exists but no player_data row — data integrity issue, return null
+            console.error("Player exists but no player_data found:", player.id);
+            return null;
+        }
+        throw new Error(`Failed to fetch player data: ${dataError.message}`);
+    }
 
-    // Update last_login_at
-    await supabase
+    if (!playerData) return null;
+
+    // Update last_login_at (fire-and-forget, don't block login)
+    supabase
         .from("players")
         .update({ last_login_at: new Date().toISOString() })
-        .eq("id", player.id);
+        .eq("id", player.id)
+        .then(({ error }) => {
+            if (error) console.warn("Failed to update last_login_at:", error);
+        });
 
     return {
         ...player,
