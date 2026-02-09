@@ -66,7 +66,7 @@ describe('ガチャシステム', () => {
         const SUPER_MULTI_COST = 9000;
 
         it('1連ガチャのコストは100', () => {
-            const count = 1;
+            const count: number = 1;
             let cost = SINGLE_COST;
             if (count === 10) cost = MULTI_COST;
             if (count === 100) cost = SUPER_MULTI_COST;
@@ -75,7 +75,7 @@ describe('ガチャシステム', () => {
         });
 
         it('10連ガチャのコストは900（10%お得）', () => {
-            const count = 10;
+            const count: number = 10;
             let cost = SINGLE_COST;
             if (count === 10) cost = MULTI_COST;
             if (count === 100) cost = SUPER_MULTI_COST;
@@ -86,7 +86,7 @@ describe('ガチャシステム', () => {
         });
 
         it('100連ガチャのコストは9000', () => {
-            const count = 100;
+            const count: number = 100;
             let cost = SINGLE_COST;
             if (count === 10) cost = MULTI_COST;
             if (count === 100) cost = SUPER_MULTI_COST;

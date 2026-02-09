@@ -66,6 +66,9 @@ export class Unit extends Phaser.GameObjects.Container {
     // アイドル時の表示幅（rangedスプライトの当たり判定用・攻撃フレームで膨れない値）
     private idleDisplayWidth: number = 0;
 
+    // アイドル時の表示高さ（rangedスプライトのUI位置決め用）
+    private idleDisplayHeight: number = 0;
+
     // 飛行ユニットの浮遊オフセット
     private flyingOffset: number = 0;
 
@@ -164,8 +167,9 @@ export class Unit extends Phaser.GameObjects.Container {
         this.baseScale = Math.max(0.1, Math.min(maxScale, this.baseScale));
         this.sprite.setScale(this.baseScale);
 
-        // idleフレームでの表示幅を記録（rangedスプライトの当たり判定で使用）
+        // idleフレームでの表示サイズを記録（rangedスプライトの当たり判定・UI位置決めで使用）
         this.idleDisplayWidth = this.sprite.displayWidth;
+        this.idleDisplayHeight = this.sprite.displayHeight;
 
         // 原点を下中央に設定
         this.sprite.setOrigin(0.5, 1);
@@ -207,7 +211,7 @@ export class Unit extends Phaser.GameObjects.Container {
 
         // HPバー (ボス以外のみ表示)
         if (!definition.isBoss) {
-            const barY = -this.sprite.displayHeight - 10 - this.flyingOffset;
+            const barY = -this.getHeight() - 10 - this.flyingOffset;
             this.hpBarBg = scene.add.rectangle(0, barY, 50, 6, 0x333333);
             this.add(this.hpBarBg);
 
@@ -224,9 +228,9 @@ export class Unit extends Phaser.GameObjects.Container {
 
         // ユニット名表示（ボスはUIで表示するので非表示、あるいは表示？）
         // ボスでも足元に名前あってもいいかも。一旦残すか、位置調整。
-        const baseNameY = -this.sprite.displayHeight - 15 - this.flyingOffset;
+        const baseNameY = -this.getHeight() - 15 - this.flyingOffset;
         // ボスの場合は少し下げて表示（頭上に）
-        const nameY = definition.isBoss ? -this.sprite.displayHeight - this.flyingOffset : baseNameY;
+        const nameY = definition.isBoss ? -this.getHeight() - this.flyingOffset : baseNameY;
 
         const nameText = scene.add.text(0, nameY, definition.name.slice(0, 8), {
             fontSize: definition.isBoss ? '14px' : '10px',
@@ -299,6 +303,20 @@ export class Unit extends Phaser.GameObjects.Container {
             return this.sprite.displayWidth;
         }
         return 40; // フォールバック
+    }
+
+    /**
+     * ユニットの安定した表示高さを取得
+     * rangedスプライトは攻撃中にフレームサイズが変わるため、idle時の高さを返す
+     */
+    public getHeight(): number {
+        if (this.isRangedSprite && this.idleDisplayHeight > 0) {
+            return this.idleDisplayHeight;
+        }
+        if (this.sprite instanceof Phaser.GameObjects.Sprite || this.sprite instanceof Phaser.GameObjects.Image) {
+            return this.sprite.displayHeight;
+        }
+        return 120; // フォールバック
     }
 
     public setUnitState(newState: UnitState): void {
@@ -1064,7 +1082,7 @@ export class Unit extends Phaser.GameObjects.Container {
         if (!this.scene || !this.scene.add) {
             return;
         }
-        const text = this.scene.add.text(this.x, this.y - this.sprite.displayHeight - 20 - this.flyingOffset, `-${damage}`, {
+        const text = this.scene.add.text(this.x, this.y - this.getHeight() - 20 - this.flyingOffset, `-${damage}`, {
             fontSize: '16px',
             color: '#ff0000',
             fontStyle: 'bold',
@@ -1207,7 +1225,7 @@ export class Unit extends Phaser.GameObjects.Container {
         });
 
         // 警告テキスト
-        const warning = this.scene.add.text(this.x, this.y - this.sprite.displayHeight - 80 - this.flyingOffset, '⚠️ ENRAGED ⚠️', {
+        const warning = this.scene.add.text(this.x, this.y - this.getHeight() - 80 - this.flyingOffset, '⚠️ ENRAGED ⚠️', {
             fontSize: '28px',
             color: '#ff0000',
             fontStyle: 'bold',
@@ -2087,7 +2105,7 @@ export class Unit extends Phaser.GameObjects.Container {
     private showSkillActivationEffect(skill: typeof this.definition.skill): void {
         if (!skill) return;
 
-        const text = this.scene.add.text(this.x, this.y - this.sprite.displayHeight - 40 - this.flyingOffset,
+        const text = this.scene.add.text(this.x, this.y - this.getHeight() - 40 - this.flyingOffset,
             `${skill.icon} ${skill.nameJa}!`, {
             fontSize: '18px',
             color: '#ffffff',
@@ -2292,7 +2310,7 @@ export class Unit extends Phaser.GameObjects.Container {
         });
 
         // 発動テキスト
-        const text = this.scene.add.text(this.x, this.y - this.sprite.displayHeight - 60, '🛡️ DIVINE SHIELD!', {
+        const text = this.scene.add.text(this.x, this.y - this.getHeight() - 60, '🛡️ DIVINE SHIELD!', {
             fontSize: '20px',
             color: '#ffdd00',
             stroke: '#000000',

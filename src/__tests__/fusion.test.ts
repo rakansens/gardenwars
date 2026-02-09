@@ -25,7 +25,7 @@ describe('フュージョンシステム', () => {
          */
 
         it('素材が全て揃っている場合、実行可能', () => {
-            const inventory = { 'unit_a': 3 };
+            const inventory: Record<string, number> = { 'unit_a': 3 };
             const materialIds = ['unit_a', 'unit_a', 'unit_a'];
 
             // 素材カウント
@@ -47,7 +47,7 @@ describe('フュージョンシステム', () => {
         });
 
         it('素材が1つでも足りない場合、実行不可', () => {
-            const inventory = { 'unit_a': 2 }; // 3体必要なのに2体しかない
+            const inventory: Record<string, number> = { 'unit_a': 2 }; // 3体必要なのに2体しかない
             const materialIds = ['unit_a', 'unit_a', 'unit_a'];
 
             const materialCounts: Record<string, number> = {};
@@ -67,7 +67,7 @@ describe('フュージョンシステム', () => {
         });
 
         it('異なる素材の組み合わせでもチェックできる', () => {
-            const inventory = { 'unit_a': 2, 'unit_b': 1 };
+            const inventory: Record<string, number> = { 'unit_a': 2, 'unit_b': 1 };
             const materialIds = ['unit_a', 'unit_a', 'unit_b'];
 
             const materialCounts: Record<string, number> = {};
@@ -89,7 +89,7 @@ describe('フュージョンシステム', () => {
 
     describe('素材消費', () => {
         it('フュージョン後、素材が正しく減る', () => {
-            const inventory = { 'unit_a': 5 };
+            const inventory: Record<string, number> = { 'unit_a': 5 };
             const materialIds = ['unit_a', 'unit_a', 'unit_a'];
 
             const materialCounts: Record<string, number> = {};
@@ -111,7 +111,7 @@ describe('フュージョンシステム', () => {
         });
 
         it('素材が0になったらインベントリから削除', () => {
-            const inventory = { 'unit_a': 3 };
+            const inventory: Record<string, number> = { 'unit_a': 3 };
             const materialIds = ['unit_a', 'unit_a', 'unit_a'];
 
             const materialCounts: Record<string, number> = {};
@@ -145,7 +145,7 @@ describe('フュージョンシステム', () => {
         });
 
         it('既存のユニットに追加される', () => {
-            const inventory = { 'unit_r': 2 };
+            const inventory: Record<string, number> = { 'unit_r': 2 };
             const resultUnitId = 'unit_r';
 
             const newInventory = { ...inventory };
@@ -167,19 +167,19 @@ describe('フュージョンシステム', () => {
         it('N×3でRを獲得', () => {
             const inputRarity = 'N';
             const outputRarity = inputRarity === 'N' ? 'R' :
-                                 inputRarity === 'R' ? 'SR' :
-                                 inputRarity === 'SR' ? 'SSR' :
-                                 inputRarity === 'SSR' ? 'UR' : null;
+                inputRarity === 'R' ? 'SR' :
+                    inputRarity === 'SR' ? 'SSR' :
+                        inputRarity === 'SSR' ? 'UR' : null;
 
             expect(outputRarity).toBe('R');
         });
 
         it('SR×3でSSRを獲得', () => {
-            const inputRarity = 'SR';
+            const inputRarity: string = 'SR';
             const outputRarity = inputRarity === 'N' ? 'R' :
-                                 inputRarity === 'R' ? 'SR' :
-                                 inputRarity === 'SR' ? 'SSR' :
-                                 inputRarity === 'SSR' ? 'UR' : null;
+                inputRarity === 'R' ? 'SR' :
+                    inputRarity === 'SR' ? 'SSR' :
+                        inputRarity === 'SSR' ? 'UR' : null;
 
             expect(outputRarity).toBe('SSR');
         });
@@ -195,7 +195,7 @@ describe('フュージョンシステム', () => {
          */
 
         it('素材チェックは状態更新の前に行う', () => {
-            const inventory = { 'unit_a': 3 };
+            const inventory: Record<string, number> = { 'unit_a': 3 };
             const materialIds = ['unit_a', 'unit_a', 'unit_a'];
 
             // 修正後: 先にチェック
@@ -219,7 +219,7 @@ describe('フュージョンシステム', () => {
 
         it('アトミック操作: 素材消費と結果追加は同じsetData内', () => {
             // この設計により、素材だけ消費されるバグを防ぐ
-            const inventory = { 'unit_a': 3 };
+            const inventory: Record<string, number> = { 'unit_a': 3 };
             const materialIds = ['unit_a', 'unit_a', 'unit_a'];
             const resultUnitId = 'unit_r';
 

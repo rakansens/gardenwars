@@ -111,7 +111,7 @@ describe('バトル報酬システム', () => {
             // 初期状態
             const state = {
                 coins: 1000,
-                unitInventory: { 'unit_a': 1 },
+                unitInventory: { 'unit_a': 1 } as Record<string, number>,
                 clearedStages: ['stage_1'],
             };
 

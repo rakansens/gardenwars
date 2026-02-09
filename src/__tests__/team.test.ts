@@ -103,7 +103,7 @@ describe('チーム編成システム', () => {
 
     describe('所有ユニットチェック', () => {
         it('所有しているユニットのみ編成可能', () => {
-            const inventory = { 'unit_a': 2, 'unit_b': 1 };
+            const inventory: Record<string, number> = { 'unit_a': 2, 'unit_b': 1 };
             const unitId = 'unit_a';
 
             const isOwned = (inventory[unitId] || 0) > 0;
@@ -112,7 +112,7 @@ describe('チーム編成システム', () => {
         });
 
         it('所有していないユニットは編成不可', () => {
-            const inventory = { 'unit_a': 1 };
+            const inventory: Record<string, number> = { 'unit_a': 1 };
             const unitId = 'unit_b';
 
             const isOwned = (inventory[unitId] || 0) > 0;
@@ -121,7 +121,7 @@ describe('チーム編成システム', () => {
         });
 
         it('編成数が所有数を超えない', () => {
-            const inventory = { 'unit_a': 2 };
+            const inventory: Record<string, number> = { 'unit_a': 2 };
             const team = ['unit_a', 'unit_a'];
 
             // 同じユニットの編成数をカウント

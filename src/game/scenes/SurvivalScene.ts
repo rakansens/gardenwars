@@ -9,6 +9,7 @@ import { SurvivalSpawner, SurvivalDifficultyModifiers } from '../systems/Surviva
 import { WeaponSystem } from '../systems/WeaponSystem';
 import { ExperienceSystem } from '../systems/ExperienceSystem';
 import { CannonSystem, CannonTarget } from '../systems/CannonSystem';
+import { eventBus, GameEvents } from '../utils/EventBus';
 import enTranslations from '@/data/locales/en.json';
 import jaTranslations from '@/data/locales/ja.json';
 
@@ -599,8 +600,22 @@ export class SurvivalScene extends Phaser.Scene {
         });
         overlay.add(retryBtn);
 
+        // ホームに戻るボタン
+        const exitBtn = this.add.text(width / 2, height / 2 + 110, '🏠 Exit', {
+            fontSize: '22px',
+            color: '#aaaaaa',
+            backgroundColor: '#1f1f2f',
+            padding: { left: 18, right: 18, top: 10, bottom: 10 },
+        });
+        exitBtn.setOrigin(0.5, 0.5);
+        exitBtn.setInteractive({ useHandCursor: true });
+        exitBtn.on('pointerdown', () => {
+            eventBus.emit(GameEvents.SURVIVAL_EXIT);
+        });
+        overlay.add(exitBtn);
+
         if (this.continueCount < this.maxContinues) {
-            const continueBtn = this.add.text(width / 2, height / 2 + 120, `Continue (${this.maxContinues - this.continueCount})`, {
+            const continueBtn = this.add.text(width / 2, height / 2 + 160, `Continue (${this.maxContinues - this.continueCount})`, {
                 fontSize: '22px',
                 color: '#66ddff',
                 backgroundColor: '#1f1f2f',

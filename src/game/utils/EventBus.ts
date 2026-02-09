@@ -83,4 +83,7 @@ export const GameEvents = {
     // Dungeon
     DUNGEON_WIN: 'dungeon:win',
     DUNGEON_LOSE: 'dungeon:lose',
+
+    // Survival
+    SURVIVAL_EXIT: 'survival:exit',
 } as const;

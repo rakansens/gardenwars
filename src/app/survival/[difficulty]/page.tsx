@@ -9,6 +9,7 @@ import type { UnitDefinition, SurvivalDifficulty } from "@/data/types";
 import { usePlayerData } from "@/hooks/usePlayerData";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { eventBus, GameEvents } from "@/game/utils/EventBus";
 
 const PhaserGame = dynamic(() => import("@/components/game/PhaserGame"), { ssr: false });
 
@@ -59,6 +60,17 @@ export default function SurvivalBattlePage() {
         if (!mainUnit) mainUnit = playableUnits[0];
         setPlayerUnit(mainUnit || null);
     }, [diffParam, unitId, router, selectedTeam, isLoaded]);
+
+    // ゲームオーバー画面の「Exit」ボタン処理
+    useEffect(() => {
+        const handleExit = () => {
+            router.push("/survival");
+        };
+        eventBus.on(GameEvents.SURVIVAL_EXIT, handleExit);
+        return () => {
+            eventBus.off(GameEvents.SURVIVAL_EXIT, handleExit);
+        };
+    }, [router]);
 
     const getUnitName = (unit: UnitDefinition) => {
         const translated = t(unit.id);
