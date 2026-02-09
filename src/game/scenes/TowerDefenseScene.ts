@@ -694,6 +694,9 @@ export class TowerDefenseScene extends Phaser.Scene {
             this.showRangePreview(tower);
         });
 
+        // 配置直後にレンジプレビュー表示（2秒後に自動消去）
+        this.showRangePreview(tower, true);
+
         return tower;
     }
 
@@ -1250,15 +1253,51 @@ export class TowerDefenseScene extends Phaser.Scene {
     }
 
     // レンジプレビュー表示
-    private showRangePreview(tower: PlacedTower): void {
+    /** レンジの大きさに応じた色を取得 */
+    private getRangeColor(range: number): number {
+        if (range <= 80) return 0xff4444;       // 赤 — 近距離
+        if (range <= 120) return 0xff8800;       // オレンジ — 中距離
+        if (range <= 180) return 0x44aaff;       // 青 — 遠距離
+        return 0xaa44ff;                         // 紫 — 超遠距離
+    }
+
+    private showRangePreview(tower: PlacedTower, autoHide: boolean = false): void {
         this.clearRangePreview();
         const range = tower.unit.definition.attackRange * 0.8 * tower.rangeMultiplier;
+        const color = this.getRangeColor(range);
+
         this.rangePreview = this.add.graphics();
-        this.rangePreview.lineStyle(2, 0x00ff88, 0.4);
-        this.rangePreview.fillStyle(0x00ff88, 0.08);
-        this.rangePreview.fillCircle(tower.unit.x, tower.unit.y, range);
+
+        // タイル単位でレンジ内のマスをハイライト
+        const hw = this.tileWidth / 2;
+        const hh = this.tileHeight / 2;
+        for (let r = 0; r < this.stageData.rows; r++) {
+            for (let c = 0; c < this.stageData.cols; c++) {
+                const { x, y } = this.isoToScreen(c, r);
+                const dx = x - tower.unit.x;
+                const dy = y - tower.unit.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist <= range) {
+                    this.rangePreview.fillStyle(color, 0.15);
+                    this.rangePreview.beginPath();
+                    this.rangePreview.moveTo(x, y - hh);
+                    this.rangePreview.lineTo(x + hw, y);
+                    this.rangePreview.lineTo(x, y + hh);
+                    this.rangePreview.lineTo(x - hw, y);
+                    this.rangePreview.closePath();
+                    this.rangePreview.fillPath();
+                }
+            }
+        }
+
+        // 外周の円
+        this.rangePreview.lineStyle(2, color, 0.5);
         this.rangePreview.strokeCircle(tower.unit.x, tower.unit.y, range);
         this.rangePreview.setDepth(50);
+
+        if (autoHide) {
+            this.time.delayedCall(2000, () => this.clearRangePreview());
+        }
     }
 
     private clearRangePreview(): void {
