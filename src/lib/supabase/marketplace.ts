@@ -581,13 +581,15 @@ export type ClaimResult = {
 
 /**
  * 通知を処理（コインを受け取り、既読にする）
- * Optimistic locking を使用してレースコンディションを防止
+ * Atomic UPDATE with is_read=false guard を使用してレースコンディションを防止
+ * 注: marketplace_notifications テーブルには updated_at カラムが存在しないため、
+ *     is_read フラグの atomic update のみで二重処理を防止する
  */
 export async function claimNotification(
     playerId: string,
     notificationId: string
 ): Promise<ClaimResult> {
-    // 通知を取得（updated_at を含めて optimistic locking 用に保存）
+    // 通知を取得
     const { data: notification, error: notifError } = await (supabase as AnySupabase)
         .from("marketplace_notifications")
         .select("*")
@@ -602,19 +604,17 @@ export async function claimNotification(
     }
 
     const dbNotif = notification as DBMarketplaceNotification;
-    const capturedUpdatedAt = dbNotif.updated_at; // Capture timestamp for optimistic locking
 
-    // まず通知を既読にする（Optimistic Locking を使用）
-    // これにより、同時クリックによる二重処理を防ぐ
+    // まず通知を既読にする（Atomic UPDATE: is_read=false → true）
+    // PostgreSQLのUPDATE+WHERE句はatomicなので、同時クリックでも1回だけ成功する
     const { data: updateData, error: updateError } = await (supabase as AnySupabase)
         .from("marketplace_notifications")
         .update({ is_read: true })
         .eq("id", notificationId)
-        .eq("is_read", false) // Double-check still unread
-        .eq("updated_at", capturedUpdatedAt) // Optimistic locking check
+        .eq("is_read", false) // Atomic guard: only one caller can flip this
         .select("id");
 
-    // Check if update affected any rows (optimistic locking failed if no rows)
+    // Check if update affected any rows (concurrent claim if no rows)
     if (updateError || !updateData || updateData.length === 0) {
         console.error("Failed to mark notification as read (race condition or already claimed):", updateError);
         return {
