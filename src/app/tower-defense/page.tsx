@@ -17,7 +17,7 @@ import { getSpritePath } from "@/lib/sprites";
 const allUnits = unitsData as UnitDefinition[];
 const playableUnits = allUnits.filter(u => !u.id.startsWith("enemy_") && !u.id.startsWith("boss_") && !u.isBoss);
 
-const MAX_TEAM = 5;
+const MAX_TEAM = 7;
 const STORAGE_KEY = "td_team";
 
 // レアリティ倍率（ステータス表示用）
@@ -368,8 +368,8 @@ export default function TowerDefenseSelectPage() {
                                         key={unit.id}
                                         onClick={() => handleAddUnit(unit)}
                                         className={`flex flex-col items-center gap-1 p-2 rounded-xl border transition-all ${owned
-                                                ? "border-transparent hover:border-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/20"
-                                                : "border-transparent opacity-60 hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                                            ? "border-transparent hover:border-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/20"
+                                            : "border-transparent opacity-60 hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
                                             }`}
                                     >
                                         <RarityFrame
