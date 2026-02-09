@@ -162,11 +162,11 @@ export default function Home() {
         { href: "/math-battle", icon: "🧮", label: t("menu_math_battle") },
       ],
     },
-    units: {
-      title: language === "ja" ? "ユニット" : "Units",
+    quickAccess: {
+      title: language === "ja" ? "クイックアクセス" : "Quick Access",
       items: [
         { href: "/gacha", icon: "🎰", label: t("menu_gacha") },
-        { href: "/team", icon: "🎖️", label: t("menu_team") },
+        { href: "/ranking", icon: "🏅", label: t("menu_ranking") },
         { href: "/collection", icon: "📖", label: t("menu_collection") },
         { href: "/fusion", icon: "🔮", label: t("fusion") },
       ],
@@ -177,12 +177,6 @@ export default function Home() {
         { href: "/shop", icon: "🛒", label: t("menu_shop") },
         { href: "/marketplace", icon: "🏪", label: t("menu_marketplace") },
         { href: "/trade", icon: "🤝", label: t("menu_trade") },
-      ],
-    },
-    other: {
-      title: language === "ja" ? "その他" : "Other",
-      items: [
-        { href: "/ranking", icon: "🏅", label: t("menu_ranking") },
       ],
     },
   };
@@ -246,7 +240,7 @@ export default function Home() {
 
       {/* カテゴリ別メニュー */}
       <div className="w-full max-w-3xl px-2 mb-6 space-y-4">
-        {/* メインゲーム＆ランキング */}
+        {/* ヒーローセクション: Stages + Team */}
         <div className="grid grid-cols-2 gap-3 mb-2">
           <Link
             href="/stages"
@@ -257,12 +251,27 @@ export default function Home() {
             <span className="text-xs opacity-80">{menuCategories.main.title}</span>
           </Link>
           <Link
-            href="/ranking"
+            href="/team"
             className="btn btn-primary py-5 flex flex-col items-center justify-center transition-all duration-200 hover:scale-[1.02] shadow-lg"
           >
-            <span className="text-3xl mb-1">🏅</span>
-            <span className="text-lg font-bold">{t("menu_ranking")}</span>
+            <span className="text-3xl mb-1">🎖️</span>
+            <span className="text-lg font-bold">{t("menu_team")}</span>
+            <span className="text-xs opacity-80">{language === "ja" ? "チーム編成" : "Build your team"}</span>
           </Link>
+        </div>
+
+        {/* クイックアクセス: Gacha, Ranking, Collection, Fusion */}
+        <div className="grid grid-cols-4 gap-2">
+          {menuCategories.quickAccess.items.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="btn btn-secondary flex flex-col items-center justify-center py-3 transition-all duration-200 hover:scale-105"
+            >
+              <span className="text-2xl mb-1">{item.icon}</span>
+              <span className="text-xs text-center">{item.label}</span>
+            </Link>
+          ))}
         </div>
 
         {/* バトルモード＆ショップ（2列） */}
@@ -303,25 +312,6 @@ export default function Home() {
                 </Link>
               ))}
             </div>
-          </div>
-        </div>
-
-        {/* ユニット管理 */}
-        <div className="bg-white/50 dark:bg-slate-800/50 rounded-2xl p-3 shadow-md">
-          <h3 className="text-sm font-bold text-gray-600 dark:text-gray-300 mb-2 px-1">
-            👥 {menuCategories.units.title}
-          </h3>
-          <div className="grid grid-cols-4 gap-2">
-            {menuCategories.units.items.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="btn btn-secondary flex flex-col items-center justify-center py-3 transition-all duration-200 hover:scale-105"
-              >
-                <span className="text-2xl mb-1">{item.icon}</span>
-                <span className="text-xs text-center">{item.label}</span>
-              </Link>
-            ))}
           </div>
         </div>
 
