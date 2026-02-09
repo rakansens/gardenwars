@@ -181,6 +181,7 @@
     "baseUnitId": "boss_tutorial",
     "flipSprite": true,
     "scale": 5,
+    "spriteOffsetY": 60,
     "isBoss": true,
     "bossAoe": {
       "enabled": true,
@@ -214,6 +215,7 @@
     "baseUnitId": "boss_easy",
     "flipSprite": true,
     "scale": 5.5,
+    "spriteOffsetY": 150,
     "isBoss": true,
     "bossAoe": {
       "enabled": true,
@@ -280,6 +282,7 @@
     "baseUnitId": "boss_hard",
     "flipSprite": true,
     "scale": 7,
+    "spriteOffsetY": 375,
     "isBoss": true,
     "bossAoe": {
       "enabled": true,
@@ -313,6 +316,7 @@
     "baseUnitId": "boss_extreme",
     "flipSprite": true,
     "scale": 8,
+    "spriteOffsetY": 115,
     "isBoss": true,
     "isFlying": true,
     "bossAoe": {
@@ -347,6 +351,7 @@
     "baseUnitId": "boss_nightmare",
     "flipSprite": true,
     "scale": 8.5,
+    "spriteOffsetY": 130,
     "isBoss": true,
     "bossAoe": {
       "enabled": true,
@@ -446,6 +451,7 @@
     "baseUnitId": "boss_hellfire",
     "flipSprite": true,
     "scale": 6.5,
+    "spriteOffsetY": 195,
     "isBoss": true,
     "bossAoe": {
       "enabled": true,
@@ -479,6 +485,7 @@
     "baseUnitId": "boss_abyss",
     "flipSprite": true,
     "scale": 7,
+    "spriteOffsetY": 70,
     "isBoss": true,
     "bossAoe": {
       "enabled": true,
@@ -512,6 +519,7 @@
     "baseUnitId": "boss_inferno_1",
     "flipSprite": true,
     "scale": 7.5,
+    "spriteOffsetY": 105,
     "isBoss": true,
     "isFlying": true,
     "bossAoe": {
@@ -546,6 +554,7 @@
     "baseUnitId": "boss_inferno_2",
     "flipSprite": true,
     "scale": 8,
+    "spriteOffsetY": 45,
     "isBoss": true,
     "bossAoe": {
       "enabled": true,
@@ -579,6 +588,7 @@
     "baseUnitId": "boss_inferno_3",
     "flipSprite": true,
     "scale": 8.5,
+    "spriteOffsetY": 125,
     "isBoss": true,
     "isFlying": true,
     "bossAoe": {
@@ -613,6 +623,7 @@
     "baseUnitId": "boss_inferno_4",
     "flipSprite": true,
     "scale": 9,
+    "spriteOffsetY": 130,
     "isBoss": true,
     "bossAoe": {
       "enabled": true,
@@ -646,6 +657,7 @@
     "baseUnitId": "boss_inferno_final",
     "flipSprite": true,
     "scale": 10,
+    "spriteOffsetY": 200,
     "isBoss": true,
     "bossAoe": {
       "enabled": true,

@@ -60,6 +60,7 @@ export interface UnitDefinition {
   addedDate?: string;         // 追加日（YYYY-MM-DD形式、NEWタブ表示用）
   knockback: number;          // 与えるノックバック距離
   scale?: number;             // スプライトのスケール倍率（オプション）
+  spriteOffsetY?: number;     // スプライトY軸オフセット（正=下へ、負=上へ、ボスの接地ズレ補正用）
   atlasKey: string;
   animKeys: {
     idle: string;

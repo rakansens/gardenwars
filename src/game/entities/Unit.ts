@@ -172,24 +172,27 @@ export class Unit extends Phaser.GameObjects.Container {
 
         this.add(this.sprite);
 
-        // ボス専用スプライト（boss_で始まるbaseUnitId）の場合、Y位置を調整
-        // ボススプライトはフレーム内でキャラが上部に配置されているため下にオフセット
-        if (definition.isBoss && spriteUnitId.startsWith('boss_')) {
-            // スケールに応じてオフセットを調整（大きいボスほど大きなオフセット）
-            const bossOffset = 80 * this.baseScale;
-            this.sprite.setY(bossOffset);
+        // スプライトのY軸オフセット補正
+        // spriteOffsetY: 正=下方向、負=上方向（ボスの接地位置調整など）
+        let spriteY = 0;
+
+        if (definition.spriteOffsetY !== undefined) {
+            // 個別指定がある場合はそのまま使用
+            spriteY = definition.spriteOffsetY;
         }
 
         // 飛行ユニットの場合、スプライトを上にずらす
         if (definition.isFlying) {
             this.flyingOffset = 40; // 40px上に浮遊
-            this.sprite.setY(-this.flyingOffset);
+            spriteY -= this.flyingOffset;
 
             // 影を追加（地面に落とす）
             const shadow = scene.add.ellipse(0, 0, 40, 15, 0x000000, 0.3);
             shadow.setOrigin(0.5, 0.5);
             this.addAt(shadow, 0); // スプライトの後ろに配置
         }
+
+        this.sprite.setY(spriteY);
 
         // HPバー (ボス以外のみ表示)
         if (!definition.isBoss) {
