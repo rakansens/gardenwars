@@ -83,7 +83,7 @@ export default function ArenaBattlePage() {
 
         // 3秒後にホームへ
         setTimeout(() => {
-            router.push(`/result?win=${win}&coins=${coinsGained}&stage=${stageId}`);
+            router.push(`/result?win=${win}&coins=${coinsGained}&stage=${stageId}&mode=arena`);
         }, 3000);
     };
 

@@ -111,7 +111,7 @@ export default function TowerDefenseBattlePage() {
 
         // 3秒後にリザルトへ
         setTimeout(() => {
-            router.push(`/result?win=${win}&coins=${coinsGained}&stage=${stageId}`);
+            router.push(`/result?win=${win}&coins=${coinsGained}&stage=${stageId}&mode=tower-defense`);
         }, 3000);
     };
 

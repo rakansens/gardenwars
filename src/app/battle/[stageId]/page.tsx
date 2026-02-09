@@ -156,7 +156,7 @@ export default function BattlePage() {
         }
         navigationTimerRef.current = setTimeout(() => {
             const dropsParam = droppedUnitIds.length > 0 ? `&drops=${droppedUnitIds.join(',')}` : '';
-            router.push(`/result?win=${win}&coins=${coinsGained}&stage=${stageId}${dropsParam}`);
+            router.push(`/result?win=${win}&coins=${coinsGained}&stage=${stageId}&mode=battle${dropsParam}`);
         }, 3000);
     };
 

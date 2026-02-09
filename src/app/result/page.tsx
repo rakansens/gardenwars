@@ -5,6 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Suspense, useMemo } from "react";
 import stages, { getNextStage } from "@/data/stages";
+import { towerDefenseStages } from "@/data/tower-defense";
+import { arenaStages } from "@/data/stages";
 import allUnits from "@/data/units";
 import type { StageDefinition, UnitDefinition } from "@/data/types";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -57,6 +59,21 @@ function validateParams(
     return null;
 }
 
+// ゲームモード別のパス設定
+type GameMode = "battle" | "tower-defense" | "arena";
+
+function getModePaths(mode: GameMode) {
+    switch (mode) {
+        case "tower-defense":
+            return { battlePrefix: "/tower-defense", stageSelect: "/tower-defense", label: "🏰 Tower Defense" };
+        case "arena":
+            return { battlePrefix: "/arena", stageSelect: "/arena", label: "🏟️ Arena" };
+        case "battle":
+        default:
+            return { battlePrefix: "/battle", stageSelect: "/stages", label: "⚔️ Battle" };
+    }
+}
+
 function ResultContent() {
     const searchParams = useSearchParams();
     const { t, language } = useLanguage();
@@ -65,6 +82,10 @@ function ResultContent() {
     const coinsParam = searchParams.get("coins");
     const stageIdParam = searchParams.get("stage");
     const dropsParam = searchParams.get("drops") || "";
+    const modeParam = (searchParams.get("mode") || "battle") as GameMode;
+
+    // モード別パス
+    const modePaths = useMemo(() => getModePaths(modeParam), [modeParam]);
 
     // Validate params
     const validationError = useMemo(() => {
@@ -79,9 +100,18 @@ function ResultContent() {
 
     const stageId = useMemo(() => {
         if (!stageIdParam) return "stage_1";
+        // モードに応じたステージリストで検証
+        if (modeParam === "tower-defense") {
+            const exists = towerDefenseStages.some(s => s.id === stageIdParam);
+            return exists ? stageIdParam : stageIdParam; // TDステージIDはそのまま通す
+        }
+        if (modeParam === "arena") {
+            const exists = arenaStages.some(s => s.id === stageIdParam);
+            return exists ? stageIdParam : stageIdParam;
+        }
         const stageExists = typedStages.some(s => s.id === stageIdParam);
         return stageExists ? stageIdParam : "stage_1";
-    }, [stageIdParam]);
+    }, [stageIdParam, modeParam]);
 
     // ドロップ情報をURLパラメータから復元（処理はbattleページで完了済み）
     const droppedUnits = useMemo<DroppedUnit[]>(() => {
@@ -97,11 +127,12 @@ function ResultContent() {
         }).filter((d): d is DroppedUnit => d !== null);
     }, [dropsParam, stageId]);
 
-    // 次のステージを取得
+    // 次のステージを取得（battleモードのみ）
     const nextStage = useMemo(() => {
         if (!win) return null;
+        if (modeParam !== "battle") return null; // TD/Arenaは次ステージなし
         return getNextStage(stageId) || null;
-    }, [win, stageId]);
+    }, [win, stageId, modeParam]);
 
     return (
         <main className="min-h-screen flex flex-col items-center justify-center p-8 dark:bg-slate-900">
@@ -181,10 +212,10 @@ function ResultContent() {
 
             {/* アクションボタン */}
             <div className="flex flex-col gap-4 w-full max-w-md">
-                {/* 次のステージへ（勝利時のみ） */}
+                {/* 次のステージへ（勝利時かつbattleモードのみ） */}
                 {win && nextStage && (
                     <Link
-                        href={`/battle/${nextStage.id}`}
+                        href={`${modePaths.battlePrefix}/${nextStage.id}`}
                         className="btn btn-primary text-center text-lg py-4 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 border-emerald-600 shadow-lg shadow-emerald-200/50"
                     >
                         ➡️ {t("result_next_stage")}
@@ -193,13 +224,13 @@ function ResultContent() {
 
                 <div className="flex flex-col sm:flex-row gap-4">
                     <Link
-                        href={`/battle/${stageId}`}
+                        href={`${modePaths.battlePrefix}/${stageId}`}
                         className="btn btn-secondary text-center flex-1 text-lg py-4"
                     >
                         {t("result_retry")}
                     </Link>
                     <Link
-                        href="/stages"
+                        href={modePaths.stageSelect}
                         className="btn btn-primary text-center flex-1 text-lg py-4"
                     >
                         {t("result_select_stage")}
