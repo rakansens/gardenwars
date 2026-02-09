@@ -1,8 +1,9 @@
 import Phaser from 'phaser';
 import { Unit } from '../entities/Unit';
 import { eventBus, GameEvents } from '../utils/EventBus';
-import type { UnitDefinition, TowerDefenseStageDefinition, TowerDefenseWaveConfig } from '@/data/types';
+import type { UnitDefinition, TowerDefenseStageDefinition, TowerDefenseWaveConfig, Rarity } from '@/data/types';
 import { getSkillById } from '@/data/skills';
+import { getSpritePath } from '@/lib/sprites';
 
 // ============================================
 // Tower Defense Scene (2.5D Isometric)
@@ -64,7 +65,7 @@ export class TowerDefenseScene extends Phaser.Scene {
     private allWavesComplete: boolean = false;
     private gameSpeed: number = 1;
 
-    // グリッド
+    // グリッド（create時に自動計算）
     private tileWidth: number = 70;
     private tileHeight: number = 40;
     private gridOffsetX: number = 0;
@@ -132,23 +133,35 @@ export class TowerDefenseScene extends Phaser.Scene {
     }
 
     preload(): void {
-        // 全ユニットのアセットをロード
+        // sfx ロード
+        if (!this.cache.audio.exists('sfx_unit_spawn')) {
+            this.load.audio('sfx_unit_spawn', '/assets/audio/sfx/unit_spawn.mp3');
+        }
+
+        // 全ユニットのアセットをロード（getSpritePath使用）
         const loadedKeys = new Set<string>();
         for (const unit of this.allUnitsData) {
             const spriteId = unit.baseUnitId || unit.id;
             if (loadedKeys.has(spriteId)) continue;
             loadedKeys.add(spriteId);
 
+            // レアリティ判定（baseUnitIdがある場合は元ユニットのレアリティ使用）
+            let rarity: Rarity | undefined = unit.rarity as Rarity;
+            if (unit.baseUnitId) {
+                const baseUnit = this.allUnitsData.find(u => u.id === unit.baseUnitId);
+                if (baseUnit) rarity = baseUnit.rarity as Rarity;
+            }
+
             const atlasKey = `${spriteId}_atlas`;
             if (!this.textures.exists(atlasKey)) {
                 this.load.atlas(
                     atlasKey,
-                    `/assets/sprites/${spriteId}_sheet.png`,
-                    `/assets/sprites/${spriteId}.json`
+                    `/assets/sprites/sheets/${spriteId}_sheet.webp`,
+                    `/assets/sprites/sheets/${spriteId}.json`
                 );
             }
             if (!this.textures.exists(spriteId)) {
-                this.load.image(spriteId, `/assets/sprites/${spriteId}.png`);
+                this.load.image(spriteId, getSpritePath(spriteId, rarity));
             }
         }
     }
@@ -156,9 +169,30 @@ export class TowerDefenseScene extends Phaser.Scene {
     create(): void {
         const { width, height } = this.scale;
 
-        // グリッドオフセット計算（中央揃え）
+        // タイルサイズを画面に合わせて自動計算
+        const uiTopMargin = 45;
+        const uiBottomMargin = 140;
+        const availableHeight = height - uiTopMargin - uiBottomMargin;
+        const availableWidth = width; // マージンなし（アイソメは自然に余白ができる）
+
+        const gridCols = this.stageData.cols;
+        const gridRows = this.stageData.rows;
+
+        // アイソメトリック: 幅 = (cols + rows) * tw/2、高さ = (cols + rows) * th/2
+        const isoRatio = 0.55;
+        const span = gridCols + gridRows;
+
+        const twByWidth = (availableWidth * 2) / span;
+        const twByHeight = ((availableHeight * 2) / span) / isoRatio;
+
+        // 幅と高さの制約の小さい方を使う（100%フィル）
+        this.tileWidth = Math.min(twByWidth, twByHeight);
+        this.tileHeight = this.tileWidth * isoRatio;
+
+        // グリッドオフセット（中央揃え）
         this.gridOffsetX = width / 2;
-        this.gridOffsetY = 100;
+        const gridTotalH = span * (this.tileHeight / 2);
+        this.gridOffsetY = uiTopMargin + (availableHeight - gridTotalH) / 2;
 
         // 背景
         this.createBackground(width, height);

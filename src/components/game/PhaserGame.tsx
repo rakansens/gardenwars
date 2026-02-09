@@ -274,8 +274,8 @@ export default function PhaserGame({
             const isTD = mode === 'tower-defense';
             const isDungeon = mode === 'dungeon';
             const isMathBattle = mode === 'math-battle';
-            const gameWidth = (isArena || isTD) ? 675 : (isDungeon ? 900 : (isMathBattle ? 800 : 1200));
-            const gameHeight = (isArena || isTD) ? 1200 : (isDungeon ? 675 : (isMathBattle ? 600 : 675));
+            const gameWidth = isArena ? 675 : (isTD ? 675 : (isDungeon ? 900 : (isMathBattle ? 800 : 1200)));
+            const gameHeight = isArena ? 1200 : (isTD ? 900 : (isDungeon ? 675 : (isMathBattle ? 600 : 675)));
 
             const config: Phaser.Types.Core.GameConfig = {
                 type: isMobile ? Phaser.CANVAS : Phaser.AUTO,
