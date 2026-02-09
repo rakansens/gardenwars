@@ -61,14 +61,26 @@ export default function DungeonPage() {
     const [modalMode, setModalMode] = useState<"main" | "guard" | null>(null);
     const [initialized, setInitialized] = useState(false);
 
-    // 初回ロード時にプレイヤーユニットとガードをセット
+    // localStorage キー
+    const STORAGE_KEY_MAIN = "dungeon_main_unit";
+    const STORAGE_KEY_GUARDS = "dungeon_guards";
+
+    // 初回ロード時にプレイヤーユニットとガードをセット（localStorage優先）
     if (isLoaded && !initialized) {
         setInitialized(true);
-        // メインユニット
+
+        // --- メインユニット ---
         let picked: UnitDefinition | undefined;
-        if (selectedTeam.length > 0) {
+        // 1. localStorage
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY_MAIN);
+            if (saved) picked = playableUnits.find(u => u.id === saved);
+        } catch { /* SSR safe */ }
+        // 2. selectedTeam フォールバック
+        if (!picked && selectedTeam.length > 0) {
             picked = playableUnits.find(u => u.id === selectedTeam[0]);
         }
+        // 3. 所持ユニット
         if (!picked) {
             const ownedIds = Object.keys(unitInventory).filter(id => unitInventory[id] > 0);
             picked = playableUnits.find(u => ownedIds.includes(u.id));
@@ -76,12 +88,26 @@ export default function DungeonPage() {
         if (!picked) picked = playableUnits[0];
         if (picked) setPlayerUnit(picked);
 
-        // ガード（チームの2番目以降、なければ自動選択）
-        const guards: UnitDefinition[] = [];
-        for (let i = 1; i < selectedTeam.length && guards.length < MAX_GUARDS; i++) {
-            const u = playableUnits.find(pu => pu.id === selectedTeam[i]);
-            if (u) guards.push(u);
+        // --- ガード ---
+        let guards: UnitDefinition[] = [];
+        // 1. localStorage
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY_GUARDS);
+            if (saved) {
+                const ids = JSON.parse(saved) as string[];
+                guards = ids
+                    .map(id => playableUnits.find(u => u.id === id))
+                    .filter((u): u is UnitDefinition => !!u);
+            }
+        } catch { /* SSR safe */ }
+        // 2. selectedTeam フォールバック
+        if (guards.length === 0) {
+            for (let i = 1; i < selectedTeam.length && guards.length < MAX_GUARDS; i++) {
+                const u = playableUnits.find(pu => pu.id === selectedTeam[i]);
+                if (u) guards.push(u);
+            }
         }
+        // 3. 所持ユニットから自動選択
         if (guards.length === 0) {
             const ownedIds = Object.keys(unitInventory).filter(id => unitInventory[id] > 0);
             const owned = playableUnits.filter(u => ownedIds.includes(u.id) && u.id !== picked?.id);
@@ -102,23 +128,37 @@ export default function DungeonPage() {
         return translated !== unit.id ? translated : unit.name;
     };
 
+    // localStorage に編成を保存するヘルパー
+    const saveDungeonFormation = (main: UnitDefinition | null, guards: UnitDefinition[]) => {
+        try {
+            if (main) localStorage.setItem(STORAGE_KEY_MAIN, main.id);
+            localStorage.setItem(STORAGE_KEY_GUARDS, JSON.stringify(guards.map(g => g.id)));
+        } catch { /* SSR safe */ }
+    };
+
     const handleSelectUnit = (unit: UnitDefinition) => {
         if (modalMode === "main") {
             // メインユニットとして設定。ガードから外す
             setPlayerUnit(unit);
-            setGuardUnits(prev => prev.filter(g => g.id !== unit.id));
+            const newGuards = guardUnits.filter(g => g.id !== unit.id);
+            setGuardUnits(newGuards);
+            saveDungeonFormation(unit, newGuards);
         } else if (modalMode === "guard") {
             // ガードに追加（重複と上限チェック）
             if (guardUnits.length >= MAX_GUARDS) return;
             if (guardUnits.find(g => g.id === unit.id)) return;
             if (unit.id === playerUnit?.id) return;
-            setGuardUnits(prev => [...prev, unit]);
+            const newGuards = [...guardUnits, unit];
+            setGuardUnits(newGuards);
+            saveDungeonFormation(playerUnit, newGuards);
         }
         setModalMode(null);
     };
 
     const removeGuard = (index: number) => {
-        setGuardUnits(prev => prev.filter((_, i) => i !== index));
+        const newGuards = guardUnits.filter((_, i) => i !== index);
+        setGuardUnits(newGuards);
+        saveDungeonFormation(playerUnit, newGuards);
     };
 
     const buildStageUrl = (stageId: string) => {
