@@ -211,6 +211,8 @@ export class BattleScene extends Phaser.Scene {
         this.load.audio('boss_bgm_1', '/assets/audio/bgm/boss_1.mp3');
         this.load.audio('boss_bgm_2', '/assets/audio/bgm/boss_2.mp3');
         this.load.audio('boss_bgm_3', '/assets/audio/bgm/boss_3.mp3');
+        this.load.audio('boss_bgm_4', '/assets/audio/bgm/boss_4.mp3');
+        this.load.audio('boss_bgm_5', '/assets/audio/bgm/boss_5.mp3');
         this.load.audio('victory_bgm', '/assets/audio/bgm/victory.mp3');
         this.load.audio('defeat_bgm', '/assets/audio/bgm/defeat.mp3');
 
@@ -364,11 +366,15 @@ export class BattleScene extends Phaser.Scene {
         // 背景
         this.createBackground();
 
-        // BGMをランダムに選択して再生（ボスステージは専用BGM）
+        // BGMを選択して再生（ボスステージはステージ別の専用BGM）
         let bgmKey: string;
         if (this.stageData.isBossStage) {
-            const bossIndex = Math.floor(Math.random() * 3) + 1;
-            bgmKey = `boss_bgm_${bossIndex}`;
+            // ステージIDからボス番号を取得（boss_stage_1 → 1, boss_stage_2 → 2, ...）
+            const stageMatch = this.stageData.id.match(/boss_stage_(\d+)/);
+            const bossIndex = stageMatch ? parseInt(stageMatch[1], 10) : 1;
+            // boss_bgm_1〜5の範囲にクランプ
+            const clampedIndex = Math.max(1, Math.min(5, bossIndex));
+            bgmKey = `boss_bgm_${clampedIndex}`;
         } else {
             bgmKey = Math.random() < 0.5 ? 'battle_bgm_1' : 'battle_bgm_2';
         }

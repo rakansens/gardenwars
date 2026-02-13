@@ -161,9 +161,9 @@ export class RealtimeBattleScene extends Phaser.Scene {
     this.networkManager = data.networkManager;
     this.deck = data.deck || [];
     this.deckKey = this.deck.join('|');
-    this.onSummon = data.onSummon || (() => {});
-    this.onUpgradeCost = data.onUpgradeCost || (() => {});
-    this.onSpeedVote = data.onSpeedVote || (() => {});
+    this.onSummon = data.onSummon || (() => { });
+    this.onUpgradeCost = data.onUpgradeCost || (() => { });
+    this.onSpeedVote = data.onSpeedVote || (() => { });
 
     // サーバーのステージ長を反映
     this.stageLength = this.networkManager?.getState().stageLength ?? 1200;
@@ -183,6 +183,8 @@ export class RealtimeBattleScene extends Phaser.Scene {
     this.load.audio('boss_bgm_1', '/assets/audio/bgm/boss_1.mp3');
     this.load.audio('boss_bgm_2', '/assets/audio/bgm/boss_2.mp3');
     this.load.audio('boss_bgm_3', '/assets/audio/bgm/boss_3.mp3');
+    this.load.audio('boss_bgm_4', '/assets/audio/bgm/boss_4.mp3');
+    this.load.audio('boss_bgm_5', '/assets/audio/bgm/boss_5.mp3');
     this.load.audio('victory_bgm', '/assets/audio/bgm/victory.mp3');
     this.load.audio('defeat_bgm', '/assets/audio/bgm/defeat.mp3');
 
