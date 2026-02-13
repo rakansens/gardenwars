@@ -1395,12 +1395,16 @@ export class RealtimeBattleScene extends Phaser.Scene {
     const { width, height } = this.scale;
 
     // BGM停止して結果BGM再生
-    this.bgm?.stop();
+    if (this.bgm) {
+      this.bgm.stop();
+      this.bgm.destroy();
+      this.bgm = undefined;
+    }
     const resultBgmKey = isWinner ? 'victory_bgm' : 'defeat_bgm';
     if (this.cache.audio.exists(resultBgmKey) && isBgmEnabled()) {
       const resultVol = getBgmVolume(0.5);
-      const resultBgm = this.sound.add(resultBgmKey, { volume: resultVol });
-      resultBgm.play();
+      this.bgm = this.sound.add(resultBgmKey, { volume: resultVol }) as Phaser.Sound.WebAudioSound;
+      this.bgm.play();
     }
 
     this.phaseText.setVisible(true);
@@ -1455,7 +1459,7 @@ export class RealtimeBattleScene extends Phaser.Scene {
     }
     // 新しいBGMを作成する前に、既存のBGM系サウンドを停止
     this.sound.getAllPlaying().forEach(sound => {
-      if (sound.key.includes('battle_bgm')) {
+      if (sound.key.includes('bgm')) {
         sound.stop();
       }
     });

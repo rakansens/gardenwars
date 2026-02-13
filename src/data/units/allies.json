@@ -163,7 +163,7 @@
     "cost": 100,
     "maxHp": 1500,
     "speed": 20,
-    "attackDamage": 15,
+    "attackDamage": 35,
     "attackRange": 30,
     "attackCooldownMs": 3000,
     "attackWindupMs": 1000,
@@ -1403,7 +1403,7 @@
     "cost": 60,
     "maxHp": 800,
     "speed": 25,
-    "attackDamage": 20,
+    "attackDamage": 30,
     "attackRange": 35,
     "attackCooldownMs": 2500,
     "attackWindupMs": 800,
@@ -3785,7 +3785,12 @@
     "addedDate": "2026-02-02",
     "scale": 1.0,
     "atlasKey": "n_wind_chime_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "balanced"
   },
   {
@@ -3803,7 +3808,12 @@
     "addedDate": "2026-02-02",
     "scale": 1.1,
     "atlasKey": "n_dandelion_alpaca",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "tank"
   },
   {
@@ -3821,7 +3831,12 @@
     "addedDate": "2026-02-02",
     "scale": 0.95,
     "atlasKey": "n_macaron_peach_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "attacker"
   },
   {
@@ -3839,7 +3854,12 @@
     "addedDate": "2026-02-02",
     "scale": 1.0,
     "atlasKey": "n_cotton_candy_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "balanced"
   },
   {
@@ -3857,7 +3877,12 @@
     "addedDate": "2026-02-02",
     "scale": 1.15,
     "atlasKey": "n_snail_flower_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "tank"
   },
   {
@@ -3875,7 +3900,12 @@
     "addedDate": "2026-02-02",
     "scale": 1.0,
     "atlasKey": "n_seed_bag_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "attacker"
   },
   {
@@ -3893,7 +3923,12 @@
     "addedDate": "2026-02-02",
     "scale": 1.15,
     "atlasKey": "r_herbal_tea_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "balanced"
   },
   {
@@ -3911,7 +3946,12 @@
     "addedDate": "2026-02-02",
     "scale": 1.1,
     "atlasKey": "r_pressed_flower_book_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "ranger"
   },
   {
@@ -3929,7 +3969,12 @@
     "addedDate": "2026-02-02",
     "scale": 1.1,
     "atlasKey": "r_origami_crane_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "flying"
   },
   {
@@ -3947,7 +3992,12 @@
     "addedDate": "2026-02-02",
     "scale": 1.2,
     "atlasKey": "r_cloud_gardener_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "flying"
   },
   {
@@ -3965,7 +4015,12 @@
     "addedDate": "2026-02-02",
     "scale": 1.1,
     "atlasKey": "r_meringue_teacup_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "balanced"
   },
   {
@@ -3983,7 +4038,12 @@
     "addedDate": "2026-02-02",
     "scale": 1.15,
     "atlasKey": "r_jellyfish_flower_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "flying"
   },
   {
@@ -4001,7 +4061,12 @@
     "addedDate": "2026-02-02",
     "scale": 1.2,
     "atlasKey": "r_ladybug_rider_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "speedster"
   },
   {
@@ -4019,7 +4084,12 @@
     "addedDate": "2026-02-02",
     "scale": 1.25,
     "atlasKey": "r_berry_basket_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "tank"
   },
   {
@@ -4037,7 +4107,12 @@
     "addedDate": "2026-02-02",
     "scale": 1.1,
     "atlasKey": "r_sprinkler_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "ranger",
     "attackType": "area",
     "areaRadius": 60
@@ -4057,7 +4132,12 @@
     "addedDate": "2026-02-02",
     "scale": 1.1,
     "atlasKey": "r_garden_lady_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "balanced"
   },
   {
@@ -4076,7 +4156,12 @@
     "addedDate": "2026-02-02",
     "scale": 1.2,
     "atlasKey": "sr_amber_fossil_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "tank"
   },
   {
@@ -4095,7 +4180,12 @@
     "addedDate": "2026-02-02",
     "scale": 1.15,
     "atlasKey": "sr_music_box_ballerina_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "ranger"
   },
   {
@@ -4114,7 +4204,12 @@
     "addedDate": "2026-02-02",
     "scale": 1.25,
     "atlasKey": "sr_snow_globe_gardener_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "balanced"
   },
   {
@@ -4133,14 +4228,19 @@
     "addedDate": "2026-02-02",
     "scale": 1.2,
     "atlasKey": "sr_sakura_spirit_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "flying"
   },
   {
     "id": "sr_unicorn_flower_cat",
     "name": "Unicorn Flower Cat",
     "rarity": "SR",
-    "cost": 720,
+    "cost": 700,
     "maxHp": 900,
     "speed": 75,
     "attackDamage": 260,
@@ -4152,26 +4252,36 @@
     "addedDate": "2026-02-02",
     "scale": 1.3,
     "atlasKey": "sr_unicorn_flower_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "speedster"
   },
   {
     "id": "sr_vine_ninja_cat",
     "name": "Vine Ninja Cat",
     "rarity": "SR",
-    "cost": 750,
+    "cost": 700,
     "maxHp": 720,
     "speed": 90,
-    "attackDamage": 350,
+    "attackDamage": 300,
     "attackRange": 60,
-    "attackCooldownMs": 1200,
+    "attackCooldownMs": 1300,
     "attackWindupMs": 300,
     "knockback": 20,
     "spawnCooldownMs": 8000,
     "addedDate": "2026-02-02",
     "scale": 1.15,
     "atlasKey": "sr_vine_ninja_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "attacker"
   },
   {
@@ -4190,7 +4300,12 @@
     "addedDate": "2026-02-02",
     "scale": 1.25,
     "atlasKey": "sr_butterfly_fairy_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "flying"
   },
   {
@@ -4210,7 +4325,12 @@
     "addedDate": "2026-02-02",
     "scale": 1.4,
     "atlasKey": "ssr_neon_flower_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "ranger",
     "attackType": "area",
     "areaRadius": 70
@@ -4232,7 +4352,12 @@
     "addedDate": "2026-02-02",
     "scale": 1.35,
     "atlasKey": "ssr_glitch_sakura_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "speedster"
   },
   {
@@ -4252,7 +4377,12 @@
     "addedDate": "2026-02-02",
     "scale": 1.45,
     "atlasKey": "ssr_psychedelic_mandala_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "ranger",
     "attackType": "area",
     "areaRadius": 85
@@ -4274,7 +4404,12 @@
     "addedDate": "2026-02-02",
     "scale": 1.5,
     "atlasKey": "ssr_coral_mermaid_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "balanced"
   },
   {
@@ -4294,7 +4429,12 @@
     "addedDate": "2026-02-02",
     "scale": 1.4,
     "atlasKey": "ssr_fairy_queen_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "flying"
   },
   {
@@ -4314,7 +4454,12 @@
     "addedDate": "2026-02-02",
     "scale": 1.5,
     "atlasKey": "ur_aurora_mage_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "ranger",
     "attackType": "area",
     "areaRadius": 90
@@ -4336,7 +4481,12 @@
     "addedDate": "2026-02-02",
     "scale": 1.55,
     "atlasKey": "ur_stained_glass_lotus_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "balanced"
   },
   {
@@ -4356,7 +4506,12 @@
     "addedDate": "2026-02-02",
     "scale": 1.6,
     "atlasKey": "ur_phoenix_flame_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "flying",
     "attackType": "area",
     "areaRadius": 80
@@ -4378,9 +4533,666 @@
     "addedDate": "2026-02-02",
     "scale": 1.55,
     "atlasKey": "ur_rose_crystal_princess_cat",
-    "animKeys": { "idle": "idle", "walk": "walk", "attack": "attack", "die": "die" },
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
     "role": "ranger",
     "attackType": "area",
     "areaRadius": 95
+  },
+  {
+    "id": "ur_alien_mothership",
+    "name": "Alien Mothership",
+    "rarity": "UR",
+    "skillId": "chain_lightning",
+    "cost": 4200,
+    "maxHp": 9500,
+    "speed": 35,
+    "attackDamage": 3500,
+    "attackRange": 350,
+    "attackCooldownMs": 2400,
+    "attackWindupMs": 800,
+    "knockback": 80,
+    "spawnCooldownMs": 24000,
+    "addedDate": "2026-02-13",
+    "scale": 1.8,
+    "atlasKey": "ur_alien_mothership",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
+    "role": "ranger",
+    "attackType": "area",
+    "areaRadius": 120
+  },
+  {
+    "id": "ur_celestial_destroyer",
+    "name": "Celestial Destroyer",
+    "rarity": "UR",
+    "skillId": "burn",
+    "cost": 4500,
+    "maxHp": 8500,
+    "speed": 70,
+    "attackDamage": 4000,
+    "attackRange": 280,
+    "attackCooldownMs": 2000,
+    "attackWindupMs": 650,
+    "knockback": 90,
+    "spawnCooldownMs": 25000,
+    "addedDate": "2026-02-13",
+    "scale": 1.7,
+    "atlasKey": "ur_celestial_destroyer",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
+    "role": "attacker",
+    "isFlying": true,
+    "attackType": "area",
+    "areaRadius": 100
+  },
+  {
+    "id": "ur_eldritch_horror",
+    "name": "Eldritch Horror",
+    "rarity": "UR",
+    "skillId": "time_stop",
+    "cost": 4800,
+    "maxHp": 12000,
+    "speed": 25,
+    "attackDamage": 3200,
+    "attackRange": 300,
+    "attackCooldownMs": 2600,
+    "attackWindupMs": 850,
+    "knockback": 100,
+    "spawnCooldownMs": 28000,
+    "addedDate": "2026-02-13",
+    "scale": 1.9,
+    "atlasKey": "ur_eldritch_horror",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
+    "role": "tank",
+    "attackType": "area",
+    "areaRadius": 130
+  },
+  {
+    "id": "ur_hellfire_lord",
+    "name": "Hellfire Lord",
+    "rarity": "UR",
+    "skillId": "burn",
+    "cost": 4300,
+    "maxHp": 8000,
+    "speed": 65,
+    "attackDamage": 3800,
+    "attackRange": 260,
+    "attackCooldownMs": 1900,
+    "attackWindupMs": 600,
+    "knockback": 85,
+    "spawnCooldownMs": 23000,
+    "addedDate": "2026-02-13",
+    "scale": 1.7,
+    "atlasKey": "ur_hellfire_lord",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
+    "role": "attacker",
+    "attackType": "area",
+    "areaRadius": 95
+  },
+  {
+    "id": "ur_lightning_emperor",
+    "name": "Lightning Emperor",
+    "rarity": "UR",
+    "skillId": "chain_lightning",
+    "cost": 4600,
+    "maxHp": 7500,
+    "speed": 80,
+    "attackDamage": 4200,
+    "attackRange": 320,
+    "attackCooldownMs": 1800,
+    "attackWindupMs": 550,
+    "knockback": 75,
+    "spawnCooldownMs": 22000,
+    "addedDate": "2026-02-13",
+    "scale": 1.65,
+    "atlasKey": "ur_lightning_emperor",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
+    "role": "ranger",
+    "attackType": "piercing"
+  },
+  {
+    "id": "ur_crimson_king_cat",
+    "name": "Crimson King Cat",
+    "rarity": "UR",
+    "skillId": "critical_strike",
+    "cost": 4100,
+    "maxHp": 9000,
+    "speed": 60,
+    "attackDamage": 3600,
+    "attackRange": 250,
+    "attackCooldownMs": 2100,
+    "attackWindupMs": 700,
+    "knockback": 88,
+    "spawnCooldownMs": 24000,
+    "addedDate": "2026-02-13",
+    "scale": 1.75,
+    "atlasKey": "ur_crimson_king_cat",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
+    "role": "attacker",
+    "isFlying": true,
+    "attackType": "area",
+    "areaRadius": 85
+  },
+  {
+    "id": "ur_star_platinum_cat",
+    "name": "Star Platinum Cat",
+    "rarity": "UR",
+    "skillId": "time_stop",
+    "cost": 4400,
+    "maxHp": 7800,
+    "speed": 90,
+    "attackDamage": 4500,
+    "attackRange": 80,
+    "attackCooldownMs": 1400,
+    "attackWindupMs": 400,
+    "knockback": 95,
+    "spawnCooldownMs": 22000,
+    "addedDate": "2026-02-13",
+    "scale": 1.6,
+    "atlasKey": "ur_star_platinum_cat",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
+    "role": "attacker"
+  },
+  {
+    "id": "ur_demon_oni",
+    "name": "Demon Oni",
+    "rarity": "UR",
+    "skillId": "war_cry",
+    "cost": 3900,
+    "maxHp": 10000,
+    "speed": 50,
+    "attackDamage": 3400,
+    "attackRange": 70,
+    "attackCooldownMs": 1600,
+    "attackWindupMs": 500,
+    "knockback": 110,
+    "spawnCooldownMs": 21000,
+    "addedDate": "2026-02-13",
+    "scale": 1.6,
+    "atlasKey": "ur_demon_oni",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
+    "role": "tank"
+  },
+  {
+    "id": "ssr_lemon_dragon",
+    "name": "Lemon Dragon",
+    "rarity": "SSR",
+    "skillId": "burn",
+    "cost": 1900,
+    "maxHp": 4000,
+    "speed": 55,
+    "attackDamage": 1400,
+    "attackRange": 240,
+    "attackCooldownMs": 1800,
+    "attackWindupMs": 580,
+    "knockback": 55,
+    "spawnCooldownMs": 14000,
+    "addedDate": "2026-02-13",
+    "scale": 1.5,
+    "atlasKey": "ssr_lemon_dragon",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
+    "role": "ranger",
+    "attackType": "area",
+    "areaRadius": 80
+  },
+  {
+    "id": "ssr_cursed_samurai",
+    "name": "Cursed Samurai",
+    "rarity": "SSR",
+    "skillId": "critical_strike",
+    "cost": 1800,
+    "maxHp": 3600,
+    "speed": 75,
+    "attackDamage": 1600,
+    "attackRange": 80,
+    "attackCooldownMs": 1400,
+    "attackWindupMs": 420,
+    "knockback": 52,
+    "spawnCooldownMs": 12000,
+    "addedDate": "2026-02-13",
+    "scale": 1.45,
+    "atlasKey": "ssr_cursed_samurai",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
+    "role": "attacker"
+  },
+  {
+    "id": "ssr_dark_valkyrie",
+    "name": "Dark Valkyrie",
+    "rarity": "SSR",
+    "skillId": "divine_shield",
+    "cost": 2000,
+    "maxHp": 3800,
+    "speed": 70,
+    "attackDamage": 1300,
+    "attackRange": 200,
+    "attackCooldownMs": 1700,
+    "attackWindupMs": 520,
+    "knockback": 50,
+    "spawnCooldownMs": 13000,
+    "addedDate": "2026-02-13",
+    "scale": 1.5,
+    "atlasKey": "ssr_dark_valkyrie",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
+    "role": "flying",
+    "isFlying": true
+  },
+  {
+    "id": "ssr_giant_kraken",
+    "name": "Giant Kraken",
+    "rarity": "SSR",
+    "skillId": "frost_slow",
+    "cost": 2100,
+    "maxHp": 4500,
+    "speed": 40,
+    "attackDamage": 1200,
+    "attackRange": 260,
+    "attackCooldownMs": 2000,
+    "attackWindupMs": 650,
+    "knockback": 60,
+    "spawnCooldownMs": 15000,
+    "addedDate": "2026-02-13",
+    "scale": 1.6,
+    "atlasKey": "ssr_giant_kraken",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
+    "role": "tank",
+    "attackType": "area",
+    "areaRadius": 90
+  },
+  {
+    "id": "ssr_spider_queen",
+    "name": "Spider Queen",
+    "rarity": "SSR",
+    "skillId": "frost_slow",
+    "cost": 1700,
+    "maxHp": 3200,
+    "speed": 65,
+    "attackDamage": 1500,
+    "attackRange": 220,
+    "attackCooldownMs": 1600,
+    "attackWindupMs": 500,
+    "knockback": 48,
+    "spawnCooldownMs": 13000,
+    "addedDate": "2026-02-13",
+    "scale": 1.55,
+    "atlasKey": "ssr_spider_queen",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
+    "role": "attacker",
+    "attackType": "piercing"
+  },
+  {
+    "id": "ssr_gearmaster_nika",
+    "name": "GearMaster Nika",
+    "rarity": "SSR",
+    "skillId": "haste_aura",
+    "cost": 1850,
+    "maxHp": 3400,
+    "speed": 60,
+    "attackDamage": 1350,
+    "attackRange": 190,
+    "attackCooldownMs": 1500,
+    "attackWindupMs": 460,
+    "knockback": 45,
+    "spawnCooldownMs": 12500,
+    "addedDate": "2026-02-13",
+    "scale": 1.45,
+    "atlasKey": "ssr_gearmaster_nika",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
+    "role": "balanced"
+  },
+  {
+    "id": "ssr_dragon_warrior_cat",
+    "name": "Dragon Warrior Cat",
+    "rarity": "SSR",
+    "skillId": "last_stand",
+    "cost": 1750,
+    "maxHp": 3800,
+    "speed": 70,
+    "attackDamage": 1450,
+    "attackRange": 70,
+    "attackCooldownMs": 1300,
+    "attackWindupMs": 400,
+    "knockback": 55,
+    "spawnCooldownMs": 12000,
+    "addedDate": "2026-02-13",
+    "scale": 1.4,
+    "atlasKey": "ssr_dragon_warrior_cat",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
+    "role": "tank"
+  },
+  {
+    "id": "ssr_crazy_diamond_cat",
+    "name": "Crazy Diamond Cat",
+    "rarity": "SSR",
+    "skillId": "regeneration",
+    "cost": 1650,
+    "maxHp": 4200,
+    "speed": 55,
+    "attackDamage": 1100,
+    "attackRange": 60,
+    "attackCooldownMs": 1600,
+    "attackWindupMs": 500,
+    "knockback": 58,
+    "spawnCooldownMs": 13500,
+    "addedDate": "2026-02-13",
+    "scale": 1.45,
+    "atlasKey": "ssr_crazy_diamond_cat",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
+    "role": "tank"
+  },
+  {
+    "id": "sr_black_bear",
+    "name": "Black Bear",
+    "rarity": "SR",
+    "cost": 680,
+    "maxHp": 1500,
+    "speed": 50,
+    "attackDamage": 280,
+    "attackRange": 50,
+    "attackCooldownMs": 1500,
+    "attackWindupMs": 450,
+    "knockback": 40,
+    "spawnCooldownMs": 8500,
+    "addedDate": "2026-02-13",
+    "scale": 1.25,
+    "atlasKey": "sr_black_bear",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
+    "role": "tank"
+  },
+  {
+    "id": "sr_silver_chariot_cat",
+    "name": "Silver Chariot Cat",
+    "rarity": "SR",
+    "cost": 700,
+    "maxHp": 1100,
+    "speed": 80,
+    "attackDamage": 320,
+    "attackRange": 65,
+    "attackCooldownMs": 1300,
+    "attackWindupMs": 350,
+    "knockback": 30,
+    "spawnCooldownMs": 8000,
+    "addedDate": "2026-02-13",
+    "scale": 1.2,
+    "atlasKey": "sr_silver_chariot_cat",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
+    "role": "speedster"
+  },
+  {
+    "id": "sr_emerald_cat",
+    "name": "Emerald Cat",
+    "rarity": "SR",
+    "cost": 700,
+    "maxHp": 1300,
+    "speed": 65,
+    "attackDamage": 300,
+    "attackRange": 180,
+    "attackCooldownMs": 1600,
+    "attackWindupMs": 480,
+    "knockback": 35,
+    "spawnCooldownMs": 9000,
+    "addedDate": "2026-02-13",
+    "scale": 1.3,
+    "atlasKey": "sr_emerald_cat",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
+    "role": "ranger",
+    "attackType": "area",
+    "areaRadius": 75
+  },
+  {
+    "id": "ur_void_eye",
+    "name": "Void Eye",
+    "rarity": "UR",
+    "skillId": "time_stop",
+    "cost": 4700,
+    "maxHp": 11000,
+    "speed": 30,
+    "attackDamage": 3300,
+    "attackRange": 300,
+    "attackCooldownMs": 2500,
+    "attackWindupMs": 800,
+    "knockback": 95,
+    "spawnCooldownMs": 27000,
+    "addedDate": "2026-02-13",
+    "scale": 1.85,
+    "atlasKey": "ur_void_eye",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
+    "role": "tank",
+    "attackType": "area",
+    "areaRadius": 120
+  },
+  {
+    "id": "ur_ancient_eye",
+    "name": "Ancient Eye",
+    "rarity": "UR",
+    "skillId": "regeneration",
+    "cost": 4200,
+    "maxHp": 9500,
+    "speed": 45,
+    "attackDamage": 3500,
+    "attackRange": 250,
+    "attackCooldownMs": 2200,
+    "attackWindupMs": 700,
+    "knockback": 85,
+    "spawnCooldownMs": 24000,
+    "addedDate": "2026-02-13",
+    "scale": 1.75,
+    "atlasKey": "ur_ancient_eye",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
+    "role": "balanced",
+    "attackType": "area",
+    "areaRadius": 100
+  },
+  {
+    "id": "ur_cosmic_eye",
+    "name": "Cosmic Eye",
+    "rarity": "UR",
+    "skillId": "chain_lightning",
+    "cost": 4400,
+    "maxHp": 8000,
+    "speed": 60,
+    "attackDamage": 3800,
+    "attackRange": 320,
+    "attackCooldownMs": 1900,
+    "attackWindupMs": 600,
+    "knockback": 80,
+    "spawnCooldownMs": 23000,
+    "addedDate": "2026-02-13",
+    "scale": 1.7,
+    "atlasKey": "ur_cosmic_eye",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
+    "role": "ranger",
+    "attackType": "piercing"
+  },
+  {
+    "id": "ssr_tempest_eye",
+    "name": "Tempest Eye",
+    "rarity": "SSR",
+    "skillId": "burn",
+    "cost": 1900,
+    "maxHp": 3500,
+    "speed": 55,
+    "attackDamage": 1450,
+    "attackRange": 230,
+    "attackCooldownMs": 1700,
+    "attackWindupMs": 550,
+    "knockback": 52,
+    "spawnCooldownMs": 13000,
+    "addedDate": "2026-02-13",
+    "scale": 1.5,
+    "atlasKey": "ssr_tempest_eye",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
+    "role": "attacker",
+    "attackType": "area",
+    "areaRadius": 85
+  },
+  {
+    "id": "ssr_shadow_eye",
+    "name": "Shadow Eye",
+    "rarity": "SSR",
+    "skillId": "critical_strike",
+    "cost": 1600,
+    "maxHp": 3000,
+    "speed": 80,
+    "attackDamage": 1550,
+    "attackRange": 70,
+    "attackCooldownMs": 1300,
+    "attackWindupMs": 380,
+    "knockback": 45,
+    "spawnCooldownMs": 11000,
+    "addedDate": "2026-02-13",
+    "scale": 1.35,
+    "atlasKey": "ssr_shadow_eye",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
+    "role": "speedster"
+  },
+  {
+    "id": "ssr_rune_eye",
+    "name": "Rune Eye",
+    "rarity": "SSR",
+    "skillId": "frost_slow",
+    "cost": 1800,
+    "maxHp": 3800,
+    "speed": 50,
+    "attackDamage": 1300,
+    "attackRange": 250,
+    "attackCooldownMs": 1800,
+    "attackWindupMs": 600,
+    "knockback": 50,
+    "spawnCooldownMs": 14000,
+    "addedDate": "2026-02-13",
+    "scale": 1.45,
+    "atlasKey": "ssr_rune_eye",
+    "animKeys": {
+      "idle": "idle",
+      "walk": "walk",
+      "attack": "attack",
+      "die": "die"
+    },
+    "role": "ranger",
+    "attackType": "area",
+    "areaRadius": 80
   }
 ]

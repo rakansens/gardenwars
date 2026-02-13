@@ -143,6 +143,10 @@ export default function UnitAnimationPreview({
                         // SSR units (2026-02)
                         "ssr_neon_flower_cat", "ssr_glitch_sakura_cat", "ssr_psychedelic_mandala_cat",
                         "ssr_coral_mermaid_cat", "ssr_fairy_queen_cat",
+                        // SSR eye units (2026-02)
+                        "ssr_tempest_eye", "ssr_shadow_eye", "ssr_rune_eye",
+                        // UR eye units (2026-02)
+                        "ur_void_eye", "ur_ancient_eye", "ur_cosmic_eye",
                         // R units batch 1
                         "r_apple_scholar", "r_bamboo_samurai_cat", "r_berry_basket_cat", "r_broccoli", "r_cactus_cowboy",
                         "r_cactus_guardian", "r_capybara_gardener", "r_capybara_spa", "r_chainsaw_gardener", "r_cherry",

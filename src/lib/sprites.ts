@@ -48,6 +48,8 @@ export const ANIMATED_UNITS = [
     // New SSR units (2026-02)
     'ssr_neon_flower_cat', 'ssr_glitch_sakura_cat', 'ssr_psychedelic_mandala_cat',
     'ssr_coral_mermaid_cat', 'ssr_fairy_queen_cat',
+    // New SSR eye units (2026-02)
+    'ssr_tempest_eye', 'ssr_shadow_eye', 'ssr_rune_eye',
     // UR ユニット
     'ur_knight', 'ur_mage', 'ur_archer', 'ur_tank', 'ur_ninja', 'ur_healer',
     'ur_dragon', 'ur_spirit', 'ur_phoenix', 'ur_golem', 'ur_angel', 'ur_ancient_treant',
@@ -61,6 +63,8 @@ export const ANIMATED_UNITS = [
     'ur_cosmic_tiger', 'ur_botanical_gundam', 'ur_fairy_knight', 'ur_golden_paladin', 'ur_overlord_rose',
     // New UR units (2026-02)
     'ur_aurora_mage_cat', 'ur_stained_glass_lotus_cat', 'ur_phoenix_flame_cat', 'ur_rose_crystal_princess_cat',
+    // New UR eye units (2026-02)
+    'ur_void_eye', 'ur_ancient_eye', 'ur_cosmic_eye',
     // Boss units (World 1)
     'boss_tutorial', 'boss_easy', 'boss_normal', 'boss_hard', 'boss_extreme', 'boss_nightmare', 'boss_frozen',
     // Boss units (World 2)

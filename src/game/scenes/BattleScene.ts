@@ -758,7 +758,9 @@ export class BattleScene extends Phaser.Scene {
             'ssr_rose_gunslinger', 'ssr_phantom_masquerade', 'ssr_cyber_rose',
             // New SSR units (2026-02)
             'ssr_neon_flower_cat', 'ssr_glitch_sakura_cat', 'ssr_psychedelic_mandala_cat',
-            'ssr_coral_mermaid_cat', 'ssr_fairy_queen_cat'
+            'ssr_coral_mermaid_cat', 'ssr_fairy_queen_cat',
+            // New SSR eye units (2026-02)
+            'ssr_tempest_eye', 'ssr_shadow_eye', 'ssr_rune_eye'
         ];
         ssrUnits.forEach(unit => {
             this.anims.create({
@@ -804,7 +806,9 @@ export class BattleScene extends Phaser.Scene {
             // New UR units (2025-01)
             'ur_cosmic_tiger', 'ur_botanical_gundam', 'ur_fairy_knight', 'ur_golden_paladin', 'ur_overlord_rose',
             // New UR units (2026-02)
-            'ur_aurora_mage_cat', 'ur_stained_glass_lotus_cat', 'ur_phoenix_flame_cat', 'ur_rose_crystal_princess_cat'
+            'ur_aurora_mage_cat', 'ur_stained_glass_lotus_cat', 'ur_phoenix_flame_cat', 'ur_rose_crystal_princess_cat',
+            // New UR eye units (2026-02)
+            'ur_void_eye', 'ur_ancient_eye', 'ur_cosmic_eye'
         ];
         urUnits.forEach(unit => {
             this.anims.create({
@@ -2028,15 +2032,19 @@ export class BattleScene extends Phaser.Scene {
         this.gameState = win ? 'WIN' : 'LOSE';
 
         // BGMを停止して結果BGMを再生
-        this.bgm?.stop();
+        if (this.bgm) {
+            this.bgm.stop();
+            this.bgm.destroy();
+            this.bgm = undefined;
+        }
         const resultBgmKey = win ? 'victory_bgm' : 'defeat_bgm';
         try {
             // オーディオがロードされているか確認
             if (this.cache.audio.exists(resultBgmKey) && isBgmEnabled()) {
                 console.log(`[BattleScene] Playing result BGM: ${resultBgmKey}`);
                 const resultBgmVolume = getBgmVolume(0.5);
-                const resultBgm = this.sound.add(resultBgmKey, { volume: resultBgmVolume });
-                resultBgm.play();
+                this.bgm = this.sound.add(resultBgmKey, { volume: resultBgmVolume }) as Phaser.Sound.WebAudioSound;
+                this.bgm.play();
             } else {
                 console.warn(`[BattleScene] Audio not loaded or disabled: ${resultBgmKey}`);
             }
