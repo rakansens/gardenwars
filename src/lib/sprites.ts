@@ -39,6 +39,8 @@ export const ANIMATED_UNITS = [
     // New SR units (2026-02) batch 4
     'sr_snow_globe_gardener_cat', 'sr_thorn_beast_cat', 'sr_thorn_reaper_cat', 'sr_unicorn_flower_cat',
     'sr_vine_evangelion', 'sr_vine_ninja_cat', 'sr_vine_warlock', 'sr_wasteland_merc',
+    // New SR units (2026-02) - batch 5
+    'sr_black_bear', 'sr_silver_chariot_cat', 'sr_emerald_cat',
     // SSR ユニット
     'flame_knight', 'ice_samurai', 'shadow_assassin', 'thunder_golem',
     // New SSR units (2025-01)
@@ -48,6 +50,9 @@ export const ANIMATED_UNITS = [
     // New SSR units (2026-02)
     'ssr_neon_flower_cat', 'ssr_glitch_sakura_cat', 'ssr_psychedelic_mandala_cat',
     'ssr_coral_mermaid_cat', 'ssr_fairy_queen_cat',
+    // New SSR units (2026-02) - batch 2
+    'ssr_lemon_dragon', 'ssr_cursed_samurai', 'ssr_dark_valkyrie', 'ssr_giant_kraken',
+    'ssr_spider_queen', 'ssr_gearmaster_nika', 'ssr_dragon_warrior_cat', 'ssr_crazy_diamond_cat',
     // New SSR eye units (2026-02)
     'ssr_tempest_eye', 'ssr_shadow_eye', 'ssr_rune_eye',
     // UR ユニット
@@ -63,6 +68,9 @@ export const ANIMATED_UNITS = [
     'ur_cosmic_tiger', 'ur_botanical_gundam', 'ur_fairy_knight', 'ur_golden_paladin', 'ur_overlord_rose',
     // New UR units (2026-02)
     'ur_aurora_mage_cat', 'ur_stained_glass_lotus_cat', 'ur_phoenix_flame_cat', 'ur_rose_crystal_princess_cat',
+    // New UR units (2026-02) - batch 2
+    'ur_alien_mothership', 'ur_celestial_destroyer', 'ur_eldritch_horror', 'ur_hellfire_lord',
+    'ur_lightning_emperor', 'ur_crimson_king_cat', 'ur_star_platinum_cat', 'ur_demon_oni',
     // New UR eye units (2026-02)
     'ur_void_eye', 'ur_ancient_eye', 'ur_cosmic_eye',
     // Boss units (World 1)
